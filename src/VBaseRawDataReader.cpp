@@ -399,7 +399,7 @@ uint8_t VBaseRawDataReader::getSample( unsigned channel, unsigned sample, bool i
     if( finjectGaussianNoise > 0. && fRandomInjectGaussianNoise && !getHiLo( channel ) )
     {
         double iNoiseGaus = fRandomInjectGaussianNoise->Gaus(  0., finjectGaussianNoise );
-        if( iSampleValue < 256 && iSampleValue + iNoiseGaus < 256 )
+        if( iSampleValue + iNoiseGaus < 256 )
         {
             return iSampleValue + iNoiseGaus;
         }

@@ -816,6 +816,6 @@ int main( int argc, char* argv[] )
     
     fData->terminate();
     
-    return true;
+    return 0;
 }
 
