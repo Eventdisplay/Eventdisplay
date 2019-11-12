@@ -258,6 +258,7 @@ endif
 ########################################################
 ifneq ($(HESSIO),FALSE)
 HESSIOINCLUDEFLAGS = -I $(HESSIOSYS)/include/
+ifeq ($(strip $(HESSIOCFLAGS)),)
 #CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_MAX
 # 2010 PROD1 production
 # CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_ULTRA
@@ -284,6 +285,9 @@ CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3_MERGE
 # CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_MAX
 # HD produced files (prod3)
 # CXXFLAGS        += $(HESSIOINCLUDEFLAGS)  -DCTA -DCTA_MAX_SC -mcmodel=large 
+else
+CXXFLAGS        += $(HESSIOINCLUDEFLAGS) $(HESSIOCFLAGS)
+endif
 endif
 ########################################################
 # profiler (gperftools)
@@ -332,8 +336,17 @@ CTA:	evndisp \
 	writeCTAWPPhysSensitivityFiles \
 	writeCTAWPPhysSensitivityTree \
 	writeParticleRateFilesFromEffectiveAreas \
+	smoothLookupTables
+
+CTAsens:	mscw_energy \
+	makeEffectiveArea \
 	smoothLookupTables \
-	extrasMessage doneMessage
+	trainTMVAforGammaHadronSeparation \
+	trainTMVAforAngularReconstruction \
+	writeCTAWPPhysSensitivityFiles \
+	writeCTAWPPhysSensitivityTree \
+	writeParticleRateFilesFromEffectiveAreas \
+	printRunParameter
 
 CTAsens:	mscw_energy \
 	makeEffectiveArea \
