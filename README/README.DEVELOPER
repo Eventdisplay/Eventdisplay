@@ -1,0 +1,44 @@
+
+Please contact Gernot Maier for coordination before starting any significant development.
+
+svn
+===
+
+## svn checkout of EVNDISP
+
+svn checkout https://svnsrv.desy.de/desy/EVNDISP
+
+## svn: creating your own svn branch
+
+svn copy  https://svnsrv.desy.de/desy/EVNDISP/trunk https://svnsrv.desy.de/desy/EVNDISP/branches/my-dev-400 -m 'test of how to create a branch'
+
+## svn: tagging
+
+svn copy https://svnsrv.desy.de/desy/EVNDISP/trunk https://svnsrv.desy.de/desy/EVNDISP/tags/my-tag -m 'tag something'
+
+## svn: merging branch to trunk
+
+svn merge --reintegrate https://svnsrv.desy.de/desy/EVNDISP/branches/my-dev
+
+## svn: merge trunk to branch
+
+svn merge https://svnsrv.desy.de/desy/EVNDISP/trunk
+
+Source code formatting
+======================
+
+astyle is used for source code formatting since 03/2014
+http://astyle.sourceforge.net/
+
+Usage:
+
+do either
+ make formatSourceCode
+ or
+  astyle  --options=./.astylerc <.cpp, .h or .C file> 
+
+All options are saved in the .astylerc file.
+
+Note: svn will report many differences after applying astyle. To ignore all changes in white spaces, use:
+
+svn diff -x "-w --ignore-eol-style" <file name>

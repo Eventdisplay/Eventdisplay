@@ -1,0 +1,110 @@
+
+mscw_energy: calculation of mean scaled width and length, and energy with lookup tables
+---------------------------------------------------------------------------------------
+
+Input data must be in form of evndisp result files (ROOT files produced by evndisp)
+
+Output is 
+   i)  for filling table mode: a lookup table
+   ii) for analysing mode:     a ROOT file with MSCW/MSCL/Energy, etc per event ( .mscw.root )
+
+--------------------------------------------
+
+command line parameters:
+
+general parameters: 
+	 -arrayrecid=0/1/... 	 choose evendisplay array reconstruction record (default 0)
+	 -inputfile FILE 	 evndisp root file as input (wildcards possible use, -inputfile "YOUR_DATA_DIRECTORY/*.root")
+	 -inputfilelist FILELIST list of evndisp root file as input (wildcards possible use, -inputfile "YOUR_DATA_DIRECTORY/*.root")
+	 			 (simple text file)
+         -use_tgrad_tables       use lookup tables for time gradient (optional)
+         -use_frogs_tables       use lookup tables for FROGS analysis (optional)
+
+[CTA]    -pe                     input data is in pe's (not in [dc])
+
+table filling:
+
+	 -filltables=1           flag to indicate that tables should be filled
+	 -tablefile FILE 	 root file with all the tables (existing files are updated)
+	 -ze=FLOAT       	 zenith angle of simulations
+	 -woff=FLOAT      	 wobble offset of simulations [deg]
+	 -noise=NINT     	 mean pedestal variance x 100 (integer value; used to set the right directory structure)
+	 -CTAoffAxisBins         use CTA off-axis bins (note: hardwired in VTableLookupRunParameter::setCTA_MC_offaxisBins() )
+         -spectralIndex=<float>  re-weight events according to the given power-law spectral index
+
+table reading:
+
+	 -outputfile FILE 	 name of output file
+	 -tablefile FILE 	 file with lookup tables
+	                 	 (see file "Where-to-find-tables" to get existing lookup tables)
+
+For additional optional options, see further below.
+
+--------------------------------------------
+
+Lookup table files:
+	
+	lookup table files are expected to be in 
+	$VERITAS_EVNDISP_AUX_DIR/Tables/
+
+--------------------------------------------
+
+EXAMPLES: 
+
+ i) using a eventdisplay output file called 33072.root and a table file called table_ID00.root
+
+      mscw_energy -tablefile table_ID00.root -inputfile 33072.root
+
+      this produces an output file called 33072.mscw.root with mscw, mscl, and energy assign for each event
+
+  ii) using a eventdisplay output file called 33072.root for array reconstruction ID 8 and table file table_ID8.root
+
+      mscw_energy -tablefile table_ID8root -inputfile 33072.root -arrayrecid=8
+
+      this produces an output file called 33072.mscw.root with mscw, mscl, and energy assign for each event
+
+ iii) using a bunch of simulations files (say runnumbers 521000 to 5210010)
+
+      mscw_energy -tablefile table.root -inputfile "52100[0-1].root" -outputfile simu.mscw.root
+
+==========================================================================================
+
+Additional options for table filling:
+
+	 -debug=UINT             debug output level (0=default, 1=low, 2=high)
+	 -minshowerperbin=INT    minimum number of showers per bin required for analysis (default=5)
+	 -write1DHistograms 	 write 1D-histograms for median determination to disk (default off)
+	 -selectRandom=[0,1] 	 selected events randomly (give probability)
+	 -selectRandomSeed=INT 	 set seed for random select (default=17)
+	 -mindistancetocameracenter=FLOAT  minimum distance of events from camera center (MC distance, default = -1.e10)
+	 -maxdistancetocameracenter=FLOAT  maximum distance of events from camera center (MC distance, default =  1.e10)
+	 -minImages=INT          minimum number of images required per event (comparator geq, default=2)
+
+Additional options for table reading:
+
+	 -noNoTrigger 		 don't fill events without array trigger into output tree [RECOMMENDED VALUE FOR MC]
+	 -writeReconstructedEventsOnly	 write only reconstructed events to output tree   [RECOMMENDED VALUE FOR MC]
+	 -shorttree 		 write only a short version of the output tree to disk (switch of -noshorttree)
+
+	 -maxnevents=INT         maximum number of events to read from eventdisplay file (default=all)
+	 -maxruntime=FLOAT       maximum amount of time in this run to analyse in [s]
+	 -nomctree               do not copy MC tree to mscw output file
+         -qualitycutlevel=<int>  set cut level for reconstruction (0=default, 1=strict)
+
+Additional options for CTA only:
+       
+     -redo_stereo_reconstruction redo stereo (direction and core) using VArrayAnalyzer::rcs_method_4
+                                  (important: use for MC only; this is a simplified version of
+                                  VArrayAnalyzer::rcs_method_4; does not take into account pointing
+                                   offsets as determined e.g. by the VPM)
+     -sub_array_sim_telarray_counting <sub arrray file> allow to remove and reweight telescopes in the
+                                                        stereo reconstruction
+     -teltypeweightfile <weight file> list of weights for stereo reconstruction (telescope type dependent)
+
+print run parameters for an existing mscw file
+
+	 -printrunparameters FILE 	 
+
+----------------------------------------------
+
+Please report any problems and bugs to Gernot Maier or Jamie Holder

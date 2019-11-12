@@ -1,0 +1,92 @@
+#!/bin/bash
+#####################################
+# display data files with eventdisplay
+#
+#
+#####################################
+
+
+#####################################
+## HARDCODED VAVLUES
+#####################################
+#### display prod2 sims
+ACUT="EVNDISP.prod2.reconstruction.runparameter.v2"
+ACUT="EVNDISP.prod2.reconstruction.runparameter"
+OPT="-display=1 -reconstructionparameter $ACUT"
+# OPT="-display=1 -plotmethod=0 -ignoredstgains -reconstructionparameter $ACUT"
+# OPT="-display=1 -plotmethod=0 -reconstructionparameter $ACUT -averagetzerofiducialradius=0.5 -l2setspecialchannels nofile"
+#### time NN cleaning
+# ACUT="EVNDISP.prod2.TIMENEXTNEIGHBOUR.reconstruction.runparameter"
+# OPT="-display=1 -highres -plotmethod=0 -ignoredstgains -reconstructionparameter $ACUT -NNcleaninginputcard /lustre/fs9/group/cta/users/maierg/CTA/analysis/AnalysisData/TIMENEXTNEIGHBOUR/Evtdisp.rc.v2"
+#### display prod1 sims
+# ACUT="EVNDISP.prod1.reconstruction.runparameter"
+# OPT="-display=1 -plotmethod=0 -reconstructionparameter $ACUT -averagetzerofiducialradius=0.5 -l2setspecialchannels nofile"
+#####################################
+## END OF HARDCODED VAVLUES
+#####################################
+
+if [ ! -n "$1" ] || [ ! -n "$2" ] || [ "$1" = "-h" ]
+then
+   echo
+   echo "CTA.EVNDISP.display <telescope number> <sourcefile> [runnumber] "
+   echo
+   echo "display file and write results to file runnumber.root"
+   echo
+   echo "required parameters:"
+   echo 
+   echo "    <telescope number>      use 1 for telescope 1, 13 for telescope 1 and 3 only, etc."
+   echo "                            use -1 for all telescopes"
+   echo "                            (default telescope combination is 1234)"
+   echo "    <sourcefile>            converted simtel file (VDST.root)"
+   echo 
+   echo "optional parameter:"
+   echo 
+   echo "    [runnumber]             runnumber (can be different from actual runnnumber)"
+   echo
+   echo "example:"
+   echo
+   echo "    CTA.EVNDISP.display -1 gamma_20deg_90deg_run4405___cta-ultra3_desert.simtel.root"
+   echo
+   echo "----------------------------------------------------------------------------------------"
+   exit
+fi
+
+# checking the path for binaries
+if [ -z $EVNDISPSYS ]
+then
+    echo "no EVNDISPSYS env variable defined"
+    exit
+fi
+# make sure the CTA variables are set
+source $EVNDISPSYS/setObservatory.sh CTA
+
+# telescope to analyze
+if [ $1 != "-1" ]
+then
+  OPT="$OPT -teltoana=$1"
+fi
+
+# check if source file exists
+if [ ! -e $2 ]
+then
+   echo
+   echo "ERROR: source file not found: $2"
+   echo
+   exit
+fi
+OPT="$OPT -sourcefile $2"
+
+# set run number (optional)
+if [ -n "$3" ]
+then
+   OPT="-runnumber=$3 $OPT"
+fi
+
+#########################
+# NOW START EVENTDISPLAY
+#########################
+
+echo "$EVNDISPSYS/bin/evndisp $OPT"
+$EVNDISPSYS/bin/evndisp $OPT 
+
+exit

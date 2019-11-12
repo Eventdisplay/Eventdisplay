@@ -1,0 +1,87 @@
+EVENTDISPLAY - IACT event analysis and display - CTA analysis
+=============================================================
+
+Please check the manual for all details: ./doc/Manual.pdf
+
+DESCRIPTION BELOW MIGHT BE OUTDATED
+
+General concept
+===============
+
+To use Eventdisplay for CTA analyses, you first have to convert the simtel.gz file into ROOT format. 
+This you have to do for each subarray separately.
+Afterwards you can analyse this subarray file running Eventdisplay in the standard way, which means:
+
+i)   EVNDISPSYS/bin/CTA.convert_hessio_to_VDST
+        Convert simtel.gz files into ROOT format
+
+ii)  EVNDISPSYS/bin/eventdisplay
+	ImageCleaning & Calculation of telescope parameters & Reconstruction of the direction
+
+iii) EVNDISPSYS/bin/mscw_energy
+        Use lookup tables to estimate the energy
+
+iv)  EVNDISPSYS/bin/makeEffectiveArea
+        Make effective areas
+
+v)   EVNDISPSYS/bin/writeCTAWPPhysSensitivityFiles
+        write CTA sensitivity curves
+
+(For most of the stuff there are scripts to run the analysis on the DESY batch system. Use them to simplify your life!)
+
+Analysis
+========
+
+NOTE:
+By converting a CTA.simtel.gz file into evndisp.root format you have to specify a subarray!
+EVNDISP is not able to handle the complete 275 telescopes at once, the maximum is 100 telescopes.
+
+Step 1: Converter
+-----------------
+
+EVNDISPSYS/bin/CTA.convert_hessio_to_VDST
+
+(run it to all the possible inputparameter)
+
+Step 2: Display (event-by-event)
+--------------------------------
+
+EVNDISPSYS/bin/evndisp
+
+e.g. 
+
+$EVNDISPSYS/bin/evndisp -display=1 -highres -useFixedThresholds -imagethresh=10.0 -borderthresh=5.0 -sourcefile $CTA_USER_DATA_DIR/simtel.root
+
+or better: use the script provided: scripts/CTA/CTA.EVNDISP.display
+
+Step 1 & 2 combined [USE]
+-------------------------
+
+Run the converter and Eventdisplay for a specific subarray: use script $EVNDISPSYS/scripts/CTA/CTA.EVNDISP.sub_convert_and_analyse_MC_VDST.sh
+
+NOTE: The image cleaning thresholds can be specified in the file $CTA_EVNDISP_AUX_DIR/ParameterFiles/EVNDISP.reconstruction.runparameter file either
+for all telescopes to the same values or for each telescope type seperately. 
+
+Step 3: mscw_energy
+-------------------
+
+If you use standard configurations maybe some lookup tables already exist (ask Gernot or Heike where you could find them).
+
+If not, you have to create them yourself with
+
+$EVNDISPSYS/scripts/CTA/CTA.MSCW_ENERGY.sub_make_tables.sh
+
+If you have your lookup tables you have to run mscw_energy for estimating the energy of each event: 
+
+$EVNDISPSYS/scripts/CTA/CTA.MSCW_ENERGY.sub_analyse_MC.sh
+
+Step 4: Effective Areas
+-----------------------
+
+To calculate effective areas, look at:
+
+$EVNDISPSYS/scripts/CTA/CTA.EFFAREA.sub_analyse.sh
+
+For the first time you have to use mscw files as input since MCpars has to be analysed once. 
+If you change your cuts afterwards (but not the number of input files) you can use the faster version by using
+the effective area file as input (helps a lot for protons).

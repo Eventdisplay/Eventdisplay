@@ -1,0 +1,51 @@
+#######################
+# Prod3 analysis
+#######################
+#
+
+# Pedestal calculation
+
+./bin/CTA.convert_hessio_to_VDST  -a $CTA_EVNDISP_AUX_DIR/DetectorGeometry/CTA.prod3S.ped.list -f 2 -o ped.dst.root /afs/ifh.de/group/cta/scratch/prokoph/forGM/gamma_20deg_180deg_run18___cta-prod3-demo_desert-2150m-Paranal.simtel.gz
+
+
+ ./bin/evndisp -sourcefile $CTA_USER_DATA_DIR/analysis/AnalysisData/prod3-Calibration/prod3.peds.20150807b.dst.root -runmode=1   -singlepedestalrootfile=1   -donotusepeds -usePedestalsInTimeSlices=0  -calibrationsumwindow=8 -calibrationsumfirst=0 -ignoredstgains -reconstructionparameter EVNDISP.prod3.reconstruction.runparameter.NN -nopedestalsintimeslices -nevents=10 -combine_pedestal_channels
+
+
+# convert
+./bin/CTA.convert_hessio_to_VDST -a /lustre/fs5/group/cta/users/maierg/EVNDISP_AnalysisFiles.svn/trunk/CTA/DetectorGeometry/CTA.prod3S.3HB1-FG.lis  -f 2 -o 3HB1-FG.dst.root  -c /lustre/fs9/group/cta/users/maierg/CTA/analysis/AnalysisData/prod3-Calibration/prod3.peds.20150817.dst.root /lustre/fs18/group/cta/prod3/grid/gamma_20deg_180deg_run5000___cta-prod3-merged_desert-2150m--subarray-2-nosct.simtel.gz
+
+# display
+#
+./bin/evndisp -display=1 -sourcefile 3HB1-FG.dst.root -averagetzerofiducialradius=0.5 -shorttree -l2setspecialchannels nofile -writenoMCTree -reconstructionparameter EVNDISP.prod3.reconstruction.runparameter.NN -NNcleaninginputcard EVNDISP.NNcleaning.dat
+
+./bin/evndisp -display=1 -sourcefile $CTA_USER_DATA_DIR/3HB1-FG.dst.root -averagetzerofiducialradius=0.5 -shorttree -l2setspecialchannels nofile -writenoMCTree -reconstructionparameter EVNDISP.prod3.reconstruction.runparameter.NN -NNcleaninginputcard EVNDISP.NNcleaning.dat -ignoredstgains
+
+./bin/evndisp -display=1 -sourcefile $CTA_USER_DATA_DIR/3HB1-NA-1.dst.root -averagetzerofiducialradius=0.5 -shorttree -l2setspecialchannels nofile -writenoMCTree -reconstructionparameter EVNDISP.prod3.reconstruction.runparameter.NN -NNcleaninginputcard EVNDISP.NNcleaning.dat -ignoredstgains
+
+#######################
+# Prod2 analysis
+#######################
+
+# calculation of pedestals from a file with long NSB traces
+#
+
+first: change maximum number of telescopes in VGlobalRunParameters.h: 
+
+-#define VDST_MAXTELESCOPES  100    // maximum number of telescopes
++#define VDST_MAXTELESCOPES  170    // maximum number of telescopes
+
+recompile:
+
+make clean
+make
+
+# calculate pedestals:
+
+./bin/evndisp -sourcefile /lustre/fs9/group/cta/users/maierg/CTA/analysis/AnalysisData/prod2-Aar/Calibration/AarLongTraces.dst.root -runmode=1   -singlepedestalrootfile=1   -donotusepeds -usePedestalsInTimeSlices=0  -calibrationsumwindow=30 -calibrationsumfirst=0 -ignoredstgains -reconstructionparameter EVNDISP.prod2-noDoublepass.reconstruction.runparameter  -nopedestalsintimeslices
+
+# updated: 2015-06-23
+./bin/evndisp -sourcefile /lustre/fs9/group/cta/users/maierg/CTA/analysis/AnalysisData/prod2-Aar/Calibration/AarLongTraces.dst.root -runmode=1   -singlepedestalrootfile=1   -donotusepeds -usePedestalsInTimeSlices=0  -calibrationsumwindow=8 -calibrationsumfirst=0 -ignoredstgains -reconstructionparameter EVNDISP.prod2-noDoublepass.reconstruction.runparameter  -nopedestalsintimeslices -nevents=100 -combine_pedestal_channels 
+
+# convert an eventdisplay file:
+
+ ./bin/CTA.convert_hessio_to_VDST --max-events 10 -c /lustre/fs9/group/cta/users/maierg/CTA/analysis/Calibration/peds.root -a $CTA_EVNDISP_AUX_DIR/DetectorGeometry/CTA.prod2S.2e.lis -f 1 -o tt.dst.root /lustre/fs16/group/cta/prod2/Aar2014-20deg/STD/gamma_20deg_0deg_run31949___cta-prod2_desert-1640m-Aar.simtel.gz

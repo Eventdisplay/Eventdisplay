@@ -1,0 +1,32 @@
+### Submission Commands ###
+# Select the desired submission command by placing an
+# asterisk and space in front of it; if multiple commands
+# are asterisked, the last command will be used
+###
+
+# Choose this if you don't have access to a batch farm nor an installation of GNU parallel
+ simple
+
+# generic qsub with logging
+  qsub -V -terse -o $LOGDIR/ -e $LOGDIR/
+
+# DESY batch farm
+  qsub -R y -V -terse -l os=sl7 -l h_cpu=$h_cpu -l h_rss=$h_vmem -l tmpdir_size=$tmpdir_size -o $LOGDIR/ -e $LOGDIR/
+  qsub -js 99 -R y -V -terse -l h_cpu=$h_cpu -l h_rss=$h_vmem -l tmpdir_size=$tmpdir_size -o $LOGDIR/ -e $LOGDIR/
+
+# DESY batch farm -- high priority
+* qsub -P cta_high -js 1 -V -terse -l os=sl7 -l h_cpu=$h_cpu -l h_rss=$h_vmem -l tmpdir_size=$tmpdir_size -o $LOGDIR/ -e $LOGDIR/
+
+# DESY batch farm -- no qsub logs
+  qsub -V -terse -l os=sl6 -l h_cpu=$h_cpu -l h_vmem=$h_vmem -l tmpdir_size=$tmpdir_size -j y -o /dev/null
+
+# U Chicago 
+  qsub -V -terse,-l nodes=1,walltime=60:00:00,cput=86400
+
+# University of Iowa
+  qsub -V -terse -q all.q -r y -j y -o /dev/null
+  qsub -V -terse -q UI -tc 25 -o $LOGDIR/ -e $LOGDIR/
+
+# Local parallel execution using GNU parallel
+  parallel --no-notice -j `grep -ic ^processor /proc/cpuinfo`
+
