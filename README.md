@@ -1,4 +1,4 @@
-# Eventdisplay - IACT event analysis and display
+# Eventdisplay - An Analysis and Reconstruction Package for Ground-based Gamma-ray Astronomy
 
 Original developers: Gernot Maier and Jamie Holder
 
