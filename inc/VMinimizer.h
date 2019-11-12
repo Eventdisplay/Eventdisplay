@@ -11,7 +11,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdlib>
-#include <memory> //(auto_ptr)
+#include <memory>
 #include <limits> //(numeric_limits)
 
 using namespace std;
@@ -240,7 +240,7 @@ class VSVD
 class VMinimizerFactory
 {
     private:
-        static auto_ptr<VMinimizerFactory> fInstance;
+        static unique_ptr<VMinimizerFactory> fInstance;
         static string       fDefaultMinimizer;
         static double       fDefaultTolerance;
         static unsigned int fDefaultMaxIterations;

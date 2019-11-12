@@ -763,7 +763,7 @@ void VSVD::setThresh( double thresh )
 // ----------------------------------------------------------------------------
 // VMinimizerFactory
 
-auto_ptr<VMinimizerFactory> VMinimizerFactory::fInstance;
+unique_ptr<VMinimizerFactory> VMinimizerFactory::fInstance;
 
 string VMinimizerFactory::fDefaultMinimizer = "lbmq";
 double VMinimizerFactory::fDefaultTolerance = 0.02;
