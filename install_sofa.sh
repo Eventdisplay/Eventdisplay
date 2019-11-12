@@ -13,7 +13,7 @@ cd $EVNDISPSYS
 
 echo "Checking for existing sofa installation " 
 
-if [ -d "sofa" ]
+if [ -d "sofa" ] && [ -d "sofa/lib" ]
 then
     echo "Error, sofa directory exists. Please remove."
     cd $CURDIR
