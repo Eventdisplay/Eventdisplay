@@ -49,7 +49,7 @@ TGraph* VCTARequirements::plotRequirement_DifferentialSensitivity( TCanvas* c)
     }
     
     c->cd();
-    plotRequirements( fReqDifferentialSensitivity, true, true );
+    plotRequirements( fReqDifferentialSensitivity, true, true, true );
     if( fPlotSubSystemRequirement == "LST" && fReqDifferentialSensitivityLST )
     {
         plotRequirements( fReqDifferentialSensitivityLST, true, true );
@@ -150,7 +150,45 @@ TGraph* VCTARequirements::plotRequirement_EffectiveArea( TCanvas* c )
     return fReqAngularResolution;
 }
 
-void VCTARequirements::plotRequirements( TGraph* g, bool iLog, bool iLine )
+/*
+ * plot requirements systematic (temporary plot)
+ *
+ */
+void VCTARequirements::plotRequirementsSystematic( TGraph *g )
+{
+    if( !g )
+    {
+        return;
+    }
+    double x = 0.;
+    double y = 0.;
+    TGraphAsymmErrors *iGraphSys = new TGraphAsymmErrors( 1 );
+    iGraphSys->SetFillStyle( 3244 );
+    iGraphSys->SetFillColor( g->GetLineColor() );
+    double fsys = 0.3;
+    for( int i = 0; i < g->GetN(); i++ )
+    {
+        g->GetPoint( i, x, y );
+        iGraphSys->SetPoint( i, x, y );
+        if( x < log10( 0.05 ) )
+        {
+            fsys = 0.4;
+        }
+        else if( x < log10( 0.2 ) )
+        {
+            fsys = 0.4;
+        }
+        else
+        {
+            fsys = 0.3;
+        }
+        iGraphSys->SetPointEYlow( i, y * fsys );
+    }
+
+    iGraphSys->Draw( "3" );
+}
+
+void VCTARequirements::plotRequirements( TGraph* g, bool iLog, bool iLine, bool iSystematics )
 {
     if( !g )
     {
@@ -160,6 +198,10 @@ void VCTARequirements::plotRequirements( TGraph* g, bool iLog, bool iLine )
     // plot requirements
     if( iLine )
     {
+        if( iSystematics )
+        {
+            plotRequirementsSystematic( g );
+        }
         g->Draw( "l" );
         return;
     }

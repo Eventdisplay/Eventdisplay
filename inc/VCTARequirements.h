@@ -6,6 +6,7 @@
 #include "TArrow.h"
 #include "TCanvas.h"
 #include "TGraph.h"
+#include "TGraphAsymmErrors.h"
 #include "TSystem.h"
 
 #include "VCTASensitivityRequirements.h"
@@ -30,9 +31,6 @@ class VCTARequirements : public VPlotUtilities
         string fPlotSubSystemRequirement;
         double fRequirementsGraphLineWidth;
         
-        double fReqEnergyRange_min;
-        double fReqEnergyRange_max;
-        
         TGraph* fReqDifferentialSensitivity; // vs log10 energy [TeV]
         TGraph* fReqEffectiveArea;           // vs log10 energy [TeV]
         TGraph* fReqAngularResolution;       // vs log10 energy [TeV]
@@ -55,7 +53,8 @@ class VCTARequirements : public VPlotUtilities
         float fRequirementsScalingEnergy;
         float fRequirementsScalingStretch;
         
-        void plotRequirements( TGraph* g, bool iLog = false, bool iLine = false );
+        void plotRequirementsSystematic( TGraph *g );
+        void plotRequirements( TGraph* g, bool iLog = false, bool iLine = false, bool iSystematics = false );
         
     public:
     

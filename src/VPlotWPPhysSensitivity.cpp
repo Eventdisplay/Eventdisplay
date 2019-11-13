@@ -903,6 +903,16 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             ///// TMP TMP plot other instruments
             plotCurrentInstruments( cSensInter );
             ///// (END) TMP TMP plot other instruments
+            ///// TMP TMP systematics
+            // plot systematic line around sensitivity curve
+            plotSensitivitySystematicUncertainties( cSensInter, iGraphSensitivity );
+            ///// (END) TMP TMP plot systematics
+            iGraphSensitivity->Draw( "p" );
+
+            // plot again the sensitivity graph on top of everything
+
+            //
+            // (end of general sensitivity plotting)
             // off-axis sensitivities
             if( fUseIntegratedSensitivityForOffAxisPlots )
             {
@@ -1099,6 +1109,82 @@ bool VPlotWPPhysSensitivity::setPlotCTARequirements( string iRequirements, float
 void VPlotWPPhysSensitivity::setNorthSouthComparision( bool iNS )
 {
     fNorthSouthComparision = iNS;
+}
+
+/*
+ * get systematic error as function of log_10 energy (TeV)
+ *
+ */
+
+double VPlotWPPhysSensitivity::getSensitivitySystematicUncertaintiesFactor( double iLe )
+{
+    if( iLe < log10( 0.2 ) )
+    {
+        return 0.4;
+    }
+
+    return 0.3;
+}
+
+/*
+ * add systematic uncertainties as 'bracket' errors
+ *
+ * values are hardwired
+ *
+ */
+void VPlotWPPhysSensitivity::plotSensitivitySystematicUncertainties(
+        TCanvas* c, TGraphAsymmErrors* iGraph )
+{
+    if( c )
+    {
+        c->cd();
+    }
+
+    double fsys = 0.3;
+
+    double x = 0.;
+    double y = 0.;
+    TGraphAsymmErrors *iGraphSys = new TGraphAsymmErrors( 1 );
+    iGraphSys->SetFillColor( 16 );
+    iGraphSys->SetFillStyle( 3144 );
+    TGraphAsymmErrors *iGraphSysBrackets = new TGraphAsymmErrors( 1 );
+    iGraphSysBrackets->SetLineColor( iGraph->GetLineColor() );
+    int z = 0;
+    for( int i = 0; i < iGraph->GetN(); i++ )
+    {
+        fsys = getSensitivitySystematicUncertaintiesFactor( x );
+        iGraph->GetPoint( i, x, y );
+        iGraphSysBrackets->SetPoint( z, x, y );
+        iGraphSysBrackets->SetPointEYhigh( z, y * fsys );
+        iGraphSysBrackets->SetPointEYlow( z, y * fsys );
+
+        // (below temporary)
+        if( i == 0 )
+        {
+            iGraph->GetPoint( i, x, y );
+            y = iGraph->Eval( x - iGraph->GetErrorXlow( i ) );
+            iGraphSys->SetPoint( z, x - iGraph->GetErrorXlow( i ), y );
+            iGraphSys->SetPointEYhigh( z, y * fsys );
+            iGraphSys->SetPointEYlow( z, y * fsys  );
+            z++;
+        }
+        iGraph->GetPoint( i, x, y );
+        iGraphSys->SetPoint( z, x, y );
+        iGraphSys->SetPointEYhigh( z, y * fsys );
+        iGraphSys->SetPointEYlow( z, y * fsys  );
+        z++;
+        y = iGraph->Eval( x + iGraph->GetErrorXlow( i ) );
+        iGraphSys->SetPoint( z, x + iGraph->GetErrorXhigh( i ), y );
+        iGraphSys->SetPointEYhigh( z, y * fsys );
+        iGraphSys->SetPointEYlow( z, y * fsys  );
+        z++;
+
+    }  
+    //iGraphSys->Draw( "3" );
+
+    iGraphSysBrackets->Draw( "[]" );
+    
+
 }
 
 /*

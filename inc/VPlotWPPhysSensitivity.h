@@ -92,6 +92,8 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
         void    fillProjectedSensitivityPlot( unsigned int i, TGraphAsymmErrors* g );
         void    initialProjectedSensitivityPlots( bool iIncludeLowestEnergy = true );
         vector< TGraph* >  plotCurrentInstruments( TCanvas* c );
+        double  getSensitivitySystematicUncertaintiesFactor( double );
+        void    plotSensitivitySystematicUncertainties( TCanvas* c, TGraphAsymmErrors* g );
         bool    plotLegend( TCanvas* c = 0, bool iDown = false, bool iLeft = false, bool iAddFirst = true );
         
     public:
