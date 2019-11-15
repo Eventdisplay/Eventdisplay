@@ -1815,7 +1815,11 @@ int VImageCleaning::ImageCleaningCharge( unsigned int teltype )
                     {
                         continue;
                     }
-                    if( TIMESReSearch[idx2] > -500. )
+                    // allow for negative time differences in image cleaning
+                    // ignore here as it leads to different (sub-optimal)
+                    // cleaning results
+                    // if( TIMESReSearch[idx2] > -500. )
+                    if( TIMESReSearch[idx2] > 0. )
                     {
                         time += TIMESReSearch[idx2];
                         charge += REFTHRESH[idx2];
