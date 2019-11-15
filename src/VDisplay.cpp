@@ -928,7 +928,7 @@ void VDisplay::drawFADC( bool iFit )
         }
         else
         {
-            fHisFADC->SetMaximum( -1.*fEventLoop->getPed_min( fEventLoop->getHiLo()[fSelectedChan - 200000] ) + 1. );
+            fHisFADC->SetMaximum( -1.*0.8*fEventLoop->getPed_min( fEventLoop->getHiLo()[fSelectedChan - 200000] ) );
         }
         //fHis <<FADC->SetMaximum( -1111 );
         fHisFADC->SetStats( 0 );
