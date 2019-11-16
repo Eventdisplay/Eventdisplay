@@ -1163,6 +1163,20 @@ testAstronometry:	$(TESTASTROMETRYOBJ)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
+########################################################
+# logFile
+########################################################
+LOGFILE =		./obj/logFile.o \
+					
+
+./obj/logFile.o:	./src/logFile.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+logFile:	$(LOGFILE)
+	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
+	@echo "$@ done"
+
+
 
 ########################################################
 # writeCTAEventListFromAnasum
