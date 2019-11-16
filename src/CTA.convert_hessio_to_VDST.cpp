@@ -781,7 +781,7 @@ bool DST_fillEvent( VDSTTree* fData, AllHessData* hsdata, map< unsigned int, VDS
                     // (simply check if HI_GAIN is above certain value)
                     if( i_lowGainSwitch > 0
                             && hsdata->event.teldata[telID].raw->num_gains == 2
-                            && hsdata->event.teldata[telID].raw->adc_known[LO_GAIN][p] == 1
+                            && hsdata->event.teldata[telID].raw->adc_known[LO_GAIN][p] != 0 
                             && hsdata->event.teldata[telID].raw->adc_sample && hsdata->event.teldata[telID].raw->adc_sample[LO_GAIN] )
                     {
                         for( int t = 0; t < hsdata->event.teldata[telID].raw->num_samples; t++ )
