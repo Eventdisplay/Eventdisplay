@@ -336,7 +336,8 @@ CTA:	evndisp \
 	writeCTAWPPhysSensitivityFiles \
 	writeCTAWPPhysSensitivityTree \
 	writeParticleRateFilesFromEffectiveAreas \
-	smoothLookupTables
+	smoothLookupTables \
+	logFile
 
 CTAsens:	mscw_energy \
 	makeEffectiveArea \
