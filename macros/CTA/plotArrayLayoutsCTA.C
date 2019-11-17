@@ -107,6 +107,7 @@ class VPlotCTAArrayLayout
         {
             return 1.3;
         }
+        vector< VPlotCTAArrayLayout_TelescopeList* > getListOfTelescopes();
         TCanvas* plot_array( string iArrayName = "", double xmax = 1450., double ymax = 1450.,
                              string iPrintCanvas = "", string drawTelescopeNumbers = "prodID",
                              TCanvas* cUserCanvase = 0 );
@@ -128,6 +129,8 @@ class VPlotCTAArrayLayout
             fTempTelescopeColor = iTelescopeColor;
         }
         bool     setSubArray( string iSubArrayFile = "" );
+        void     synchronizeTelescopeLists( vector< VPlotCTAArrayLayout_TelescopeList* > iInputList,
+                bool iListFile = false );
 };
 
 VPlotCTAArrayLayout::VPlotCTAArrayLayout()
@@ -652,7 +655,7 @@ bool VPlotCTAArrayLayout::readArrayFromRootFile( string iFile, bool iprod3, doub
                 fTelescopeList.back()->fMarkerType = 24;
             }
             // MST - FlashCam
-            else if( iTelType == 10408618 )
+            else if( iTelType == 10408618 || iTelType == 10608418 )
             {
                 fTelescopeList.back()->fTelTypeName = "12m-MST-FlashCam";
                 fTelescopeList.back()->fMarkerColor = 1;
@@ -1116,7 +1119,72 @@ void VPlotCTAArrayLayout::plotTelescopeDistances( string iname, double i_max )
     }
 }
 
+/*
+ * return list of telescopes 
+ *
+ */
+vector< VPlotCTAArrayLayout_TelescopeList* > VPlotCTAArrayLayout::getListOfTelescopes()
+{
+    if( fTelescopeList_subArray.size() == 0 )
+    {
+        return fTelescopeList;
+    }
+    return fTelescopeList_subArray;
+}
 
+/*
+ * uses the input telescope list to select for the current array:
+ * - the telescopes in the input list (by comparing positions)
+ * - prints the telescope list
+ * - prints error if there is a mismatch
+ *
+ * assumption is that both array definitions use the same coordinate definition
+*/
+void VPlotCTAArrayLayout::synchronizeTelescopeLists( vector< VPlotCTAArrayLayout_TelescopeList* > iInputList,
+        bool iListFile )
+{
+    cout << "Reading input file list of size " << iInputList.size() << endl;
+
+    fTelescopeList_subArray.clear();
+
+    for( unsigned int i = 0; i < iInputList.size(); i++ )
+    {
+        // check if there is a corresponding telescope in
+        // the telescope list
+        for( unsigned int t = 0; t < fTelescopeList.size(); t++ )
+        {
+            if( iInputList[i] && fTelescopeList[t] )
+            {
+                double d = sqrt( (iInputList[i]->fTel_x-fTelescopeList[t]->fTel_x)
+                        *(iInputList[i]->fTel_x-fTelescopeList[t]->fTel_x)
+                        +(iInputList[i]->fTel_y-fTelescopeList[t]->fTel_y)
+                        *(iInputList[i]->fTel_y-fTelescopeList[t]->fTel_y) );
+                // allow for tolerances of 1 m
+                if( d < 1. )
+                {
+                    // printout fitting into a list file
+                    if( iListFile )
+                    {
+                        cout << fTelescopeList[t]->fTelID << "    ";
+                        cout << "      20.     12    1     ";
+                        cout << iInputList[i]->fTelIDName << endl;
+                    }
+                    // verbose printout
+                    else
+                    {
+                        cout << "Overlapping telescope positions (d < " << d << ")" << endl;
+                        cout << "\t input " << iInputList[i]->fTelID << " (" << iInputList[i]->fTelIDName << ")" << endl;
+                        cout << "\t match " << fTelescopeList[t]->fTelID << " (" << fTelescopeList[t]->fTelIDName << ")" << endl;
+                    }
+                        
+                }
+            }
+        }
+    }
+
+}
+
+////////////////////////////////////////////////
 
 vector< string > VPlotCTAArrayLayout::getListofArrrays( string iArrayFile )
 {
