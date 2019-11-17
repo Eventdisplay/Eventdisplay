@@ -164,19 +164,27 @@ void VCTARequirements::plotRequirementsSystematic( TGraph *g )
     double y = 0.;
     TGraphAsymmErrors *iGraphSys = new TGraphAsymmErrors( 1 );
     iGraphSys->SetFillStyle( 3244 );
+    iGraphSys->SetFillStyle( 1001 );
     iGraphSys->SetFillColor( g->GetLineColor() );
+    iGraphSys->SetFillColorAlpha( g->GetLineColor(), 0.10 );
     double fsys = 0.3;
     for( int i = 0; i < g->GetN(); i++ )
     {
         g->GetPoint( i, x, y );
         iGraphSys->SetPoint( i, x, y );
-        if( x < log10( 0.05 ) )
+        /*if( x < log10( 0.05 ) )
         {
             fsys = 0.4;
         }
         else if( x < log10( 0.2 ) )
         {
             fsys = 0.4;
+        } */
+        // fsys changes continously 
+        // from 30 to 50% below 200 GeV
+        if( x < log10( 0.2 ) )
+        {
+            fsys = 0.3 - 0.2 * (x + 0.7);
         }
         else
         {

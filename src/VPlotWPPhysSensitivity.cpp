@@ -151,7 +151,7 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
     ////////////////////////////
     // effective areas
     TCanvas* c = fIRF->plotEffectiveArea( iEffAreaMin, iEffAreaMax, iEffAreaPad );
-    plotLegend( c, true );
+    // plotLegend( c, true );
     if( fRequirementsString.size() > 0
             && fPlotCTARequirements.size() > 0 && fPlotCTARequirements[0] )
     {
@@ -177,7 +177,7 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
         fIRF->setPlottingAxis( "angularesolution_Lin", "X", false, 0.002 );
         c = fIRF->plotAngularResolution( "energy", "68", iAngularResolutionMin, iAngularResolutionMax, iAngResPad, false );
     }
-    plotLegend( c, false );
+    // plotLegend( c, false );
     if( fRequirementsString.size() > 0
             && fPlotCTARequirements.size() > 0 && fPlotCTARequirements[0] )
     {
@@ -197,7 +197,7 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
     ////////////////////////////
     // energy resolution
     c = fIRF->plotEnergyResolution( iEnergyResolutionMin, iEnergyResolutionMax, iEResPad, false );
-    plotLegend( c, false );
+    // plotLegend( c, false );
     if( fRequirementsString.size() > 0
             && fPlotCTARequirements.size() > 0 && fPlotCTARequirements[0] )
     {
@@ -215,7 +215,7 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
     if( iPlotEnergyBias )
     {
         c = fIRF->plotEnergyReconstructionBias( "mean", 0.8, 1.5 );
-        plotLegend( c, false );
+        // plotLegend( c, false );
         if( iPrint.size() > 0 )
         {
             sprintf( hname, "%s-EBias.pdf", iPrint.c_str() );
@@ -905,7 +905,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             ///// (END) TMP TMP plot other instruments
             ///// TMP TMP systematics
             // plot systematic line around sensitivity curve
-            plotSensitivitySystematicUncertainties( cSensInter, iGraphSensitivity );
+            // plotSensitivitySystematicUncertainties( cSensInter, iGraphSensitivity );
             ///// (END) TMP TMP plot systematics
             iGraphSensitivity->Draw( "p" );
 
@@ -1020,6 +1020,7 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
     y_yp += 0.1;
     // (END) TMPTMP
     TLegend* iL = new TLegend( x, y, x + x_p, y_yp );
+    iL->SetBorderSize( 0 );
     //iL->SetFillColorAlpha( 0, 0.1 );
     
     for( unsigned int i = 0; i < fData.size(); i++ )
