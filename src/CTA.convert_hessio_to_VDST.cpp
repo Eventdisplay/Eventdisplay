@@ -1445,11 +1445,11 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
             fTelypos = hsdata->run_header.tel_pos[itel][0];
             fTelzpos = hsdata->run_header.tel_pos[itel][2];
             fFocalLength = hsdata->camera_set[itel].flen;
-                        // effective focal length (set only from prod4 on)
-                        if( hsdata->camera_set[itel].eff_flen > 0. )
-                        {
-                             fEffectiveFocalLength = hsdata->camera_set[itel].eff_flen;
-                        }
+            // effective focal length (set only from prod4 on)
+            if( hsdata->camera_set[itel].eff_flen > 0. )
+            {
+                 fEffectiveFocalLength = hsdata->camera_set[itel].eff_flen;
+            }
             if( telescope_list[fTelID].DynamicRange > 0 )
             {
                 fDynRange = ( unsigned int )telescope_list[fTelID].DynamicRange;
