@@ -151,7 +151,7 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
     ////////////////////////////
     // effective areas
     TCanvas* c = fIRF->plotEffectiveArea( iEffAreaMin, iEffAreaMax, iEffAreaPad );
-    plotLegend( c, true );
+    // plotLegend( c, true );
     if( fRequirementsString.size() > 0
             && fPlotCTARequirements.size() > 0 && fPlotCTARequirements[0] )
     {
@@ -177,7 +177,7 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
         fIRF->setPlottingAxis( "angularesolution_Lin", "X", false, 0.002 );
         c = fIRF->plotAngularResolution( "energy", "68", iAngularResolutionMin, iAngularResolutionMax, iAngResPad, false );
     }
-    plotLegend( c, false );
+    // plotLegend( c, false );
     if( fRequirementsString.size() > 0
             && fPlotCTARequirements.size() > 0 && fPlotCTARequirements[0] )
     {
@@ -197,7 +197,7 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
     ////////////////////////////
     // energy resolution
     c = fIRF->plotEnergyResolution( iEnergyResolutionMin, iEnergyResolutionMax, iEResPad, false );
-    plotLegend( c, false );
+    // plotLegend( c, false );
     if( fRequirementsString.size() > 0
             && fPlotCTARequirements.size() > 0 && fPlotCTARequirements[0] )
     {
@@ -215,7 +215,7 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
     if( iPlotEnergyBias )
     {
         c = fIRF->plotEnergyReconstructionBias( "mean", 0.8, 1.5 );
-        plotLegend( c, false );
+        // plotLegend( c, false );
         if( iPrint.size() > 0 )
         {
             sprintf( hname, "%s-EBias.pdf", iPrint.c_str() );
@@ -903,6 +903,16 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             ///// TMP TMP plot other instruments
             plotCurrentInstruments( cSensInter );
             ///// (END) TMP TMP plot other instruments
+            ///// TMP TMP systematics
+            // plot systematic line around sensitivity curve
+            // plotSensitivitySystematicUncertainties( cSensInter, iGraphSensitivity );
+            ///// (END) TMP TMP plot systematics
+            iGraphSensitivity->Draw( "p" );
+
+            // plot again the sensitivity graph on top of everything
+
+            //
+            // (end of general sensitivity plotting)
             // off-axis sensitivities
             if( fUseIntegratedSensitivityForOffAxisPlots )
             {
@@ -1010,6 +1020,7 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
     y_yp += 0.1;
     // (END) TMPTMP
     TLegend* iL = new TLegend( x, y, x + x_p, y_yp );
+    iL->SetBorderSize( 0 );
     //iL->SetFillColorAlpha( 0, 0.1 );
     
     for( unsigned int i = 0; i < fData.size(); i++ )
@@ -1099,6 +1110,82 @@ bool VPlotWPPhysSensitivity::setPlotCTARequirements( string iRequirements, float
 void VPlotWPPhysSensitivity::setNorthSouthComparision( bool iNS )
 {
     fNorthSouthComparision = iNS;
+}
+
+/*
+ * get systematic error as function of log_10 energy (TeV)
+ *
+ */
+
+double VPlotWPPhysSensitivity::getSensitivitySystematicUncertaintiesFactor( double iLe )
+{
+    if( iLe < log10( 0.2 ) )
+    {
+        return 0.4;
+    }
+
+    return 0.3;
+}
+
+/*
+ * add systematic uncertainties as 'bracket' errors
+ *
+ * values are hardwired
+ *
+ */
+void VPlotWPPhysSensitivity::plotSensitivitySystematicUncertainties(
+        TCanvas* c, TGraphAsymmErrors* iGraph )
+{
+    if( c )
+    {
+        c->cd();
+    }
+
+    double fsys = 0.3;
+
+    double x = 0.;
+    double y = 0.;
+    TGraphAsymmErrors *iGraphSys = new TGraphAsymmErrors( 1 );
+    iGraphSys->SetFillColor( 16 );
+    iGraphSys->SetFillStyle( 3144 );
+    TGraphAsymmErrors *iGraphSysBrackets = new TGraphAsymmErrors( 1 );
+    iGraphSysBrackets->SetLineColor( iGraph->GetLineColor() );
+    int z = 0;
+    for( int i = 0; i < iGraph->GetN(); i++ )
+    {
+        fsys = getSensitivitySystematicUncertaintiesFactor( x );
+        iGraph->GetPoint( i, x, y );
+        iGraphSysBrackets->SetPoint( z, x, y );
+        iGraphSysBrackets->SetPointEYhigh( z, y * fsys );
+        iGraphSysBrackets->SetPointEYlow( z, y * fsys );
+
+        // (below temporary)
+        if( i == 0 )
+        {
+            iGraph->GetPoint( i, x, y );
+            y = iGraph->Eval( x - iGraph->GetErrorXlow( i ) );
+            iGraphSys->SetPoint( z, x - iGraph->GetErrorXlow( i ), y );
+            iGraphSys->SetPointEYhigh( z, y * fsys );
+            iGraphSys->SetPointEYlow( z, y * fsys  );
+            z++;
+        }
+        iGraph->GetPoint( i, x, y );
+        iGraphSys->SetPoint( z, x, y );
+        iGraphSys->SetPointEYhigh( z, y * fsys );
+        iGraphSys->SetPointEYlow( z, y * fsys  );
+        z++;
+        y = iGraph->Eval( x + iGraph->GetErrorXlow( i ) );
+        iGraphSys->SetPoint( z, x + iGraph->GetErrorXhigh( i ), y );
+        iGraphSys->SetPointEYhigh( z, y * fsys );
+        iGraphSys->SetPointEYlow( z, y * fsys  );
+        z++;
+
+    }  
+    //iGraphSys->Draw( "3" );
+
+    iGraphSysBrackets->Draw( "[]" );
+    
+
 }
 
 /*

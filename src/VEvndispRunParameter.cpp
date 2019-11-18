@@ -563,6 +563,10 @@ void VEvndispRunParameter::print( int iEv )
     {
         cout << "Minimum size required for laser events (lasermin): " << fLaserSumMin << " [dc]" << endl;
     }
+    if( fIgnoreDSTGains )
+    {
+       cout << "Ignoring gains from DST file" << endl;
+    }
     if( frunmode == 1 )
     {
         if( ( fsourcetype == 1 || fsourcetype == 2 || fsourcetype == 5 ) && fsimu_pedestalfile.size() > 0 )

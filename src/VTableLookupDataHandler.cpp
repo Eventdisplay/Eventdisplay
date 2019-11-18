@@ -64,7 +64,6 @@ VTableLookupDataHandler::VTableLookupDataHandler( bool iwrite, VTableLookupRunPa
     // --> set true to read DL parameters
     // and fill them into the output tree
     fIsDeepLearner = false;
-    fIsDeepLearner = true;
     
     /////////////////////////////////////////////////////////////////////////////////////
     // values needed by the optional stereo reconstruction
