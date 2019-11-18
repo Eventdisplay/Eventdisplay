@@ -1,7 +1,4 @@
 /*!  \brief collection of useful analysis functions for significance and upper limit calculations
-    \author
-      Jamie Holder
-      Gernot Maier
 
 */
 

@@ -2,7 +2,6 @@
  * \file
  * \brief Function declarations for Pointing Monitor interactions with the database
  *
- * some adaption for eventdisplay by G.Maier and J.Grube
  *
  * \author Dirk Pandel
  */
