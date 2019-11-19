@@ -104,9 +104,9 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     }
     ntrain *= 0.8;
     ntest *= 0.8;
-    cout << "  number of training events: " << ntrain << endl;
-    cout << "  number of test events    : " << ntest  << endl;
-    cout << "  fraction of test events  : " << iTrainTest << endl;
+    cout << "\tnumber of training events: " << ntrain << endl;
+    cout << "\tnumber of test events    : " << ntest  << endl;
+    cout << "\tfraction of test events  : " << iTrainTest << endl << endl;
     std::ostringstream train_and_test_conditions ;
     train_and_test_conditions << "nTrain_Regression=" << ntrain << ":" ;
     train_and_test_conditions << "nTest_Regression="  << ntest  << ":" ;
@@ -144,6 +144,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
 #ifdef ROOT6
     TMVA::Factory* factory = new TMVA::Factory( iTargetBDT.c_str(), i_tmva, 
                             "V:!DrawProgressBar:!Color:!Silent:AnalysisType=Regression:VerboseLevel=Debug:Correlations=True" );
+    factory->SetVerbose( true );
 #else
     TMVA::Factory* factory = new TMVA::Factory( iTargetBDT.c_str(), i_tmva, 
                             "V:!DrawProgressBar:!Color:!Silent" );
@@ -241,7 +242,6 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     factory->BookMethod( TMVA::Types::kBDT, methodTitle, methodstr ) ;
 #endif
     
-    // factory->TrainAllMethodsForRegression();
     factory->TrainAllMethods();
     
     factory->TestAllMethods();
@@ -946,7 +946,6 @@ int main( int argc, char* argv[] )
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    
     //////////////////////
     // write training tree to output file
     iO.cd();
@@ -959,7 +958,7 @@ int main( int argc, char* argv[] )
             cout << " with " << fMapOfTrainingTree_iter->second->GetEntries() << " entries" << endl;
             fMapOfTrainingTree_iter->second->Write();
         }
-    }
+    } 
     //////////////////////
     // train TMVA
     cout << "Number of telescope types: " << fMapOfTrainingTree.size() << endl;
