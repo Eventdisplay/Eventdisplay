@@ -50,6 +50,10 @@ Description and command line options for the different software parts:
 - README.SCRIPTS
 - README.MACROS
 
+## Licence
+
+License: BSD-3 (see LICENCE file)
+
 ## Contact information:
 
 Gernot Maier (DESY)
