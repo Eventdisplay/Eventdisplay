@@ -32,6 +32,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -66,6 +67,13 @@ void plotVariables( TTree* t,
     fVarType.push_back( "size" );
     fVarMin.push_back( 2. );
     fVarMax.push_back( 10. );
+    // disp needs to be the second variable for BDTdisp
+    if( iDispType == "BDTDisp" )
+    {
+        fVarType.push_back( "disp" );
+        fVarMin.push_back( 0. );
+        fVarMax.push_back( 20. );
+    }
     fVarType.push_back( "width" );
     fVarMin.push_back( 0. );
     fVarMax.push_back( 2. );
@@ -87,12 +95,24 @@ void plotVariables( TTree* t,
     fVarType.push_back( "loss" );
     fVarMin.push_back( 0. );
     fVarMax.push_back( 0.3 );
-    fVarType.push_back( "EHeight" );
-    fVarMin.push_back( 0. );
-    fVarMax.push_back( 100. );
-    fVarType.push_back( "Rcore" );
-    fVarMin.push_back( 0. );
-    fVarMax.push_back( 1000. );
+    if( iDispType == "BDTDispEnergy" )
+    {
+        fVarType.push_back( "EHeight" );
+        fVarMin.push_back( 0. );
+        fVarMax.push_back( 100. );
+        fVarType.push_back( "Rcore" );
+        fVarMin.push_back( 0. );
+        fVarMax.push_back( 1000. );
+    }
+    else
+    {
+        fVarType.push_back( "dist" );
+        fVarMin.push_back( 0. );
+        fVarMax.push_back( 4. );
+        fVarType.push_back( "fui" );
+        fVarMin.push_back( 0. );
+        fVarMax.push_back( 1. );
+    }
     fVarType.push_back( "Rcore-MCrcore" );
     fVarMin.push_back( -500. );
     fVarMax.push_back( 500. );
@@ -105,13 +125,13 @@ void plotVariables( TTree* t,
     
     float MCe0 = 0.;
     float MCrcore = 0.;
-    float dispEnergy = 0.;
+    float disp_true = 0.;
     t->SetBranchAddress( "MCe0", &MCe0 );
     t->SetBranchAddress( "MCrcore", &MCrcore );
     
     ostringstream BDTvar;
     BDTvar << "BDT_" << iTelType;
-    t->SetBranchAddress( BDTvar.str().c_str(), &dispEnergy );
+    t->SetBranchAddress( BDTvar.str().c_str(), &disp_true );
     
     // trees and histograms
     for( unsigned int v = 0; v < fVarType.size(); v++ )
@@ -141,12 +161,12 @@ void plotVariables( TTree* t,
         fHAll.back()->SetXTitle( fVarType[v].c_str() );
         
         fHDivU.push_back( new TH1D( iHNameU.str().c_str(), "", 100, fVarMin[v], fVarMax[v] ) );
-        fHDivU.back()->SetLineColor( 2 );
+        fHDivU.back()->SetLineColor( 801 );
         fHDivU.back()->SetLineWidth( 2 );
         fHDivU.back()->SetStats( 0 );
         fHDivU.back()->SetXTitle( fVarType[v].c_str() );
         fHDivD.push_back( new TH1D( iHNameD.str().c_str(), "", 100, fVarMin[v], fVarMax[v] ) );
-        fHDivD.back()->SetLineColor( 3 );
+        fHDivD.back()->SetLineColor( 633 );
         fHDivD.back()->SetLineWidth( 2 );
         fHDivD.back()->SetStats( 0 );
         fHDivD.back()->SetXTitle( fVarType[v].c_str() );
@@ -173,19 +193,33 @@ void plotVariables( TTree* t,
             fHAll[v]->Fill( fVar[v] );
             
             // plot all misreconstructed events
-            if( TMath::Power( 10., dispEnergy * fVar[0] ) / MCe0 > 1.5 )
+            if( iDispType == "BDTDispEnergy" )
             {
-                fHDivU[v]->Fill( fVar[v] );
+                if( TMath::Power( 10., disp_true * fVar[0] ) / MCe0 > 1.5 )
+                {
+                    fHDivU[v]->Fill( fVar[v] );
+                }
+                if( TMath::Power( 10., disp_true * fVar[0] ) / MCe0 < 0.5 )
+                {
+                    fHDivD[v]->Fill( fVar[v] );
+                }
             }
-            if( TMath::Power( 10., dispEnergy * fVar[0] ) / MCe0 < 0.5 )
+            else if( iDispType == "BDTDisp" )
             {
-                fHDivD[v]->Fill( fVar[v] );
+                if( disp_true > 0. && TMath::Abs( fVar[1]/disp_true ) > 1.25 )
+                {
+                    fHDivU[v]->Fill( fVar[v] );
+                }
+                if( disp_true > 0. && TMath::Abs( fVar[1]/disp_true ) < 0.75 )
+                {
+                    fHDivD[v]->Fill( fVar[v] );
+                }
             }
         }
     }
     ostringstream iCanvasName;
-    iCanvasName << "c" << iTelType;
-    TCanvas* c = new TCanvas( iCanvasName.str().c_str(), "", 100, 100, 800, 800 );
+    iCanvasName << "c" << iTelType << "_" << iDispType;
+    TCanvas* c = new TCanvas( iCanvasName.str().c_str(), "", 100, 100, 1600, 1600 );
     c->Divide( 4, 3 );
     
     ///////////////////////////////////////////////////////
@@ -204,7 +238,7 @@ void plotVariables( TTree* t,
         fHDivD[v]->Draw( "same" );
     }
     ostringstream iPrintName;
-    iPrintName << "VAR" << iTelType << ".pdf";
+    iPrintName << "VAR" << iTelType << "-" << iDispType << ".pdf";
     c->Print( iPrintName.str().c_str() );
 }
 
@@ -212,12 +246,13 @@ void plotVariables( TTree* t,
  * calculate and plot disp resolution
  * for the given eventdisp
  */
-void plotAngularResolution( string iDispType, TTree* t, int iColor, string iTelType, bool bFirst,
-                            unsigned int iCounter, string iName )
+double plotAngularResolution( string iDispType, TTree* t, int iColor, string iTelType, bool bFirst,
+                            unsigned int iCounter, string iName, unsigned int iMaxNDir,
+                            bool iPrint = false )
 {
     if( !t )
     {
-        return;
+        return 0.; 
     }
     // 2D histogram with error
     ostringstream iMigMatrix;
@@ -254,7 +289,7 @@ void plotAngularResolution( string iDispType, TTree* t, int iColor, string iTelT
     }
     else
     {
-        return;
+        return 0.;
     }
     cout << "Filling migration matrix for  " << iBDTV.str() << endl;
     
@@ -266,18 +301,20 @@ void plotAngularResolution( string iDispType, TTree* t, int iColor, string iTelT
         migmatrix->Fill( log10( MCe0 ), TMath::Abs( disp - dispBDT ) );
     }
     TCanvas* cDispres = 0;
+    ostringstream iCanvasName;
+    iCanvasName << "dispResolution" << iTelType;
     if( bFirst )
     {
-        cDispres = new TCanvas( "dispResolution", "#Delta disp (68\% containment)", 20, 20, 700, 700 );
+        cDispres = new TCanvas( iCanvasName.str().c_str(), "#Delta disp (68\% containment)", 20, 20, 700, 700 );
         cDispres->SetLeftMargin( 0.13 );
     }
     else
     {
-        cDispres = ( TCanvas* )gROOT->GetListOfCanvases()->FindObject( "dispResolution" );
+        cDispres = ( TCanvas* )gROOT->GetListOfCanvases()->FindObject( iCanvasName.str().c_str() );
     }
     if( !cDispres )
     {
-        return;
+        return 0.;
     }
     cDispres->cd();
     char hname[600];
@@ -309,8 +346,11 @@ void plotAngularResolution( string iDispType, TTree* t, int iColor, string iTelT
         }
     }
     cDispres->cd();
-    Dres->SetLineColor( iColor );
-    Dres->SetLineWidth( 3. );
+    if( iMaxNDir < 10 )
+    {
+        Dres->SetLineColor( iColor );
+        Dres->SetLineWidth( 3. );
+    }
     
     if( bFirst )
     {
@@ -334,7 +374,34 @@ void plotAngularResolution( string iDispType, TTree* t, int iColor, string iTelT
         h->Draw();
     }
     Dres->Draw( "l" );
+
+
+    if( iPrint )
+    {
+        ostringstream iPrintName;
+        iPrintName << "BDTdisp-Disp-" << iTelType << "-" << iName << ".pdf";
+        cDispres->Print( iPrintName.str().c_str() );
+    }
     
+    // calculate figure of merit for energy resolution
+    double x = 0.;
+    double y = 0.;
+    double iMetric = 0.;
+    double iMetricN = 0.;
+    for( int i = 0; i < Dres->GetN(); i++ )
+    {
+         Dres->GetPoint( i, x, y );
+         if( x > -1.5 && x < 1.5 )
+         {
+              iMetric += y;
+              iMetricN ++;
+         }
+    }
+    if( iMetricN > 0. )
+    {
+         return iMetric / iMetricN;
+    } 
+    return 0.; 
 }
 
 /*
@@ -342,13 +409,14 @@ void plotAngularResolution( string iDispType, TTree* t, int iColor, string iTelT
  * for the given events
  *
 */
-void plotEnergyResolution( TTree* t, int iColor, string iTelType, bool bFirst,
+double plotEnergyResolution( TTree* t, int iColor, string iTelType, bool bFirst,
                            int bPlotMigrationMatrix, unsigned int iCounter,
-                           string iName )
+                           string iName, unsigned int iMaxNDir, 
+                           bool iPrint = false )
 {
     if( !t )
     {
-        return;
+        return 0.;
     }
     // hardwired parameters
     double fEnergy_TeV_Eres_min = 0.02;
@@ -374,7 +442,7 @@ void plotEnergyResolution( TTree* t, int iColor, string iTelType, bool bFirst,
     }
     else
     {
-        return;
+        return 0.;
     }
     
     // fill migmatrix
@@ -399,20 +467,20 @@ void plotEnergyResolution( TTree* t, int iColor, string iTelType, bool bFirst,
     // for the energy reconstruction
     
     TCanvas* cEres = 0;
+    ostringstream iCanvasName;
+    iCanvasName << "energyResolution" << iTelType;
     if( bFirst )
     {
-        cEres = new TCanvas( "energyResolution", "#Delta E/E (68\% containment)", 20, 20, 700, 700 );
-        cEres->SetGridx( 0 );
-        cEres->SetGridy( 0 );
+        cEres = new TCanvas( iCanvasName.str().c_str(), "#Delta E/E (68\% containment)", 20, 20, 700, 700 );
         cEres->SetLeftMargin( 0.13 );
     }
     else
     {
-        cEres = ( TCanvas* )gROOT->GetListOfCanvases()->FindObject( "energyResolution" );
+        cEres = ( TCanvas* )gROOT->GetListOfCanvases()->FindObject( iCanvasName.str().c_str() );
     }
     if( !cEres )
     {
-        return;
+        return 0.;
     }
     cEres->cd();
     char hname[600];
@@ -569,8 +637,11 @@ void plotEnergyResolution( TTree* t, int iColor, string iTelType, bool bFirst,
         
     }
     cEres->cd();
-    Eres->SetLineColor( iColor );
-    Eres->SetLineWidth( 3. );
+    if( iMaxNDir < 10 )
+    {
+        Eres->SetLineColor( iColor );
+        Eres->SetLineWidth( 3. );
+    }
     
     if( bFirst )
     {
@@ -585,23 +656,52 @@ void plotEnergyResolution( TTree* t, int iColor, string iTelType, bool bFirst,
         h->Draw();
     }
     Eres->Draw( "l" );
+
+
+    if( iPrint )
+    {
+        ostringstream iPrintName;
+        iPrintName << "BDTdisp-DispEnergy-" << iTelType << "-" << iName << ".pdf";
+        cEres->Print( iPrintName.str().c_str() );
+    }
     
-    cEres->Print( "eres.pdf" );
-    
+    // calculate figure of merit for energy resolution
+
+    // calculate figure of merit for energy resolution
+    double x = 0.;
+    double y = 0.;
+    double iMetric = 0.;
+    double iMetricN = 0.;
+    for( int i = 0; i < Eres->GetN(); i++ )
+    {
+         Eres->GetPoint( i, x, y );
+         if( x > -1.5 && x < 1.5 )
+         {
+              iMetric += y;
+              iMetricN ++;
+         }
+    }
+    if( iMetricN > 0. )
+    {
+         return iMetric / iMetricN;
+    }
+    return 0.;
 }
 
-void plotResolution( string iDispType, TTree* t, int iColor, string iTelType, bool bFirst,
+double plotResolution( string iDispType, TTree* t, int iColor, string iTelType, bool bFirst,
                      int bPlotMigrationMatrix, unsigned int iCounter,
-                     string iName )
+                     string iName, unsigned int iMaxNDir = 0, bool iPrint = false )
 {
     if( iDispType == "BDTDispEnergy" )
     {
-        plotEnergyResolution( t, iColor, iTelType, bFirst, bPlotMigrationMatrix, iCounter, iName );
+        return plotEnergyResolution( t, iColor, iTelType, bFirst, bPlotMigrationMatrix, iCounter, iName, iMaxNDir, iPrint );
     }
     else if( iDispType == "BDTDisp" || iDispType == "BDTDispCore" )
     {
-        plotAngularResolution( iDispType, t, iColor, iTelType, bFirst, iCounter, iName );
+        return plotAngularResolution( iDispType, t, iColor, iTelType, bFirst, iCounter, iName, iMaxNDir, iPrint );
     }
+
+    return 0.;
 }
 
 
@@ -634,7 +734,8 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
         string iTelType = "138704810",
         string iDirectoryWithTrees = "./",
         string iPlottingMode = "Resolution",
-        int iPlotSingleHistograms = 0 )
+        int iPlotSingleHistograms = 0,
+        unsigned int nMaxDispDir = 363 )
 {
     ////////////////////////
     // directories with BDT training data to be plotted
@@ -644,39 +745,37 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
     // loop over all training directories
     ostringstream iFileName;
     
-    iFileName << "BDTdisp.S.SCT.HB9.T11/" << iDispType << "/0deg/";
+    /*iFileName << "BDTdisp.Nb.3AL4-BN15.M69/" << iDispType << "/0deg/";
     fDataDir.push_back( iFileName.str() );
     iFileName.str( "" );
-    /*     iFileName << "BDTdisp.Sb.McNrS.HB9.T1/" << iDispType << "/180deg/";
-         fDataDir.push_back( iFileName.str() );
-         iFileName.str( "" );
-         iFileName << "BDTdisp.Sb.McNrS.HB9.T1";
-         fDataName.push_back( iFileName.str() );
-         iFileName << "BDTdisp.Sb.McNrF.HB9.T1/" << iDispType << "/180deg/";
-         fDataDir.push_back( iFileName.str() );
-         iFileName.str( "" );
-         iFileName << "BDTdisp.Sb.McNrF.HB9.T1";
-         fDataName.push_back( iFileName.str() ); */
-    /*     for( unsigned int i = 1; i < 151; i++ )
+    fDataName.push_back( "M69" ); */
+
+    if( iPlottingMode == "Resolution" )
+    {
+        for( unsigned int i = 1; i < nMaxDispDir; i++ )
          {
              iFileName.str( "" );
-             iFileName << "BDT.TMVAO.T" << i << "/" << iDispType << "/0deg/";
+             iFileName << "BDTdisp.Nb.3AL4-BN15.M" << i << "/" << iDispType << "/0deg/";
              fDataDir.push_back( iFileName.str() );
-    
+
              iFileName.str( "" );
-             iFileName << "BDT.TMVAO.T" << i;
+             iFileName << "BDTdisp.Nb.3AL4-BN15.M" << i;
              fDataName.push_back( iFileName.str() );
          }
-         for( unsigned int i = 1; i < 9; i++ )
-         {
-             iFileName.str( "" );
-             iFileName << "BDT.TMVAP.T" << i << "/" << iDispType << "/0deg/";
-             fDataDir.push_back( iFileName.str() );
-    
-             iFileName.str( "" );
-             iFileName << "BDT.TMVAP.T" << i;
-             fDataName.push_back( iFileName.str() );
-         } */
+     }
+     else
+     {
+         iFileName.str( "" );
+         iFileName << "BDTdisp.Nb.3AL4-BN15.M" << iPlotSingleHistograms << "/" << iDispType << "/0deg/";
+         fDataDir.push_back( iFileName.str() );
+
+         iFileName.str( "" );
+         iFileName << "BDTdisp.Nb.3AL4-BN15.M" << iPlotSingleHistograms;
+         fDataName.push_back( iFileName.str() );
+     }
+
+     // figure of merrit to find best resolution
+     map< double, unsigned int > fResolutionMetric;
     
     
     ///////////////////////////////////
@@ -684,6 +783,7 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
     vector< TTree* > fTestTree;
     vector< TTree* > fTrainingTree;
     vector< string > fName;
+    unsigned int z = 0;
     for( unsigned int t = 0; t < fDataDir.size(); t++ )
     {
         ostringstream iFileName;
@@ -692,6 +792,7 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
         TFile* f = new TFile( iFileName.str().c_str() );
         if( f->IsZombie() )
         {
+            fTestTree.push_back( 0 );
             continue;
         }
         if( f->Get( "TestTree" ) )
@@ -701,6 +802,7 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
             fTestTree.back()->SetLineWidth( 2 );
             fName.push_back( fDataName[t] );
             cout << "Directory " << fDataDir[t] << ": ID " << fTestTree.size() - 1 << endl;
+            z++;
             if( f->Get( "TrainTree" ) )
             {
                 fTrainingTree.push_back( ( TTree* )f->Get( "TrainTree" ) );
@@ -712,8 +814,12 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
                 fTrainingTree.push_back( 0 );
             }
         }
+        else
+        {
+             fTestTree.push_back( 0 );
+        }
     }
-    cout << "Found " << fTestTree.size() << " test trees" << endl;
+    cout << "Found " << z << " test trees" << endl;
     
     if( iPlottingMode == "Resolution" )
     {
@@ -721,7 +827,39 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
         // plot resolution
         for( unsigned int i = 0; i < fTestTree.size(); i++ )
         {
-            plotResolution( iDispType, fTestTree[i], i + 1, iTelType, ( i == 0 ), ( ( int )i == iPlotSingleHistograms ), i, fName[i] );
+            if( fTestTree[i] != 0 )
+            {
+                double i_metric = plotResolution( iDispType, fTestTree[i], i + 1, iTelType, ( i == 0 ), 
+                             ( ( int )i == iPlotSingleHistograms ), i, fDataName[i], nMaxDispDir );
+                fResolutionMetric[i_metric] = i;
+            }
+        }
+        // plot metric (sorted)
+        cout << "Resolution metrics: " << endl;
+        unsigned int z = 0;
+        for( map< double, unsigned int >::iterator it = fResolutionMetric.begin(); 
+               it != fResolutionMetric.end(); ++it )
+        {
+             if( it->first > 0 )
+             {
+                 cout << "metrics " << it->second+1 << "\t\t" << it->first << endl;
+                 if( z < 20 )
+                 {
+                        plotResolution( iDispType, fTestTree[it->second], z+29, iTelType, false,
+                        false, it->second, fDataName[it->second], 1 );
+                        z++;
+                 }
+             }
+        } 
+        z = 0;
+        for( map< double, unsigned int >::iterator it = fResolutionMetric.begin(); 
+               it != fResolutionMetric.end(); ++it )
+        {
+             if( it->first > 0 && z < 20 )
+             {
+                 cout << "T20 metrics " << it->second+1 << "\t\t" << it->first << endl;
+             }
+             z++;
         }
     }
     else if( iPlottingMode == "TrainingVariables" )
@@ -729,9 +867,11 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
         ////////////////////////////////////////////////////////////
         // plot individual variables and the dependency of the
         // enerygy resolution for them
-        if( iPlotSingleHistograms >= 0 && iPlotSingleHistograms < ( int )fTestTree.size() )
+        if( iPlotSingleHistograms >= 0
+             && fTestTree.size() > 0
+             && fTestTree[0] )
         {
-            plotVariables( fTestTree[iPlotSingleHistograms], iDispType, iTelType );
+            plotVariables( fTestTree[0], iDispType, iTelType );
         }
     }
     else if( iPlottingMode == "OverTraining" )
@@ -741,19 +881,22 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
         // this is a check for over training
         //
         if( iPlotSingleHistograms >= 0
-                && iPlotSingleHistograms < ( int )fTestTree.size()
-                && iPlotSingleHistograms < ( int )fTrainingTree.size() )
+                && fTestTree.size() > 0
+                && fTestTree[0] 
+                && fTrainingTree.size() > 0 ) 
         {
-            plotResolution( iDispType, fTestTree[iPlotSingleHistograms], 1, iTelType, true, false, 0, fName[iPlotSingleHistograms] );
-            if( fTrainingTree[iPlotSingleHistograms] )
+            plotResolution( iDispType, fTestTree[0], 1, iTelType, true, false, 0, fName[0], 1 );
+            if( fTrainingTree[0] )
             {
-                fTrainingTree[iPlotSingleHistograms]->SetLineColor( 2 );
-                plotResolution( iDispType, fTrainingTree[iPlotSingleHistograms], 2, iTelType, false, false, 0, fName[iPlotSingleHistograms] );
+                fTrainingTree[0]->SetLineColor( 2 );
+                plotResolution( iDispType, fTrainingTree[0], 2, iTelType, false, false, 0, fName[0], 1, true );
             }
             else
             {
                 cout << "no training tree found" << endl;
             }
+            cout << "Black: test tree" << endl;
+            cout << "Red: training tree" << endl;
         }
     }
     else
@@ -762,6 +905,18 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
     }
     
 }
+
+void plotMVA( int iMVAID, string iSite = "North" )
+{
+      if( iSite == "North" )
+      {
+           plot_dispBDT_reconstructionQuality( "BDTDisp", "10408418", "./", "OverTraining", iMVAID, 1);
+           plot_dispBDT_reconstructionQuality( "BDTDispEnergy", "10408418", "./", "OverTraining", iMVAID, 1);
+           plot_dispBDT_reconstructionQuality( "BDTDisp", "138704810", "./", "OverTraining", iMVAID, 1);
+           plot_dispBDT_reconstructionQuality( "BDTDispEnergy", "138704810", "./", "OverTraining", iMVAID, 1);
+      }
+}
+    
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
