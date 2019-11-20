@@ -95,7 +95,7 @@
 #define qN     30
 //#define qSTEP (lqMAX-lqMIN)/qN
 
-#define N muN*qN
+#define Nmu muN*qN
 
 // For filling the probability density stuff
 #define RANGE1 70.
