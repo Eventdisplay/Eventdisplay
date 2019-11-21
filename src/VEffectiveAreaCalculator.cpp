@@ -2165,12 +2165,14 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
                 // Getting a slice
                 TH1D *i_slice = hVResponseMatrixFineQC[s][i_az]->ProjectionX("i_slice_Project", i_ybin,i_ybin);
                 // Fitting quietly
-                i_slice->Fit("fGauss","0q");
+                if( i_slice->GetEntries() > 0 )
+                {
+                    i_slice->Fit("fGauss","0q");
 
-                e_MC_Res[i_ybin] = hVResponseMatrixFineQC[s][i_az]->GetYaxis()->GetBinCenter(i_ybin);
-                e_Rec_Res[i_ybin] = fGauss->GetParameter(1);
-                e_Rec_Res_Err[i_ybin] = fGauss->GetParameter(2);
-
+                    e_MC_Res[i_ybin] = hVResponseMatrixFineQC[s][i_az]->GetYaxis()->GetBinCenter(i_ybin);
+                    e_Rec_Res[i_ybin] = fGauss->GetParameter(1);
+                    e_Rec_Res_Err[i_ybin] = fGauss->GetParameter(2);
+                }
                 delete i_slice;
             }
 
@@ -3541,7 +3543,9 @@ void VEffectiveAreaCalculator::fillAngularResolution( unsigned int i_az, bool iC
     
     // if on 68% containment, also fill king gamma/sigma parameters
     // (so they only get filled once, not twice (once for each containment radius) )
-    if( !iContainment_80p )
+    if( !iContainment_80p
+        && i_az < fGraph_AngularResolutionKingSigma.size()
+        && fGraph_AngularResolutionKingSigma[i_az] )
     {
     
         // fill sigma parameter
