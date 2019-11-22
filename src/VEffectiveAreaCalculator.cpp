@@ -1835,7 +1835,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         if( !bDirectionCut )
         {
             fillEcutSub( eMC, 6 );
-            fillEventDataTree( 7, fCuts->getTMVA_EvaluationResult() );
+            fillEventDataTree( 5, fCuts->getTMVA_EvaluationResult() );
         }
         // remaining events
         else
