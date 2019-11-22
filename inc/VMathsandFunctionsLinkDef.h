@@ -1,4 +1,4 @@
-#ifdef __CINT__
+#ifdef __CLING__
 #pragma link C++ class VDouble_gauss+;
 #pragma link C++ class VFun_gauss+;
 #pragma link C++ namespace VMathsandFunctions;
