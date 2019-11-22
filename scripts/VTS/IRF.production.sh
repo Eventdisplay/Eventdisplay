@@ -71,13 +71,13 @@ else
     EVNDISPRUNPARAMETER="EVNDISP.reconstruction.runparameter.$ANAMETHOD"
 fi
 
-# EventDisplay version (default is v502)
+# EventDisplay version (default is g502)
 $EVNDISPSYS/bin/printRunParameter --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
     EDVERSION=`$EVNDISPSYS/bin/printRunParameter --version | tr -d .`
 else
-    EDVERSION="v502"
+    EDVERSION="g502"
 fi
 # version string for aux files
 AUX="${ANAMETHOD}-auxv01"
@@ -228,5 +228,5 @@ done  #VX
 
 exit
 
-# /IRF.trainTMVAforGammaHadronSeparation.sh /lustre/fs19/group/cta/users/maierg/VERITAS/analysis/Results/v502c/BDTtraining/v502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20
-#  ./IRF.trainTMVAforGammaHadronSeparation.sh $VERITAS_USER_DATA_DIR/analysis/Results/v502/BDTtraining/v502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20 $VERITAS_USER_DATA_DIR/analysis/Results/v502/CARE_June1702/V6_ATM61_gamma_TL5035MA20/MSCW_RECID0
+# /IRF.trainTMVAforGammaHadronSeparation.sh /lustre/fs19/group/cta/users/maierg/VERITAS/analysis/Results/g502c/BDTtraining/g502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20
+#  ./IRF.trainTMVAforGammaHadronSeparation.sh $VERITAS_USER_DATA_DIR/analysis/Results/g502/BDTtraining/g502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20 $VERITAS_USER_DATA_DIR/analysis/Results/g502/CARE_June1702/V6_ATM61_gamma_TL5035MA20/MSCW_RECID0
