@@ -24,7 +24,7 @@ VTMVARunData::VTMVARunData()
     fQualityCutsSignal = "1";
     fMCxyoffCut = "1";
     fMCxyoffCutSignalOnly = false;
-    fAzimuthCut = "";
+    fAzimuthCut = "1";
     fPrepareTrainingOptions = "SplitMode=random:!V";
     
     fSignalWeight = 1.;
@@ -159,10 +159,6 @@ bool VTMVARunData::openDataFiles()
                         cout << i_j_BackgroundList->GetN();
                         cout << "\t required > " << fMinBackgroundEvents << endl;
                         cout << "  (cuts are " << fQualityCuts << "&&" << fQualityCutsBkg << "&&" << fMCxyoffCut << "&&" << fAzimuthCut;
-                        if( fMCxyoffCutSignalOnly )
-                        {
-                            cout << " (signal only) " ;
-                        }
                         cout << "&&" << fEnergyCutData[i]->fEnergyCut  << "&&" << fZenithCutData[j]->fZenithCut << ")" << endl;
                         if( i_j_BackgroundList->GetN() < fMinBackgroundEvents )
                         {
