@@ -27,6 +27,10 @@ void printHelp()
      cout << "to read a log file from a root file: " << endl;
      cout << "\t ./logFile <log name> <root file>" << endl;
      cout << endl;
+     cout << "\t examples are: " << endl;
+     cout << "\t\t makeTableLog, makeTableFileList" << endl;
+     cout << "\t\t tmvaLog, tmvaRunparameter" << endl;
+     cout << endl;
 }
 
 int main( int argc, char* argv[] )
