@@ -60,7 +60,8 @@ map< ULong64_t, TTree* > fMapOfTrainingTree;
 */
 bool trainTMVA( string iOutputDir, float iTrainTest,
                 ULong64_t iTelType, TTree* iDataTree,
-                string iTargetBDT, string iTMVAOptions )
+                string iTargetBDT, string iTMVAOptions,
+                string iQualityCut )
 {
     cout << endl;
     cout << "Starting " << iTargetBDT;
@@ -223,7 +224,8 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     //  **IMPORTANT**
     //  loss cut here must correspond to loss cut later in the analysis
     //  (otherwise large bias in the energy reconstruction)
-    TCut fQualityCut = "size>1.&&ntubes>4.&&width>0.&&width<2.&&length>0.&&length<10.&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&EHeight<100.&&Rcore<2000.";
+    TCut fQualityCut = iQualityCut.c_str();
+    cout << "Quality cuts applied: " << iQualityCut << endl;
     
     dataloader->PrepareTrainingAndTestTree( fQualityCut, train_and_test_conditions.str().c_str() ) ;
     
@@ -847,7 +849,7 @@ int main( int argc, char* argv[] )
     {
         cout << "./trainTMVAforAngularReconstruction <list of input eventdisplay files (MC)> <output directory>";
         cout << " <train vs test fraction> <RecID> <telescope type> [train for angular / energy / core reconstruction]";
-        cout << " [MVA options] [array layout file] [directory with training trees]" << endl;
+        cout << " [MVA options] [array layout file] [directory with training trees] [quality cut]" << endl;
         cout << endl;
 
         cout << "     <list of input eventdisplay files (MC)> : test files with input evndisplay files" << endl;
@@ -866,10 +868,11 @@ int main( int argc, char* argv[] )
     unsigned int iRecID      = atoi( argv[4] );
     ULong64_t    iTelType    = atoi( argv[5] ) ;
     string       iTargetBDT  = "BDTDisp";
-    // string       iTMVAOptions = "NTrees=2000:BoostType=Grad:IgnoreNegWeightsInTraining:Shrinkage=0.1:UseBaggedBoost:GradBaggingFraction=0.5:nCuts=20:MaxDepth=6:PruneMethod=ExpectedError";
     string iTMVAOptions = "VarTransform=N:NTrees=200:BoostType=AdaBoost:MaxDepth=8";
     string       iDataDirectory = "";
     string       iLayoutFile = "";
+    string       iQualityCut = "size>1.&&ntubes>4.&&width>0.&&width<2.&&length>0.&&length<10.";
+    iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&EHeight<100.&&Rcore<2000.";
     if( argc >=  7 )
     {
         iTargetBDT =       argv[6]   ;
@@ -885,6 +888,10 @@ int main( int argc, char* argv[] )
     if( argc >= 10 )
     {
         iDataDirectory = argv[9];
+    }
+    if( argc >= 11 )
+    {
+        iQualityCut = argv[10];
     }
     
     ///////////////////////////
@@ -964,7 +971,10 @@ int main( int argc, char* argv[] )
     cout << "Number of telescope types: " << fMapOfTrainingTree.size() << endl;
     for( fMapOfTrainingTree_iter = fMapOfTrainingTree.begin(); fMapOfTrainingTree_iter != fMapOfTrainingTree.end(); ++fMapOfTrainingTree_iter )
     {
-        trainTMVA( fOutputDir, fTrainTest, fMapOfTrainingTree_iter->first, fMapOfTrainingTree_iter->second, iTargetBDT, iTMVAOptions );
+        trainTMVA( fOutputDir, fTrainTest, 
+                fMapOfTrainingTree_iter->first, 
+                fMapOfTrainingTree_iter->second, 
+                iTargetBDT, iTMVAOptions, iQualityCut );
     }
     
     //////////////////////
