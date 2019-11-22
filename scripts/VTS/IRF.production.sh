@@ -11,7 +11,7 @@ IRF.production.sh <sim type> <IRF type> [epoch] [atmosphere] [Rec ID] [cuts list
 
 required parameters:
 
-    <sim type>              original VBF file simulation type (e.g. GRISU-SW6, CARE_June1425)
+    <sim type>              original VBF file simulation type (e.g. GRISU-SW6, CARE_June1702)
     
     <IRF type>              type of instrument response function to produce
                             (e.g. EVNDISP, MAKETABLES, COMBINETABLES,
@@ -62,22 +62,22 @@ IRFTYPE=$2
 
 # If ANAMETHOD is not among env variables, set a default value
 ANAMETHOD="NN"
-ANAMETHOD="TL5025MA10"
+ANAMETHOD="TL5025"
 
 if [ "$ANAMETHOD" == "" ]; then
-    ANAMETHOD="TL5035MA20"
+    ANAMETHOD="TL5035"
     EVNDISPRUNPARAMETER="EVNDISP.reconstruction.runparameter"
 else
     EVNDISPRUNPARAMETER="EVNDISP.reconstruction.runparameter.$ANAMETHOD"
 fi
 
-# EventDisplay version (default is g502)
+# EventDisplay version (default is g500)
 $EVNDISPSYS/bin/printRunParameter --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
     EDVERSION=`$EVNDISPSYS/bin/printRunParameter --version | tr -d .`
 else
-    EDVERSION="g502"
+    EDVERSION="g500"
 fi
 # version string for aux files
 AUX="${ANAMETHOD}-auxv01"
@@ -100,7 +100,8 @@ elif [ ${SIMTYPE:0:4} = "CARE" ]; then
     fi
     ZENITH_ANGLES=( 00 20 30 35 40 45 50 55 )
     NSB_LEVELS=( 50 75 100 130 160 200 250 300 350 400 450 )
-   # NSB_LEVELS=( 200 )
+    ZENITH_ANGLES=( 20 )
+    NSB_LEVELS=( 160 )
     if [[ $ATMOS == "62" ]]; then
           ZENITH_ANGLES=( 00 20 30 35 )
     fi
@@ -228,5 +229,5 @@ done  #VX
 
 exit
 
-# /IRF.trainTMVAforGammaHadronSeparation.sh /lustre/fs19/group/cta/users/maierg/VERITAS/analysis/Results/g502c/BDTtraining/g502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20
-#  ./IRF.trainTMVAforGammaHadronSeparation.sh $VERITAS_USER_DATA_DIR/analysis/Results/g502/BDTtraining/g502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20 $VERITAS_USER_DATA_DIR/analysis/Results/g502/CARE_June1702/V6_ATM61_gamma_TL5035MA20/MSCW_RECID0
+# /IRF.trainTMVAforGammaHadronSeparation.sh /lustre/fs19/group/cta/users/maierg/VERITAS/analysis/Results/g500c/BDTtraining/g502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20
+#  ./IRF.trainTMVAforGammaHadronSeparation.sh $VERITAS_USER_DATA_DIR/analysis/Results/g500/BDTtraining/g502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20 $VERITAS_USER_DATA_DIR/analysis/Results/g502/CARE_June1702/V6_ATM61_gamma_TL5035MA20/MSCW_RECID0

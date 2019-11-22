@@ -22,7 +22,7 @@ RUNTYPE="$1"
 [[ "$2" ]] && ANAMETHOD=$2 || ANAMETHOD="GEO"
 
 # evndisp version
-VERSION="g502"
+VERSION="g500"
 # ATMOSPHERE
 ATM="ATM61"
 # run list
@@ -171,7 +171,7 @@ do
         then
            TFIL=table-$VERSION-${ANAMETHOD}-auxv01-${SIMTYPE}-${ATM}-${EPOCH}-RECMETHOD${ID}
            # TMP
-           #TFIL=table-g502-${ANAMETHOD}-auxv01-${SIMTYPE}-${ATM}-${EPOCH}-RECMETHOD${ID}
+           #TFIL=table-g500-${ANAMETHOD}-auxv01-${SIMTYPE}-${ATM}-${EPOCH}-RECMETHOD${ID}
            $(dirname "$0")/ANALYSIS.mscw_energy.sh $TFIL $RLIST $ODIR $ID $IDIR
             continue
         fi

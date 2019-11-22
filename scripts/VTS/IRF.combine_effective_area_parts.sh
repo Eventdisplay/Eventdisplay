@@ -57,7 +57,7 @@ if (($? == 0))
 then
     EDVERSION=`$EVNDISPSYS/bin/combineEffectiveAreas --version | tr -d .`
 else
-    EDVERSION="g502"
+    EDVERSION="g500"
 fi
 
 # Parse command line arguments

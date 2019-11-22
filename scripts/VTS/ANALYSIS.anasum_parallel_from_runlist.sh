@@ -7,7 +7,7 @@ if (($? == 0))
 then
     EDVERSION=`$EVNDISPSYS/bin/anasum --version | tr -d .`
 else
-    EDVERSION="g502"
+    EDVERSION="g500"
 fi
 
 if [[ "$#" -lt 4 ]]; then
@@ -68,7 +68,7 @@ fi
 
 ###########################
 # IRFs
-IRFVERSION="g502"
+IRFVERSION="g500"
 
 # Run init script
 bash $(dirname "$0")"/helper_scripts/UTILITY.script_init.sh"

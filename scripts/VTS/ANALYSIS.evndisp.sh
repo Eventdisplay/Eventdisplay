@@ -11,7 +11,7 @@ if (($? == 0))
 then
     EDVERSION=`$EVNDISPSYS/bin/evndisp --version | tr -d .`
 else
-    EDVERSION="g502"
+    EDVERSION="g500"
 fi
 
 if [ ! -n "$1" ] || [ "$1" = "-h" ]; then
