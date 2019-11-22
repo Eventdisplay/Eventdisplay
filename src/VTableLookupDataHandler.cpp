@@ -730,7 +730,9 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     if( fDispAnalyzerCore )
     {
         fDispAnalyzerCore->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
-                                           fTLRunParameter->fmaxdist, fTLRunParameter->fmaxloss );
+                                           fTLRunParameter->fmaxdist, 
+                                           fTLRunParameter->fmaxloss,
+                                           fTLRunParameter->fminfui );
         fDispAnalyzerCore->calculateCore(
             getNTel(),
             fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -765,7 +767,9 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     if( fDispAnalyzerEnergy )
     {
         fDispAnalyzerEnergy->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
-                                             fTLRunParameter->fmaxdist, fTLRunParameter->fmaxloss );
+                                             fTLRunParameter->fmaxdist, 
+                                             fTLRunParameter->fmaxloss,
+                                             fTLRunParameter->fminfui );
         fDispAnalyzerEnergy->calculateEnergies(
             getNTel(),
             fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -873,7 +877,9 @@ void VTableLookupDataHandler::doStereoReconstruction()
         fDispAnalyzerDirection->setDispErrorWeighting( fDispAnalyzerDirectionError != 0,
                 fTLRunParameter->fDispError_BDTWeight );
         fDispAnalyzerDirection->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
-                                                fTLRunParameter->fmaxdist, fTLRunParameter->fmaxloss );
+                                                fTLRunParameter->fmaxdist, 
+                                                fTLRunParameter->fmaxloss,
+                                                fTLRunParameter->fminfui );
         fDispAnalyzerDirection->calculateMeanDirection(
             getNTel(),
             fArrayPointing_Elevation, fArrayPointing_Azimuth,

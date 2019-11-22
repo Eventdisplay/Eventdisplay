@@ -130,9 +130,10 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         double       fTableFillingCut_WobbleCut_max;
         double       fMC_distance_to_cameracenter_min;
         double       fMC_distance_to_cameracenter_max;
-        double       fmaxdist;   // note: same for all telescope types (used in obsolete energy reconstruction only)
-        double       fmaxloss;   // note: same for all telescope types (used in obsolete energy reconstruction only)
-        double       fminsize;   // note: same for all telescope times (used in obsolete energy reconstruction only)
+        double       fmaxdist;   // note: same for all telescope types
+        double       fmaxloss;   // note: same for all telescope types
+        double       fminfui ;   // note: same for all telescope types
+        double       fminsize;   // note: same for all telescope times
         // seed for random selection of showers before table filling
         double       fSelectRandom;
         int          fSelectRandomSeed;
@@ -182,6 +183,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         void print( int iB = 0 );
         void printHelp();
         
-        ClassDef( VTableLookupRunParameter, 43 ); //for any changes to this file: increase this number
+        ClassDef( VTableLookupRunParameter, 44 ); //for any changes to this file: increase this number
 };
 #endif
