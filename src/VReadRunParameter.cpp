@@ -1921,7 +1921,6 @@ void VReadRunParameter::printStartMessage()
     cout << "\t|        IACT event analysis and display          |" << endl;
     cout << "\t|                                                 | " << endl;
     cout << "\t|     \t\t Version " << fRunPara->getEVNDISP_VERSION() << "                   |" << endl;
-    cout << "\t|     \t\t SVN " << fRunPara->getSVN_VERSION() << "            |" << endl;
     cout << "\t|                                                 | " << endl;
     cout << "\t---------------------------------------------------" << endl;
 }

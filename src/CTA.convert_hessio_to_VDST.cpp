@@ -1689,7 +1689,6 @@ int main( int argc, char** argv )
     cout << " (" << VGlobalRunParameter::fEVNDISP_VERSION << ")" << endl;
     cout << " (based on a skeleton program distributed with the hessio package)" << endl;
     cout << "=====================================================================" << endl;
-    cout << "(SVN " << VGlobalRunParameter::fEVNDISP_SVNREVISION << ")" << endl;
     
     /* Show command line on output */
     if( getenv( "SHOWCOMMAND" ) != NULL )
