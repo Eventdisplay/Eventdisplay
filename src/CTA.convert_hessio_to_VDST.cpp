@@ -310,7 +310,7 @@ static void syntax( char* program )
     printf( "   --max-events n   (Skip remaining data after so many triggered events.)\n" );
     printf( "   -a subarray file (list of telescopes to read with FOV.)\n" );
     printf( "   -o dst filename  (name of dst output file)\n" );
-    printf( "   -f 0(QADC), 1(FADC), 2(MIXED) (write FADC samples to DST file;default=0)\n" );
+    printf( "   -f 0(QADC), 1(FADC), 2(MIXED) (write FADC samples to DST file;default=2)\n" );
     printf( "   -c pedfile.root  (file with pedestals and pedestal variances)\n" );
     printf( "   -t <trgmask directory> (directory with trigger mask files (corrections for Spring 2013 prod2 production)\n" );
     printf( "   -r on=1/off=0    (apply camera plate scaling for DC telescopes; default=1)\n" );
