@@ -432,9 +432,7 @@ int main( int argc, char* argv[] )
     
     // store event display version number
     char progname[100] = "" ;
-    int  svnrev        = 0  ;
-    sscanf( anasumRunPar->getSVN_VERSION().c_str(), "$Revision: %d $", &svnrev ) ;
-    sprintf( progname, "Event Display %s, svn rev:%d", anasumRunPar->getEVNDISP_VERSION().c_str(), svnrev ) ;
+    sprintf( progname, "Event Display %s", anasumRunPar->getEVNDISP_VERSION().c_str() ) ;
     
     /////////////////////////////////////////////////////////////////////////////////////
     // get VEvndispRunParameter object from file

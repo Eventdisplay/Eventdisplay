@@ -60,7 +60,7 @@ if (($? == 0))
 then
     EDVERSION=`$EVNDISPSYS/bin/trainTMVAforGammaHadronSeparation --version | tr -d .`
 else
-    EDVERSION="v502"
+    EDVERSION="g500"
 fi
 
 # Parse command line arguments

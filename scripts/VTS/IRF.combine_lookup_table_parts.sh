@@ -46,7 +46,7 @@ if (($? == 0))
 then
     EDVERSION=`$EVNDISPSYS/bin/combineLookupTables --version | tr -d .`
 else
-    EDVERSION="v502"
+    EDVERSION="g500"
 fi
 
 # Parse command line arguments

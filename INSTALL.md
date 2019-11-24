@@ -1,50 +1,38 @@
-# EVENTDISPLAY - IACT event analysis and display - INSTALLATION
+#  INSTALLATION
 
 ## Prerequisites
 
-(0.1) ROOT must be installed 
+- ROOT must be installed 
       version >= 6.14
-      Compiling options should be 
-      ./configure --enable-minuit2 --enable-mysql --enable-tmva
-(0.2) SOFA library (http://www.iausofa.org/current_C.html) must be installed
-      used the script in the $EVNDISPSYS directory:
-      ./install_sofa.sh
-      Set the following environmental variable:
-      SOFASYS=$EVNDISPSYS/sofa
+      To compile root, use '-Dbuiltin_cfitsio=ON -Dbuiltin_gsl=ON'
 
-## VERITAS analysis
+- SOFA library (http://www.iausofa.org/current_C.html) must be installed. Use the script in the $EVNDISPSYS directory:
+```
+ ./install_sofa.sh
+```
+Set the following environmental variable:  SOFASYS=$EVNDISPSYS/sofa
 
-Requires vbf for reading of VERITAS raw and simulation files.
-Requires bbftp for downloading of VERITAS raw files.
+### VERITAS analysis
 
-(1.0) Configure your CVS for VERITAS (password needed), if not already done: 
+(see VERITAS internal wiki for all details
 
-   > export CVSROOT=:pserver:cvsuser@romulus.ucsc.edu:/home/cvsuser/VERITAS
-   > cvs login
-
-(1.1) Download and install VBF (use >= 0.3.1), if not already done: 
-
-   > cvs co -P -d VBF software/common/VBF
-
-(1.2) bbftp is needed to download data files from the VERITAs archive (see http://doc.in2p3.fr/bbftp/)
-
-## CTA analysis
+### CTA analysis
 
 (2.0) HESSIO libraries needed for the analysis of CTA Monte Carlo can be found here:
    http://www.mpi-hd.mpg.de/hfm/CTA/internal/MC/Software/
 
    (note: this side is password protected, usual CTA details)
 
-## Optional
+### Optional
 
 (3.0) for all FITS related output, cfitsio is needed (see http://heasarc.gsfc.nasa.gov/fitsio/)
 
-(3.1) GSL libraries (needed for FROGS image template method)
+(3.1) GSL libraries (needed for FROGS image template method; ROOT included gsl is fine)
       http://www.gnu.org/software/gsl/
 
-# Environmental Variables
+## Environmental Variables
 
-## Compiling and linking
+### Compiling and linking
 
 ROOTSYS :   (required) ROOT installation; add $ROOTSYS/lib to $LD_LIBRARY_PATH and $ROOTSYS/bin to $PATH 
             (root should be compiled with minuit2, mysql, xml)
@@ -61,13 +49,13 @@ FITSSYS :   (optional) FITS libraries (optional, not needed in most cases)
 
 GSLSYS :    (optional) GSL libraries (needed for FROGS image template method)
 
-## Analysis
+### Analysis
 
 EVNDISPSYS : EVNDISP directory (scripts expect binaries in $EVNDISPSYS/bin and libraries in $EVNDISPSYS/lib) 
 
 For root versions >=6.xx: add $EVNDISPSYS/obj to LD_LIBRARY_PATH
 
-## Data directories
+### Data directories
 
 (different auxiliary data files are needed for the analysis (e.g. calibration files, detector geometry, etc))
 
@@ -91,17 +79,17 @@ VERITAS_IRFPRODUCTION_DIR : directory used in IRF production (not needed for 'no
 
 To switch settings for the different observatory (in the $EVNDISPSYS directory): 
 
-./setObservatory.sh CTA
+    ./setObservatory.sh CTA
 
 or
 
-./setObservatory.sh VERITAS
+    ./setObservatory.sh VERITAS
 
 # Compiling
 
 Check your system's configuration:
 
-make config
+    make config
 
 Compiling and installing:
 
@@ -109,20 +97,20 @@ in $EVNDISPSYS:
 
 for VERITAS analysis type:
 
-make VTS
+    make VTS
 
 or, for CTA analysis type:
 
-make CTA
+    make CTA
 
 or, for CTA and VERITAS analysis type:
 
-make all
+    make all
 
 # Makefile targets
 
-all	make all executables and libraries
-clean
-install
-CTA	make all CTA relevant binaries/libraries
-VTS	make all VERITAS relevant binaries/libraries
+- all	make all executables and libraries
+- clean
+- install
+- CTA	make all CTA relevant binaries/libraries
+- VTS	make all VERITAS relevant binaries/libraries

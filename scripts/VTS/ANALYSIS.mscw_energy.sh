@@ -10,7 +10,7 @@ if (($? == 0))
 then
     EDVERSION=`$EVNDISPSYS/bin/mscw_energy --version | tr -d .`
 else
-    EDVERSION="v502"
+    EDVERSION="g500"
 fi
 
 if [ $# -lt 2 ]; then
