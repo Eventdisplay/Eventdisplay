@@ -3,6 +3,7 @@
 #ifndef VInstrumentResponseFunction_H
 #define VInstrumentResponseFunction_H
 
+#include "TFile.h"
 #include "TGraphErrors.h"
 #include "TH2D.h"
 #include "TList.h"
@@ -29,6 +30,9 @@ class VInstrumentResponseFunction
         
         string fName;
         string fType;
+
+        // output file
+        TFile *fOutputFile;
         
         // data tree
         CData*   fData;
@@ -115,6 +119,10 @@ class VInstrumentResponseFunction
         }
         void   setDataTree( CData* iData );
         void   setMonteCarloEnergyRange( double iMin, double iMax, double iMCIndex = 2. );
+        void   setOutputFile( TFile *iOutputFile )
+        {
+             fOutputFile = iOutputFile;
+        }
         void   setTelescopeTypeCuts( bool iB = true )
         {
             fTelescopeTypeCutsSet = iB;

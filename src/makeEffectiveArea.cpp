@@ -253,6 +253,7 @@ int main( int argc, char* argv[] )
         {
             f_IRF[i]->setDataTree( &d );
             f_IRF[i]->setCuts( fCuts );
+            f_IRF[i]->setOutputFile( fOutputfile );
             if( f_IRF[i]->doNotDuplicateIRFs() )
             {
                 f_IRF[i]->fill();

@@ -12,6 +12,8 @@ VInstrumentResponseFunction::VInstrumentResponseFunction()
     
     fName = "";
     fType = "";
+
+    fOutputFile = 0;
     
     fData = 0;
     fAnaCuts = 0;
@@ -286,6 +288,11 @@ bool VInstrumentResponseFunction::fillEventData()
 bool VInstrumentResponseFunction::fillResolutionGraphs( vector< vector< VInstrumentResponseFunctionData* > > iIRFData )
 {
     fIRFData = iIRFData;
+
+    if( fOutputFile )
+    {
+        fOutputFile->cd();
+    }
     
     // fill resolution graphs
     cout << "VInstrumentResponseFunction::terminate ";
@@ -296,6 +303,7 @@ bool VInstrumentResponseFunction::fillResolutionGraphs( vector< vector< VInstrum
         {
             if( fIRFData[i][j] )
             {
+                cout << "\t" << i << "\t" << j << endl;
                 fIRFData[i][j]->terminate( fContainmentProbability );
             }
         }
