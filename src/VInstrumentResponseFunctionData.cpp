@@ -866,7 +866,6 @@ TList*  VInstrumentResponseFunctionData::calculateResolution( TH2D* iHistogram, 
     
     if( doKingFit )
     {
-    
         // fill king function result graphs
         iResultKingSigma->Set( ( int )vKingEnergy.size() ) ;
         iResultKingGamma->Set( ( int )vKingEnergy.size() ) ;
