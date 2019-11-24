@@ -2116,7 +2116,7 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
         ///////////////////////////////////////////////////////
         // check if value if really at the optimum or if information is missing from background efficiency curve
         // (check if maximum was find in the last bin or if next bin content is zero)
-        if( ( effB->FindBin( i_xmax ) + 1  < effB->GetNbinsX()
+        /*if( ( effB->FindBin( i_xmax ) + 1  < effB->GetNbinsX()
                 && effB->GetBinContent( effB->FindBin( i_xmax ) + 1 ) < 1.e-10 )
                 || ( effB->FindBin( i_xmax ) == effB->GetNbinsX() ) )
         {
@@ -2146,7 +2146,8 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
         else
         {
             fTMVAData[iDataBin]->fTMVAOptimumCutValueFound = true;
-        }
+        } */
+        fTMVAData[iDataBin]->fTMVAOptimumCutValueFound = true;
         /////////////////////////////////
         // check detection criteria
         
