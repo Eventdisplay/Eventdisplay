@@ -183,6 +183,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         void print( int iB = 0 );
         void printHelp();
         
-        ClassDef( VTableLookupRunParameter, 44 ); //for any changes to this file: increase this number
+        ClassDef( VTableLookupRunParameter, 45 ); //for any changes to this file: increase this number
 };
 #endif
