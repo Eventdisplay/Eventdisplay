@@ -231,6 +231,10 @@ class VAnaSumRunParameter : public TNamed, public VGlobalRunParameter
             return fVersion;
         }
         vector<VListOfExclusionRegions*> getExclusionRegions( unsigned int iRunCounter );
+        VExclusionRegions* getExclusionRegions()
+        {
+             return fExclusionRegions;
+        }
         void getEventdisplayRunParameter( string );
         double getLargestStarExlusionRadius();
         VGammaHadronCuts* getGammaHadronCuts( string ifile );
@@ -265,6 +269,6 @@ class VAnaSumRunParameter : public TNamed, public VGlobalRunParameter
         bool writeListOfExcludedSkyRegions( int inonRun );
         bool getListOfExcludedSkyRegions( TFile* f, int inonRun );
         
-        ClassDef( VAnaSumRunParameter, 16 );
+        ClassDef( VAnaSumRunParameter, 17 );
 };
 #endif
