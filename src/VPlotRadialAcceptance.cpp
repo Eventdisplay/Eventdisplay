@@ -59,11 +59,12 @@ bool VPlotRadialAcceptance::openAcceptanceFile( string iFile, int iAzBin )
     //
     // Note that some of the histograms might not be available in the
     // radial acceptance file
-    cout << "reading acceptance histograms from " << fAcceptanceFile->GetName() << endl;
-    fAcceptanceHisto = ( TH1F* )fAcceptanceFile->Get( "hRadialAcceptance" );
+    cout << "reading acceptance histograms from ";
+    cout << fAcceptanceFile->GetName() << " (" << gDirectory->GetName() << ")" << endl;
+    fAcceptanceHisto = ( TH1F* )gDirectory->Get( "hRadialAcceptance" );
     if( !fAcceptanceHisto )
     {
-        fAcceptanceHisto = ( TH1F* )fAcceptanceFile->Get( "hAccZe_0" );
+        fAcceptanceHisto = ( TH1F* )gDirectory->Get( "hAccZe_0" );
         if( !fAcceptanceHisto )
         {
             cout << "VPlotRadialAcceptance::addAcceptanceFile: error finding acceptance histogram" << endl;
@@ -72,10 +73,10 @@ bool VPlotRadialAcceptance::openAcceptanceFile( string iFile, int iAzBin )
         }
     }
     // read acceptance fit function from file
-    fAcceptanceFunction = ( TF1* )fAcceptanceFile->Get( "fRadialAcceptance" );
+    fAcceptanceFunction = ( TF1* )gDirectory->Get( "fRadialAcceptance" );
     if( !fAcceptanceFunction )
     {
-        fAcceptanceFunction = ( TF1* )fAcceptanceFile->Get( "fAccZe_0" );
+        fAcceptanceFunction = ( TF1* )gDirectory->Get( "fAccZe_0" );
         if( !fAcceptanceFunction )
         {
             cout << "VPlotRadialAcceptance::addAcceptanceFile: error finding acceptance fit function" << endl;
@@ -85,7 +86,7 @@ bool VPlotRadialAcceptance::openAcceptanceFile( string iFile, int iAzBin )
     }
     sprintf( hname, "hXYAccTotDeRot" );
     fAcceptanceHisto2D_derot_normalized = false;
-    fAcceptanceHisto2D_derot = ( TH2F* )fAcceptanceFile->Get( hname );
+    fAcceptanceHisto2D_derot = ( TH2F* )gDirectory->Get( hname );
     
     sprintf( hname, "hXYaccTot" );
     fAcceptanceHisto2D_rot = ( TH2F* )fAcceptanceFile->Get( hname );
@@ -99,21 +100,21 @@ bool VPlotRadialAcceptance::openAcceptanceFile( string iFile, int iAzBin )
     for( int i = 0; i < 16; i++ )
     {
         sprintf( hname, "hAccPhi_%d", i );
-        fAcceptancePhiHisto.push_back( ( TH1F* )fAcceptanceFile->Get( hname ) );
+        fAcceptancePhiHisto.push_back( ( TH1F* )gDirectory->Get( hname ) );
         sprintf( hname, "fAccPhi_%d", i );
-        fAcceptancePhiFitFunction.push_back( ( TF1* )fAcceptanceFile->Get( hname ) );
+        fAcceptancePhiFitFunction.push_back( ( TF1* )gDirectory->Get( hname ) );
         sprintf( hname, "hAccPhiDerot_%d", i );
-        fAcceptancePhiHistoDeRot.push_back( ( TH1F* )fAcceptanceFile->Get( hname ) );
+        fAcceptancePhiHistoDeRot.push_back( ( TH1F* )gDirectory->Get( hname ) );
         sprintf( hname, "fAccPhiDerot_%d", i );
-        fAcceptancePhiFitFunctionDeRot.push_back( ( TF1* )fAcceptanceFile->Get( hname ) );
+        fAcceptancePhiFitFunctionDeRot.push_back( ( TF1* )gDirectory->Get( hname ) );
     }
     // read AZ distributions
-    hPhiDist = ( TH1F* )fAcceptanceFile->Get( "hPhiDist" );
+    hPhiDist = ( TH1F* )gDirectory->Get( "hPhiDist" );
     if( hPhiDist )
     {
         hPhiDist->Rebin( 5 );
     }
-    hPhiDistDeRot = ( TH1F* )fAcceptanceFile->Get( "hPhiDistDeRot" );
+    hPhiDistDeRot = ( TH1F* )gDirectory->Get( "hPhiDistDeRot" );
     if( hPhiDistDeRot )
     {
         hPhiDistDeRot->Rebin( 5 );
