@@ -75,7 +75,7 @@ mkdir -p "$LOGDIRTEMP"
 DATECODE=`date +%Y%m%d`
 TEMPLIST=`basename "$FLIST"`
 TEMPLIST="$LOGDIRTEMP/$DATECODE.PID$$.$TEMPLIST.tmp"
-rm -f $TEMPLIST
+rm -f "$TEMPLIST"
 cat "$FLIST" | grep "*" >> "$TEMPLIST"
 
 # output directory
