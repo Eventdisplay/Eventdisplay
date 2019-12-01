@@ -2,10 +2,10 @@
 # script to analyse data files with anasum (parallel analysis) from a simple run list
 
 # EventDisplay version
-$EVNDISPSYS/bin/anasum --version  >/dev/null 2>/dev/null
+"$EVNDISPSYS"/bin/anasum --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
-    EDVERSION=`$EVNDISPSYS/bin/anasum --version | tr -d .`
+    EDVERSION=`"$EVNDISPSYS"/bin/anasum --version | tr -d .`
 else
     EDVERSION="g500"
 fi
@@ -42,7 +42,7 @@ optional parameters:
     [sim type]              use IRFs derived from this simulation type (GRISU-SW6 or CARE_June1425)
 			    Default: CARE_June1425
 
-    [method]                reconstruction method: GEO, DISP, FROGS.
+    [method]                reconstruction method: GEO, DISP 
 			    Default: GEO
 
     [radial acceptance]     0=use external radial acceptance;
@@ -106,6 +106,8 @@ elif [[ $CUTS = *NTel2-*MVA-Preselection ]]; then
     CUT=$CUTS
 elif [[ $CUTS = *NTel2-*MVA-BDT ]]; then
     CUT=$CUTS
+elif [[ $CUTS = *NTel* ]]; then
+    CUT=$CUTS
 else
     echo "ERROR: unknown cut definition: $CUTS"
     exit 1
@@ -125,9 +127,9 @@ RADACC="radialAcceptance-${IRFVERSION}-${AUXVERSION}-${SIMTYPE}-Cut-${CUTRED}-${
 # EFFAREA="IGNOREEFFECTIVEAREA"
 # END TEMPORARY
 
-echo $CUTFILE
-echo $EFFAREA
-echo $RADACC
+echo "$CUTFILE"
+echo "$EFFAREA"
+echo "$RADACC"
 
 # background model parameters
 if [[ "$BACKGND" == *RB* ]]; then
@@ -167,24 +169,23 @@ fi
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/ANASUM.ANADATA"
 echo -e "Log files will be written to:\n $LOGDIR"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 # output directory for anasum products
 echo -e "Output files will be written to:\n $ODIR"
-mkdir -p $ODIR
+mkdir -p "$ODIR"
 
 #########################################
 # make anasum run list
 ANARUNLIST="$ODIR/$CUTS.anasum.dat"
-rm -f $ANARUNLIST
+rm -f "$ANARUNLIST"
 echo "anasum run list: $ANARUNLIST"
 
 # run list header
-# echo "* VERSION 6" >> $ANARUNLIST
-echo "* VERSION 7" >> $ANARUNLIST
-echo "" >> $ANARUNLIST
+echo "* VERSION 7" >> "$ANARUNLIST"
+echo "" >> "$ANARUNLIST"
 
-RUNS=`cat $RLIST`
+RUNS=`cat "$RLIST"`
 
 # loop over all runs
 for RUN in ${RUNS[@]}; do
@@ -193,14 +194,14 @@ for RUN in ${RUNS[@]}; do
         echo "error: mscw file not found: $INDIR/$RUN.mscw.root"
         continue
     fi
-    RUNINFO=`$EVNDISPSYS/bin/printRunParameter $INDIR/$RUN.mscw.root -runinfo`
-    EPOCH=`echo $RUNINFO | awk '{print $(1)}'`
-    ATMO=${FORCEDATMO:-`echo $RUNINFO | awk '{print $(2)}'`}
+    RUNINFO=`"$EVNDISPSYS"/bin/printRunParameter "$INDIR/$RUN.mscw.root" -runinfo`
+    EPOCH=`echo "$RUNINFO" | awk '{print $(1)}'`
+    ATMO=${FORCEDATMO:-`echo "$RUNINFO" | awk '{print $(2)}'`}
     if [[ $ATMO == *error* ]]; then
        echo "error finding atmosphere; skipping run $RUN"
        continue
     fi
-    TELTOANA=`echo $RUNINFO | awk '{print "T"$(4)}'`
+    TELTOANA=`echo "$RUNINFO" | awk '{print "T"$(4)}'`
     echo "RUN $RUN at epoch $EPOCH and atmosphere $ATMO (Telescopes $TELTOANA)"
     echo "File $INDIR/$RUN.mscw.root"
 
@@ -223,17 +224,14 @@ for RUN in ${RUNS[@]}; do
         RADACCRUN="IGNOREACCEPTANCE"
     fi
 
-    # write line to file (VERSION 6)
-#    echo "* $RUN $RUN 0 $CUTFILE $BM $EFFAREARUN $BMPARAMS $RADACCRUN="IGNOREACCEPTANCE"RADACCRUN" >> $ANARUNLIST
-#    echo "* $RUN $RUN 0 $CUTFILE $BM $EFFAREARUN $BMPARAMS $RADACCRUN"
     # write line to file 
     # (VERSION 7; cuts are read from the effective area file)
-    echo "* $RUN $RUN 0 $BM $EFFAREARUN $BMPARAMS $RADACCRUN" >> $ANARUNLIST
+    echo "* $RUN $RUN 0 $BM $EFFAREARUN $BMPARAMS $RADACCRUN" >> "$ANARUNLIST"
     echo "* $RUN $RUN 0 $BM $EFFAREARUN $BMPARAMS $RADACCRUN"
 done
 
 # submit the job
 SUBSCRIPT="$EVNDISPSYS/scripts/VTS/ANALYSIS.anasum_parallel"
-$SUBSCRIPT.sh $ANARUNLIST $INDIR $ODIR $RUNP ${RACC}
+$SUBSCRIPT.sh "$ANARUNLIST" "$INDIR" "$ODIR" "$RUNP" "${RACC}"
 
 exit
