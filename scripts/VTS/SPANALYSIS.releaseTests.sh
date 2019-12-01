@@ -122,7 +122,7 @@ do
     ########### START EVNDISP
     if [[ $RUNTYPE = "EVNDISP" ]]
     then
-       $(dirname "$0")/ANALYSIS.evndisp.sh $RLIST $ODIR $ERUN 1 $ANAMETHOD
+       $(dirname "$0")/ANALYSIS.evndisp.sh "$RLIST" "$ODIR" "$ERUN" 1 "$ANAMETHOD"
        continue
     fi
     ########### END EVNDISP
@@ -140,16 +140,10 @@ do
         then
            TFIL=table-$VERSION-${ANAMETHOD}-auxv01-${SIMTYPE}-${ATM}-${EPOCH}-RECMETHOD${ID}
            echo "$TFIL"
-           #TFIL=table-g500-${ANAMETHOD}-auxv01-${SIMTYPE}-${ATM}-${EPOCH}-RECMETHOD${ID}
-           $(dirname "$0")/ANALYSIS.mscw_energy.sh $TFIL $RLIST $ODIR $ID $IDIR
+           $(dirname "$0")/ANALYSIS.mscw_energy.sh "$TFIL" "$RLIST" "$ODIR" "$ID" "$IDIR"
            continue
         fi
         ########### END MSCW
-        ########### START FROGS
-        if [[ $RUNTYPE = "FROGS" ]]
-        then
-           $(dirname "$0")/ANALYSIS.evndisp_frogs.sh $RLIST $PREFIX/${O}/${D}/${VERSIONSUB}_${ANAMETHOD}/ $IDIR
-        fi
 
         ############ ANASUM ###############
         ##
@@ -173,10 +167,10 @@ do
                     rm -f "$ODIR.log"
                     if [[ $RUNTYPE = "ANASUM" ]]
                     then
-                         $EVNDISPSYS/bin/anasum -i 1 -d $ODIR -f $RUNPAR -l $ODIR/$C.anasum.dat -o $ODIR.root > $ODIR.log
+                         $EVNDISPSYS/bin/anasum -i 1 -d "$ODIR" -f "$RUNPAR" -l "$ODIR/$C.anasum.dat" -o "$ODIR.root" > "$ODIR.log"
                     elif [[ $RUNTYPE = "ANASUM_SUB" ]]
                     then
-                        $(dirname "$0")/ANALYSIS.anasum_parallel_from_runlist.sh ${RLIST} $ODIR $C ${BC} $RUNPAR $IDIR $SIMTYPE $ANAMETHOD 1 61 $ID
+                        $(dirname "$0")/ANALYSIS.anasum_parallel_from_runlist.sh "${RLIST}" "$ODIR" "$C" "${BC}" "$RUNPAR" "$IDIR" "$SIMTYPE" "$ANAMETHOD" 1 61 "$ID"
                     fi
                     echo "DONE $ODIR"
                done
