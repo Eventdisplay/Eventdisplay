@@ -2,14 +2,13 @@
 # script to run eventdisplay analysis for VTS data
 
 # qsub parameters
-# h_cpu=41:59:00; h_vmem=4000M; tmpdir_size=25G
 h_cpu=41:59:00; h_vmem=4000M; tmpdir_size=25G
 
 # EventDisplay version
-$EVNDISPSYS/bin/evndisp --version  >/dev/null 2>/dev/null
+"$EVNDISPSYS"/bin/evndisp --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
-    EDVERSION=`$EVNDISPSYS/bin/evndisp --version | tr -d .`
+    EDVERSION=`"$EVNDISPSYS"/bin/evndisp --version | tr -d .`
 else
     EDVERSION="g500"
 fi
@@ -91,7 +90,7 @@ if [ ! -f "$RLIST" ] ; then
     echo "Error, runlist $RLIST not found, exiting..."
     exit 1
 fi
-FILES=`cat $RLIST`
+FILES=`cat "$RLIST"`
 
 # Output directory for error/output
 DATE=`date +"%y%m%d"`
@@ -104,7 +103,7 @@ SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/ANALYSIS.evndisp_sub"
 # time tag used in script naming
 TIMETAG=`date +"%s"`
 
-NRUNS=`cat $RLIST | wc -l ` 
+NRUNS=`cat "$RLIST" | wc -l ` 
 echo "total number of runs to analyze: $NRUNS"
 echo
 
@@ -149,10 +148,10 @@ do
     fi 
 
     # run locally or on cluster
-    SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
+    SUBC=`"$EVNDISPSYS"/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
     SUBC=`eval "echo \"$SUBC\""`
     if [[ $SUBC == *"ERROR"* ]]; then
-        echo $SUBC
+        echo "$SUBC"
         exit
     fi
     if [[ $SUBC == *qsub* ]]; then
