@@ -33,7 +33,7 @@ MOPT="-arrayrecid=$RECID -writeReconstructedEventsOnly=1"
 MOPT="$MOPT -useMedian=0 -distance_energyCuts=1.3"
 
 # run mscw_energy
-$EVNDISPSYS/bin/mscw_energy -tablefile "$TABFILE" "$MOPT" -inputfile "$TEMPDIR/$BFILE.root" &> "$MSCWLOGFILE"
+"$EVNDISPSYS"/bin/mscw_energy -tablefile "$TABFILE" "$MOPT" -inputfile "$TEMPDIR/$BFILE.root" &> "$MSCWLOGFILE"
 
 # move output file from scratch and clean up
 cp -f -v "$TEMPDIR/$BFILE.mscw.root" "$MSCWDATAFILE"

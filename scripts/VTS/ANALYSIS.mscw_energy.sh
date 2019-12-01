@@ -91,7 +91,7 @@ echo -e "Output files will be written to:\n $ODIR"
 # run scripts are written into this directory
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/MSCW.ANADATA"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 echo -e "Log files will be written to:\n $LOGDIR"
 
 # Job submission script
@@ -108,8 +108,8 @@ do
 
      # get array epoch, atmosphere and telescope combination for this run
     RUNINFO=`"$EVNDISPSYS"/bin/printRunParameter "$INPUTDIR/$AFILE.root" -runinfo`
-    EPOCH=`echo $RUNINFO | awk '{print $(1)}'`
-    ATMO=`echo $RUNINFO | awk '{print $(2)}'`
+    EPOCH=`echo "$RUNINFO" | awk '{print $(1)}'`
+    ATMO=`echo "$RUNINFO" | awk '{print $(2)}'`
     if [[ $ATMO == *error* ]]; then
        echo "error finding atmosphere; skipping run $AFILE"
        continue
