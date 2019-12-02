@@ -50,17 +50,16 @@ if [[ ${RACC} == "1" ]]; then
                                         -o "${OUTPUTRACC}.root" &> "${OUTPUTRACC}.log"
 
    # check statistics
-   NEVENTS=$(cat "${OUTPUTRACC}.log" | grep entries | awk -F ": " '{print $2}')
+   NEVENTS=$(cat "${OUTPUTRACC}.log" | grep "entries after cuts" | awk -F ": " '{print $2}')
    # check status
    STATUS=$(cat "${OUTPUTRACC}.log" | grep "STATUS=" | tail -n 1 | awk -F "=" '{print $3}' | awk -F " " '{print $1}')
-   # TMP:
-   STATUS="SUCCESSFUL"
-   if [[ $NEVENTS < 1000 ]]; then
-     echo 'Number of EVENTS below the threshold (1000), using averaged radial acceptances' >> ${OUTPUTRACC}.log
+   STATUS=$(grep "RADACC" "${OUTPUTRACC}.log" | wc -l)
+   if [ $NEVENTS -lt 500 ]; then
+     echo "Number of EVENTS ($NEVENTS) below the threshold (500), using averaged radial acceptances" >> ${OUTPUTRACC}.log
      mv ${OUTPUTRACC}.root ${OUTPUTRACC}.lowstatistics.root
    fi
    # check that run-wise raidal acceptance step was successfull
-   if [ "$STATUS" != "SUCCESSFUL" ]; then
+   if [ $STATUS < 1 ]; then
      echo 'Fit status is not SUCCESSFUL, using averaged radial acceptances' >> ${OUTPUTRACC}.log
      mv ${OUTPUTRACC}.root ${OUTPUTRACC}.notsuccessful.root
    fi

@@ -106,7 +106,7 @@ for ((i=1; i <= $NLINES; i++)); do
 
         # temporary log dir
         LOGDIR="$LOGDIRTEMP/${RUN}"
-        mkdir -p $"LOGDIR"
+        mkdir -p "$LOGDIR"
 
         # temporary per-run file list
         RUNTEMPLIST="$LOGDIR/qsub_analyse_fileList_${ODIRBASE}_${RUN}_${DATECODE}_PID$$"
