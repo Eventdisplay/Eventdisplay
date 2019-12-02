@@ -570,8 +570,6 @@ int VRadialAcceptance::fillAcceptanceFromData( CData* iData, int entry, double x
         return -1;
     }
     
-    double idist = 0;
-    double i_Phi = 0.;
     bool bPassed = false;
     
     // apply some basic quality cuts
@@ -609,8 +607,8 @@ int VRadialAcceptance::fillAcceptanceFromData( CData* iData, int entry, double x
         bPassed = true;
         /////////////////////////////////////////////////
         
-        idist = sqrt( x_rotJ2000 * x_rotJ2000 + y_rotJ2000 * y_rotJ2000 );
-        i_Phi = atan2( y_rotJ2000, x_rotJ2000 ); // radians
+        double idist = sqrt( x_rotJ2000 * x_rotJ2000 + y_rotJ2000 * y_rotJ2000 );
+        double i_Phi = atan2( y_rotJ2000, x_rotJ2000 ); // radians
         if( i_Phi < 0.0 )
         {
             i_Phi += 2 * TMath::Pi() ;    // atan2 is from -pi to pi, we want 0 to 2pi
@@ -703,14 +701,13 @@ bool VRadialAcceptance::terminate( TDirectory* iDirectory )
     }
     else
     {
-        double isc = 0.;
         double i_normBin = ( double )( fAccZeFitMaxBin - fAccZeFitMinBin );
         // scale all histograms in hListNormalizeHistograms
         unsigned int i = 0;
         TIter next( hListNormalizeHistograms );
         while( TH1F* h = ( TH1F* )next() )
         {
-            isc = 0.;
+            double isc = 0.;
             i_normBin = 0.;
             if( i == 0 && h->GetEntries() > 0 )
             {
@@ -784,9 +781,25 @@ bool VRadialAcceptance::terminate( TDirectory* iDirectory )
         
         // fit the data and fill histograms
         cout << "\tfitting acceptance curves (" << h->GetName() << ") ..." << endl;
-        double i_eval = 0.;
         gErrorIgnoreLevel = 5000;
-        hfit->Fit( ffit, "0REMQ" );
+        // TFitResultPtr i_fitR = hfit->Fit( ffit, "0REMQS" );
+        TFitResultPtr i_fitR = hfit->Fit( ffit, "0RES" );
+        if( (int)i_fitR == 0 )
+        {
+             cout << "\t\t successful fitting (";
+             cout << (int)i_fitR << ") of " << h->GetName();
+             // key words for later checking in VTS scripts
+             if( !strlen( iDirectory->GetTitle() ) ) 
+             {
+                 cout << " (RADACC)";
+             }
+             cout << endl;
+        }
+        else
+        {
+             cout << "\t\t failed fitting (";
+             cout << (int)i_fitR << ") of " << h->GetName() << endl;
+        }
         gErrorIgnoreLevel = 0;
         // hfit->Fit( ffit, "0REM" );
         //ffit->GetParameter(4);
@@ -794,7 +807,7 @@ bool VRadialAcceptance::terminate( TDirectory* iDirectory )
         // replace bin content by values from the fit function (set max to 1 and min to 0)
         for( int j = 1; j < hfit->GetNbinsX(); j++ )
         {
-            i_eval = ffit->Eval( hfit->GetBinCenter( j ) );
+            double i_eval = ffit->Eval( hfit->GetBinCenter( j ) );
             if( hfit->GetBinCenter( j ) > ffit->GetXmax() )
             {
                 i_eval = 0.;
