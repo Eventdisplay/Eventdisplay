@@ -496,7 +496,7 @@ vector< TProfile* > VEffectiveAreaCalculator::initializeHistogramsVectorHProfile
     
     for( unsigned int j = 0; j < fVMinAz.size(); j++ )
     {
-        sprintf( hname, "%s_%d_%d", iName.c_str(), i, j );
+        sprintf( hname, "%s_%u_%u", iName.c_str(), i, j );
         if( h )
         {
             iT_TProfile.push_back( ( TProfile* )h->Clone( hname ) );
@@ -943,10 +943,6 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
                         fZe.push_back( fMCZe[w] );
                         break;
                     }
-                }
-                if( fZe.size() > 0 )
-                {
-                    i_index_ze = fZe.size() - 1;
                 }
                 fZe.push_back( 10. );
                 i_index_ze = 0;
@@ -1485,7 +1481,7 @@ bool VEffectiveAreaCalculator::getMonteCarloSpectra( VEffectiveAreaCalculatorMCH
         {
             if( s < hVEmc.size() && i_az < hVEmc[s].size() )
             {
-                sprintf( hname, "hVEmc_%d_%d", s, i_az );
+                sprintf( hname, "hVEmc_%u_%u", s, i_az );
                 if( iMC_histo->getHistogram_Emc( i_az, s ) )
                 {
                     hVEmc[s][i_az] = ( TH1D* )iMC_histo->getHistogram_Emc( i_az, s )->Clone( hname );
@@ -1506,7 +1502,7 @@ bool VEffectiveAreaCalculator::getMonteCarloSpectra( VEffectiveAreaCalculatorMCH
             // profiles with spectral weights
             if( s < hVEmcSWeight.size() && i_az < hVEmcSWeight[s].size() )
             {
-                sprintf( hname, "hVEmcSWeight_%d_%d", s, i_az );
+                sprintf( hname, "hVEmcSWeight_%u_%u", s, i_az );
                 if( iMC_histo->getHistogram_EmcWeight( i_az, s ) )
                 {
                     hVEmcSWeight[s][i_az] = ( TProfile* )iMC_histo->getHistogram_EmcWeight( i_az, s )->Clone( hname );
