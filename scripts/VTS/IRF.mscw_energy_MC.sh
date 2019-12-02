@@ -40,7 +40,7 @@ optional parameters:
                             (default = 1  -->  gamma)
 
     [Analysis-Method]       select analysis method
-                            (TL, NN, FROGS, MODEL3D, see IRF.evndisp_MC.sh)
+                            (TL, NN, see IRF.evndisp_MC.sh)
                             
 --------------------------------------------------------------------------------
 "
@@ -53,10 +53,10 @@ bash $(dirname "$0")"/helper_scripts/UTILITY.script_init.sh"
 [[ $? != "0" ]] && exit 1
 
 # EventDisplay version
-$EVNDISPSYS/bin/mscw_energy --version  >/dev/null 2>/dev/null
+"$EVNDISPSYS"/bin/mscw_energy --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
-    EDVERSION=`$EVNDISPSYS/bin/mscw_energy --version | tr -d .`
+    EDVERSION=`"$EVNDISPSYS"/bin/mscw_energy --version | tr -d .`
 else
     EDVERSION="g500"
 fi
@@ -79,12 +79,12 @@ PARTICLE_NAMES=( [1]=gamma [2]=electron [14]=proton [402]=alpha )
 PARTICLE_TYPE=${PARTICLE_NAMES[$PARTICLE]}
 
 # Check that table file exists
-if [[ "$TABFILE" == `basename $TABFILE` ]]; then
+if [[ "$TABFILE" == `basename "$TABFILE"` ]]; then
     TABFILE="$VERITAS_EVNDISP_AUX_DIR/Tables/$TABFILE"
 fi
 if [[ ! -f "$TABFILE" ]]; then
     echo "Error, table file not found, exiting..."
-    echo $TABFILE
+    echo "$TABFILE"
     exit 1
 fi
 
@@ -98,14 +98,14 @@ if [[ ! -d $INDIR ]]; then
 fi
 echo "Input file directory: $INDIR"
 
-NROOTFILES=$( ls -l $INDIR/*.root | wc -l )
+NROOTFILES=$( ls -l "$INDIR"/*.root | wc -l )
 echo "NROOTFILES $NROOTFILES"
 
 # directory for run scripts
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/MSCW.ANATABLES/"
 echo -e "Log files will be written to:\n $LOGDIR"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 # Output file directory
 if [[ -n "$VERITAS_IRFPRODUCTION_DIR" ]]; then
@@ -128,16 +128,16 @@ sed -e "s|INPUTDIR|$INDIR|" \
     -e "s|WOBBLEOFFSET|$WOBBLE|" \
     -e "s|NFILES|$NROOTFILES|" \
     -e "s|ANALYSISMETHOD|$ANAMETHOD|" \
-    -e "s|RECONSTRUCTIONID|$RECID|" $SUBSCRIPT.sh > $FSCRIPT.sh
+    -e "s|RECONSTRUCTIONID|$RECID|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
-chmod u+x $FSCRIPT.sh
+chmod u+x "$FSCRIPT.sh"
 echo "Run script written to: $FSCRIPT"
 
 # run locally or on cluster
 SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
 SUBC=`eval "echo \"$SUBC\""`
 if [[ $SUBC == *"ERROR"* ]]; then
-    echo $SUBC
+    echo "$SUBC"
     exit
 fi
 if [[ $SUBC == *qsub* ]]; then

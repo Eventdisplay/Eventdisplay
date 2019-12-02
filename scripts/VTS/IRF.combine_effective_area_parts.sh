@@ -31,7 +31,7 @@ optional parameters:
                             (default is today's date)
 
    [Analysis-Method]       select analysis method
-                           (TL, NN, FROGS, MODEL3D, see IRF.evndisp_MC.sh)
+                           (TL, NN, see IRF.evndisp_MC.sh)
 
 examples:
 
@@ -52,10 +52,10 @@ bash $(dirname "$0")"/helper_scripts/UTILITY.script_init.sh"
 
 
 # EventDisplay version
-$EVNDISPSYS/bin/combineEffectiveAreas --version  >/dev/null 2>/dev/null
+"$EVNDISPSYS"/bin/combineEffectiveAreas --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
-    EDVERSION=`$EVNDISPSYS/bin/combineEffectiveAreas --version | tr -d .`
+    EDVERSION=`"$EVNDISPSYS"/bin/combineEffectiveAreas --version | tr -d .`
 else
     EDVERSION="g500"
 fi
@@ -71,7 +71,7 @@ SIMTYPE=$5
 PARTICLE_TYPE="gamma"
 
 # Generate EA base file name based on cuts file
-CUTS_NAME=`basename $CUTSFILE`
+CUTS_NAME=`basename "$CUTSFILE"`
 CUTS_NAME=${CUTS_NAME##ANASUM.GammaHadron-}
 CUTS_NAME=${CUTS_NAME%%.dat}
 
@@ -93,14 +93,14 @@ if [[ -n "$VERITAS_IRFPRODUCTION_DIR" ]]; then
     ODIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/$SIMTYPE/${EPOCH}_ATM${ATMOS}_${PARTICLE_TYPE}_${ANAMETHOD}/EffectiveAreas"
 fi
 echo -e "Output files will be written to:\n $ODIR"
-mkdir -p $ODIR
-chmod g+w $ODIR
+mkdir -p "$ODIR"
+chmod g+w "$ODIR"
 
 # Run scripts and log files are written into this directory
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/EFFAREA"
 echo "Writing run scripts and log files to $LOGDIR"
 echo -e "Log files will be written to:\n $LOGDIR"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 # Job submission script
 SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/IRF.effective_area_combine_sub"
@@ -137,14 +137,14 @@ T="1234"
 OFILE="effArea-${EDVERSION}-${EANAME}-$SIMTYPE-${CUTS_NAME}-${METH}ID${RECID}-${EPOCH}-ATM${ATMOS}-T${T}"
 
 FSCRIPT="$LOGDIR/COMB-EFFAREA-$CUTSFILE-ATM$ATMOS-$EPOCH-ID$RECID-$(date +%s)"
-rm -f $FSCRIPT.sh
+rm -f "$FSCRIPT.sh"
 
 sed -e "s|INPUTFILES|$INFILES|" \
     -e "s|OUTPUTFILE|$OFILE|"   \
-    -e "s|OUTPUTDIR|$ODIR|" $SUBSCRIPT.sh > $FSCRIPT.sh
+    -e "s|OUTPUTDIR|$ODIR|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 	    
-chmod u+x $FSCRIPT.sh
-echo $FSCRIPT.sh
+chmod u+x "$FSCRIPT.sh"
+echo "$FSCRIPT.sh"
 
 # run locally or on cluster
 SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`

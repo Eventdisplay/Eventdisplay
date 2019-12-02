@@ -35,7 +35,7 @@ required parameters:
 optional parameters:
 
     [Analysis-Method]       select analysis method
-                            (TL, NN, FROGS, MODEL3D, see IRF.evndisp_MC.sh)
+                            (TL, NN, see IRF.evndisp_MC.sh)
 
     
 --------------------------------------------------------------------------------
