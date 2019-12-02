@@ -55,9 +55,9 @@ if [[ ${RACC} == "1" ]]; then
    STATUS=$(cat "${OUTPUTRACC}.log" | grep "STATUS=" | tail -n 1 | awk -F "=" '{print $3}' | awk -F " " '{print $1}')
    # TMP:
    STATUS="SUCCESSFUL"
-   if [[ NEVENTS < 1000 ]]; then
+   if [[ $NEVENTS < 1000 ]]; then
      echo 'Number of EVENTS below the threshold (1000), using averaged radial acceptances' >> ${OUTPUTRACC}.log
-     mv ${OUTPUTRACC}.root ${OUTPUTRACC}.root.lowstatistics
+     mv ${OUTPUTRACC}.root ${OUTPUTRACC}.lowstatistics.root
    fi
    # check that run-wise raidal acceptance step was successfull
    if [ "$STATUS" != "SUCCESSFUL" ]; then

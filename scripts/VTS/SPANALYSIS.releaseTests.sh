@@ -104,8 +104,8 @@ PREFIX="$VERITAS_USER_DATA_DIR/analysis/Results/${VERSION}/"
 # for O in Tycho PKS1424p240 Mrk501 Mrk421 HESSJ0632057 MAXIJ1820p070
 # for O in PKS1424p240 Mrk501 Mrk421 MAXIJ1820p070
 # for O in Tycho HESSJ0632057 
-# for O in Crab
-for O in Mrk421
+for O in Crab
+# for O in Mrk421
 # for O in BDTtraining
 # for O in Segue1
 # for O in PKS1424p240 Mrk421 Mrk501 MAXIJ1820p070
