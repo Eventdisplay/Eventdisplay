@@ -2,14 +2,13 @@
 # script to calculate effective areas (VERITAS)
 
 # set observatory environmental variables
-source $EVNDISPSYS/setObservatory.sh VTS
+source "$EVNDISPSYS"/setObservatory.sh VTS
 
 # parameters replaced by parent script using sed
 MCFILE=DATAFILE
 ODIR=OUTPUTDIR
 CUTSLIST="GAMMACUTS"
 EFFAREAFILE=EFFFILE
-ANAMETHOD=ANALYSISMETHOD
 
 # temporary directory
 if [[ -n "$TMPDIR" ]]; then 
@@ -17,11 +16,11 @@ if [[ -n "$TMPDIR" ]]; then
 else
     DDIR="/tmp/EFFAREA"
 fi
-mkdir -p $DDIR
+mkdir -p "$DDIR"
 echo "Temporary directory: $DDIR"
 
 # cp MC file to TMPDIR
-cp -f $MCFILE $DDIR/
+cp -f "$MCFILE" "$DDIR"/
 MCFILE=`basename $MCFILE`
 MCFILE=${DDIR}/${MCFILE}
 
@@ -60,20 +59,19 @@ for CUTSFILE in $CUTSLIST; do
     * CUTFILE $CUTSFILE
     * SIMULATIONFILE_DATA $MCFILE
     * ANALYSISTYPE TL"
-#    * ANALYSISTYPE $ANAMETHOD"
 #    * SHORTOUTPUT 1
 
     # create makeEffectiveArea parameter file
     EAPARAMS="$EFFAREAFILE-${CUTS_NAME}"
     rm -f "$DDIR/$EAPARAMS.dat"
-    eval "echo \"$PARAMFILE\"" > $DDIR/$EAPARAMS.dat
+    eval "echo \"$PARAMFILE\"" > "$DDIR/$EAPARAMS.dat"
 
 # calculate effective areas
-    $EVNDISPSYS/bin/makeEffectiveArea $DDIR/$EAPARAMS.dat $DDIR/$EAPARAMS.root &> $OSUBDIR/$EAPARAMS.log
+    "$EVNDISPSYS"/bin/makeEffectiveArea "$DDIR/$EAPARAMS.dat" "$DDIR/$EAPARAMS.root" &> "$OSUBDIR/$EAPARAMS.log"
 
-    cp -f $DDIR/$EAPARAMS.root $OSUBDIR/$EAPARAMS.root
-    chmod g+w $OSUBDIR/$EAPARAMS.root
-    chmod g+w $OSUBDIR/$EAPARAMS.log
+    cp -f "$DDIR/$EAPARAMS.root" "$OSUBDIR/$EAPARAMS.root"
+    chmod g+w "$OSUBDIR/$EAPARAMS.root"
+    chmod g+w "$OSUBDIR/$EAPARAMS.log"
 
 done
 
