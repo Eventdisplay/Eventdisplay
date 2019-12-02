@@ -72,10 +72,10 @@ else
 fi
 
 # EventDisplay version (default is g500)
-$EVNDISPSYS/bin/printRunParameter --version  >/dev/null 2>/dev/null
+"$EVNDISPSYS"/bin/printRunParameter --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
-    EDVERSION=`$EVNDISPSYS/bin/printRunParameter --version | tr -d .`
+    EDVERSION=`"$EVNDISPSYS"/bin/printRunParameter --version | tr -d .`
 else
     EDVERSION="g500"
 fi
@@ -91,7 +91,7 @@ if [[ ${SIMTYPE:0:5} = "GRISU" ]]; then
     ZENITH_ANGLES=( 20 30 )
     NSB_LEVELS=( 150 250 )
     WOBBLE_OFFSETS=( 0.5 )
-elif [ ${SIMTYPE:0:4} = "CARE" ]; then
+elif [[ ${SIMTYPE:0:4} = "CARE" ]]; then
     # CARE simulation parameters
     WOBBLE_OFFSETS=( 0.5 )
     NSB_LEVELS=( 50 75 100 130 160 200 250 300 350 400 450 )
@@ -100,8 +100,8 @@ elif [ ${SIMTYPE:0:4} = "CARE" ]; then
     fi
     ZENITH_ANGLES=( 00 20 30 35 40 45 50 55 )
     NSB_LEVELS=( 50 75 100 130 160 200 250 300 350 400 450 )
-    ZENITH_ANGLES=( 20 )
-    NSB_LEVELS=( 160 )
+    ZENITH_ANGLES=( 20 30 35 )
+    NSB_LEVELS=( 130 160 200 250 )
     if [[ $ATMOS == "62" ]]; then
           ZENITH_ANGLES=( 00 20 30 35 )
     fi
@@ -142,10 +142,17 @@ else
     CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-SuperSoft2-MVA-BDT.dat
              ANASUM.GammaHadron-Cut-NTel2-PointSource-SuperSoft-MVA-BDT.dat"
     CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-SuperSoft-MVA-Preselection.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-MVA-Preselection.dat"
+             ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-MVA-Preselection.dat
+             ANASUM.GammaHadron-Cut-NTel4-PointSource-TMVA-BDT-Preselection.dat"
+    CUTLIST="ANASUM.GammaHadron-Cut-NTel4-PointSource-TMVA-BDT-Preselection.dat"
+    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-TMVA-BDT-Preselection.dat"
+    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-MVA-Preselection.dat"
+    CUTLIST="ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate-TMVA-BDT-Preselection.dat"
+    CUTLIST="ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate.dat"
+    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate.dat"
 
 fi
-CUTLIST=`echo $CUTLIST |tr '\r' ' '`
+CUTLIST=`echo "$CUTLIST" |tr '\r' ' '`
 
 ############################################################
 # loop over complete parameter space and submit production
@@ -161,7 +168,7 @@ for VX in $EPOCH; do
             for ID in $RECID; do
                 echo "combine lookup tables"
                 METH="RECMETHOD${ID}"
-                $(dirname "$0")/IRF.combine_lookup_table_parts.sh "${TFIL}${METH}" $VX $ATM $ID $SIMTYPE $ANAMETHOD
+                $(dirname "$0")/IRF.combine_lookup_table_parts.sh "${TFIL}${METH}" "$VX" "$ATM" "$ID" "$SIMTYPE" "$ANAMETHOD"
             done
             continue
        fi
@@ -171,7 +178,7 @@ for VX in $EPOCH; do
             for ID in $RECID; do
                 for CUTS in ${CUTLIST[@]}; do
                     echo "combine effective areas $CUTS"
-                   $(dirname "$0")/IRF.combine_effective_area_parts.sh $CUTS $VX $ATM $ID $SIMTYPE $AUX $ANAMETHOD
+                   $(dirname "$0")/IRF.combine_effective_area_parts.sh "$CUTS" "$VX" "$ATM" "$ID" "$SIMTYPE" "$AUX" "$ANAMETHOD"
                 done # cuts
             done
             continue
@@ -180,11 +187,7 @@ for VX in $EPOCH; do
             ######################
             # train MVA for angular resolution
             if [[ $IRFTYPE == "TRAINMVANGRES" ]]; then
-               if [[ ${SIMTYPE:0:5} = "GRISU" ]]; then
-                   $(dirname "$0")/IRF.trainTMVAforAngularReconstruction.sh $VX $ATM $ZA 200 $SIMTYPE
-               elif [[ ${SIMTYPE:0:4} = "CARE" ]]; then
-                   $(dirname "$0")/IRF.trainTMVAforAngularReconstruction.sh $VX $ATM $ZA 200 $SIMTYPE
-               fi
+               $(dirname "$0")/IRF.trainTMVAforAngularReconstruction.sh $VX $ATM $ZA 200 $SIMTYPE
                continue
             fi
             for NOISE in ${NSB_LEVELS[@]}; do
