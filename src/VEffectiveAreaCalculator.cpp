@@ -685,7 +685,14 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( string iInputFile, double az
     }
 }
 
-
+/*
+ * get mean value between to azimuth angle
+ * taking into account the Eventdisplay azimuth
+ * definition 
+ *
+ * handles mix of neg/positive azimuth values
+ *
+ */
 float VEffectiveAreaCalculator::getAzMean( float azmin, float azmax )
 {
     // mean azimuth angle
@@ -729,7 +736,6 @@ vector< float > VEffectiveAreaCalculator::interpolate_effectiveArea( double iV, 
     
     return i_temp;
 }
-
 
 /*
  *
@@ -812,7 +818,6 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
         iEffArea->SetBranchAddress( "e_Rec_Res" , e_Rec_Res );
         iEffArea->SetBranchAddress( "e_Rec_Res_Err" , e_Rec_Res_Err );
     }
-
     // bias in energy reconstruction
     iEffArea->SetBranchAddress( "esys_rel", esys_rel );
     
@@ -926,7 +931,8 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
             i_ze_F = false;
             for( unsigned z = 0; z < fZe.size(); z++ )
             {
-                // this has to be a relatively large value due to wobble offsets up to 2.0 deg
+                // this has to be a relatively large value due
+                // to allowed wobble offsets up to 2.0 deg
                 if( fabs( fZe[z] - ze ) < 2.0 )
                 {
                     i_index_ze = z;
@@ -944,8 +950,6 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
                         break;
                     }
                 }
-                fZe.push_back( 10. );
-                i_index_ze = 0;
             }
             ///////////////////////////////////////////////////
             // wobble offset
@@ -973,7 +977,19 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
                 vector< double > itemp;
                 itemp.push_back( fWoff );
                 fEff_WobbleOffsets.push_back( itemp );
-                i_index_woff = fEff_WobbleOffsets[i_index_ze].size() - 1;
+                if( i_index_ze < fEff_WobbleOffsets.size() )
+                {
+                    i_index_woff = fEff_WobbleOffsets[i_index_ze].size() - 1;
+                }
+                else
+                {
+                     cout << "Error in ";
+                     cout << "VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms:";
+                     cout << " setting of wobble vector" << endl;
+                     cout << i_index_ze << " >= " << fEff_WobbleOffsets.size() << endl;
+                     exit( EXIT_FAILURE );
+                }
+
             }
             ///////////////////////////////////////////////////
             // noise level
