@@ -174,7 +174,7 @@ done
 
 # Execute all FSCRIPTs locally in parallel
 if [[ $SUBC == *parallel* ]]; then
-    cat $LOGDIR/runscripts.dat | "$SUBC"
+    cat "$LOGDIR/runscripts.dat" | "$SUBC"
 fi
 
 exit
