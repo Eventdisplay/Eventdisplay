@@ -2,7 +2,7 @@
 # script to run evndisp for simulations on one of the cluster nodes (VBF)
 
 # set observatory environmental variables
-source $EVNDISPSYS/setObservatory.sh VTS
+source "$EVNDISPSYS"/setObservatory.sh VTS
 
 ########################################################
 # parameters replaced by parent script using sed
@@ -19,9 +19,6 @@ PARTICLE=PARTICLETYPE
 SIMTYPE=SIMULATIONTYPE
 ODIR=OUTPUTDIR
 ANAMETHOD=ANALYSISMETHOD
-MSCWDIR=FROGSMSCWDIR
-NEVENTS=FROGSEVENTS
-TELTOANA="1234"
 NONSB=NNNOISEFILES
 RHVFLAG=REDHVFLAG
 # end of parameter replacement
@@ -126,7 +123,7 @@ if [[ -n "$TMPDIR" ]]; then
 else
     DDIR="/tmp/evn_${ZA}_${NOISE}_${WOG}"
 fi
-mkdir -p $DDIR
+mkdir -p "$DDIR"
 echo "Temporary directory: $DDIR"
 
 # loop over simulation files
@@ -190,6 +187,8 @@ MCOPT=" -runnumber=$RUNNUM -sourcetype=2 -epoch $EPOCH -camera=$CFG -reconstruct
 if [[ ${SIMTYPE:0:4} == "CARE" ]]; then
     MCOPT="$MCOPT -injectGaussianNoise=0.229592"
 fi
+# TMPTMP
+MCOPT="$MCOPT -nevents=5000000"
 
 ###############################################
 # calculate pedestals
@@ -206,22 +205,20 @@ fi
 ###############################################
 # calculate tzeros/taverages
 ###############################################
-if [[ $ANAMETHOD != "FROGS" ]]; then
-    echo "Calculating average tzeros for run $RUNNUM"
-    # run options for TZERO calculation
-    TZEROPT="-runmode=7 -calibrationsumfirst=0 -calibrationsumwindow=16  -calibrationsummin=50 -sumwindowaveragetime=6 -calibrationnevents=100000 -nevents=5000000 -pedestalnoiselevel=$NOISE"
-    rm -f $ODIR/$RUNNUM.tzero.log
-    ### eventdisplay GRISU run options
-    if [[ ${SIMTYPE:0:5} = "GRISU" ]]; then
-        TZEROPT="$TZEROPT -lowgaincalibrationfile NOFILE -lowgainpedestallevel=$PEDLEV"
-    else
-        TZEROPT="$TZEROPT -lowgainpedestallevel=$LOWPEDLEV -lowgaincalibrationfile calibrationlist.LowGainForCare.${EPOCH}.dat"
-    fi
-    if [[ $NONSB == "1" ]]; then
-        TZEROPT="$TZEROPT -pedestalfile $NOISEFILE -pedestalseed=$RUNNUM -pedestalDefaultPedestal=$PEDLEV"
-    fi
-    $EVNDISPSYS/bin/evndisp $MCOPT $TZEROPT &>> $ODIR/$RUNNUM.tzero.log
+echo "Calculating average tzeros for run $RUNNUM"
+# run options for TZERO calculation
+TZEROPT="-runmode=7 -calibrationsumfirst=0 -calibrationsumwindow=16  -calibrationsummin=50 -sumwindowaveragetime=6 -calibrationnevents=100000 -nevents=5000000 -pedestalnoiselevel=$NOISE"
+rm -f $ODIR/$RUNNUM.tzero.log
+### eventdisplay GRISU run options
+if [[ ${SIMTYPE:0:5} = "GRISU" ]]; then
+    TZEROPT="$TZEROPT -lowgaincalibrationfile NOFILE -lowgainpedestallevel=$PEDLEV"
+else
+    TZEROPT="$TZEROPT -lowgainpedestallevel=$LOWPEDLEV -lowgaincalibrationfile calibrationlist.LowGainForCare.${EPOCH}.dat"
 fi
+if [[ $NONSB == "1" ]]; then
+    TZEROPT="$TZEROPT -pedestalfile $NOISEFILE -pedestalseed=$RUNNUM -pedestalDefaultPedestal=$PEDLEV"
+fi
+$EVNDISPSYS/bin/evndisp $MCOPT $TZEROPT &>> $ODIR/$RUNNUM.tzero.log
 
 ###############################################
 # run eventdisplay
@@ -231,30 +228,6 @@ fi
 # general analysis options
 ANAOPT=" -writenomctree -outputfile $DDIR/$ONAME.root"
 
-#####################
-# model 3D
-if [[ $ANAMETHOD == "MODEL3D" ]]; then
-    MODEL3D="-model3d -lnlfile $VERITAS_EVNDISP_AUX_DIR/Model3D/table_Model3D_Likelihood.root -epoch $EPOCH"
-fi
-
-#####################
-# FROGS
-if [[ $ANAMETHOD == "FROGS" ]]; then
-	 MSCWFILE="${ZA}deg_${WOB}wob_NOISE${NOISE}_${ITER}.mscw.root"
-    echo -e "FROGS MSCW Dir:\n $MSCWDIR"
-    echo -e "FROGS MSCW File:\n $MSCWFILE"
-    echo "FROGS NEvents: $NEVENTS"
-   # template list file
-   if [[ "$EPOCH" =~ ^(V5|V6)$ ]]; then
-      TEMPLATELIST="EVNDISP.frogs_template_file_list.$EPOCH.txt"
-   else
-      echo "Error (helper_scripts/IRF.evndisp_MC_sub.sh), no frogs template list defined for $EPOCH='$EPOCH', exiting..."
-      exit 1
-   fi
-   echo "Using template list file '$TEMPLATELIST'..."
-   echo "$MSCWDIR/$MSCWFILE $NEVENTS $FIRSTEVENT"
-   FROGS="-frogs $MSCWDIR/$MSCWFILE -frogsid 0 -templatelistforfrogs "$TEMPLATELIST" -frogsparameterfile FROGS.runparameter"
-fi
 #####################
 # options for GRISU (handling of low-gain values)
 if [[ ${SIMTYPE:0:5} == "GRISU" ]]; then
@@ -276,23 +249,20 @@ fi
 #################################################################################
 # run evndisp
 echo "Analysing MC file for run $RUNNUM $ANAMETHOD"
-# Some sets are too big for the 48 hours queue and 3D/FROGS
-# echo "$EVNDISPSYS/bin/evndisp $MCOPT $ANAOPT $MODEL3D $FROGS -nevents=40000000 " &> $ODIR/$ONAME.log
-# $EVNDISPSYS/bin/evndisp $MCOPT $ANAOPT $MODEL3D $FROGS -nevents=40000000 &>> $ODIR/$ONAME.log
 #####################
-echo "$EVNDISPSYS/bin/evndisp $MCOPT $ANAOPT $MODEL3D $FROGS " &> $ODIR/$ONAME.log
-$EVNDISPSYS/bin/evndisp $MCOPT $ANAOPT $MODEL3D $FROGS &>> $ODIR/$ONAME.log
+echo "$EVNDISPSYS/bin/evndisp $MCOPT $ANAOPT " &> $ODIR/$ONAME.log
+$EVNDISPSYS/bin/evndisp $MCOPT $ANAOPT &>> $ODIR/$ONAME.log
 
 #################################################################################
 # remove temporary files
-ls -lh $DDIR
-cp -f -v $DDIR/$ONAME.root $ODIR/$ONAME.root
-chmod g+w $ODIR/$ONAME.root
-chmod g+w $ODIR/$ONAME.log
-chmod g+w $ODIR/$ONAME.tzero.log
+ls -lh "$DDIR"
+cp -f -v "$DDIR/$ONAME.root" "$ODIR/$ONAME.root"
+chmod g+w "$ODIR/$ONAME.root"
+chmod g+w "$ODIR/$ONAME.log"
+chmod g+w "$ODIR/$ONAME.tzero.log"
 chmod -R g+w $ODIR/Calibration
-rm -f -v $DDIR/$ONAME.root
-rm -f -v $VBF_FILE
+rm -f -v "$DDIR/$ONAME.root"
+rm -f -v "$VBF_FILE"
 
 echo "EVNDISP output root file written to $ODIR/$ONAME.root"
 echo "EVNDISP log file written to $ODIR/$ONAME.log"

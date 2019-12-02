@@ -32,22 +32,13 @@ required parameters:
     <NSB level>             NSB level of simulations [MHz]
     
     <sim type>              file simulation type (e.g. GRISU-SW6, CARE_June1425)
-                            (recognized are also types like GRISU_d201404, or CARE_V1)
 
 optional parameters:
 
     <runparameter file>     file with integration window size and reconstruction cuts/methods, 
                             expected in $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/
 
-                            Default: EVNDISP.reconstruction.runparameter (long sumwindow -> for use with CARE IRFs; DISP disabled )
-
-                            other options:
-
-                            EVNDISP.reconstruction.runparameter.DISP              (long sumwindow -> for use with CARE IRFs;
-                                                                                  DISP enabled, use RecID 1 in later stages to access it)
-                                                                                 
-                            EVNDISP.reconstruction.runparameter.SumWindow6-noDISP (short sumwindow -> for use with grisu IRFs; DISP disabled)
-                            EVNDISP.reconstruction.runparameter.SumWindow6-DISP   (short sumwindow -> for use with grisu IRFs; DISP enabled [RecID 1])
+                            Default: EVNDISP.reconstruction.runparameter
 
     [external NSB]          NSB traces are read from external files (don't worry about this flag when analyzing grisu MC)
     
@@ -58,13 +49,9 @@ optional parameters:
     [Analysis-Method]       select analysis method
                             TL      (standard image analysis with two-level cleaning; default)
                             NN      (standard image analysis using optimized NN cleaning)
-                            FROGS   (FROGS analysis (GrISU only!))
-                            MODEL3D (model3D analysis)
     
-    [events]                FROGS ONLY: number of events per division
+    [events]                number of events to be analysed
                             (default: -1)
-
-    [Rec ID]                FROGS ONLY: reconstruction ID used at the MSCW stage                         
 
 Note: zenith angles, wobble offsets, and noise values are hard-coded into script
 
@@ -79,10 +66,10 @@ bash "$( cd "$( dirname "$0" )" && pwd )/helper_scripts/UTILITY.script_init.sh"
 [[ $? != "0" ]] && exit 1
 
 # EventDisplay version
-$EVNDISPSYS/bin/evndisp --version  >/dev/null 2>/dev/null
+"$EVNDISPSYS"/bin/evndisp --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
-    EDVERSION=`$EVNDISPSYS/bin/evndisp --version | tr -d .`
+    EDVERSION=`"$EVNDISPSYS"/bin/evndisp --version | tr -d .`
 else
     EDVERSION="g500"
 fi
@@ -100,11 +87,9 @@ SIMTYPE=$7
 [[ "${10}" ]] && PARTICLE=${10} || PARTICLE=1
 [[ "${11}" ]] && ANAMETHOD=${11} || ANAMETHOD="TL"
 [[ "${12}" ]] && NEVENTS=${12}  || NEVENTS=-1
-[[ "${13}" ]] && RECID=${13}  || RECID=0
 
-# [[ "${12}" ]] && USEFROGS=${12} || USEFROGS=0
 # check and print analysis method
-if [[ $ANAMETHOD != "TL"* ]] && [[ $ANAMETHOD != "NN"* ]] && [[ $ANAMETHOD != "FROGS" ]] && [[ $ANAMETHOD != "MODEL3D" ]]
+if [[ $ANAMETHOD != "TL"* ]] && [[ $ANAMETHOD != "NN"* ]]
 then
     echo "unknown analysis method $ANAMETHOD"
     exit
@@ -118,7 +103,7 @@ PARTICLE_TYPE=${PARTICLE_NAMES[$PARTICLE]}
 # directory for run scripts
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/EVNDISP.ANAMCVBF"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 # output directory for evndisp products (will be manipulated more later in the script)
 if [[ ! -z "$VERITAS_IRFPRODUCTION_DIR" ]]; then
@@ -126,12 +111,9 @@ if [[ ! -z "$VERITAS_IRFPRODUCTION_DIR" ]]; then
 fi
 # output dir
 OPDIR=${ODIR}"/ze"$ZA"deg_offset"$WOBBLE"deg_NSB"$NOISE"MHz"
-mkdir -p $OPDIR
-chmod -R g+w $OPDIR
+mkdir -p "$OPDIR"
+chmod -R g+w "$OPDIR"
 echo -e "Output files will be written to:\n $OPDIR"
-
-# MSCW DIR (used by FROGS only)
-MSCWDIR="$ODIR/MSCW_RECID$RECID"
 
 echo "Using runparameter file $ACUTS"
 
@@ -168,19 +150,17 @@ sed -e "s|DATADIR|$SIMDIR|" \
     -e "s|NOISELEVEL|$NOISE|" \
     -e "s|ARRAYEPOCH|$EPOCH|" \
     -e "s|ANALYSISMETHOD|$ANAMETHOD|" \
-    -e "s|FROGSMSCWDIR|$MSCWDIR|" \
-    -e "s|FROGSEVENTS|$NEVENTS|" \
     -e "s|RECONSTRUCTIONRUNPARAMETERFILE|$ACUTS|" \
     -e "s|SIMULATIONTYPE|$SIMTYPE|" \
     -e "s|NNNOISEFILES|$EXTNOISE|" \
     -e "s|REDHVFLAG|$RHVFLAG|" \
-    -e "s|PARTICLETYPE|$PARTICLE|" $SUBSCRIPT.sh > $FSCRIPT.sh
+    -e "s|PARTICLETYPE|$PARTICLE|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
-chmod u+x $FSCRIPT.sh
-echo $FSCRIPT.sh
+chmod u+x "$FSCRIPT.sh"
+echo "$FSCRIPT.sh"
 
 # run locally or on cluster
-SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
+SUBC=`"$EVNDISPSYS"/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
 SUBC=`eval "echo \"$SUBC\""`
 if [[ $SUBC == *"ERROR"* ]]; then
     echo $SUBC
