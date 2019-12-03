@@ -788,8 +788,9 @@ bool VRadialAcceptance::terminate( TDirectory* iDirectory )
         {
              cout << "\t\t successful fitting (";
              cout << (int)i_fitR << ") of " << h->GetName();
+             string iDirName = iDirectory->GetTitle();
              // key words for later checking in VTS scripts
-             if( !strlen( iDirectory->GetTitle() ) ) 
+             if( iDirName.size() == 0 )
              {
                  cout << " (RADACC)";
              }
