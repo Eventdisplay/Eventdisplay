@@ -42,6 +42,8 @@ bool   production_shortIO = false;
 // calculations (must be given in an anasum-style
 // runparameter file
 string exclusionregionfile = "";
+// target region excluded
+bool fRemoveTargetRegionFromAcceptanceFilling = true;
 
 
 ////////////////////////////////////////////////////////////////////
@@ -88,6 +90,10 @@ int main( int argc, char* argv[] )
     else
     {
        cout << "No exclusion regions defined" << endl;
+    }
+    if( fRemoveTargetRegionFromAcceptanceFilling )
+    {
+       cout << "Removing target region from radial acceptance filling" << endl;
     }
     
     ///////////////////////////////////////////
@@ -494,10 +500,11 @@ int parseOptions( int argc, char* argv[] )
             {"writehists", optional_argument, 0, 'w'},
             {"teltoana", required_argument, 0, 't'},
             {"productionIO", required_argument, 0, 'p'},
+            {"--remove_target", required_argument, 0, 'r'},
             {0, 0, 0, 0}
         };
         int option_index = 0;
-        int c = getopt_long( argc, argv, "ht:s:f:p:l:e:m:o:i:d:n:c:w:t:", long_options, &option_index );
+        int c = getopt_long( argc, argv, "ht:s:f:p:l:e:m:r:o:i:d:n:c:w:t:", long_options, &option_index );
         if( optopt != 0 )
         {
             cout << "error: unknown option" << endl;
@@ -538,6 +545,7 @@ int parseOptions( int argc, char* argv[] )
                 cout << "-e --entries [number of entries]" << endl;
                 cout << "-m --maxdist [max distance from camera centre (deg)]" << endl;
                 cout << "-w --writehists [directory]" << endl ;
+                cout << "-r --remove_target region from acceptance filling [default=true]" << endl;
                 cout << "-t --teltoana <telescopes>" << endl;
                 cout << "-p --productionIO [0/1] " << endl;
                 cout << "-f --exclusionregionfile [file with exclusion regions]" << endl;
@@ -590,6 +598,9 @@ int parseOptions( int argc, char* argv[] )
                 production_shortIO = ( int )atoi( optarg );
             case 'f':
                 exclusionregionfile = optarg;
+                break;
+            case 'r':
+                fRemoveTargetRegionFromAcceptanceFilling = (bool)atoi(optarg);
                 break;
             case '?':
                 break;
