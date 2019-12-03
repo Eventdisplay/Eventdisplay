@@ -682,7 +682,8 @@ bool VRadialAcceptance::terminate( TDirectory* iDirectory )
         exit( EXIT_FAILURE );
     }
     cout << "Starting scaling and fitting ";
-    if( strlen( iDirectory->GetTitle() ) )
+    string iDirTitle = iDirectory->GetTitle();
+    if( iDirTitle.size() > 0 )
     {
          cout << "(" << iDirectory->GetName() << ", " << iDirectory->GetTitle() << ")";
     }
