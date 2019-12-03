@@ -243,7 +243,7 @@ int main( int argc, char* argv[] )
         {
             facc_dir->cd();
         }
-        sprintf( ifile, "az_%d", i );
+        sprintf( ifile, "az_%u", i );
         fDirName.push_back( ifile );
         sprintf( ifile, "AZ dependend radial acceptance, %.2f < az < %.2f", iAz_min[i], iAz_max[i] );
         fDirTitle.push_back( ifile );

@@ -788,8 +788,9 @@ bool VRadialAcceptance::terminate( TDirectory* iDirectory )
         {
              cout << "\t\t successful fitting (";
              cout << (int)i_fitR << ") of " << h->GetName();
+             string iDirName = iDirectory->GetTitle();
              // key words for later checking in VTS scripts
-             if( !strlen( iDirectory->GetTitle() ) ) 
+             if( iDirName.size() == 0 )
              {
                  cout << " (RADACC)";
              }
@@ -1080,10 +1081,9 @@ void VRadialAcceptance::Write1DHistToTextFile( TH1F* hist, string& basename, int
     double bincenx, bincont ;
     char dataline[100] ;
     int nxbins = hist->GetNbinsX() ;
-    int i ;
     for( binx = 1 ; binx <= nxbins ; binx++ )
     {
-        i = ( int )hist->GetBin( binx ) ;
+        int i = ( int )hist->GetBin( binx ) ;
         if( hist->IsBinOverflow( i ) || hist->IsBinUnderflow( i ) )
         {
             continue ;
@@ -1276,8 +1276,6 @@ bool VRadialAcceptance::correctRadialAcceptancesForExclusionRegions( TDirectory*
         cout << "VRadialAcceptance::scale_histograms_run() error accessing directory  " << iDirectory->GetName() << endl;
         exit( EXIT_FAILURE );
     }
-    Double_t xeventssim = 0.;
-    Double_t yeventssim = 0.;
     int ifocus = -1;
     char hname[200];
     sprintf( hname, "hscaleRun_%d", iRunNumber );
@@ -1293,7 +1291,8 @@ bool VRadialAcceptance::correctRadialAcceptancesForExclusionRegions( TDirectory*
     // fill a 2D map and the 1D area map taking
     // exclusion regions into account
     cout << "2D filling of acceptance ratios taking exclusion regions into account ";
-    if( strlen( iDirectory->GetTitle() ) )
+    string iDirTitleName = iDirectory->GetTitle();
+    if( iDirTitleName.size() > 0 )
     {
          cout << "(" << iDirectory->GetName() << ", " << iDirectory->GetTitle() << "):";
     }
@@ -1309,10 +1308,10 @@ bool VRadialAcceptance::correctRadialAcceptancesForExclusionRegions( TDirectory*
     int nfilled = 0 ;
     for( int kx = 1; kx <= hAreaExcluded2D[ifocus]->GetNbinsX(); kx++ )
     {
-        xeventssim = hAreaExcluded2D[ifocus]->GetXaxis()->GetBinCenter( kx );
+        Double_t xeventssim = hAreaExcluded2D[ifocus]->GetXaxis()->GetBinCenter( kx );
         for( int ky = 1; ky <= hAreaExcluded2D[ifocus]->GetNbinsY(); ky++ )
         {
-            yeventssim = hAreaExcluded2D[ifocus]->GetYaxis()->GetBinCenter( ky );
+            Double_t yeventssim = hAreaExcluded2D[ifocus]->GetYaxis()->GetBinCenter( ky );
             if( !isExcludedfromBackground( xeventssim, yeventssim ) )
             {
                 hAreaExcluded2D[ifocus]->Fill( xeventssim, yeventssim );
