@@ -18,7 +18,7 @@ if [ $# -lt 2 ]; then
 echo "
 MSCW_ENERGY data analysis: submit jobs from a simple run list
 
-ANALYSIS.mscw_energy.sh <table file> <runlist> [evndisp directory] [Rec ID] [output directory] [Model3D]
+ANALYSIS.mscw_energy.sh <table file> <runlist> [evndisp directory] [Rec ID] [output directory]
 
 required parameters:
 
@@ -42,8 +42,6 @@ optional parameters:
     [output directory]      directory where mscw.root files are written
                             default: <evndisp directory>
                             If RecID given: <evndisp directory>/RecID#
-
-    [Model3D]               set to 1 to switch on 3D model (default is off)
 
 --------------------------------------------------------------------------------
 "
@@ -74,7 +72,6 @@ elif [[ "$4" ]]; then
 else
     ODIR=$INPUTDIR
 fi
-[[ "$6" ]] && MODEL3D=$6 || MODEL3D=0
 
 # Read runlist
 if [ ! -f "$RLIST" ] ; then
@@ -123,8 +120,7 @@ do
     sed -e "s|TABLEFILE|$TABFILE|" \
         -e "s|RECONSTRUCTIONID|$ID|" \
         -e "s|OUTPUTDIRECTORY|$ODIR|" \
-        -e "s|EVNDISPFILE|$BFILE|" \
-        -e "s|USEMODEL3DMETHOD|$MODEL3D|" $SUBSCRIPT.sh > $FSCRIPT.sh
+        -e "s|EVNDISPFILE|$BFILE|" $SUBSCRIPT.sh > $FSCRIPT.sh
 
     chmod u+x $FSCRIPT.sh
     echo $FSCRIPT.sh

@@ -9,7 +9,6 @@ TABFILE=TABLEFILE
 RECID=RECONSTRUCTIONID
 ODIR=OUTPUTDIRECTORY
 INFILE=EVNDISPFILE
-USEMODEL3D=USEMODEL3DMETHOD
 
 INDIR=`dirname $INFILE`
 BFILE=`basename $INFILE .root`
@@ -31,16 +30,11 @@ cp -f -v $INFILE $TEMPDIR
 
 MSCWDATAFILE="$ODIR/$BFILE.mscw.root"
 
-if [[ $USEMODEL3D == "1" ]]; then
-    MODEL3D="-model3d"
-    echo "using Model3D for direction and core values"
-fi
-
 MOPT="-arrayrecid=$RECID -writeReconstructedEventsOnly=1"
 MOPT="$MOPT -useMedian=0 -distance_energyCuts=1.3"
 
 # run mscw_energy
-$EVNDISPSYS/bin/mscw_energy -tablefile $TABFILE $MOPT -inputfile $TEMPDIR/$BFILE.root $MODEL3D &> $MSCWLOGFILE
+$EVNDISPSYS/bin/mscw_energy -tablefile $TABFILE $MOPT -inputfile $TEMPDIR/$BFILE.root &> $MSCWLOGFILE
 
 # move output file from scratch and clean up
 cp -f -v $TEMPDIR/$BFILE.mscw.root $MSCWDATAFILE

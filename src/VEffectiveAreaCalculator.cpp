@@ -496,7 +496,7 @@ vector< TProfile* > VEffectiveAreaCalculator::initializeHistogramsVectorHProfile
     
     for( unsigned int j = 0; j < fVMinAz.size(); j++ )
     {
-        sprintf( hname, "%s_%d_%d", iName.c_str(), i, j );
+        sprintf( hname, "%s_%u_%u", iName.c_str(), i, j );
         if( h )
         {
             iT_TProfile.push_back( ( TProfile* )h->Clone( hname ) );
@@ -685,7 +685,14 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( string iInputFile, double az
     }
 }
 
-
+/*
+ * get mean value between to azimuth angle
+ * taking into account the Eventdisplay azimuth
+ * definition 
+ *
+ * handles mix of neg/positive azimuth values
+ *
+ */
 float VEffectiveAreaCalculator::getAzMean( float azmin, float azmax )
 {
     // mean azimuth angle
@@ -729,7 +736,6 @@ vector< float > VEffectiveAreaCalculator::interpolate_effectiveArea( double iV, 
     
     return i_temp;
 }
-
 
 /*
  *
@@ -812,7 +818,6 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
         iEffArea->SetBranchAddress( "e_Rec_Res" , e_Rec_Res );
         iEffArea->SetBranchAddress( "e_Rec_Res_Err" , e_Rec_Res_Err );
     }
-
     // bias in energy reconstruction
     iEffArea->SetBranchAddress( "esys_rel", esys_rel );
     
@@ -926,7 +931,8 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
             i_ze_F = false;
             for( unsigned z = 0; z < fZe.size(); z++ )
             {
-                // this has to be a relatively large value due to wobble offsets up to 2.0 deg
+                // this has to be a relatively large value due
+                // to allowed wobble offsets up to 2.0 deg
                 if( fabs( fZe[z] - ze ) < 2.0 )
                 {
                     i_index_ze = z;
@@ -944,12 +950,6 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
                         break;
                     }
                 }
-                if( fZe.size() > 0 )
-                {
-                    i_index_ze = fZe.size() - 1;
-                }
-                fZe.push_back( 10. );
-                i_index_ze = 0;
             }
             ///////////////////////////////////////////////////
             // wobble offset
@@ -977,7 +977,19 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
                 vector< double > itemp;
                 itemp.push_back( fWoff );
                 fEff_WobbleOffsets.push_back( itemp );
-                i_index_woff = fEff_WobbleOffsets[i_index_ze].size() - 1;
+                if( i_index_ze < fEff_WobbleOffsets.size() )
+                {
+                    i_index_woff = fEff_WobbleOffsets[i_index_ze].size() - 1;
+                }
+                else
+                {
+                     cout << "Error in ";
+                     cout << "VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms:";
+                     cout << " setting of wobble vector" << endl;
+                     cout << i_index_ze << " >= " << fEff_WobbleOffsets.size() << endl;
+                     exit( EXIT_FAILURE );
+                }
+
             }
             ///////////////////////////////////////////////////
             // noise level
@@ -1485,7 +1497,7 @@ bool VEffectiveAreaCalculator::getMonteCarloSpectra( VEffectiveAreaCalculatorMCH
         {
             if( s < hVEmc.size() && i_az < hVEmc[s].size() )
             {
-                sprintf( hname, "hVEmc_%d_%d", s, i_az );
+                sprintf( hname, "hVEmc_%u_%u", s, i_az );
                 if( iMC_histo->getHistogram_Emc( i_az, s ) )
                 {
                     hVEmc[s][i_az] = ( TH1D* )iMC_histo->getHistogram_Emc( i_az, s )->Clone( hname );
@@ -1506,7 +1518,7 @@ bool VEffectiveAreaCalculator::getMonteCarloSpectra( VEffectiveAreaCalculatorMCH
             // profiles with spectral weights
             if( s < hVEmcSWeight.size() && i_az < hVEmcSWeight[s].size() )
             {
-                sprintf( hname, "hVEmcSWeight_%d_%d", s, i_az );
+                sprintf( hname, "hVEmcSWeight_%u_%u", s, i_az );
                 if( iMC_histo->getHistogram_EmcWeight( i_az, s ) )
                 {
                     hVEmcSWeight[s][i_az] = ( TProfile* )iMC_histo->getHistogram_EmcWeight( i_az, s )->Clone( hname );
