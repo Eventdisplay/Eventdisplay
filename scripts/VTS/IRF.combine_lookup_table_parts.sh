@@ -41,10 +41,10 @@ bash $(dirname "$0")"/helper_scripts/UTILITY.script_init.sh"
 [[ $? != "0" ]] && exit 1
 
 # EventDisplay version
-$EVNDISPSYS/bin/combineLookupTables --version  >/dev/null 2>/dev/null
+"$EVNDISPSYS"/bin/combineLookupTables --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
-    EDVERSION=`$EVNDISPSYS/bin/combineLookupTables --version | tr -d .`
+    EDVERSION=`"$EVNDISPSYS"/bin/combineLookupTables --version | tr -d .`
 else
     EDVERSION="g500"
 fi
@@ -72,8 +72,8 @@ if [[ -n $VERITAS_IRFPRODUCTION_DIR ]]; then
     ODIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/Tables/"
 fi
 echo -e "Output files will be written to:\n$ODIR"
-mkdir -p $ODIR
-chmod g+w $ODIR
+mkdir -p "$ODIR"
+chmod g+w "$ODIR"
 
 if [[ -f $OFILE ]]; then
     echo "ERROR: table file $ODIR/$OFILE exists; move it or delete it"
@@ -84,17 +84,17 @@ fi
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/MSCW.MAKETABLES"
 echo -e "Log files will be written to:\n$LOGDIR"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 # Create list of partial table files
 FLIST=$OFILE.list
-rm -f $ODIR/$FLIST
-ls -1 $INDIR/*ID${RECID}.root > $ODIR/$FLIST
+rm -f "$ODIR/$FLIST"
+ls -1 "$INDIR/*ID${RECID}.root" > "$ODIR/$FLIST"
 NFIL=`cat $ODIR/$FLIST | wc -l`
 if [[ $NFIL = "0" ]]; then
    exit
 fi
-echo $FLIST
+echo "$FLIST"
 echo "LOOKUPTABLE $OFILE" 
 
 
@@ -105,9 +105,9 @@ FSCRIPT="$LOGDIR/CMB-TBL.$DATE.MC-$(date +%s)"
 
 sed -e "s|TABLELIST|$FLIST|" \
     -e "s|OUTPUTFILE|$OFILE|" \
-    -e "s|OUTPUTDIR|$ODIR|" $SUBSCRIPT.sh > $FSCRIPT.sh
+    -e "s|OUTPUTDIR|$ODIR|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
-chmod u+x $FSCRIPT.sh
+chmod u+x "$FSCRIPT.sh"
 
 # run locally or on cluster
 SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
@@ -116,7 +116,7 @@ if [[ $SUBC == *qsub* ]]; then
     JOBID=`$SUBC $FSCRIPT.sh`
     echo "JOBID: $JOBID"
 elif [[ $SUBC == *parallel* ]]; then
-    echo "$FSCRIPT.sh &> $FSCRIPT.log" >> $LOGDIR/runscripts.dat
+    echo "$FSCRIPT.sh &> $FSCRIPT.log" >> "$LOGDIR/runscripts.dat"
 fi
 
 exit

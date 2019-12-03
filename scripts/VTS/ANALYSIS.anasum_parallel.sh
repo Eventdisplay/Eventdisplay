@@ -58,7 +58,7 @@ fi
 exec 5>&1
 
 # Check that run parameter file exists
-if [[ "$RUNP" == `basename $RUNP` ]]; then
+if [[ "$RUNP" == `basename "$RUNP"` ]]; then
     RUNP="$VERITAS_EVNDISP_AUX_DIR/ParameterFiles/$RUNP"
 fi
 if [ ! -f "$RUNP" ]; then
@@ -69,23 +69,23 @@ fi
 # directory for run scripts
 DATE=`date +"%y%m%d"`
 LOGDIRTEMP="$VERITAS_USER_LOG_DIR/$DATE/ANASUM.ANADATA"
-mkdir -p $LOGDIRTEMP
+mkdir -p "$LOGDIRTEMP"
 
 # temporary run list
 DATECODE=`date +%Y%m%d`
-TEMPLIST=`basename $FLIST`
+TEMPLIST=`basename "$FLIST"`
 TEMPLIST="$LOGDIRTEMP/$DATECODE.PID$$.$TEMPLIST.tmp"
-rm -f $TEMPLIST
-cat $FLIST | grep "*" >> $TEMPLIST
+rm -f "$TEMPLIST"
+cat "$FLIST" | grep "*" >> "$TEMPLIST"
 
 # output directory
-mkdir -p $ODIR
-ODIRBASE=`basename $ODIR`
+mkdir -p "$ODIR"
+ODIRBASE=`basename "$ODIR"`
 echo "Output directory base name: $ODIRBASE"
 
 # get list of runs
-NLINES=`cat $TEMPLIST | wc -l`
-NRUNS=`cat $TEMPLIST | grep -v "VERSION" | wc -l`
+NLINES=`cat "$TEMPLIST" | wc -l`
+NRUNS=`cat "$TEMPLIST" | grep -v "VERSION" | wc -l`
 echo "Total number of runs to analyse: $NRUNS"
 
 # Job submission script
@@ -96,9 +96,9 @@ TIMETAG=`date +"%s"`
 # loop over all runs
 for ((i=1; i <= $NLINES; i++)); do
     echo
-    VERSION=`cat $TEMPLIST | grep VERSION`
-    LINE=`head -n $i $TEMPLIST | tail -n 1`
-    RUN=`head -n $i $TEMPLIST | tail -n 1 | awk '{print $2}'`
+    VERSION=`cat "$TEMPLIST" | grep VERSION`
+    LINE=`head -n $i "$TEMPLIST" | tail -n 1`
+    RUN=`head -n $i "$TEMPLIST" | tail -n 1 | awk '{print $2}'`
 
     if [[ $RUN != "VERSION" ]]; then
         # output file name
@@ -106,13 +106,13 @@ for ((i=1; i <= $NLINES; i++)); do
 
         # temporary log dir
         LOGDIR="$LOGDIRTEMP/${RUN}"
-        mkdir -p $LOGDIR
+        mkdir -p "$LOGDIR"
 
         # temporary per-run file list
         RUNTEMPLIST="$LOGDIR/qsub_analyse_fileList_${ODIRBASE}_${RUN}_${DATECODE}_PID$$"
-        rm -f $RUNTEMPLIST
-        echo "$VERSION" > $RUNTEMPLIST
-        echo "$LINE" >> $RUNTEMPLIST
+        rm -f "$RUNTEMPLIST"
+        echo "$VERSION" > "$RUNTEMPLIST"
+        echo "$LINE" >> "$RUNTEMPLIST"
         echo "Temporary run list written to $RUNTEMPLIST"
 
         # prepare run scripts
@@ -124,20 +124,20 @@ for ((i=1; i <= $NLINES; i++)); do
             -e "s|OUTNAME|$ONAME|"        \
             -e "s|RUNNNNN|$RUN|"          \
             -e "s|RAAACCC|$RACC|"          \
-            -e "s|RUNPARAM|$RUNP|" $SUBSCRIPT.sh > $FSCRIPT.sh
+            -e "s|RUNPARAM|$RUNP|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
         echo "Run script written to $FSCRIPT"
 
-        chmod u+x $FSCRIPT.sh
+        chmod u+x "$FSCRIPT.sh"
         
         # run locally or on cluster
-        SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
+        SUBC=`"$EVNDISPSYS"/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
         SUBC=`eval "echo \"$SUBC\""`
         if [[ $SUBC == *"ERROR"* ]]; then
-            echo $SUBC
+            echo "$SUBC"
             exit
         fi
         if [[ $SUBC == *qsub* ]]; then
-            JOBID=`$SUBC $FSCRIPT.sh`
+            JOBID=`$SUBC "$FSCRIPT.sh"`
             
             # account for -terse changing the job number format
             if [[ $SUBC != *-terse* ]] ; then
@@ -152,7 +152,7 @@ for ((i=1; i <= $NLINES; i++)); do
                 echo "RUN $RUN ELOG $FSCRIPT.sh.e$JOBID"
             fi
         elif [[ $SUBC == *parallel* ]]; then
-            echo "$FSCRIPT.sh &> $FSCRIPT.log" >> $LOGDIRTEMP/runscripts.$TIMETAG.dat
+            echo "$FSCRIPT.sh &> $FSCRIPT.log" >> "$LOGDIRTEMP/runscripts.$TIMETAG.dat"
         elif [[ "$SUBC" == *simple* ]] ; then
 	    "$FSCRIPT.sh" | tee "$FSCRIPT.log"
 	fi
@@ -161,10 +161,10 @@ done
 
 # Execute all FSCRIPTs locally in parallel
 if [[ $SUBC == *parallel* ]]; then
-    cat $LOGDIRTEMP/runscripts.$TIMETAG.dat | $SUBC
+    cat "$LOGDIRTEMP/runscripts.$TIMETAG.dat" | $SUBC
 fi
 
-rm -f $TEMPLIST
+rm -f "$TEMPLIST"
 
 echo ""
 echo "============================================================================================"

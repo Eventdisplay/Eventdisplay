@@ -1,3 +1,4 @@
+#!/bin/bash
 # optimise BDT cuts
 #
 # This script does:
@@ -29,14 +30,12 @@ do
     echo "  particle file: $OFIL"
 
     mv -f ${OFIL}_MVA.log ${OFIL}_MVA.log.back
-    $EVNDISPSYS/bin/writeParticleRateFilesForTMVA $DDIR/TL5035MA20_ID0_${C}_RE_N8/anasumCombined.root $OFIL.root $SIMDIR/EffectiveAreas_Cut-${C} $EFFFIL${C}.root 200 > $OFIL.log
+    "$EVNDISPSYS"/bin/writeParticleRateFilesForTMVA "$DDIR/TL5035MA20_ID0_${C}_RE_N8/anasumCombined.root" "$OFIL.root" "$SIMDIR/EffectiveAreas_Cut-${C}" "$EFFFIL${C}.root" 200 > "$OFIL.log"
     echo
     echo "  optimised BDT cuts"
 
-    OCUTS="$BDTDIR/"
-
-    mv -f ${OFIL}_MVA.log ${OFIL}_MVA.log.back
-    $EVNDISPSYS/bin/optimiseBDTCuts $OFIL.root $BDTDIR mva ${OFIL}_MVA.root 20. > ${OFIL}_MVA.log
+    mv -f "${OFIL}_MVA.log" "${OFIL}_MVA.log.back"
+    "$EVNDISPSYS"/bin/optimiseBDTCuts "$OFIL.root" "$BDTDIR" mva "${OFIL}_MVA.root" 20. > "${OFIL}_MVA.log"
 
     echo
     echo "optmised MVA cuts written to ${OFIL}_MVA.root"

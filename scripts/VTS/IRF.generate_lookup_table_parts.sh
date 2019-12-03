@@ -35,7 +35,7 @@ required parameters:
 optional parameters:
 
     [Analysis-Method]       select analysis method
-                            (TL, NN, FROGS, MODEL3D, see IRF.evndisp_MC.sh)
+                            (TL, NN, see IRF.evndisp_MC.sh)
 
     
 --------------------------------------------------------------------------------
@@ -49,10 +49,10 @@ bash $(dirname "$0")"/helper_scripts/UTILITY.script_init.sh"
 [[ $? != "0" ]] && exit 1
 
 # EventDisplay version
-$EVNDISPSYS/bin/mscw_energy --version  >/dev/null 2>/dev/null
+"$EVNDISPSYS"/bin/mscw_energy --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
-    EDVERSION=`$EVNDISPSYS/bin/mscw_energy --version | tr -d .`
+    EDVERSION=`"$EVNDISPSYS"/bin/mscw_energy --version | tr -d .`
 else
     EDVERSION="g500"
 fi
@@ -84,14 +84,14 @@ if [[ ! -z $VERITAS_IRFPRODUCTION_DIR ]]; then
     ODIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/$SIMTYPE/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}_${ANAMETHOD}/Tables"
 fi
 echo "Output file directory: $ODIR"
-mkdir -p $ODIR
-chmod g+w $ODIR
+mkdir -p "$ODIR"
+chmod g+w "$ODIR"
 
 # run scripts and output are written into this directory
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/MSCW.MAKETABLES"
 echo -e "Log files will be written to:\n $LOGDIR"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/IRF.lookup_table_parallel_sub"
 
@@ -99,7 +99,7 @@ SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/IRF.lookup_table_parallel_sub"
 echo "Processing Zenith = $ZA, Wobble = $WOBBLE, Noise = $NOISE, Analysis method $ANAMETHOD"
 
 FSCRIPT="$LOGDIR/$EPOCH-MK-TBL.$DATE.MC-$ZA-$WOBBLE-$NOISE-$EPOCH-$ATM-$RECID-$(date +%s)"
-rm -f $FSCRIPT.sh
+rm -f "$FSCRIPT.sh"
 
 sed -e "s|ZENITHANGLE|$ZA|" \
     -e "s|WOBBLEOFFSET|$WOBBLE|" \
@@ -109,22 +109,22 @@ sed -e "s|ZENITHANGLE|$ZA|" \
     -e "s|RECONSTRUCTIONID|$RECID|" \
     -e "s|SIMULATIONTYPE|$SIMTYPE|" \
     -e "s|INPUTDIR|$INDIR|" \
-    -e "s|OUTPUTDIR|$ODIR|" $SUBSCRIPT.sh > $FSCRIPT.sh
+    -e "s|OUTPUTDIR|$ODIR|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
-chmod u+x $FSCRIPT.sh
-echo $FSCRIPT.sh
+chmod u+x "$FSCRIPT.sh"
+echo "$FSCRIPT.sh"
 
 # run locally or on cluster
-SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
+SUBC=`"$EVNDISPSYS"/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
 SUBC=`eval "echo \"$SUBC\""`
 if [[ $SUBC == *"ERROR"* ]]; then
-echo $SUBC
+echo "$SUBC"
 exit
 fi
 if [[ $SUBC == *qsub* ]]; then
     $SUBC $FSCRIPT.sh
 elif [[ $SUBC == *parallel* ]]; then
-    echo "$FSCRIPT.sh &> $FSCRIPT.log" >> $LOGDIR/runscripts.dat
+    echo "$FSCRIPT.sh &> $FSCRIPT.log" >> "$LOGDIR/runscripts.dat"
 fi
 
 exit

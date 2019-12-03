@@ -58,7 +58,7 @@ EPOCH=$4
 SIM=$5
 RECID="$6"
 # make radial acceptance version
-EDVERSION=`$EVNDISPSYS/bin/makeRadialAcceptance --version | tr -d . | sed -e 's/[a-Z]*$//' `
+EDVERSION=`"$EVNDISPSYS"/bin/makeRadialAcceptance --version | tr -d . | sed -e 's/[a-Z]*$//' `
 # version string for aux files
 AUX="auxv01"
 
@@ -68,22 +68,21 @@ if [[ ! -f "$RLIST" ]]; then
     echo "Error, runlist $RLIST not found, exiting..."
     exit 1
 fi
-FILES=`cat $RLIST`
 
 # Read cuts list file
 echo "CUTS: $CUTLISTFILE"
 if [[ ! -f "$CUTLISTFILE" ]]; then
     echo "Error, cuts list file not found, exiting..."
-    echo $CUTLISTFILE
+    echo "$CUTLISTFILE"
     exit 1
 fi
-CUTLIST=$(IFS=$'\r\n'; cat $CUTLISTFILE)
+CUTLIST=$(IFS=$'\r\n'; cat "$CUTLISTFILE")
 
 # run scripts and logs are written into this directory
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/RADIAL"
 echo -e "Log files will be written to:\n $LOGDIR"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 # Job submission script
 SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/IRF.radial_acceptance_sub.sh"
@@ -109,7 +108,7 @@ for CUTS in ${CUTLIST[@]}; do
 
             # Check that cuts file exists
             CUTSFILE=${CUTS%%.dat}.dat
-            if [[ "$CUTSFILE" == `basename $CUTSFILE` ]]; then
+            if [[ "$CUTSFILE" == `basename "$CUTSFILE"` ]]; then
                 CUTSFILE="$VERITAS_EVNDISP_AUX_DIR/GammaHadronCutFiles/$CUTSFILE"
             fi
             if [[ ! -f "$CUTSFILE" ]]; then
@@ -124,7 +123,7 @@ for CUTS in ${CUTLIST[@]}; do
             elif [[ $ID == "1" ]] || [[ $ID == "7" ]] || [[ $ID == "8" ]] || [[ $ID == "9" ]] || [[ $ID == "10" ]]; then 
               METH="DISP"
             fi
-            CUTSNAME=`basename $CUTSFILE`
+            CUTSNAME=`basename "$CUTSFILE"`
             # Generate base file name based on cuts file, extended and point source radial acceptances are the same
             CUTSNAME=${CUTSNAME##ANASUM.GammaHadron-}
             CUTSNAME=${CUTSNAME%%.dat}
@@ -137,8 +136,8 @@ for CUTS in ${CUTLIST[@]}; do
             fi
             OFILE="radialAcceptance-${EDVERSION}-${AUX}-${SIM}-$CUTSNAME-${METH}-$VX-T$TELES"
             ODIR="$VERITAS_IRFPRODUCTION_DIR/RadialAcceptances"
-            mkdir -p $ODIR
-            chmod g+w $ODIR
+            mkdir -p "$ODIR"
+            chmod g+w "$ODIR"
             echo -e "Output files will be written to:\n$ODIR"
             echo "Output file name $OFILE"
       
@@ -149,25 +148,25 @@ for CUTS in ${CUTLIST[@]}; do
                 -e "s|OUTPUTDIR|$ODIR|"    \
                 -e "s|IEPO|$VX|"           \
                 -e "s|TELTOANA|$TELES|"    \
-                -e "s|OUTPUTFILE|$OFILE|" $SUBSCRIPT > $FSCRIPT.sh
+                -e "s|OUTPUTFILE|$OFILE|" "$SUBSCRIPT" > "$FSCRIPT.sh"
             
-            chmod u+x $FSCRIPT.sh
+            chmod u+x "$FSCRIPT.sh"
             echo "Script submitted to cluster: $FSCRIPT.sh"
             
             # run locally or on cluster
-            SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
-            echo $LOGDIR
+            SUBC=`"$EVNDISPSYS"/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
+            echo "$LOGDIR"
             SUBC=`eval "echo \"$SUBC\""`
             if [[ $SUBC == *"ERROR"* ]]; then
                 echo $SUBC
                 exit
             fi
             if [[ $SUBC == *qsub* ]]; then
-                echo $SUBC $FSCRIPT.sh
+                echo "$SUBC" "$FSCRIPT.sh"
                 JOBID=`$SUBC $FSCRIPT.sh`
                 echo "JOBID: $JOBID"
             elif [[ $SUBC == *parallel* ]]; then
-                echo "$FSCRIPT.sh &> $FSCRIPT.log" >> $LOGDIR/runscripts.dat
+                echo "$FSCRIPT.sh &> $FSCRIPT.log" >> "$LOGDIR/runscripts.dat"
             fi
         done
     done
@@ -175,7 +174,7 @@ done
 
 # Execute all FSCRIPTs locally in parallel
 if [[ $SUBC == *parallel* ]]; then
-    cat $LOGDIR/runscripts.dat | $SUBC
+    cat "$LOGDIR/runscripts.dat" | "$SUBC"
 fi
 
 exit

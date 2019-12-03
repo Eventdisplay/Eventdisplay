@@ -3,7 +3,7 @@
 # (i.e. ze, wobble, etc)
 
 # set observatory environmental variables
-source $EVNDISPSYS/setObservatory.sh VTS
+source "$EVNDISPSYS"/setObservatory.sh VTS
 
 # parameters replaced by parent script using sed
 ZA=ZENITHANGLE
@@ -25,6 +25,6 @@ rm -f "$ODIR/$TABFILE.root"
 rm -f "$ODIR/$TABFILE.log"
 
 # make the table part
-$EVNDISPSYS/bin/mscw_energy -filltables=1 $MAXDIST -write1DHistograms -inputfile "$INDIR/*[0-9]*.root" -tablefile "$ODIR/$TABFILE.root" -ze=$ZA -arrayrecid=$RECID -woff=$WOBBLE &> "$ODIR/$TABFILE.log"
+"$EVNDISPSYS"/bin/mscw_energy -filltables=1 "$MAXDIST" -write1DHistograms -inputfile "$INDIR/*[0-9]*.root" -tablefile "$ODIR/$TABFILE.root" -ze=$ZA -arrayrecid=$RECID -woff=$WOBBLE &> "$ODIR/$TABFILE.log"
 
 exit

@@ -2,14 +2,13 @@
 # script to run eventdisplay analysis for VTS data
 
 # qsub parameters
-# h_cpu=41:59:00; h_vmem=4000M; tmpdir_size=25G
 h_cpu=41:59:00; h_vmem=4000M; tmpdir_size=25G
 
 # EventDisplay version
-$EVNDISPSYS/bin/evndisp --version  >/dev/null 2>/dev/null
+"$EVNDISPSYS"/bin/evndisp --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
-    EDVERSION=`$EVNDISPSYS/bin/evndisp --version | tr -d .`
+    EDVERSION=`"$EVNDISPSYS"/bin/evndisp --version | tr -d .`
 else
     EDVERSION="g500"
 fi
@@ -33,15 +32,7 @@ optional parameters:
     [runparameter file]    file with integration window size and reconstruction cuts/methods,
                            expected in $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/
 
-			   Default: EVNDISP.reconstruction.runparameter (long sumwindow -> for use with CARE IRFs; DISP disabled )
-
-			   other options:
-
-			   EVNDISP.reconstruction.runparameter.DISP		 (long sumwindow -> for use with CARE IRFs;
-										                    DISP enabled, use RecID 1 in later stages to access it)
-										 
-			   EVNDISP.reconstruction.runparameter.SumWindow6-noDISP (short sumwindow -> for use with grisu IRFs; DISP disabled)
-			   EVNDISP.reconstruction.runparameter.SumWindow6-DISP	 (short sumwindow -> for use with grisu IRFs; DISP enabled [RecID 1])
+			   Default: EVNDISP.reconstruction.runparameter
 
     [calibration]	   
           0		   neither tzero nor pedestal calculation is performed, must have the calibration results
@@ -55,7 +46,6 @@ optional parameters:
 
     [Analysis Method]      TL      (standard image analysis with two-level cleaning; default)
                            NN      (standard image analysis using optimized NN cleaning)
-                           MODEL3D (model3D analysis)
 
     [teltoana]             restrict telescope combination to be analyzed:
                            e.g.: teltoana=123 (for tel. 1,2,3), 234, ...
@@ -84,36 +74,36 @@ exec 5>&1
 # Parse command line arguments
 RLIST=$1
 [[ "$2" ]] && ODIR=$2 || ODIR="$VERITAS_USER_DATA_DIR/analysis/Results/$EDVERSION/"
-mkdir -p $ODIR
+mkdir -p "$ODIR"
 [[ "$3" ]] && ACUTS=$3 || ACUTS=EVNDISP.reconstruction.runparameter
 [[ "$4" ]] && CALIB=$4 || CALIB=1
 [[ "$5" ]] && ANAMETHOD=${5} || ANAMETHOD="TL"
 [[ "$6" ]] && TELTOANA=$6 || TELTOANA=1234
 [[ "$7" ]] && CALIBFILE=$7 || CALIBFILE=calibrationlist.dat
-
+# VPM is on by default
 VPM=1
 
 echo "Using runparameter file $ACUTS"
-
 
 # Read runlist
 if [ ! -f "$RLIST" ] ; then
     echo "Error, runlist $RLIST not found, exiting..."
     exit 1
 fi
-FILES=`cat $RLIST`
+FILES=`cat "$RLIST"`
 
 # Output directory for error/output
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/EVNDISP.ANADATA"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 # Job submission script
 SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/ANALYSIS.evndisp_sub"
 
+# time tag used in script naming
 TIMETAG=`date +"%s"`
 
-NRUNS=`cat $RLIST | wc -l ` 
+NRUNS=`cat "$RLIST" | wc -l ` 
 echo "total number of runs to analyze: $NRUNS"
 echo
 
@@ -131,36 +121,37 @@ do
         -e "s|RECONSTRUCTIONRUNPARAMETERFILE|$ACUTS|" \
         -e "s|TELTOANACOMB|$TELTOANA|"                   \
         -e "s|USECALIBLIST|$CALIBFILE|"                  \
-        -e "s|ANALYSISMETHOD|$ANAMETHOD|" $SUBSCRIPT.sh > $FSCRIPT.sh
+        -e "s|ANALYSISMETHOD|$ANAMETHOD|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
-    chmod u+x $FSCRIPT.sh
-    echo $FSCRIPT.sh
-	# output selected input during submission:
+    chmod u+x "$FSCRIPT.sh"
+    echo "$FSCRIPT.sh"
 
-	echo "Using runparameter file $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/$ACUTS"
+    # output selected input during submission:
 
-	if [[ $VPM == "1" ]]; then
-	echo "VPM is switched on (default)"
-	else
-	echo "VPM bool is set to $VPM (switched off)"
-	fi  
+    echo "Using runparameter file $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/$ACUTS"
 
-	if [[ $TELTOANA == "1234" ]]; then
-	echo "Telescope combination saved in the DB is analyzed (default)"
-	else
-	echo "Analyzed telescopes: $TELTOANA"
-	fi 
-	if [[ $CALIB == "4" ]]; then
-	echo "read calibration from calibration file $CALIBFILE"
-	else
-            echo "read calibration from VOffline DB (default)"
-	fi 
+    if [[ $VPM == "1" ]]; then
+    echo "VPM is switched on (default)"
+    else
+    echo "VPM bool is set to $VPM (switched off)"
+    fi  
+
+    if [[ $TELTOANA == "1234" ]]; then
+    echo "Telescope combination saved in the DB is analyzed (default)"
+    else
+    echo "Analyzed telescopes: $TELTOANA"
+    fi 
+    if [[ $CALIB == "4" ]]; then
+    echo "read calibration from calibration file $CALIBFILE"
+    else
+        echo "read calibration from VOffline DB (default)"
+    fi 
 
     # run locally or on cluster
-    SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
+    SUBC=`"$EVNDISPSYS"/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
     SUBC=`eval "echo \"$SUBC\""`
     if [[ $SUBC == *"ERROR"* ]]; then
-        echo $SUBC
+        echo "$SUBC"
         exit
     fi
     if [[ $SUBC == *qsub* ]]; then
@@ -178,7 +169,7 @@ do
             echo "RUN $AFILE ELOG $FSCRIPT.sh.e$JOBID"
         fi
     elif [[ $SUBC == *parallel* ]]; then
-        echo "$FSCRIPT.sh &> $FSCRIPT.log" >> $LOGDIR/runscripts.$TIMETAG.dat
+        echo "$FSCRIPT.sh &> $FSCRIPT.log" >> "$LOGDIR/runscripts.$TIMETAG.dat"
         echo "RUN $AFILE OLOG $FSCRIPT.log"
     elif [[ "$SUBC" == *simple* ]] ; then
 	"$FSCRIPT.sh" |& tee "$FSCRIPT.log"	
@@ -187,7 +178,7 @@ done
 
 # Execute all FSCRIPTs locally in parallel
 if [[ $SUBC == *parallel* ]]; then
-    cat $LOGDIR/runscripts.$TIMETAG.dat | sort -u | $SUBC
+    cat "$LOGDIR/runscripts.$TIMETAG.dat" | sort -u | "$SUBC"
 fi
 
 exit

@@ -38,7 +38,7 @@ bash $(dirname "$0")"/helper_scripts/UTILITY.script_init.sh"
 [[ $? != "0" ]] && exit 1
 
 # EventDisplay version
-EDVERSION=`$EVNDISPSYS/bin/trainTMVAforAngularReconstruction --version | tr -d .`
+EDVERSION=`"$EVNDISPSYS"/bin/trainTMVAforAngularReconstruction --version | tr -d .`
 
 # Parse command line arguments
 EPOCH=$1
@@ -65,14 +65,14 @@ if [[ -n "$VERITAS_IRFPRODUCTION_DIR" ]]; then
     ODIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/$SIMTYPE/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}/TMVA_AngularReconstruction/ze${ZA}deg_offset${WOBBLE}deg/"
 fi
 echo -e "Output files will be written to:\n $ODIR"
-mkdir -p $ODIR
-chmod g+w $ODIR
+mkdir -p "$ODIR"
+chmod g+w "$ODIR"
 
 # run scripts and output are written into this directory
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/TMVAAngRes/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}/"
 echo -e "Log files will be written to:\n $LOGDIR"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 # training file name
 BDTFILE="mvaAngRes_${ZA}deg_${WOBBLE}wob_NOISE${NOISE}"
@@ -86,10 +86,10 @@ echo "Processing Zenith = $ZA, Noise = $NOISE, Wobble = $WOBBLE"
 FSCRIPT="$LOGDIR/TA.ID${RECID}.${EPOCH}.$DATE.MC"
 sed -e "s|OUTPUTDIR|$ODIR|" \
     -e "s|EVNDISPFILE|$INDIR|" \
-    -e "s|BDTFILE|$BDTFILE|" $SUBSCRIPT.sh > $FSCRIPT.sh
+    -e "s|BDTFILE|$BDTFILE|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
-chmod u+x $FSCRIPT.sh
-echo $FSCRIPT.sh
+chmod u+x "$FSCRIPT.sh"
+echo "$FSCRIPT.sh"
 
 # run locally or on cluster
 SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
@@ -102,7 +102,7 @@ if [[ $SUBC == *qsub* ]]; then
     JOBID=`$SUBC $FSCRIPT.sh`
     echo "JOBID: $JOBID"
 elif [[ $SUBC == *parallel* ]]; then
-    echo "$FSCRIPT.sh &> $FSCRIPT.log" >> $LOGDIR/runscripts.dat
+    echo "$FSCRIPT.sh &> $FSCRIPT.log" >> "$LOGDIR/runscripts.dat"
 fi
 
 exit

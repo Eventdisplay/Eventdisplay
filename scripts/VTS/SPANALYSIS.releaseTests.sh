@@ -48,8 +48,8 @@ ANAMETHOD="TL5025MA10"
 ERUN="EVNDISP.reconstruction.runparameter.NN"
 ANAMETHOD="NN"
 
-ERUN="EVNDISP.reconstruction.runparameter"
-ANAMETHOD="TL5035MA20"
+ERUN="EVNDISP.reconstruction.runparameter.TL5025"
+ANAMETHOD="TL5025"
 
 SIMSUB=""
 
@@ -62,36 +62,19 @@ elif [[ $ANAMETHOD = "BDT" ]]
 then
     CUTS=( "BDT-moderate" )
 else
-    CUTS=( "soft2tel" "softopen" "soft4002tel" "soft3002tel" "moderate2tel" "moderate3tel" )
-    CUTS=( "soft2tel" "softopen" )
-    CUTS=( "soft2tel" "hard3tel" "moderate2tel" "soft3tel" "moderate3tel" )
-    CUTS=( "soft2tel" "moderate3tel" "hard3tel" "moderate2tel" "superhard" )
-    CUTS=( "soft2tel" "moderate2tel" "soft3tel" "moderate3tel" "hard3tel" )
-    CUTS=( "soft3tel" "soft2tel" )
-    CUTS=( "soft3tel" "soft2tel" "moderate2tel" "moderate3tel" "hard3tel" )
-    CUTS=( "BDTpreselection4tel" "BDTpreselection3tel" "BDTpreselection2tel" )
-    CUTS=( "BDTpreselection2tel" )
-    CUTS=( "NTel2-PointSource-Moderate-MVA-Preselection" "NTel2-PointSource-Soft-MVA-Preselection" )
-    CUTS=( "NTel2-PointSource-Soft-MVA-Preselection" )
-    CUTS=( "NTel2-PointSource-Moderate-MVA-Preselection" )
-    CUTS=( "NTel2-PointSource-SuperSoft-MVA-BDT" "NTel2-PointSource-SuperSoft2-MVA-BDT" )
-    CUTS=( "NTel2-PointSource-SuperSoft-MVA-BDT" )
-    CUTS=( "NTel2-PointSource-Soft-MVA-BDT" "NTel2-PointSource-SuperSoft-MVA-BDT" )
-    CUTS=( "NTel2-PointSource-SuperSoft-MVA-Preselection" )
     CUTS=( "NTel2-PointSource-SuperSoft-MVA-BDT" )
     CUTS=( "NTel2-PointSource-SuperSoft-MVA-Preselection" "NTel2-PointSource-Soft-MVA-Preselection" )
+    CUTS=( "NTel4-PointSource-Moderate" )
+    CUTS=( "NTel2-PointSource-Moderate" )
 fi
 
 # V4
 SIMTYPE="GRISU-SW6"
 EPOCH="V4"
 
-
 # V5
 SIMTYPE="GRISU-SW6"
 EPOCH="V5"
-SIMTYPE="CARE_Mar1816${SIMSUB}"
-SIMTYPE="CARE_Apr1417${SIMSUB}"
 SIMTYPE="CARE_Apr1419${SIMSUB}"
 EPOCH="V5"
 
@@ -122,38 +105,27 @@ PREFIX="$VERITAS_USER_DATA_DIR/analysis/Results/${VERSION}/"
 # for O in Tycho PKS1424p240 Mrk501 Mrk421 HESSJ0632057 MAXIJ1820p070
 # for O in PKS1424p240 Mrk501 Mrk421 MAXIJ1820p070
 # for O in Tycho HESSJ0632057 
+for O in Crab
+# for O in Mrk421
 # for O in BDTtraining
-for O in Segue1
-# for O in BDTtraining
+# for O in Segue1
 # for O in PKS1424p240 Mrk421 Mrk501 MAXIJ1820p070
-# for O in PKS1424p240
 do
     echo $O
     echo
 
     # run list
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}_50deg.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}.LZE.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}.HF.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}_Winter.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}.HF.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}_Winter.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}.LZE.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}_20162018.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}.TMVAOptimization.V2.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}.redo.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}_20182019.dat"
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}_20182019.dat"
+    RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat.EP"
     RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat"
 
     # output directory
     ODIR="$PREFIX/$O/${VERSIONSUB}_${ANAMETHOD}"
 
-    mkdir -p $ODIR
+    mkdir -p "$ODIR"
     ########### START EVNDISP
     if [[ $RUNTYPE = "EVNDISP" ]]
     then
-       $(dirname "$0")/ANALYSIS.evndisp.sh $RLIST $ODIR $ERUN 1 $ANAMETHOD
+       $(dirname "$0")/ANALYSIS.evndisp.sh "$RLIST" "$ODIR" "$ERUN" 1 "$ANAMETHOD"
        continue
     fi
     ########### END EVNDISP
@@ -170,17 +142,11 @@ do
         if [[ $RUNTYPE = "MSCW" ]]
         then
            TFIL=table-$VERSION-${ANAMETHOD}-auxv01-${SIMTYPE}-${ATM}-${EPOCH}-RECMETHOD${ID}
-           # TMP
-           #TFIL=table-g500-${ANAMETHOD}-auxv01-${SIMTYPE}-${ATM}-${EPOCH}-RECMETHOD${ID}
-           $(dirname "$0")/ANALYSIS.mscw_energy.sh $TFIL $RLIST $ODIR $ID $IDIR
-            continue
+           echo "$TFIL"
+           $(dirname "$0")/ANALYSIS.mscw_energy.sh "$TFIL" "$RLIST" "$ODIR" "$ID" "$IDIR"
+           continue
         fi
         ########### END MSCW
-        ########### START FROGS
-        if [[ $RUNTYPE = "FROGS" ]]
-        then
-           $(dirname "$0")/ANALYSIS.evndisp_frogs.sh $RLIST $PREFIX/${O}/${D}/${VERSIONSUB}_${ANAMETHOD}/ $IDIR
-        fi
 
         ############ ANASUM ###############
         ##
@@ -196,18 +162,18 @@ do
                     # runparameter file
                     RUNPAR="$PREFIX/${O}/runparameter.dat"
                     
-                    echo $IDIR
-                    echo $ODIR
-                    echo $RUNPAR
-                    echo $RLIST
+                    echo "$IDIR"
+                    echo "$ODIR"
+                    echo "$RUNPAR"
+                    echo "$RLIST"
 
-                    rm -f $ODIR.log
+                    rm -f "$ODIR.log"
                     if [[ $RUNTYPE = "ANASUM" ]]
                     then
-                         $EVNDISPSYS/bin/anasum -i 1 -d $ODIR -f $RUNPAR -l $ODIR/$C.anasum.dat -o $ODIR.root > $ODIR.log
+                         $EVNDISPSYS/bin/anasum -i 1 -d "$ODIR" -f "$RUNPAR" -l "$ODIR/$C.anasum.dat" -o "$ODIR.root" > "$ODIR.log"
                     elif [[ $RUNTYPE = "ANASUM_SUB" ]]
                     then
-                        $(dirname "$0")/ANALYSIS.anasum_parallel_from_runlist.sh ${RLIST} $ODIR $C ${BC} $RUNPAR $IDIR $SIMTYPE $ANAMETHOD 1 61 $ID
+                        $(dirname "$0")/ANALYSIS.anasum_parallel_from_runlist.sh "${RLIST}" "$ODIR" "$C" "${BC}" "$RUNPAR" "$IDIR" "$SIMTYPE" "$ANAMETHOD" 1 61 "$ID"
                     fi
                     echo "DONE $ODIR"
                done
