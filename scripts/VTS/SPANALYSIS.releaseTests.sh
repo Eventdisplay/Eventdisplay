@@ -115,8 +115,8 @@ do
     echo
 
     # run list
-    RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat"
     RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat.EP"
+    RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat"
 
     # output directory
     ODIR="$PREFIX/$O/${VERSIONSUB}_${ANAMETHOD}"
