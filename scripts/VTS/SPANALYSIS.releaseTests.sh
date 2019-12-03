@@ -65,6 +65,7 @@ else
     CUTS=( "NTel2-PointSource-SuperSoft-MVA-BDT" )
     CUTS=( "NTel2-PointSource-SuperSoft-MVA-Preselection" "NTel2-PointSource-Soft-MVA-Preselection" )
     CUTS=( "NTel4-PointSource-Moderate" )
+    CUTS=( "NTel2-PointSource-Moderate" )
 fi
 
 # V4
@@ -115,6 +116,7 @@ do
 
     # run list
     RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat"
+    RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat.EP"
 
     # output directory
     ODIR="$PREFIX/$O/${VERSIONSUB}_${ANAMETHOD}"
