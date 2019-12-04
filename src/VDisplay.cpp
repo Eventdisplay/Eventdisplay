@@ -364,7 +364,7 @@ void VDisplay::updateCamera( Int_t i )
                 }
                 
                 fCanvasCamera->Update();
-                usleep( fTimingSleep );
+                gSystem->Sleep( fTimingSleep );
             }
             if( !fCameraTiming )
             {
