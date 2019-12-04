@@ -478,7 +478,6 @@ void VImageParameterCalculation::muonRingFinder()
             y0[1] =  y0[0] - 0.05;                //try a different x0[1], see if mean of r decreases
             rTotal = 0;
             rSquaredTotal = 0;
-            tmp = 0;
             for( i = 0; i < fData->getSums().size(); i++ )
             {
                 if( fData->getImage()[i] || fData->getBorder()[i] )
@@ -564,7 +563,7 @@ void VImageParameterCalculation::sizeInMuonRing()
     }
     
     unsigned int i;
-    double xi, yi, rp, size = 0.0, x0, y0, radius, si;
+    double xi, yi, size = 0.0, x0, y0, radius, si;
     int totalPixels = 0;
     int offPixels = 0;
     double xc = 0.; //Centroid x coordinate
@@ -577,7 +576,7 @@ void VImageParameterCalculation::sizeInMuonRing()
     {
         xi = getDetectorGeo()->getX()[i];
         yi = getDetectorGeo()->getY()[i];
-        rp = sqrt( pow( xi - x0 , 2 ) + pow( yi - y0, 2 ) );
+        double rp = sqrt( pow( xi - x0 , 2 ) + pow( yi - y0, 2 ) );
         
         if( rp > radius - 0.15 && rp < radius + 0.15 )
         {
@@ -893,7 +892,6 @@ void VImageParameterCalculation::houghMuonPixelDistribution()
 
 void VImageParameterCalculation::calcTriggerParameters( vector<bool> fTrigger )
 {
-    // MS: This function does:
     // Calculate the trigger-level centroids
     double sumx_trig = 0.;                        // MS
     double sumy_trig = 0.;                        // MS
@@ -901,7 +899,7 @@ void VImageParameterCalculation::calcTriggerParameters( vector<bool> fTrigger )
     double sumy2_trig = 0.;                       // MS
     int trig_tubes = 0;
     
-    // MS: calculated trigger-level parameters
+    // calculate trigger-level parameters
     // loop over all pixels
     for( unsigned int j = 0; j < fTrigger.size(); j++ )
     {
@@ -913,30 +911,25 @@ void VImageParameterCalculation::calcTriggerParameters( vector<bool> fTrigger )
             double xi = getDetectorGeo()->getX()[j];
             double yi = getDetectorGeo()->getY()[j];
             
-            sumx_trig += xi;                      // MS
-            sumy_trig += yi;                      // MS
-            sumx2_trig += xi * xi;                // MS
-            sumy2_trig += yi * yi;                // MS
+            sumx_trig += xi;         
+            sumy_trig += yi;         
+            sumx2_trig += xi * xi;   
+            sumy2_trig += yi * yi;   
         }
     }
     fParGeo->trig_tubes = trig_tubes;
     
-    //  MS: store the trigger-level information
     if( fParGeo->trig_tubes != 0 )
     {
-        // MS
         const double xmean_trig = sumx_trig / trig_tubes;
-        // MS
         const double ymean_trig = sumy_trig / trig_tubes;
-        // MS
         const double x2mean_trig = sumx2_trig / trig_tubes;
-        // MS
         const double y2mean_trig = sumy2_trig / trig_tubes;
         
-        fParGeo->cen_x_trig = xmean_trig;         // MS
-        fParGeo->cen_y_trig = ymean_trig;         // MS
-        fParGeo->cen_x2_trig = x2mean_trig;       // MS
-        fParGeo->cen_y2_trig = y2mean_trig;       // MS
+        fParGeo->cen_x_trig = xmean_trig;       
+        fParGeo->cen_y_trig = ymean_trig;       
+        fParGeo->cen_x2_trig = x2mean_trig;     
+        fParGeo->cen_y2_trig = y2mean_trig;     
     }
     
 }
@@ -997,12 +990,12 @@ void VImageParameterCalculation::calcParameters()
     double sumLowGain = 0.;
     
     // calculate mean ped and pedvar
-    double nPixPed = 0.;
     fParGeo->fmeanPed_Image = 0.;
     fParGeo->fmeanPedvar_Image = 0.;
     
     if( fData->hasFADCData() )
     {
+        double nPixPed = 0.;
         for( unsigned int j = 0; j < fData->getImageBorderNeighbour().size(); j++ )
         {
             if( fData->getImageBorderNeighbour()[j] )
@@ -1382,8 +1375,6 @@ void VImageParameterCalculation::calcParameters()
         ////////////////////////////////////////////////////////////////////////////
         
         double asymmetry = 0;
-        double minorasymmetry = 0;
-        
         if( length2 > ZeroTolerence )
         {
             const double x3mean = sumx3sig / sumsig;
@@ -1411,23 +1402,6 @@ void VImageParameterCalculation::calcParameters()
                 if( asymmetry3length3 < 0 )
                 {
                     asymmetry = -asymmetry;
-                }
-            }
-            
-            if( width2 > ZeroTolerence )
-            {
-                const double minorasymmetry3width3 =
-                    -sdevx3 * sinphi * sinphi2 + 3.0 * sdevx2y * cosphi * sinphi2 -
-                    3.0 * sdevxy2 * sinphi * cosphi2 + sdevy3 * cosphi * cosphi2;
-                    
-                if( fabs( minorasymmetry3width3 ) > ZeroTolerence )
-                {
-                    minorasymmetry = pow( fabs( minorasymmetry3width3 ),
-                                          0.333333333333 ) / width;
-                    if( minorasymmetry3width3 < 0 )
-                    {
-                        minorasymmetry = -minorasymmetry;
-                    }
                 }
             }
         }
