@@ -1216,15 +1216,8 @@ float VArrayAnalyzer::recalculateImagePhi( double iDeltaX, double iDeltaY )
     {
         i_phi = getImageParameters( getRunParameter()->fImageLL )->phi;
     }
-    // GEO and good LL fits
     else
     {
-        /*		float i_cen_x = getImageParameters( getRunParameter()->fImageLL )->cen_x + iDeltaX;
-        		float i_cen_y = getImageParameters( getRunParameter()->fImageLL )->cen_y + iDeltaY;
-        		float i_d = getImageParameters( getRunParameter()->fImageLL )->f_d;
-        		float i_s = getImageParameters( getRunParameter()->fImageLL )->f_s;
-        		float i_sdevxy  = getImageParameters( getRunParameter()->fImageLL )->f_sdevxy;
-        		i_phi = atan2( ( i_d + i_s ) * i_cen_y + 2.*i_sdevxy * i_cen_x, 2.*i_sdevxy * i_cen_y - ( i_d - i_s ) * i_cen_x ); */
         double xmean = getImageParameters( getRunParameter()->fImageLL )->cen_x + iDeltaX;
         double ymean = getImageParameters( getRunParameter()->fImageLL )->cen_y + iDeltaY;
         double d = getImageParameters( getRunParameter()->fImageLL )->f_d;
