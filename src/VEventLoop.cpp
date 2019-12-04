@@ -1573,7 +1573,6 @@ int VEventLoop::checkCuts()
     // number of triggered channels
     int i_numtrig = 0;
     i_numtrig = getImageParameters()->ntubes;
-    // (GM) was 3
     if( i_numtrig < 0 || i_numtrig < fNCutNTrigger[getTelID()] )
     {
         return 0;
