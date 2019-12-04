@@ -16,6 +16,7 @@
 #include <fstream>
 #include <stdint.h>
 #include <stdio.h>
+#include <sstream>
 #include <string>
 #include <valarray>
 #include <vector>

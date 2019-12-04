@@ -51,10 +51,10 @@ VImageAnalyzer::VImageAnalyzer()
     char hname[200];
     for( unsigned int i = 0; i < fNTel; i++ )
     {
-        sprintf( hname, "xgraphDP1_%d", i + 1 );
+        sprintf( hname, "xgraphDP1_%u", i + 1 );
         fXGraph.push_back( new TGraphErrors( 1 ) );
         fXGraph.back()->SetName( hname );
-        sprintf( hname, "xgraphDP2_%d", i + 1 );
+        sprintf( hname, "xgraphDP2_%u", i + 1 );
         fXGraphDP2.push_back( new TGraphErrors( 1 ) );
         fXGraphDP2.back()->SetName( hname );
     }
@@ -536,13 +536,13 @@ void VImageAnalyzer::initOutput()
     if( fRunPar->foutputfileName != "-1" )
     {
         // tree versioning numbers used in mscw_energy
-        char i_textTitle[200];
-        sprintf( i_textTitle, "VERSION %d", fRunPar->getEVNDISP_TREE_VERSION() );
+        stringstream i_textTitle;
+        i_textTitle << "VERSION " << fRunPar->getEVNDISP_TREE_VERSION();
         if( getRunParameter()->fShortTree )
         {
-            sprintf( i_textTitle, "%s (short tree)", i_textTitle );
+            i_textTitle << "(short tree)";
         }
-        fOutputfile = new TFile( fRunPar->foutputfileName.c_str(), "RECREATE", i_textTitle );
+        fOutputfile = new TFile( fRunPar->foutputfileName.c_str(), "RECREATE", i_textTitle.str().c_str() );
         if( fOutputfile->IsZombie() )
         {
             cout << endl;
@@ -623,7 +623,6 @@ void VImageAnalyzer::initTrees()
     // now book the trees (for MC with additional MC block)
     // tree versioning numbers used in mscw_energy
     char i_text[300];
-    char i_textTitle[300];
     sprintf( i_text, "tpars" );
     ostringstream iSTRText;
     iSTRText << "Event Parameters (Telescope " << getTelID() + 1;
@@ -638,6 +637,7 @@ void VImageAnalyzer::initTrees()
     if( fRunPar->fImageLL )
     {
         sprintf( i_text, "lpars" );
+        char i_textTitle[300];
         sprintf( i_textTitle, "Event Parameters, loglikelihood (Telescope %d)", getTelID() + 1 );
         fVImageParameterCalculation->getLLParameters()->initTree( i_text, i_textTitle, fReader->isMC(), true, fRunPar->fmuonmode, fRunPar->fhoughmuonmode );
     }
@@ -974,20 +974,15 @@ void VImageAnalyzer::setNTrigger()
     std::vector<bool> triggered = getReader()->getFullTrigVec();
     unsigned int triggered_size = triggered.size();
     unsigned short max_num_in_patch = 0;
-    float xj = 0.;
-    float yj = 0.;
-    float xi = 0.;
-    float yi = 0.;
-    unsigned short  num_in_patch = 0;
     
     for( unsigned int i = 0; i < triggered_size; i++ )
     {
-        if( triggered[i] && i < getDetectorGeo()->getNumChannels() )
+        if( i < getDetectorGeo()->getNumChannels() && triggered[i] )
         {
             //! find position of triggered tube
-            xi = getDetectorGeo()->getX()[i];
-            yi = getDetectorGeo()->getY()[i];
-            num_in_patch = 1;
+            float xi = getDetectorGeo()->getX()[i];
+            float yi = getDetectorGeo()->getY()[i];
+            unsigned short num_in_patch = 1;
             //! see how many other triggered tubes are within 0.3 degrees
             for( unsigned int j = 0; j < triggered_size; j++ )
             {
@@ -1005,8 +1000,8 @@ void VImageAnalyzer::setNTrigger()
                     {
                         continue;
                     }
-                    xj = getDetectorGeo()->getX()[j];
-                    yj = getDetectorGeo()->getY()[j];
+                    float xj = getDetectorGeo()->getX()[j];
+                    float yj = getDetectorGeo()->getY()[j];
                     if( ( xj - xi ) * ( xj - xi ) + ( yj - yi ) * ( yj - yi ) < 0.09 )
                     {
                         num_in_patch += 1;
