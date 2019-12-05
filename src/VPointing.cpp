@@ -111,7 +111,7 @@ void VPointing::getPointingFromDB( int irun, string iTCorrection, string iVPMDir
         cout << endl;
         cout << "FATAL ERROR: cannot connect to VERITAS database" << endl;
         cout << "exiting..." << endl;
-        exit( 0 );
+        exit( EXIT_FAILURE );
     }
 #else
     fPointingDB = 0;
