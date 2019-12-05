@@ -16,7 +16,6 @@
 #include "VStereoMaps.h"
 #include "VSkyCoordinates.h"
 #include "VSkyCoordinatesUtilities.h"
-#include "VPointingDB.h"
 
 #include "TDirectory.h"
 #include "TDirectoryFile.h"
