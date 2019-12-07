@@ -17,8 +17,8 @@ following publication:
 Maier, G.; Holder, J., Eventdisplay: An Analysis and Reconstruction Package for 
 Ground-based Gamma-ray Astronomy,  35th International Cosmic Ray Conference.
 10-20 July, 2017. Bexco, Busan, Korea, Proceedings of Science, Vol. 301.
-Online at https://pos.sissa.it/cgi-bin/reader/conf.cgi?confid=301, id.747
-https://arxiv.org/abs/1708.04048
+Online at [https://pos.sissa.it/cgi-bin/reader/conf.cgi?confid=301], id.747
+[https://arxiv.org/abs/1708.04048]
 
 
 For guidelines on installation, see INSTALL. For further information, 
