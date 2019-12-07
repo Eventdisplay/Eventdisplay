@@ -1961,8 +1961,7 @@ VEvndispReconstructionParameterData::VEvndispReconstructionParameterData( unsign
         fL2TriggerType.push_back( 9999 );
     }
     
-    // reconstruction parameter
-    fUseEventdisplayPointing = true;
+    fUseEventdisplayPointing = false;
     
     // MLP parameters for array reconstruction
     fDISP_MLPFileName = "";
