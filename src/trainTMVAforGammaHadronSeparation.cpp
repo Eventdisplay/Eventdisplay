@@ -86,7 +86,7 @@ double checkIfVariableIsConstant( VTMVARunData* iRun, TCut iCut, string iVariabl
                 iNEntriesBlock = iTreeVector[i]->GetEntries();
             }
             // fill a histogram with the variable to be checked
-            sprintf( hname, "hXX_%d", i );
+            sprintf( hname, "hXX_%u", i );
             if( iVariable.find( "NImages_Ttype" ) != string::npos )
             {
                 hI = new TH1I( hname, "", 500, 0., 500. );
@@ -371,11 +371,11 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
         {
             if( iTrainGammaHadronSeparation )
             {
-                sprintf( htitle, "%s_%d", iRun->fMVAMethod[i].c_str(), i );
+                sprintf( htitle, "%s_%u", iRun->fMVAMethod[i].c_str(), i );
             }
             else
             {
-                sprintf( htitle, "%s_RecQuality_%d", iRun->fMVAMethod[i].c_str(), i );
+                sprintf( htitle, "%s_RecQuality_%u", iRun->fMVAMethod[i].c_str(), i );
             }
             if( i < iRun->fMVAMethod_Options.size() )
             {
@@ -406,17 +406,17 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
             
             for( unsigned int i = 0; i < iRun->fTrainingVariable_CutRangeMin.size(); i++ )
             {
-                sprintf( hname, "%s:CutRangeMin[%d]=%f", hname, i, iRun->fTrainingVariable_CutRangeMin[i] );
+                sprintf( hname, "%s:CutRangeMin[%u]=%f", hname, i, iRun->fTrainingVariable_CutRangeMin[i] );
             }
             for( unsigned int i = 0; i < iRun->fTrainingVariable_CutRangeMax.size(); i++ )
             {
-                sprintf( hname, "%s:CutRangeMax[%d]=%f", hname, i, iRun->fTrainingVariable_CutRangeMax[i] );
+                sprintf( hname, "%s:CutRangeMax[%u]=%f", hname, i, iRun->fTrainingVariable_CutRangeMax[i] );
             }
             for( unsigned int i = 0; i < iRun->fTrainingVariable_VarProp.size(); i++ )
             {
-                sprintf( hname, "%s:VarProp[%d]=%s", hname, i, iRun->fTrainingVariable_VarProp[i].c_str() );
+                sprintf( hname, "%s:VarProp[%u]=%s", hname, i, iRun->fTrainingVariable_VarProp[i].c_str() );
             }
-            sprintf( htitle, "BOXCUTS_%d_%d", iEnergyBin, iZenithBin );
+            sprintf( htitle, "BOXCUTS_%u_%u", iEnergyBin, iZenithBin );
 #ifdef ROOT6
             factory->BookMethod( dataloader, TMVA::Types::kCuts, htitle, hname );
 #else
@@ -566,14 +566,14 @@ int main( int argc, char* argv[] )
                 for( unsigned int d = 0; d < fData->fMVAMethod.size(); d++ )
                 {
                     // naming of directories is different for different TMVA versions
-                    sprintf( hname, "Method_%s_%d/%s_%d/MVA_%s_%d_effS", 
+                    sprintf( hname, "Method_%s_%u/%s_%u/MVA_%s_%u_effS", 
                                fData->fMVAMethod[d].c_str(), d,
                                fData->fMVAMethod[d].c_str(), d,
                                fData->fMVAMethod[d].c_str(), d );
                     if( ( TH1D* )root_file->Get( hname ) )
                     {
                         MVA_effS = ( TH1D* )root_file->Get( hname );
-                        sprintf( hname, "Method_%s_%d/%s_%d/MVA_%s_%d_effB", 
+                        sprintf( hname, "Method_%s_%u/%s_%u/MVA_%s_%u_effB", 
                                    fData->fMVAMethod[d].c_str(), d,
                                    fData->fMVAMethod[d].c_str(), d,
                                    fData->fMVAMethod[d].c_str(), d );
@@ -581,12 +581,12 @@ int main( int argc, char* argv[] )
                     }
                     else
                     {
-                        sprintf( hname, "Method_%s/%s_%d/MVA_%s_%d_effS", 
+                        sprintf( hname, "Method_%s/%s_%u/MVA_%s_%u_effS", 
                                    fData->fMVAMethod[d].c_str(),
                                    fData->fMVAMethod[d].c_str(), d,
                                    fData->fMVAMethod[d].c_str(), d );
                         MVA_effS = ( TH1D* )root_file->Get( hname );
-                        sprintf( hname, "Method_%s/%s_%d/MVA_%s_%d_effB", 
+                        sprintf( hname, "Method_%s/%s_%u/MVA_%s_%u_effB", 
                                    fData->fMVAMethod[d].c_str(),
                                    fData->fMVAMethod[d].c_str(), d,
                                    fData->fMVAMethod[d].c_str(), d );
@@ -601,10 +601,10 @@ int main( int argc, char* argv[] )
                     {
                         fDataZenithCut->Write();
                     }
-                    sprintf( hname, "Method_%s_%d", fData->fMVAMethod[d].c_str(), d );
+                    sprintf( hname, "Method_%s_%u", fData->fMVAMethod[d].c_str(), d );
                     TDirectory* Method_MVA = short_root_file->mkdir( hname );
                     Method_MVA->cd();
-                    sprintf( hname, "%s_%d", fData->fMVAMethod[d].c_str(), d );
+                    sprintf( hname, "%s_%u", fData->fMVAMethod[d].c_str(), d );
                     TDirectory* MVA = Method_MVA->mkdir( hname );
                     MVA->cd();
                     if( MVA_effS )
