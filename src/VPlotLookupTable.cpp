@@ -43,11 +43,6 @@ void VPlotLookupTable::plot2DHistogram( TH2F* h, unsigned int iSetID, string iti
     if( !h )
     {
         cout << "VPlotLookupTable::plot2DHistogram error: histogram not found " << endl;
-        if( h )
-        {
-            h->GetName();
-        }
-        cout << endl;
         return;
     }
     
