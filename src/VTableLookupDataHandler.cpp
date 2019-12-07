@@ -641,10 +641,27 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fwidth[i] = ftpars[i]->width;
             flength[i] = ftpars[i]->length;
             ftgrad_x[i] = ftpars[i]->tgrad_x;
-            fcen_x[i] = ftpars[i]->cen_x;
-            fcen_y[i] = ftpars[i]->cen_y;
-            fcosphi[i] = ftpars[i]->cosphi;
-            fsinphi[i] = ftpars[i]->sinphi;
+            if( i < fpointingCorrections.size() && fpointingCorrections[i] )
+            {
+                 fpointingCorrections[i]->getEntry( fEventCounter );
+                 fcen_x[i] = fpointingCorrections[i]->getCorrected_cen_x( ftpars[i]->cen_x );
+                 fcen_y[i] = fpointingCorrections[i]->getCorrected_cen_y( ftpars[i]->cen_y );
+                 float phi = fpointingCorrections[i]->getCorrected_phi( 
+                                                      ftpars[i]->cen_x,
+                                                      ftpars[i]->cen_y,
+                                                      ftpars[i]->f_d,
+                                                      ftpars[i]->f_s,
+                                                      ftpars[i]->f_sdevxy );
+                 fcosphi[i] = cos( phi );
+                 fsinphi[i] = sin( phi );
+            }
+            else
+            {
+                fcen_x[i] = ftpars[i]->cen_x;
+                fcen_y[i] = ftpars[i]->cen_y;
+                fcosphi[i] = ftpars[i]->cosphi;
+                fsinphi[i] = ftpars[i]->sinphi;
+            }
             
             if( fsize[i] > SizeSecondMax_temp )
             {
@@ -1061,6 +1078,8 @@ void VTableLookupDataHandler::printTelescopesList( unsigned int iPrintParameter 
 * read all telescope configuration and
 * run parameters from disk
 *
+* set input and output trees
+*
 */
 bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
 {
@@ -1319,15 +1338,18 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
     fTshowerpars_QCCut->SetBranchAddress( "Chi2", fchi2_QCTree );
     
     // get individual image parameter trees
-    TChain* iT;
     for( unsigned int i = 0; i < fNTel; i++ )
     {
-        sprintf( iName, "tpars" );
-        iT = new TChain( iName );
+        TChain *iT = new TChain( "tpars" );
+        sprintf( iName, "pointing_%u", i+1 );
+        // pointing correction chain
+        TChain *iPC = new TChain( iName );
         for( unsigned int f = 0; f < finputfile.size(); f++ )
         {
-            sprintf( iDir, "%s/Tel_%d/tpars", finputfile[f].c_str(), i + 1 );
+            sprintf( iDir, "%s/Tel_%u/tpars", finputfile[f].c_str(), i + 1 );
             iT->Add( iDir );
+            sprintf( iDir, "%s/Tel_%u/pointing_%u", finputfile[f].c_str(), i + 1, i + 1 );
+            iPC->Add( iDir );
         }
         if( !iT )
         {
@@ -1335,7 +1357,7 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
             exit( EXIT_FAILURE );
         }
         // get first entry to check if chain is there
-        gErrorIgnoreLevel = 5000;
+        // gErrorIgnoreLevel = 5000;
         if( iT->GetEntry( 0 ) > 0 )
         {
             if( fEventDisplayFileFormat >= 2 )
@@ -1358,6 +1380,7 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
         {
             ftpars.push_back( 0 );
         }
+        fpointingCorrections.push_back( new VPointingCorrectionsTreeReader( iPC ) );
         gErrorIgnoreLevel = 0;
     }
     cout << "reading eventdisplay file format version " << fEventDisplayFileFormat;
@@ -1380,12 +1403,12 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
             {
                 cout << "VTableLookupDataHandler::setInputFile() calculating pedvar for telescope " << i + 1 << endl;
             }
-            sprintf( iName, "calib_%d", i + 1 );
+            sprintf( iName, "calib_%u", i + 1 );
             TChain iPedVars( iName );
             for( unsigned int f = 0; f < finputfile.size(); f++ )
             {
                 gErrorIgnoreLevel = 5000;
-                sprintf( iDir, "%s/Tel_%d/calib_%d", finputfile[f].c_str(), i + 1, i + 1 );
+                sprintf( iDir, "%s/Tel_%u/calib_%u", finputfile[f].c_str(), i + 1, i + 1 );
                 if( !iPedVars.Add( iDir ) )
                 {
                     cout << "VTableLookupDataHandler::setInputFile: error while retrieving pedvars trees" << endl;
@@ -1395,7 +1418,7 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
                 if( iPedVars.GetEntries() == 0 )
                 {
                     // backwards compatibility: read calibration tree from a different directory (note: this produces a root error message)
-                    sprintf( iDir, "%s/Tel_%d/calibration/calib_%d", finputfile[f].c_str(), i + 1, i + 1 );
+                    sprintf( iDir, "%s/Tel_%u/calibration/calib_%u", finputfile[f].c_str(), i + 1, i + 1 );
                     if( !iPedVars.Add( iDir ) )
                     {
                         cout << "VTableLookupDataHandler::setInputFile: error while retrieving pedvars trees" << endl;
@@ -1416,7 +1439,7 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
                 iPedVars.SetBranchAddress( "state", &state );
             }
             
-            sprintf( iName, "ht_%d", i + 1 );
+            sprintf( iName, "ht_%u", i + 1 );
             TH1D h( iName, "", 1000, 0., 50. );
             
             if( fDebug > 1 )
@@ -1970,7 +1993,7 @@ void VTableLookupDataHandler::printCutStatistics()
     }
     unsigned int nTOT = fNStats_All;
     
-    cout << "\t number of events considered: \t\t" << fNStats_All << " (" << ( float )fNStats_All / ( float )fNStats_All << ")" << endl;
+    cout << "\t number of events considered: \t\t" << fNStats_All << endl;
     nTOT -= fNStats_NImagesCut;
     cout << "\t removed by >= " << fTLRunParameter->fTableFillingCut_NImages_min  << " images: \t\t\t" << fNStats_NImagesCut;
     cout << " (fraction removed/# of events left: " << ( float )fNStats_NImagesCut / ( float )fNStats_All << "; " << nTOT << ")" << endl;
@@ -2425,7 +2448,7 @@ void VTableLookupDataHandler::reset()
 void VTableLookupDataHandler::calcDistances( int nimages )
 {
     // check for successfull reconstruction
-    if( nimages > 1 && fZe >= 0. && fYcore > -9998. && fYcore > -9998. )
+    if( nimages > 1 && fZe >= 0. && fXcore > -9998. && fYcore > -9998. )
     {
         for( unsigned int tel = 0; tel < fNTel; tel++ )
         {
@@ -2888,7 +2911,7 @@ map< ULong64_t, double > VTableLookupDataHandler::getNoiseLevel_per_TelescopeTyp
     map< ULong64_t, double > iNSB_telType;
     map< ULong64_t, double > iNSB_telTypeN;
     for( fList_of_Tel_type_iterator = fList_of_Tel_type.begin(); fList_of_Tel_type_iterator != fList_of_Tel_type.end();
-            fList_of_Tel_type_iterator++ )
+            ++fList_of_Tel_type_iterator )
     {
         iNSB_telType[fList_of_Tel_type_iterator->first] = 0.;
         iNSB_telTypeN[fList_of_Tel_type_iterator->first] = 0.;
@@ -2906,7 +2929,7 @@ map< ULong64_t, double > VTableLookupDataHandler::getNoiseLevel_per_TelescopeTyp
     // mean value
     map<ULong64_t, double >::iterator iList_of_Tel_type_iterator;
     for( iList_of_Tel_type_iterator = iNSB_telType.begin(); iList_of_Tel_type_iterator != iNSB_telType.end();
-            iList_of_Tel_type_iterator++ )
+            ++iList_of_Tel_type_iterator )
     {
     
         if( iNSB_telTypeN.find( iList_of_Tel_type_iterator->first ) != iNSB_telTypeN.end()

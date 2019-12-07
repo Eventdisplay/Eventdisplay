@@ -579,6 +579,7 @@ MSCOBJECTS=	./obj/Cshowerpars.o ./obj/Cmodel3Dpars.o ./obj/Ctpars.o \
 		./obj/VMedianCalculator.o \
                 ./obj/VSkyCoordinatesUtilities.o \
                 ./obj/VDB_Connection.o \
+		./obj/VPointingCorrectionsTreeReader.o \
 		./obj/mscw_energy.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)

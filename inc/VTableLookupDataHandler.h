@@ -8,6 +8,7 @@
 #include "VEffectiveAreaCalculatorMCHistograms.h"
 #include "VMonteCarloRunHeader.h"
 #include "VDispAnalyzer.h"
+#include "VPointingCorrectionsTreeReader.h"
 #include "VSimpleStereoReconstructor.h"
 #include "VTableLookupRunParameter.h"
 #include "VUtilities.h"
@@ -100,6 +101,7 @@ class VTableLookupDataHandler
         Ctelconfig* ftelconfig;
         vector< TChain* > fTtpars;
         vector< Ctpars* > ftpars;
+        vector< VPointingCorrectionsTreeReader* > fpointingCorrections;
         TChain* fFrogspars;
         TChain* fDeepLearnerpars;
         
