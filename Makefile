@@ -222,10 +222,10 @@ endif
 ifneq ($(VBFFLAG),-DNOVBF)
 VBFCFLAGS     = -I$(VBFSYS)/include/VBF/
 	ifeq ($(ROOT6FLAG),-DROOT6)
-		VBFPP 	      = $(shell vbfConfig --prefix)
+		VBFPP 	      = $(shell $(VBFSYS)/bin/vbfConfig --prefix)
   		VBFLIBS       = -L${VBFPP}/lib -lVBF -L${BZ2_PATH}/ -lbz2
 	else
-		VBFLIBS       = $(shell vbfConfig --ldflags --libs)
+		VBFLIBS       = $(shell $(VBFSYS)/bin/vbfConfig --ldflags --libs)
 	endif
 CXXFLAGS     += $(VBFCFLAGS)
 #GLIBS        += $(VBFLIBS)
