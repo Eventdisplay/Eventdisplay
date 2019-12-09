@@ -17,6 +17,7 @@
 #include <VGammaHadronCuts.h>
 #include <VGlobalRunParameter.h>
 #include <VInstrumentResponseFunctionRunParameter.h>
+#include <VEnergyThreshold.h>
 
 using namespace std;
 
@@ -230,6 +231,16 @@ int main( int argc, char* argv[] )
     cout << endl << endl;
     cout << "new combined effective area file: " << endl;
     cout << argv[2] << endl;
+
+    // calculate energy thresholds
+    // - will be written to effective area file
+    string iEnergyTresholdFile = string(argv[2]) + ".root";
+    VEnergyThreshold iEnergyThreshold( iEnergyTresholdFile, "UPDATE" );
+    iEnergyThreshold.openEffectiveAreaFile( string(argv[2]) + ".root" );
+    iEnergyThreshold.calculateEnergyThreshold();
+    iEnergyThreshold.writeResults();
+    
+    // (all done)
     cout << endl << "end combineEffectiveAreas" << endl;
     
 }

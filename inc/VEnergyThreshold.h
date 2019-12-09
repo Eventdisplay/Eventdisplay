@@ -79,7 +79,7 @@ class VEnergyThreshold : public TObject
     public:
     
         VEnergyThreshold();
-        VEnergyThreshold( string ioutfilename );
+        VEnergyThreshold( string ioutfilename, string iFileOption = "UPDATE" );
         VEnergyThreshold( double iEthFixed, string iInFile = "" );
         ~VEnergyThreshold() {}
         bool   openEffectiveAreaFile( string ifile );
@@ -92,7 +92,7 @@ class VEnergyThreshold : public TObject
             return fEnergyThresholdFixedValue;
         }
         void plot_energyThresholds( string var = "E_diffmax", double ze = 20., double woff = 0.5,
-                                    int noise = 150, double index = 2.4, int az = 16,
+                                    int noise = 200, double index = 2.5, int az = 8,
                                     bool bPlot = true, string plot_option = "p" );
         void setPlottingStyle( int iC = 1, int iS = 21, float iW = 2., float iL = 2. )
         {

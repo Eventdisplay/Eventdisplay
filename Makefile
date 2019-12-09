@@ -1667,6 +1667,8 @@ COMBINEEFFOBJ=	 ./obj/combineEffectiveAreas.o  \
 			 ./obj/VInstrumentResponseFunctionRunParameter.o ./obj/VInstrumentResponseFunctionRunParameter_Dict.o \
 			 ./obj/VTMVAEvaluator.o ./obj/VTMVAEvaluator_Dict.o \
 			 ./obj/VTMVARunDataEnergyCut.o ./obj/VTMVARunDataEnergyCut_Dict.o \
+			 ./obj/VEnergyThreshold.o ./obj/VEnergyThreshold_Dict.o \
+			 ./obj/CEffArea.o ./obj/CEffArea_Dict.o \
 			 ./obj/VTMVARunDataZenithCut.o ./obj/VTMVARunDataZenithCut_Dict.o \
 			 ./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
 			 ./obj/VSkyCoordinatesUtilities.o ./obj/VUtilities.o \
