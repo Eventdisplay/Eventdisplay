@@ -573,7 +573,7 @@ void VEnergyThreshold::plot_energyThresholds( string var, double ze, double woff
     
     for( unsigned int i = 0; i < iDraw.size(); i++ )
     {
-        sprintf( hname, "c_%d", i );
+        sprintf( hname, "c_%u", i );
         if( bPlot )
         {
             c = new TCanvas( hname, hname, 10 + i * 100, 100, 450, 450 );
@@ -617,7 +617,7 @@ void VEnergyThreshold::plot_energyThresholds( string var, double ze, double woff
             htemp->GetYaxis()->SetTitleOffset( 1.6 );
             if( bPlot && TMath::Abs( fPlottingYmin - fPlottingYmax ) > 1.e-2 )
             {
-                sprintf( hname, "htemp_H_%d", i );
+                sprintf( hname, "htemp_H_%u", i );
                 TH2F* h = new TH2F( hname, "", 100,  htemp->GetXaxis()->GetXmin(), htemp->GetXaxis()->GetXmax(), 100, fPlottingYmin, fPlottingYmax );
                 h->SetStats( 0 );
                 h->SetXTitle( htemp->GetXaxis()->GetTitle() );

@@ -79,6 +79,7 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         // full histograms - mostly needed for DL3 step
         // f.SetBranchStatus( "hResponseMatrixFine", 1 );
         // f.SetBranchStatus( "hResponseMatrixFineNoDirectionCuts", 1 );
+        f.SetBranchStatus( "hEsysMCRelative", 1 );
         f.SetBranchStatus( "hEsysMCRelative2D", 1 );
         f.SetBranchStatus( "hEsysMCRelative2DNoDirectionCut", 1 );
         // Response Matrix Approximation
@@ -87,6 +88,7 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         f.SetBranchStatus( "e_Rec_Res", 1 );
         f.SetBranchStatus( "e_Rec_Res_Err", 1 );
         f.SetBranchStatus( "hAngularDiff_2D", 1 );
+        f.SetBranchStatus( "gEffAreaRec", 1 );
         f.SetBranchStatus( "gEffAreaNoTh2MC", 1 );
         f.SetBranchStatus( "gEffAreaNoTh2Rec", 1 );
     }

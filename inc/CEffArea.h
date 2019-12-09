@@ -433,7 +433,6 @@ void CEffArea::Init( TTree* tree )
             hEcutRecUW = 0;
         }
         fChain->SetBranchAddress( "gEffAreaMC", &gEffAreaMC, &b_gEffAreaMC );
-        fChain->SetBranchAddress( "gEffAreaRec", &gEffAreaRec, &b_gEffAreaRec );
         
         fChain->SetBranchAddress( "hEmcSWeight", &hEmcSWeight, &b_hEmcSWeight );
         fChain->SetBranchAddress( "hEsysRec", &hEsysRec, &b_hEsysRec );
@@ -577,6 +576,14 @@ void CEffArea::Init( TTree* tree )
     else
     {
         hAngularLogDiffEmc_2D = 0;
+    }
+    if( fChain->GetBranchStatus( "gEffAreaRec" ) )
+    {
+        fChain->SetBranchAddress( "gEffAreaRec", &gEffAreaRec, &b_gEffAreaRec );
+    }
+    else
+    {
+        gEffAreaRec = 0;
     }
     if( fChain->GetBranchStatus( "gEffAreaNoTh2MC" ) )
     {
