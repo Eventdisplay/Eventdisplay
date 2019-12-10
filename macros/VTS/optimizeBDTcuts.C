@@ -50,14 +50,18 @@ void optimizeBDTcuts( string particleraterootfile,
 
     // fixed parameters
     double min_sourcestrength_CU = 0.00001;
+    // conversion parameter for particle rates and
+    // observation time (h-->s)
     double timeparticlerate = 3600.;
-    double energyStepSize = 0.2;
+    // use energy bins defined for training
+    // (note that all other options will 
+    // lead to a misassignment of xml files 
+    // to energy bins!)
+    double energyStepSize = -1.;
+    // typical alpha
     double min_backgroundrateratio = 1. / 5.;
     double min_backgroundevents = 0.;
     double signalefficiency = 0.90;
-    // use energy bins defined for training
-    // energyStepSize = -1.;
-
     
     VTMVAEvaluator a;
     a.setTMVAMethod( MVAName, MVACounter );
@@ -75,8 +79,8 @@ void optimizeBDTcuts( string particleraterootfile,
     a.initializeWeightFiles( iFullWeightFileName.str().c_str(), 
                              weightFileIndex_Emin, weightFileIndex_Emax, 
                              weightFileIndex_Zmin, weightFileIndex_Zmax, 
-                             // energyStepSize, "VTS", "UseInterpolatedCounts" );
                              energyStepSize, "VTS", "UseAveragedCounts" );
+    // (do not change "UseAveragedCounts", interpolation is less robust)
 
     if( iPlotOptimisationResults )
     {
@@ -340,7 +344,4 @@ void smoothMVA( string iFileName, int iZeBin = 0,
           }
       }
       iMovingAverage->Draw( "p" );
-
-
-
 }
