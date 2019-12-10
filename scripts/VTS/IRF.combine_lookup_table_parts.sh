@@ -89,9 +89,10 @@ mkdir -p "$LOGDIR"
 # Create list of partial table files
 FLIST=$OFILE.list
 rm -f "$ODIR/$FLIST"
-ls -1 "$INDIR/*ID${RECID}.root" > "$ODIR/$FLIST"
-NFIL=`cat $ODIR/$FLIST | wc -l`
+ls -1 $INDIR/*ID${RECID}.root > "$ODIR/$FLIST"
+NFIL=`cat "$ODIR/$FLIST" | wc -l`
 if [[ $NFIL = "0" ]]; then
+   echo "No lookup table root files found"
    exit
 fi
 echo "$FLIST"
@@ -110,10 +111,10 @@ sed -e "s|TABLELIST|$FLIST|" \
 chmod u+x "$FSCRIPT.sh"
 
 # run locally or on cluster
-SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
+SUBC=`"$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh"`
 SUBC=`eval "echo \"$SUBC\""`
 if [[ $SUBC == *qsub* ]]; then
-    JOBID=`$SUBC $FSCRIPT.sh`
+    JOBID=`$SUBC "$FSCRIPT.sh"`
     echo "JOBID: $JOBID"
 elif [[ $SUBC == *parallel* ]]; then
     echo "$FSCRIPT.sh &> $FSCRIPT.log" >> "$LOGDIR/runscripts.dat"
