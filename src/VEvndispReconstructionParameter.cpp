@@ -191,6 +191,7 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
     ////////////////////////////////////////////
     // remove image which is too close to a bright star
     // (use list of image and border pixels)
+    // __this cut is disabled__
     if( iStarCatalogue && fRunPara && iImageParameter->ntubes < fRunPara->fMinStarNTubes )
     {
         for( unsigned int i = 0; i < iImageParameter->fImageBorderPixelPosition_x.size(); i++ )
