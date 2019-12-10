@@ -41,8 +41,8 @@ using namespace std;
  *  calculate signal rates from effective areas
  *
  */
-void readRateGraphsFromEffectiveAreaFile( string iEffAreaDirectory,
-        string iEffAreaFile,
+void readRateGraphsFromEffectiveAreaFile( const string iEffAreaDirectory,
+        const string iEffAreaFile,
         int i_noise,
         TGraph2DErrors* tRatePerEnergySignal )
 {
