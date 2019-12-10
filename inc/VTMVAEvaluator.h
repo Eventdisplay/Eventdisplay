@@ -156,14 +156,6 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         float    fTheta2;
         float    fCoreDist;
         float    fImages_Ttype[VDST_MAXTELESCOPES];
-        //model3D below
-        float    fsigmaT3D;
-        float    fErrorsigmaT3D_log10;
-        float    fSmax3D;
-        float    fOmega3D;
-        float    fRWidth3D;
-        float    fErrRWidth3D;
-        float    fDepth3D;
         //disp below
         float    fDispDiff_log10;
         float    fDispDiff_gt0;
@@ -211,6 +203,12 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         TGraph*          readInterpolatedCountsFromFile( TFile* iF, double i_secant_min, double i_secant_max, bool bIsOn = true );
         double           readAverageCountsFromFile( TFile* iF, double i_e_min, double i_e_max, double i_ze_min, double i_ze_max, bool bIsOn = true );
         void             reset();
+        string           setFullMVAFileName( string iWeightFileName,
+                                     unsigned intiWeightFileIndex_Emin, unsigned int i,
+                                     unsigned int iWeightFileIndex_Zmin, unsigned int j,
+                                     string fTMVAMethodName, int fTMVAMethodCounter,
+                                     string iInstrumentEpoch,
+                                     string iFileSuffix );
         void             smoothAndInterpolateMVAValue( TH1F*, TH1F*, unsigned int iE_min, unsigned int iE_max,
                 unsigned int iZ_min, unsigned int iZ_max, double iEnergyStepSize );
                 
@@ -327,7 +325,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         void   setTMVAMethod( string iMethodName = "BDT", int iMethodCounter = 0 );
         bool   writeOptimizedMVACutValues( string iRootFile );
         
-        ClassDef( VTMVAEvaluator, 44 );
+        ClassDef( VTMVAEvaluator, 46 );
 };
 
 #endif

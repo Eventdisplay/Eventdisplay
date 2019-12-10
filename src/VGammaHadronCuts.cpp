@@ -2073,7 +2073,9 @@ bool VGammaHadronCuts::initTMVAEvaluator( string iTMVAFile,
     // set MVA cut files from a list of graphs in a root file
     else if( fTMVA_MVACutGraphFileName.size() > 0 )
     {
-        fTMVAEvaluator->setTMVACutValueFromGraph( fTMVA_MVACutGraphFileName, fTMVA_MVACutGraphSmoothing, fTMVA_MVACutGraphSmoothingMax );
+        fTMVAEvaluator->setTMVACutValueFromGraph( fTMVA_MVACutGraphFileName, 
+                                                  fTMVA_MVACutGraphSmoothing, 
+                                                  fTMVA_MVACutGraphSmoothingMax );
         fTMVAEvaluator->setTMVACutValue( fTMVA_MVACut );
     }
     // set a fixed probability threshold or (for TMVA) a fixed MVA cut value
@@ -2750,7 +2752,7 @@ void VGammaHadronCuts::printTMVA_MVACut()
     }
     
     map< unsigned int, double >::iterator iIter;
-    for( iIter = fTMVA_MVACut.begin(); iIter != fTMVA_MVACut.end(); iIter++ )
+    for( iIter = fTMVA_MVACut.begin(); iIter != fTMVA_MVACut.end(); ++iIter )
     {
         cout << "MVA cut for energy/zenith bin " << iIter->first << ": ";
         cout << iIter->second << endl;
