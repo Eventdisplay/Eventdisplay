@@ -180,7 +180,7 @@ do
  
       echo "* PREPARE_TRAINING_OPTIONS SplitMode=Random:SplitSeed=0:V:VerboseLevel=Verbose:nTrain_Signal=$nTrain:nTrain_Background=$nTrain::nTest_Signal=$nTrain:nTest_Background=$nTrain" >> $RFIL.runparameter
 
-      echo "* OUTPUTFILE $ODIR $ONAME"_Ebin${i}""_Zebin${j}" " >> $RFIL.runparameter
+      echo "* OUTPUTFILE $ODIR $ONAME"_Ebin${i}""_Zebin${j}" " >> "$RFIL.runparameter"
 
       echo "#######################################################################################" >> $RFIL.runparameter
       # signal and background files (NSB levels are simtype dependent)
@@ -193,7 +193,7 @@ do
                  else
                      #SIGNALLIST=`ls -1 $SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE{150,300,450,600,750,900}.mscw.root`
                      #SIGNALLIST=`ls -1 $SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE{50,75,100,130,160,200,250,300,350,400,450}.mscw.root`
-                     SIGNALLIST=`ls -1 $SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE*.mscw.root`
+                     SIGNALLIST=`ls -1 "$SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE*.mscw.root"`
                  fi
                  for arg in $SIGNALLIST
                  do
