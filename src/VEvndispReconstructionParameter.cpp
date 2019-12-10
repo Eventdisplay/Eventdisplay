@@ -1537,7 +1537,7 @@ vector< int > VEvndispReconstructionParameter::getTelescopeType_counter_from_Mir
     ULong64_t v = 0;
     ULong64_t v2 = 0;
     set< ULong64_t >::iterator fTel_type_iter;
-    for( fTel_type_iter = fTel_type.begin(); fTel_type_iter != fTel_type.end(); fTel_type_iter++ )
+    for( fTel_type_iter = fTel_type.begin(); fTel_type_iter != fTel_type.end(); ++fTel_type_iter )
     {
         v = *fTel_type_iter;
         
