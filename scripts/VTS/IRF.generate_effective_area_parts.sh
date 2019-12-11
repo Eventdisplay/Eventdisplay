@@ -114,13 +114,16 @@ SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/IRF.effective_area_parallel_su
 
 echo "Processing Zenith = $ZA, Noise = $NOISE, Wobble = $WOBBLE"
             
-echo "$CUTSFILE"
+echo "CUTSFILE: $CUTSFILE"
+echo "ODIR: $ODIR"
+echo "DATAFILE $MCFILE"
+echo "EFFFILE $EFFAREAFILE"
 # set parameters in run script
 FSCRIPT="$LOGDIR/EA.ID${RECID}.$DATE.MC-$(date +%s)"
 sed -e "s|OUTPUTDIR|$ODIR|" \
     -e "s|EFFFILE|$EFFAREAFILE|" \
     -e "s|DATAFILE|$MCFILE|" \
-    -e "s|GAMMACUTS|${CUTSFILE}|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
+    -e "s|GAMMACUTS|$CUTSFILE|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
 chmod u+x "$FSCRIPT.sh"
 echo "$FSCRIPT.sh"
