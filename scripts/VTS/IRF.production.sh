@@ -100,7 +100,7 @@ elif [[ ${SIMTYPE:0:4} = "CARE" ]]; then
     fi
     ZENITH_ANGLES=( 00 20 30 35 40 45 50 55 )
     NSB_LEVELS=( 50 75 100 130 160 200 250 300 350 400 450 )
-    ZENITH_ANGLES=( 20 30 35 )
+    ZENITH_ANGLES=( 20 30 35 40 )
     NSB_LEVELS=( 130 160 200 250 )
     if [[ $ATMOS == "62" ]]; then
           ZENITH_ANGLES=( 00 20 30 35 )
@@ -149,10 +149,17 @@ else
     CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-MVA-Preselection.dat"
     CUTLIST="ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate-TMVA-BDT-Preselection.dat"
     CUTLIST="ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate.dat"
+    # box cut list
+    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate.dat
+             ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate.dat"
+    # preselection cut list
+    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-TMVA-BDT-Preselection.dat
+    ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate-TMVA-BDT-Preselection.dat
+    ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-MVA-Preselection.dat"
 
 fi
 CUTLIST=`echo "$CUTLIST" |tr '\r' ' '`
+CUTLIST=${CUTLIST//$'\n'/}
 
 ############################################################
 # loop over complete parameter space and submit production
@@ -234,3 +241,5 @@ exit
 
 # /IRF.trainTMVAforGammaHadronSeparation.sh /lustre/fs19/group/cta/users/maierg/VERITAS/analysis/Results/g500c/BDTtraining/g502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20
 #  ./IRF.trainTMVAforGammaHadronSeparation.sh $VERITAS_USER_DATA_DIR/analysis/Results/g500/BDTtraining/g502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20 $VERITAS_USER_DATA_DIR/analysis/Results/g502/CARE_June1702/V6_ATM61_gamma_TL5035MA20/MSCW_RECID0
+# ----
+# ./IRF.trainTMVAforGammaHadronSeparation.sh $VERITAS_USER_DATA_DIR/analysis/Results/g500/BDTtraining/g500_TL5025/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5025
