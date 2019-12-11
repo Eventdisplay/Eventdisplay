@@ -487,7 +487,7 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         cout << "Error: unable to read list of telescopes." << endl;
         cout << "Provide a list with command line parameter -sub_array_sim_telarray_counting <telescope list>" << endl;
         cout << "exiting..." << endl;
-        exit( 0 );
+        exit( EXIT_FAILURE );
     }
     
     fillTelescopeTypeDependentWeights();
