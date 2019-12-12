@@ -35,6 +35,7 @@ class VEnergyThreshold : public TObject
         
         TFile* fEffAreaFile;
         CEffArea* fEffArea;
+        bool fIsZombie;
         
         TFile* fEnergyThresholdFile;
         
@@ -82,6 +83,7 @@ class VEnergyThreshold : public TObject
         VEnergyThreshold( string ioutfilename, string iFileOption = "UPDATE" );
         VEnergyThreshold( double iEthFixed, string iInFile = "" );
         ~VEnergyThreshold() {}
+        bool  isZombie() { return fIsZombie; }
         bool   openEffectiveAreaFile( string ifile );
         bool   calculateEnergyThreshold( int nentries = -1 );
         double getEnergy_diffMax( TObject* h = 0, double index = -2.5 );
@@ -110,6 +112,6 @@ class VEnergyThreshold : public TObject
         
         double getEnergyThreshold( VRunList* );
         
-        ClassDef( VEnergyThreshold, 3 );
+        ClassDef( VEnergyThreshold, 4 );
 };
 #endif

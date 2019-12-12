@@ -67,6 +67,7 @@ VEnergyThreshold::VEnergyThreshold()
     
     fOutFile = 0;
     fTreeEth = 0;
+    fIsZombie = true;
     
     fEnergyThresholdFile = 0;
     fEnergyThresholdFixedValue = 0.001;
@@ -87,6 +88,7 @@ VEnergyThreshold::VEnergyThreshold( string ioutfilename, string iFileOption )
     
     cout << "creating output file " << ioutfilename << endl;
     fOutFile = new TFile( ioutfilename.c_str(), iFileOption.c_str() );
+    fIsZombie = fOutFile->IsZombie();
     if( fOutFile->IsZombie() )
     {
         cout << "Error opening output file " << ioutfilename << endl;
@@ -110,6 +112,7 @@ VEnergyThreshold::VEnergyThreshold( double iEnergyThresholdFixed, string iEnergy
     
     fOutFile = 0;
     fTreeEth = 0;
+    fIsZombie = true;
     
     fEnergyThresholdFile = 0;
     
