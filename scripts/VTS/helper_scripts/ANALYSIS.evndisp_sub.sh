@@ -13,6 +13,7 @@ ANAMETHOD=ANALYSISMETHOD
 CALIBFILE=USECALIBLIST
 TELTOANA=TELTOANACOMB
 LOGDIR="$ODIR"
+CALDIR="$ODIR"
 ACUTS="RECONSTRUCTIONRUNPARAMETERFILE"
 
 # temporary (scratch) directory
@@ -27,13 +28,11 @@ mkdir -p "$TEMPDIR"
 #################################
 echo "Using run parameter file $ACUTS"
 
-CALDIR="-calibrationdirectory $ODIR"
-
 #########################################
 # pedestal calculation
 if [[ $CALIB == "1" || ( $CALIB == "2" || $CALIB == "4" ) ]]; then
     rm -f $LOGDIR/$RUN.ped.log
-    $EVNDISPSYS/bin/evndisp -runmode=1 -runnumber="$RUN" -reconstructionparameter "$ACUTS" "$CALDIR" &> "$LOGDIR/$RUN.ped.log"
+    $EVNDISPSYS/bin/evndisp -runmode=1 -runnumber="$RUN" -reconstructionparameter "$ACUTS" -calibrationdirectory "$CALDIR" &> "$LOGDIR/$RUN.ped.log"
     echo "RUN$RUN PEDLOG $LOGDIR/$RUN.ped.log"
 fi
 
@@ -70,7 +69,7 @@ fi
 # average tzero calculation
 if [[ $CALIB == "1" || ( $CALIB == "3" || $CALIB == "4" ) ]]; then
     rm -f $LOGDIR/$RUN.tzero.log
-    $EVNDISPSYS/bin/evndisp -runnumber=$RUN -runmode=7 -sumwindowaveragetime=6 -calibrationsummin=50 -reconstructionparameter "$ACUTS" "${OPT[@]}" "$CALDIR" &> "$LOGDIR/$RUN.tzero.log" 
+    $EVNDISPSYS/bin/evndisp -runnumber=$RUN -runmode=7 -sumwindowaveragetime=6 -calibrationsummin=50 -reconstructionparameter "$ACUTS" "${OPT[@]}" -calibrationdirectory "$CALDIR" &> "$LOGDIR/$RUN.tzero.log" 
 	echo "RUN$RUN TZEROLOG $LOGDIR/$RUN.tzero.log"
 fi
 
@@ -95,7 +94,7 @@ fi
 # run eventdisplay
 LOGFILE="$LOGDIR/$RUN.log"
 rm -f "$LOGDIR/$RUN.log"
-$EVNDISPSYS/bin/evndisp -runnumber="$RUN" -reconstructionparameter "$ACUTS" -outputfile "$TEMPDIR/$RUN.root" "${OPT[@]}" "$CALDIR" &> "$LOGFILE"
+$EVNDISPSYS/bin/evndisp -runnumber="$RUN" -reconstructionparameter "$ACUTS" -outputfile "$TEMPDIR/$RUN.root" "${OPT[@]}" -calibrationdirectory "$CALDIR" &> "$LOGFILE"
 # DST $EVNDISPSYS/bin/evndisp -runnumber=$RUN -nevents=250000 -runmode=4 -readcalibdb -dstfile $TEMPDIR/$RUN.dst.root -reconstructionparameter $ACUTS -outputfile $TEMPDIR/$RUN.root ${OPT[@]} &> "$LOGFILE"
 echo "RUN$RUN EVNDISPLOG $LOGFILE"
 
