@@ -1487,22 +1487,22 @@ void VPlotCompareDataWithMC::centroids()
     char hname[200];
     for( unsigned int i = 0; i < fNTel; i++ )
     {
-        sprintf( hname, "hcen_xy%d_SIMS", i + 1 );
+        sprintf( hname, "hcen_xy%u_SIMS", i + 1 );
         hCenXY_sims[i] = ( TH2D* )fDataFile->Get( hname );
         setHistogramAtt( hCenXY_sims[i], -999. );
         setAxisTitles( hCenXY_sims[i], "sims", i + 1 );
         
-        sprintf( hname, "hcen_xy%d_DIFF", i + 1 );
+        sprintf( hname, "hcen_xy%u_DIFF", i + 1 );
         hCenXY_diff[i] = ( TH2D* )fDataFile->Get( hname );
         setHistogramAtt( hCenXY_diff[i], 0.01 );
         setAxisTitles( hCenXY_diff[i], "on-off", i + 1 );
         
-        sprintf( hname, "hcen_xy%d_ON", i + 1 );
+        sprintf( hname, "hcen_xy%u_ON", i + 1 );
         hCenXY_on[i] = ( TH2D* )fDataFile->Get( hname );
         setHistogramAtt( hCenXY_on[i], -999. );
         setAxisTitles( hCenXY_on[i], "on", i + 1 );
         
-        sprintf( hname, "hcen_xy%d_OFF", i + 1 );
+        sprintf( hname, "hcen_xy%u_OFF", i + 1 );
         hCenXY_off[i] = ( TH2D* )fDataFile->Get( hname );
         setHistogramAtt( hCenXY_off[i], -999. );
         setAxisTitles( hCenXY_off[i], "off", i + 1 );
@@ -1592,26 +1592,26 @@ TCanvas* VPlotCompareDataWithMC::distance_plots()
     for( unsigned int i = 0; i < fNTel; i++ )
     {
         // R
-        sprintf( hname, "hr_%d_SIMS", i + 1 );
+        sprintf( hname, "hr_%u_SIMS", i + 1 );
         hR_sims[i] = ( TH1D* )fDataFile->Get( hname );
         setHistogramAtt( hR_sims[i], 2, 1, 0.5, 20, 1 );
         hR_sims[i]->SetMaximum( hR_sims[i]->GetMaximum() * 1.3 );
         hR_sims[i]->SetYTitle( "number of shower [a.u.]" );
         
-        sprintf( hname, "hr_%d_DIFF", i + 1 );
+        sprintf( hname, "hr_%u_DIFF", i + 1 );
         hR_diff[i] = ( TH1D* )fDataFile->Get( hname );
         setHistogramAtt( hR_diff[i], 1, 1, 0.5, 21, 1 );
         
-        sprintf( hname, "hr_%d_ON", i + 1 );
+        sprintf( hname, "hr_%u_ON", i + 1 );
         hR_on[i] = ( TH1D* )fDataFile->Get( hname );
         setHistogramAtt( hR_on[i], 3, 1, 0.5, 20, 1 );
         
-        sprintf( hname, "hr_%d_OFF", i + 1 );
+        sprintf( hname, "hr_%u_OFF", i + 1 );
         hR_off[i] = ( TH1D* )fDataFile->Get( hname );
         setHistogramAtt( hR_off[i], 4, 1, 0.5, 21, 1 );
         
         
-        sprintf( hname, "r_%d", i + 1 );
+        sprintf( hname, "r_%u", i + 1 );
         getScaling( s_sims, s_diff, hname, 1 );
         if( hR_sims[i]->GetEntries() > 0 )
         {
@@ -1638,7 +1638,7 @@ TCanvas* VPlotCompareDataWithMC::distance_plots()
         // relative plots
         if( hR_sims[i] && hR_diff[i] )
         {
-            sprintf( hname, "hR_RE_%d", i );
+            sprintf( hname, "hR_RE_%u", i );
             hrel = ( TH1D* )hR_sims[i]->Clone( hname );
             hrel->Divide( hR_diff[i] );
             hrel->SetYTitle( "sims/data" );
@@ -1656,25 +1656,25 @@ TCanvas* VPlotCompareDataWithMC::distance_plots()
         
         // distR
         //
-        sprintf( hname, "hdistR%d_SIMS", i + 1 );
+        sprintf( hname, "hdistR%u_SIMS", i + 1 );
         hdistR_sims[i] = ( TH2D* )fDataFile->Get( hname );
         setHistogramAtt( hdistR_sims[i], -999. );
         setAxisTitles( hdistR_sims[i], "sims", i + 1 );
         hdistR_sims[i]->SetAxisRange( 0., 1.5, "Y" );
         
-        sprintf( hname, "hdistR%d_DIFF", i + 1 );
+        sprintf( hname, "hdistR%u_DIFF", i + 1 );
         hdistR_diff[i] = ( TH2D* )fDataFile->Get( hname );
         setHistogramAtt( hdistR_diff[i], 0.001 );
         setAxisTitles( hdistR_diff[i], "on-off", i + 1 );
         hdistR_diff[i]->SetAxisRange( 0., 1.5, "Y" );
         
-        sprintf( hname, "hdistR%d_ON", i + 1 );
+        sprintf( hname, "hdistR%u_ON", i + 1 );
         hdistR_on[i] = ( TH2D* )fDataFile->Get( hname );
         setHistogramAtt( hdistR_on[i], -999. );
         setAxisTitles( hdistR_on[i], "on", i + 1 );
         hdistR_on[i]->SetAxisRange( 0., 1.5, "Y" );
         
-        sprintf( hname, "hdistR%d_OFF", i + 1 );
+        sprintf( hname, "hdistR%u_OFF", i + 1 );
         hdistR_off[i] = ( TH2D* )fDataFile->Get( hname );
         setHistogramAtt( hdistR_off[i], -999. );
         setAxisTitles( hdistR_off[i], "off", i + 1 );
@@ -1931,12 +1931,9 @@ TCanvas* VPlotCompareDataWithMC::single_telescope( int telid, string iPlot, bool
             hdiff->Scale( s_diff );
         }
         // relative histograms
-        if( hsims && hdiff )
-        {
-            sprintf( hn, "h%s_%d_RE", hname[j].c_str(), telid );
-            hrel = ( TH1D* )hsims->Clone( hn );
-            hrel->Divide( hdiff );
-        }
+        sprintf( hn, "h%s_%d_RE", hname[j].c_str(), telid );
+        hrel = ( TH1D* )hsims->Clone( hn );
+        hrel->Divide( hdiff );
         
         if( iOneCanvas )
         {
