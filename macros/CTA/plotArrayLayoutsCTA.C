@@ -872,7 +872,7 @@ void VPlotCTAArrayLayout::drawTelescope( VPlotCTAArrayLayout_TelescopeList* iD, 
 
 */
 TCanvas* VPlotCTAArrayLayout::plot_array( string iname, double xmax, double ymax, string iPrintCanvas,
-        string drawTelescopeNumbers, TCanvas* cUserCanvas )
+        const string drawTelescopeNumbers, TCanvas* cUserCanvas )
 {
     char hname[200];
     char htitle[200];
@@ -956,7 +956,7 @@ TCanvas* VPlotCTAArrayLayout::plot_array( string iname, double xmax, double ymax
     // draw number of telescopes
     if( getTelTypeNumber( "MSCT" ) > 0 )
     {
-        sprintf( hname, "#LSTs: %d #MSTs: %d #SSTs: %d #MSCTs: %d ",
+        sprintf( hname, "#LSTs: %u #MSTs: %u #SSTs: %u #MSCTs: %u ",
                  getTelTypeNumber( "LST" ),
                  getTelTypeNumber( "MST" ),
                  getTelTypeNumber( "SST" ),
@@ -965,7 +965,7 @@ TCanvas* VPlotCTAArrayLayout::plot_array( string iname, double xmax, double ymax
     }
     else
     {
-        sprintf( hname, "#LSTs: %d #MSTs: %d #SSTs: %d",
+        sprintf( hname, "#LSTs: %u #MSTs: %u #SSTs: %u",
                  getTelTypeNumber( "LST" ),
                  getTelTypeNumber( "MST" ),
                  getTelTypeNumber( "SST" ) );
@@ -1209,10 +1209,10 @@ vector< string > VPlotCTAArrayLayout::getListofArrrays( string iArrayFile )
  *  plot array layouts read from a run list file
  *
  */
-void VPlotCTAArrayLayout::plot_fromList( string iArrayFile, string iDir,
+void VPlotCTAArrayLayout::plot_fromList( string iArrayFile, const string iDir,
         double xmax, double ymax,
-        string drawTelescopeNumbers,
-        string iMCProduction )
+        const string drawTelescopeNumbers,
+        const string iMCProduction )
 {
     vector< string > iSubArray = getListofArrrays( iArrayFile );
     if( iSubArray.size() == 0 )
@@ -1283,7 +1283,7 @@ void VPlotCTAArrayLayout::plot_fromList( string iArrayFile, string iDir,
  * Paranal-prod3b-TS
  *
  */
-void VPlotCTAArrayLayout::plot_allProd3Layouts( string iDataSet, string iLisFileDir, bool iPrintSingleFile )
+void VPlotCTAArrayLayout::plot_allProd3Layouts( string iDataSet, const string iLisFileDir, bool iPrintSingleFile )
 {
     // MSTs
     vector< string > ivMST;
