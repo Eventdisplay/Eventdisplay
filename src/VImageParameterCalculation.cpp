@@ -1950,6 +1950,8 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
         dalpha = 0.;
     }
     dalpha = redang( sqrt( dalpha ), 2. * M_PI );
+    // (GM) not sure if this can happen
+    // redang reduces angle to < 2xPi
     if( dalpha > 360. )
     {
         fParLL->Fitstat = -1;    //  floating point problem

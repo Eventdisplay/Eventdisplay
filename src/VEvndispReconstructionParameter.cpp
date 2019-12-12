@@ -58,6 +58,8 @@ void VEvndispReconstructionParameter::reset()
 
      apply array analysis cuts for this set of image parameters
 
+     returns true if image is good and selected
+
 */
 bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth, unsigned int iTel, unsigned int iTelType,
         VImageParameter* iImageParameter, unsigned short int iLocalTriggerType,
@@ -156,6 +158,7 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
     {
         if( iTel < fRunPara->fLogLikelihoodLoss_min.size() && iTel < fRunPara->fLogLikelihoodLoss_max.size() )
         {
+            // remove images with bad fit status (fitstatus <1)
             if( iImageParameter->loss > fRunPara->fLogLikelihoodLoss_min[iTel] && iImageParameter->Fitstat < 1
                     && iImageParameter->loss > fRunPara->fLogLikelihoodLoss_max[iTel] )
             {
@@ -166,7 +169,7 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
                     cout << iImageParameter->Fitstat << endl;
                 }
             }
-            // check number of events at the edge of the FOV
+            // remove images which are too small at the edge of FOV (after LL fit)
             if( iTel < fRunPara->fLogLikelihoodLoss_min.size()
                     && iTel < fRunPara->fLogLikelihoodLoss_max.size()
                     && iTel < fRunPara->fLogLikelihood_Ntubes_min.size() )
@@ -1991,6 +1994,8 @@ bool VEvndispReconstructionParameterData::testUserImage( unsigned int iTelType )
        test a cut value for a given cut (iVarName)
        (double version)
 
+      return true if cut was passed (or not applicable)
+
 */
 bool VEvndispReconstructionParameterData::test( unsigned int iTelType, string iVarName, double iVarD, int iNtubes )
 {
@@ -2032,6 +2037,8 @@ bool VEvndispReconstructionParameterData::test( unsigned int iTelType, string iV
 
        test a cut value for a given cut (iVarName)
        (int version)
+
+      return true if cut was passed (or not applicable)
 
 */
 bool VEvndispReconstructionParameterData::test( unsigned int iTelType, string iVarName, int iVarI, int iNtubes )
