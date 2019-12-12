@@ -1914,7 +1914,7 @@ TCanvas* VPlotInstrumentResponseFunction::plotPSF( vector< double > i_Energy_TeV
 
     if( i_Energy_TeV_lin.size() == 0 )
     {
-        i_Energy_TeV_lin.push_back( 0.3 );
+        i_Energy_TeV_lin.push_back( 0.2 );
         i_Energy_TeV_lin.push_back( 0.5 );
         i_Energy_TeV_lin.push_back( 1.0 );
         i_Energy_TeV_lin.push_back( 5.0 );
@@ -2014,14 +2014,16 @@ TCanvas* VPlotInstrumentResponseFunction::plotPSF( vector< double > i_Energy_TeV
                         h->Scale( 1. / h->GetMaximum() );
                     }
                     h->Draw( "same" );
-                    // get 68% per value
-                    double x68 = hCumu->GetXaxis()->GetBinCenter( hCumu->FindFirstBinAbove( 0.68 ) );
-                    TLine* iL68 = new TLine( x68, 0., x68, 1.1 );
-                    iL68->SetLineStyle( 2 );
-                    iL68->Draw();
-                    cout << "68% value at " << i_Energy_TeV_lin[j] << " TeV: ";
-                    cout << sqrt( x68 ) << " deg" << endl;
                 }
+                // get 68% per value
+                double x68 = hCumu->GetXaxis()->GetBinCenter( hCumu->FindFirstBinAbove( 0.68 ) );
+                TLine* iL68 = new TLine( x68, 0., x68, 1.1 );
+                iL68->SetLineStyle( 2 );
+                iL68->SetLineColor( hCumu->GetLineColor() );
+                iL68->Draw();
+                cout << "68% value at " << i_Energy_TeV_lin[j] << " TeV: ";
+                cout << sqrt( x68 ) << " deg" << endl;
+                // set line at '1' for cumulative histograms
                 if( iCumulative )
                 {
                     TLine* iL = new TLine( h->GetXaxis()->GetXmin(), 1., iTheta2AxisMax, 1. );

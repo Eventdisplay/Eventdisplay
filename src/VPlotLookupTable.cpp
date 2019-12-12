@@ -365,7 +365,7 @@ void VPlotLookupTable::plotLookupTableSlice( double iLogSize, double iR )
     {
         if( fLookupTableData[i] && fLookupTableData[i]->hmedian )
         {
-            sprintf( hname, "%s_%d_%d_%d", fLookupTableData[i]->hmedian->GetName(), ( int )iLogSize * 100, ( int )iR, i );
+            sprintf( hname, "%s_%d_%d_%u", fLookupTableData[i]->hmedian->GetName(), ( int )iLogSize * 100, ( int )iR, i );
             TH1D* h = 0;
             if( iLogSize > 0.01 )
             {
