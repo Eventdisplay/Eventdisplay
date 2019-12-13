@@ -31,6 +31,7 @@ MSCWDATAFILE="$ODIR/$BFILE.mscw.root"
 
 MOPT="-arrayrecid=$RECID -writeReconstructedEventsOnly=1"
 MOPT="$MOPT -useMedian=0 -distance_energyCuts=1.3"
+MOPT="$MOPT -redo_stereo_reconstruction"
 
 # run mscw_energy
 "$EVNDISPSYS"/bin/mscw_energy -tablefile "$TABFILE" "$MOPT" -inputfile "$TEMPDIR/$BFILE.root" &> "$MSCWLOGFILE"
