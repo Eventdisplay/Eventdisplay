@@ -123,8 +123,8 @@ if [[ $CUTSLISTFILE != "" ]]; then
     CUTLIST=$(IFS=$'\r\n'; cat $CUTSLISTFILE)
 else
     # preselection cut list
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-TMVA-BDT-Preselection.dat
-    ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate-TMVA-BDT-Preselection.dat
+    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-TMVA-Preselection.dat
+    ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate-TMVA-Preselection.dat
     ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-TMVA-Preselection.dat"
 fi
 CUTLIST=`echo "$CUTLIST" |tr '\r' ' '`
