@@ -177,18 +177,17 @@ for VX in $EPOCH; do
                     echo "Total number of background files for training: $NBCKF"
                     # retrieve size cut
                     CUTFIL="$VERITAS_EVNDISP_AUX_DIR"/GammaHadronCutFiles/ANASUM.GammaHadron-Cut-*${C}-TMVA-Preselection.dat
-                    echo $CUTFIL
+                    echo "$CUTFIL"
                     SIZECUT=`grep "* sizesecondmax" $CUTFIL | grep ${EPOCH} | awk '{print $3}' | sort -u`
-                    if [ -z $SIZECUT ]
+                    if [ -z "$SIZECUT" ]
                     then
                         echo "No size cut found; skipping cut $C"
                         continue
                     fi
                     echo "Size cut applied: $SIZECUT"
-                    cp -f $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter "$MVADIR"/TMVA.BDT.runparameter
+                    cp -f "$VERITAS_EVNDISP_AUX_DIR"/ParameterFiles/TMVA.BDT.runparameter "$MVADIR"/TMVA.BDT.runparameter
                     sed -i "s/TMVASIZECUT/${SIZECUT}/" "$MVADIR"/TMVA.BDT.runparameter
-                    TMVARUNPAR="$VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.${C}runparameter"
-                    ./IRF.trainTMVAforGammaHadronSeparation.sh "$MVADIR/BDTTraining.bck.list" "$MVADIR"/TMVA.BDT.runparameter "${MVADIR}" mva ${SIMTYPE} ${VX} "${ATM}" 0 "${ANAMETHOD}"
+                    ./IRF.trainTMVAforGammaHadronSeparation.sh "$MVADIR"/BDTTraining.bck.list "$MVADIR"/TMVA.BDT.runparameter "${MVADIR}" mva ${SIMTYPE} ${VX} "${ATM}" 0 "${ANAMETHOD}"
                 done
             done
             continue
