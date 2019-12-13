@@ -34,6 +34,8 @@ optional parameters:
 
     [sim directory]         directory containing simulation VBF files
 
+    example:     ./IRF.production.sh CARE_June1702 ANALYSETABLES V6 61 0
+
 --------------------------------------------------------------------------------
 "
 #end help message
@@ -120,43 +122,10 @@ if [[ $CUTSLISTFILE != "" ]]; then
     # read file containing list of cuts
     CUTLIST=$(IFS=$'\r\n'; cat $CUTSLISTFILE)
 else
-    # default list of cuts
-    #CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-MVA-Preselection.dat"
-    #CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-MVA-BDT.dat"
-    #CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-MVA-Preselection.MSCW.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Hard-TMVA-BDT.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-TMVA-BDT.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-TMVA-BDT.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-TMVA-BDT-Preselection.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-TMVA-BDT-Preselection-Soft.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-TMVA-BDT-Preselection-Moderate.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-TMVA-BDT-Preselection-Hard.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Hard-TMVA-BDT.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-TMVA-BDT.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-TMVA-BDT.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-TMVA-BDT-Preselection.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-MVA-Preselection.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-MVA-Preselection.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-MVA-Preselection.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-MVA-BDT.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-SuperSoft2-MVA-BDT.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-SuperSoft-MVA-BDT.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-SuperSoft-MVA-Preselection.dat
-             ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-MVA-Preselection.dat
-             ANASUM.GammaHadron-Cut-NTel4-PointSource-TMVA-BDT-Preselection.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel4-PointSource-TMVA-BDT-Preselection.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-TMVA-BDT-Preselection.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-MVA-Preselection.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate-TMVA-BDT-Preselection.dat"
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate.dat"
-    # box cut list
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate.dat
-             ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate.dat"
     # preselection cut list
     CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-TMVA-BDT-Preselection.dat
     ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate-TMVA-BDT-Preselection.dat
-    ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-MVA-Preselection.dat"
-
+    ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-TMVA-Preselection.dat"
 fi
 CUTLIST=`echo "$CUTLIST" |tr '\r' ' '`
 CUTLIST=${CUTLIST//$'\n'/}
@@ -189,8 +158,44 @@ for VX in $EPOCH; do
                 done # cuts
             done
             continue
-        fi
-        for ZA in ${ZENITH_ANGLES[@]}; do
+       fi
+       #############################################
+       # MVA training
+       if [[ $IRFTYPE == "TRAINTMVA" ]]
+       then
+            for VX in $EPOCH; do
+                for C in "Moderate" "Soft"
+                do
+                    echo "Training $C cuts for ${VX}"
+                    MVADIR="$VERITAS_EVNDISP_AUX_DIR/GammaHadron_BDTs/${VX}/${C}/"
+                    mkdir -p -v "${MVADIR}"
+                    # list of background files
+                    DDIR="$VERITAS_USER_DATA_DIR//analysis/Results/${EDVERSION}/BDTtraining/${EDVERSION}_${ANAMETHOD}/RecID0_${SIMTYPE}/"
+                    rm -f "$MVADIR/BDTTraining.bck.list"
+                    ls -1 "$DDIR"/*.root > "$MVADIR/BDTTraining.bck.list"
+                    NBCKF=`wc -l "$MVADIR/BDTTraining.bck.list"`
+                    echo "Total number of background files for training: $NBCKF"
+                    # retrieve size cut
+                    CUTFIL="$VERITAS_EVNDISP_AUX_DIR"/GammaHadronCutFiles/ANASUM.GammaHadron-Cut-*${C}-TMVA-Preselection.dat
+                    echo $CUTFIL
+                    SIZECUT=`grep "* sizesecondmax" $CUTFIL | grep ${EPOCH} | awk '{print $3}' | sort -u`
+                    if [ -z $SIZECUT ]
+                    then
+                        echo "No size cut found; skipping cut $C"
+                        continue
+                    fi
+                    echo "Size cut applied: $SIZECUT"
+                    cp -f $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter "$MVADIR"/TMVA.BDT.runparameter
+                    sed -i "s/TMVASIZECUT/${SIZECUT}/" "$MVADIR"/TMVA.BDT.runparameter
+                    TMVARUNPAR="$VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.${C}runparameter"
+                    ./IRF.trainTMVAforGammaHadronSeparation.sh "$MVADIR/BDTTraining.bck.list" "$MVADIR"/TMVA.BDT.runparameter "${MVADIR}" mva ${SIMTYPE} ${VX} "${ATM}" 0 "${ANAMETHOD}"
+                done
+            done
+            continue
+       fi
+       #################################################
+       # zenith angle dependent analysis
+       for ZA in ${ZENITH_ANGLES[@]}; do
             ######################
             # train MVA for angular resolution
             if [[ $IRFTYPE == "TRAINMVANGRES" ]]; then
@@ -222,6 +227,7 @@ for VX in $EPOCH; do
                         for ID in $RECID; do
                             #METH="RECMETHOD${ID}"
                             METH="RECMETHOD0"
+                            # $(dirname "$0")/IRF.mscw_energy_MC.sh "${TFIL}${METH}" $VX $ATM $ZA $WOBBLE $NOISE $ID $SIMTYPE 1 $ANAMETHOD
                             $(dirname "$0")/IRF.mscw_energy_MC.sh "${TFIL}${METH}" $VX $ATM $ZA $WOBBLE $NOISE $ID $SIMTYPE 1 $ANAMETHOD
                         done
                     ######################
@@ -238,8 +244,3 @@ for VX in $EPOCH; do
 done  #VX
 
 exit
-
-# /IRF.trainTMVAforGammaHadronSeparation.sh /lustre/fs19/group/cta/users/maierg/VERITAS/analysis/Results/g500c/BDTtraining/g502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20
-#  ./IRF.trainTMVAforGammaHadronSeparation.sh $VERITAS_USER_DATA_DIR/analysis/Results/g500/BDTtraining/g502_TL5035MA20/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5035MA20 $VERITAS_USER_DATA_DIR/analysis/Results/g502/CARE_June1702/V6_ATM61_gamma_TL5035MA20/MSCW_RECID0
-# ----
-# ./IRF.trainTMVAforGammaHadronSeparation.sh $VERITAS_USER_DATA_DIR/analysis/Results/g500/BDTtraining/g500_TL5025/RecID0_CARE_June1702/BDTTraining.bck.list $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter $VERITAS_USER_DATA_DIR/test mva  CARE_June1702 V6 61 0 TL5025

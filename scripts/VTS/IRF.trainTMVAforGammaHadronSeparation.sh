@@ -159,7 +159,7 @@ do
       echo "ZeBin: $(($j+$count1)) of $NZEW: ${ZEBINARRAYBEGIN[$j]} to ${ZEBINARRAYEND[$j]}"
       
       # copy run parameter file with basic options to output directory
-      cp -f $RUNPAR $ODIR
+      # cp -f $RUNPAR $ODIR
 
       # updating the run parameter file for each point in the parameter space
       # (one parameter file per energy and zenith bin)
@@ -193,7 +193,7 @@ do
                  else
                      #SIGNALLIST=`ls -1 $SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE{150,300,450,600,750,900}.mscw.root`
                      #SIGNALLIST=`ls -1 $SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE{50,75,100,130,160,200,250,300,350,400,450}.mscw.root`
-                     SIGNALLIST=`ls -1 "$SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE*.mscw.root"`
+                     SIGNALLIST=`ls -1 "$SDIR"/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE*.mscw.root`
                  fi
                  for arg in $SIGNALLIST
                  do
@@ -202,6 +202,15 @@ do
              fi
          fi
       done
+      # cross check if simulation files have been found
+      NSIGNALFILES=`grep SIGNALFILE $RFIL.runparameter | wc -l | awk '{print $1}'`
+      if [ "$NSIGNALFILES" -eq "0" ]
+      then
+         echo "No signal files found for $RFIL.runparameter"
+         continue
+      else
+         echo "Find $NSIGNALFILES signal files"
+      fi
          
       echo "#######################################################################################" >> $RFIL.runparameter
       for arg in $(cat $BLIST)
@@ -209,7 +218,7 @@ do
           echo "* BACKGROUNDFILE $arg" >> $RFIL.runparameter
       done
          
-      FSCRIPT=$LOGDIR/TMVA.$ONAME"_Ebin${i}""_Zebin{$j}_$(date +%s)"
+      FSCRIPT=$LOGDIR/TMVA.$ONAME"_Ebin${i}""_Zebin${j}_$(date +%s)"
       sed -e "s|RUNPARAM|$RFIL|"  \
           -e "s|NUMTRAIN|$nTrain|"  \
           -e "s|OUTNAME|$ODIR/$ONAME_${i}_${j}|" $SUBSCRIPT.sh > $FSCRIPT.sh
