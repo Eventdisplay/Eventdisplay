@@ -37,7 +37,7 @@ void help()
 }
 
 void optimizeBDTcuts( string particleraterootfile, 
-                      string weightFileDir, string weightFileName = "mva",
+                      const string weightFileDir, string weightFileName = "mva",
                       string MVAName = "BDT", unsigned int MVACounter = 0,
                       double observing_time_h = 20., 
                       int weightFileIndex_Emin = 0, int weightFileIndex_Emax = 4, 
@@ -65,7 +65,7 @@ void optimizeBDTcuts( string particleraterootfile,
     
     VTMVAEvaluator a;
     a.setTMVAMethod( MVAName, MVACounter );
-    a.setPrintPlotting( true );
+    a.setPrintPlotting( false );
     a.setPlotEfficiencyPlotsPerBin( iPlotEfficiencyPlots );
     a.setParticleNumberFile( particleraterootfile, timeparticlerate );
 
@@ -128,7 +128,7 @@ void plotCompare( unsigned int iZeBin = 0 )
          }
          cout << "reading " << iF->GetName() << endl;
          cTMVA->cd();
-         sprintf( hname, "TMVACutValue_ze%d", iZeBin );
+         sprintf( hname, "TMVACutValue_ze%u", iZeBin );
          TGraphAsymmErrors *iG = (TGraphAsymmErrors*)iF->Get( hname );
          if( iG )
          {
@@ -155,7 +155,7 @@ void plotCompare( unsigned int iZeBin = 0 )
              cout << "\t " << endl;
          }
          cSEff->cd();
-         sprintf( hname, "SignalEfficiency_%d", iZeBin );
+         sprintf( hname, "SignalEfficiency_%u", iZeBin );
          iG = (TGraphAsymmErrors*)iF->Get( hname );
          if( iG )
          {
@@ -177,7 +177,7 @@ void plotCompare( unsigned int iZeBin = 0 )
              }
          }
          cBEff->cd();
-         sprintf( hname, "BackgroundEfficiency_%d", iZeBin );
+         sprintf( hname, "BackgroundEfficiency_%u", iZeBin );
          iG = (TGraphAsymmErrors*)iF->Get( hname );
          if( iG )
          {
