@@ -187,8 +187,6 @@ MCOPT=" -runnumber=$RUNNUM -sourcetype=2 -epoch $EPOCH -camera=$CFG -reconstruct
 if [[ ${SIMTYPE:0:4} == "CARE" ]]; then
     MCOPT="$MCOPT -injectGaussianNoise=0.229592"
 fi
-# TMPTMP
-MCOPT="$MCOPT -nevents=5000000"
 
 ###############################################
 # calculate pedestals
