@@ -223,10 +223,14 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
                                                    iInstrumentEpoch,
                                                    ".weights.xml" );
 
-            TFile* iF = new TFile( iFullFileName.c_str() );
+            TFile* iF = 0;
+            if( iFullFileName.size() > 0 )
+            {
+                 iF = new TFile( iFullFileName.c_str() );
+            }
             VTMVARunDataEnergyCut* iEnergyData = 0;
             VTMVARunDataZenithCut* iZenithData = 0;
-            if( iF->IsZombie() )
+            if( !iF || iF->IsZombie() )
             {
                 bGoodRun = false;
             }
@@ -272,7 +276,7 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
                 if( i == iMinMissingBin || j == jMinMissingBin )
                 {
                     cout << "VTMVAEvaluator::initializeWeightFiles() warning: TMVA root file not found or incomplete file (";
-                    cout << i << ") " << endl;
+                    cout << "ebin " << i << ", zebin " << j << ") " << endl;
                     cout << iFullFileName << endl;
                     if( i == iMinMissingBin )
                     {
@@ -3176,14 +3180,9 @@ string VTMVAEvaluator::setFullMVAFileName( string iWeightFileName,
       ifstream f(iFileName.str().c_str());
       if( !f.good() )
       {
-          iFileName.str(std::string());
-          iFileName << iWeightFileName << "_" << iWeightFileIndex_Emin + i;
-          // backwards compatibility with pre-2018 CTA training
-          if( iInstrumentEpoch != "noepoch" && iInstrumentEpoch != "CTA" )
-          {
-              iFileName << "_" << iWeightFileIndex_Zmin + j;
-          }
-          iFileName << iFileSuffix;
+          cout << "VTMVAEvaluator::setFullMVAFileName warning: file not found: ";
+          cout << iFileName.str() << endl;
+          return "";
       }
 
       return iFileName.str();
