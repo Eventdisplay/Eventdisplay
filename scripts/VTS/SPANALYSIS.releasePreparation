@@ -174,7 +174,12 @@ do
                               then
                                   MVAN="mva"
                                   MVAM="BDT"
-                                  root -b -q "$EVNDISPSYS/macros/VTS/optimizeBDTcuts.C( \"$RFIL.root\", \"$MVADIR\", \"$MVAN\", \"$MVAM\", 0, 20., 0, 1, 0, 1, 3., 5. )" > "$CFIL.log"
+                                  # observation time for optimisation
+                                  MVATOBS=20.
+                                  # number of energy and zenith angle bins
+                                  NEBIN=4
+                                  NZBIN=1
+                                  root -b -q "$EVNDISPSYS/macros/VTS/optimizeBDTcuts.C( \"$RFIL.root\", \"$MVADIR\", \"$MVAN\", \"$MVAM\", 0, ${MVATOBS}, 0, ${NEBIN}, 0, ${NZBIN}, 3., 5. )" > "$CFIL.log"
                               else
                                   echo "error: mva directory not found"
                                   echo "   missing is $MVADIR"
