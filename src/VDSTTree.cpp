@@ -960,7 +960,7 @@ map< unsigned int, VDSTTelescopeConfiguration> VDSTTree::readArrayConfig( string
     
     map< unsigned int, VDSTTelescopeConfiguration >::iterator iter;
     unsigned int z = 0;
-    for( iter = fDST_list_of_telescopes.begin(); iter != fDST_list_of_telescopes.end(); iter++ )
+    for( iter = fDST_list_of_telescopes.begin(); iter != fDST_list_of_telescopes.end(); ++iter )
     {
         cout << "\t Telescope ID " << iter->first << "  FOV " << iter->second.FOV;
         cout << "  Dyn " << iter->second.DynamicRange << " RAW " << iter->second.RAWsum;

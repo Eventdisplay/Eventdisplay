@@ -1353,7 +1353,7 @@ unsigned int VAtmosphereSoundings::checkPlottingPeriodIdentifier( unsigned int i
     unsigned int iDate = fData[i]->Year * 10000 + fData[i]->Month * 100 + fData[i]->Day;
     
     map< unsigned int, vector< unsigned int> >::iterator i_iter;
-    for( i_iter = fPlottingPeriodDates.begin(); i_iter != fPlottingPeriodDates.end(); i_iter++ )
+    for( i_iter = fPlottingPeriodDates.begin(); i_iter != fPlottingPeriodDates.end(); ++i_iter )
     {
         for( unsigned int j = 0; j < ( *i_iter ).second.size(); j++ )
         {
@@ -1928,7 +1928,7 @@ void VAtmosphereSoundings::plotProfiles( unsigned int iYearStart, unsigned int i
             map< unsigned int, TProfile* >::iterator iterTempMap;
             
             int z = 0;
-            for( iterTempMap = hMonthly[k].begin(); iterTempMap != hMonthly[k].end(); iterTempMap++ )
+            for( iterTempMap = hMonthly[k].begin(); iterTempMap != hMonthly[k].end(); ++iterTempMap )
             {
                 TProfile* h = ( TProfile* )( *iterTempMap ).second;
                 if( h )
