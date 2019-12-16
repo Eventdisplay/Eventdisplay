@@ -29,8 +29,8 @@ void VPlotTMVAParameters::plot( bool iPrint )
     {
     
         // signal and background efficiency
-        sprintf( hname, "cTMVA_S_BC_%d", i );
-        sprintf( htitle, "signal/background efficiency distribution (energy/zenith bin %d)", i );
+        sprintf( hname, "cTMVA_S_BC_%u", i );
+        sprintf( htitle, "signal/background efficiency distribution (energy/zenith bin %u)", i );
         TCanvas* c = new TCanvas( hname, htitle, 100 + i * 20, 100 + i * 20, 400, 400 );
         c->SetGridx( 0 );
         c->SetGridy( 0 );
@@ -49,14 +49,14 @@ void VPlotTMVAParameters::plot( bool iPrint )
         }
         if( iPrint )
         {
-            sprintf( hname, "efficiency-%d.eps", i );
+            sprintf( hname, "efficiency-%u.eps", i );
             c->Print( hname );
         }
         
         
         // MVA cut variable
-        sprintf( hname, "cTMVA_MVA_%d", i );
-        sprintf( htitle, "MVA cut variable(energy/zenith bin %d)", i );
+        sprintf( hname, "cTMVA_MVA_%u", i );
+        sprintf( htitle, "MVA cut variable(energy/zenith bin %u)", i );
         TCanvas* d = new TCanvas( hname, htitle, 600 + i * 20, 100 + i * 20, 400, 400 );
         d->SetGridx( 0 );
         d->SetGridy( 0 );
@@ -69,7 +69,7 @@ void VPlotTMVAParameters::plot( bool iPrint )
         }
         if( iPrint )
         {
-            sprintf( hname, "mva-%d.eps", i );
+            sprintf( hname, "mva-%u.eps", i );
             d->Print( hname );
         }
     }
@@ -87,18 +87,18 @@ bool VPlotTMVAParameters::initializeHistograms( unsigned int iEnergyWeightFileIn
     {
         for( unsigned int j = iZenithWeightFileIndex_min; j <= iZenithWeightFileIndex_max; j++ )
         {
-            sprintf( hname, "hSignalEfficiency_%d_%d", i, j );
+            sprintf( hname, "hSignalEfficiency_%u_%u", i, j );
             hSignalEfficiency.push_back( new TH1D( hname, "", 100, 0., 1. ) );
             hSignalEfficiency.back()->SetXTitle( "efficiency" );
             hSignalEfficiency.back()->SetLineWidth( 2 );
             
-            sprintf( hname, "hBackgroundEfficiency_%d_%d", i, j );
+            sprintf( hname, "hBackgroundEfficiency_%u_%u", i, j );
             hBackgroundEfficiency.push_back( new TH1D( hname, "", 100, 0., 1. ) );
             hBackgroundEfficiency.back()->SetXTitle( "efficiency" );
             hBackgroundEfficiency.back()->SetLineWidth( 2 );
             hBackgroundEfficiency.back()->SetLineColor( 2 );
             
-            sprintf( hname, "hMVA_%d_%d", i, j );
+            sprintf( hname, "hMVA_%u_%u", i, j );
             hMVA.push_back( new TH1D( hname, "", 100, -1., 1. ) );
             hMVA.back()->SetXTitle( "MVA variable" );
             hMVA.back()->SetLineWidth( 2 );
