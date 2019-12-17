@@ -49,6 +49,7 @@ VTableLookupRunParameter::VTableLookupRunParameter()
     fDispError_BDTWeight = 5.;
     fTelescopeList_sim_telarray_Counting = "";
     fTelescopeType_weightFile = "";
+    fRunParameterFile = "";
     fQualityCutLevel = 0;
     
     fUsetimeGradientLookupTables = false;
@@ -248,6 +249,15 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
             if( iTemp2.size() > 0 )
             {
                 fTelescopeList_sim_telarray_Counting = iTemp2;
+                i++;
+            }
+        }
+        // run parameters from file
+        else if( iTemp.find( "-runparameter" ) < iTemp.size() )
+        {
+            if( iTemp2.size() > 0 )
+            {
+                fRunParameterFile = iTemp2;
                 i++;
             }
         }
@@ -459,6 +469,11 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
             outputfile += ".mscw.root";
         }
     }
+    // run parameters from file (optional)
+    if( fRunParameterFile.size() > 0 )
+    {
+        readRunParameters( fRunParameterFile );
+    }
     // read telescope type dependent weights (optional)
     if( fTelescopeType_weightFile.size() > 0 )
     {
@@ -518,6 +533,68 @@ void VTableLookupRunParameter::fillTelescopeTypeDependentWeights()
 }
 
 
+/*
+ * read runparameters from a parameter file
+ *
+*/
+bool VTableLookupRunParameter::readRunParameters( string iFile )
+{
+    
+    ifstream is;
+    is.open( iFile.c_str(), ifstream::in );
+    if( !is )
+    {
+        cout << "VTableLookupRunParameter::readRunParameters() error:";
+        cout << "file with runparameters not found, ";
+        cout << iFile << endl;
+        return false;
+    }
+    string iLine;
+    string iS1;
+    string iS2;
+    
+    cout << "Reading run parameters from " << iFile << endl;
+    while( getline( is, iLine ) )
+    {
+        if( iLine.size() > 0 )
+        {
+            istringstream is_stream( iLine );
+            is_stream >> iS1;
+            // a valid line starts with a '*'
+            if( iS1 != "*" )
+            {
+                continue;
+            }
+            is_stream >> iS2;
+            if( VUtilities::lowerCase(iS2) == "maxloss" )
+            {
+                is_stream >> fEventSelectionCut_lossCutMax;
+            }
+            else if( VUtilities::lowerCase(iS2) == "maxdist" )
+            {
+                is_stream >> fmaxdist;
+            }
+            else if( VUtilities::lowerCase(iS2) == "minfui" )
+            {
+                is_stream >> fminfui;
+            }
+            else if( VUtilities::lowerCase(iS2) == "maxdist_energy" )
+            {
+                is_stream >> fEventSelectionCut_distanceCutMax;;
+            }
+            else if( VUtilities::lowerCase(iS2) == "median_energy" )
+            {
+                is_stream >> fUseMedianEnergy;
+            }
+            else if( VUtilities::lowerCase(iS2) == "minangle_stereoreconstruction" )
+            {
+                is_stream >> fRerunStereoReconstruction_minAngle;
+            }
+        }
+    }
+    
+    return true;
+}
 
 
 /*

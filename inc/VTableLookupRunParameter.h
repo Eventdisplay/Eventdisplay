@@ -22,6 +22,7 @@
 #include "VEvndispRunParameter.h"
 #include "VEvndispReconstructionParameter.h"
 #include "VGlobalRunParameter.h"
+#include "VUtilities.h"
 
 using namespace std;
 
@@ -53,6 +54,7 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         bool readTelescopeToAnalyze( string iTelescopeList_sim_telarray_Counting,
                                      string iEvndispRootFile,
                                      bool iSimTelArrayCounting );
+        bool readRunParameters( string iFile );
         bool readTelTypeDepdendentWeights( string iFile );
         void setCTA_MC_offaxisBins();
         
@@ -92,6 +94,8 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         // event selection cuts for table filling and reading (only used for energy reconstruction)
         double fEventSelectionCut_distanceCutMax;
         
+        // run parameter file
+        string fRunParameterFile;
         // list of telescopes (subarrays) to be active in analysis
         string fTelescopeList_sim_telarray_Counting;
         // file with telescope type dependent weights
@@ -183,6 +187,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         void print( int iB = 0 );
         void printHelp();
         
-        ClassDef( VTableLookupRunParameter, 45 ); //for any changes to this file: increase this number
+        ClassDef( VTableLookupRunParameter, 46 ); //for any changes to this file: increase this number
 };
 #endif
