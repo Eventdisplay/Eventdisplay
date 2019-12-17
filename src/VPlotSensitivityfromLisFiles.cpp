@@ -200,7 +200,7 @@ bool VPlotSensitivityfromLisFiles::printDataSet( unsigned int iID )
     
     cout << fData[iID]->fID << "\t" << fData[iID]->fFileName << endl;
     map< string, vector< double > >::iterator fVarIter;
-    for( fVarIter = fData[iID]->fVar.begin(); fVarIter != fData[iID]->fVar.end(); fVarIter++ )
+    for( fVarIter = fData[iID]->fVar.begin(); fVarIter != fData[iID]->fVar.end(); ++fVarIter )
     {
         cout << ( *fVarIter ).first << "\t" << ( *fVarIter ).second.size();
         for( unsigned int i = 0; i < ( *fVarIter ).second.size(); i++ )
@@ -400,7 +400,7 @@ bool VPlotSensitivityfromLisFiles::applycuts( double amp, double NTel, double NP
     // now remove all marked data sets
     set< unsigned int >::iterator a;
     
-    for( a = fRemoveID.begin(); a != fRemoveID.end(); a++ )
+    for( a = fRemoveID.begin(); a != fRemoveID.end(); ++a )
     {
         cout << "removing data set with ID " << *a << endl;
         removeDataSet( *a );

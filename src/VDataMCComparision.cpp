@@ -415,7 +415,7 @@ void VDataMCComparision::defineHistograms()
             hTel2D.push_back( it->second[i]->fHis2D_sizeLG );
         }
     }
-    for( map <E_varname, VDataMCComparisionHistogramData* >::iterator it = fHistoArray.begin(); it != fHistoArray.end(); it++ )
+    for( map <E_varname, VDataMCComparisionHistogramData* >::iterator it = fHistoArray.begin(); it != fHistoArray.end(); ++it )
     {
         hisList->Add( it->second->fHis1D );
         hisList->Add( it->second->fHis2D_Erec );
