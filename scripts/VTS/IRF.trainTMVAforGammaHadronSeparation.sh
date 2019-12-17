@@ -113,9 +113,8 @@ mkdir -p $ODIR
 count1=1
 #####################################
 # energy bins
-ENBINSBEGIN=$( cat "$RUNPAR" | grep "^* ENERGYBINSBEGIN 1" | sed -e 's/* ENERGYBINSBEGIN 1//' | sed -e 's/ /\n/g')
-ENBINSEND=$( cat "$RUNPAR" | grep "^* ENERGYBINSEND 1" | sed -e 's/* ENERGYBINSEND 1//' | sed -e 's/ /\n/g')
-
+ENBINSBEGIN=$( cat "$RUNPAR" | grep "^* ENERGYBINSBEGIN" | sed -e 's/* ENERGYBINSBEGIN//' | sed -e 's/ /\n/g')
+ENBINSEND=$( cat "$RUNPAR" | grep "^* ENERGYBINSEND" | sed -e 's/* ENERGYBINSEND//' | sed -e 's/ /\n/g')
 declare -a EBINARRAYBEGIN=( $ENBINSBEGIN ) #convert to array
 declare -a EBINARRAYEND=( $ENBINSEND ) #convert to array
 NENE=$((${#EBINARRAYBEGIN[@]})) #get number of bins
@@ -132,7 +131,7 @@ NZEW=$((${#ZEBINARRAYBEGIN[@]})) #get number of bins
 #####################################
 # zenith angle bins of MC simulation files
 ZENITH_ANGLES=( 20 30 35 40 45 50 55 )
-ZENITH_ANGLES=( 20 30 35 )
+ZENITH_ANGLES=( 20 30 35 40 )
 
 #####################################
 # directory for run scripts
@@ -197,7 +196,7 @@ do
                  fi
                  for arg in $SIGNALLIST
                  do
-                     echo "* SIGNALFILE $arg" >> $RFIL.runparameter
+                     echo "* SIGNALFILE $(echo "$arg" | sed s#//*#/#g)" >> $RFIL.runparameter
                  done
              fi
          fi
@@ -215,7 +214,7 @@ do
       echo "#######################################################################################" >> $RFIL.runparameter
       for arg in $(cat $BLIST)
       do
-          echo "* BACKGROUNDFILE $arg" >> $RFIL.runparameter
+          echo "* BACKGROUNDFILE $(echo "$arg" | sed s#//*#/#g)" >> $RFIL.runparameter
       done
          
       FSCRIPT=$LOGDIR/TMVA.$ONAME"_Ebin${i}""_Zebin${j}_$(date +%s)"
