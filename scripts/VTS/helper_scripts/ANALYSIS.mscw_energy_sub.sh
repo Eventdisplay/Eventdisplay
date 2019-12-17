@@ -30,7 +30,7 @@ cp -f -v "$INFILE" "$TEMPDIR"
 MSCWDATAFILE="$ODIR/$BFILE.mscw.root"
 
 MOPT="-arrayrecid=$RECID -writeReconstructedEventsOnly=1"
-MOPT="$MOPT -useMedian=0 -distance_energyCuts=1.3"
+MOPT="$MOPT -runparameter $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/MSCWENERGY.runparameter"
 MOPT="$MOPT -redo_stereo_reconstruction"
 
 # run mscw_energy
