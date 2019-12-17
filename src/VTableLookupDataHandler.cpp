@@ -1348,10 +1348,12 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
         {
             sprintf( iDir, "%s/Tel_%u/tpars", finputfile[f].c_str(), i + 1 );
             iT->Add( iDir );
-            gErrorIgnoreLevel = 5000;
-            sprintf( iDir, "%s/Tel_%u/pointing_%u", finputfile[f].c_str(), i + 1, i + 1 );
-            iPC->Add( iDir );
-            gErrorIgnoreLevel = 0;
+            // no pointing corrections for MC analysis
+            if( !fIsMC )
+            {
+                sprintf( iDir, "%s/Tel_%u/pointing_%u", finputfile[f].c_str(), i + 1, i + 1 );
+                iPC->Add( iDir );
+            }
         }
         if( !iT )
         {
