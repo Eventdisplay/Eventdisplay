@@ -3,9 +3,7 @@
 #
 
 # qsub parameters
-# h_cpu=47:59:00; h_vmem=8000M; tmpdir_size=250G
-# h_cpu=47:59:00; h_vmem=12000M; tmpdir_size=250G
-h_cpu=45:59:00; h_vmem=8000M; tmpdir_size=160G
+h_cpu=47:59:00; h_vmem=8000M; tmpdir_size=250G
 
 if [ $# -lt 7 ]; then
 # begin help message
