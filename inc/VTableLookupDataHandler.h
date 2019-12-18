@@ -299,6 +299,7 @@ class VTableLookupDataHandler
         
         int    fnmscw;                            //!< number of images used for mscw/mscl calculation
         int    fnenergyT;                         //!< number of images used for the energy calculation
+        int    fenergyQL;                         //!< quality label for energy calculation
         // MSCW
         double fmscw;                             //!< mean scaled width
         double ftmscw    [VDST_MAXTELESCOPES];    //!< mscw assigned to each telescope
@@ -658,6 +659,10 @@ class VTableLookupDataHandler
         void setNEnergyT( int in )
         {
             fnenergyT = in;
+        }
+        void setNEnergyQuality( int in )
+        {
+            fenergyQL = in;
         }
         void setNMSCW( int in )
         {

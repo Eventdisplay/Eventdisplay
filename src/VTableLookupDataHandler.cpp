@@ -815,6 +815,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             setEnergyT( i, fDispAnalyzerEnergy->getEnergyT( i ) );
         }
         setNEnergyT( fDispAnalyzerEnergy->getEnergyNT() );
+        setNEnergyQuality( fDispAnalyzerEnergy->getEnergyQualityLabel() );
         
     }
     
@@ -1858,6 +1859,7 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     fOTree->Branch( "dESabs", &feAbsError, iTT );
     sprintf( iTT, "NErecST/I" );
     fOTree->Branch( "NErecST", &fnenergyT, iTT );
+    fOTree->Branch( "ErecQL", &fenergyQL, "ErecQL/I" );
     
     sprintf( iTT, "EmissionHeight/F" );
     fOTree->Branch( "EmissionHeight", &fEmissionHeightMean, iTT );
@@ -2414,6 +2416,7 @@ void VTableLookupDataHandler::reset()
     fnxyoff = 0;
     fnmscw = 0;
     fnenergyT = 0;
+    fenergyQL = -1;
     fmscl = -99.;
     fmscw = -99.;
     fmsc_frgo = -99.;
@@ -2776,6 +2779,7 @@ void VTableLookupDataHandler::resetAll()
     fnxyoff = 0;
     fnmscw = 0;
     fnenergyT = 0;
+    fenergyQL = -1;
     fmscw = 0.;
     fmscl = 0.;
     fmsct = 0.;
