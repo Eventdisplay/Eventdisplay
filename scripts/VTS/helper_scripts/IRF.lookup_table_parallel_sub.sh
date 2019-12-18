@@ -18,7 +18,7 @@ ODIR=OUTPUTDIR
 
 TABFILE="table_${SIMTYPE}_${ZA}deg_${WOBBLE}wob_noise${NOISE}_${EPOCH}_ATM${ATM}_ID${RECID}"
 
-MAXDIST="-distance_energyCuts=1.3"
+MAXDIST="-distance_energyCuts=1.4"
 
 # remove existing log and table file
 rm -f "$ODIR/$TABFILE.root"
