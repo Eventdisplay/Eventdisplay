@@ -57,8 +57,8 @@ class VSkyCoordinates
         VSkyCoordinates();
         ~VSkyCoordinates();
         
-        void   derotateCoords( int MJD, double time, double i_xin, double i_yin, double& i_xout, double& i_yout );
-        void   derotateCoords( double i_UTC, double i_xin, double i_yin, double& i_xout, double& i_yout );
+        double derotateCoords( int MJD, double time, double i_xin, double i_yin, double& i_xout, double& i_yout );
+        double derotateCoords( double i_UTC, double i_xin, double i_yin, double& i_xout, double& i_yout );
         void   getEquatorialCoordinates( int MJD, double time, double az, double ze, double& dec, double& ra );
         string getTargetName()
         {
@@ -146,7 +146,7 @@ class VSkyCoordinates
             return fSet;
         }
         void   precessTarget( int iMJD, int iTelID = -1 );
-        void   rotateCoords( int i_mjd, double i_seconds, double i_xin, double i_yin, double& i_xout, double& i_yout );
+        double rotateCoords( int i_mjd, double i_seconds, double i_xin, double i_yin, double& i_xout, double& i_yout );
         void   setMC()
         {
             fMC = true;
