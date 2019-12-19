@@ -138,6 +138,7 @@ class VTableLookupDataHandler
         double fWobbleE;
         float  fArrayPointing_Elevation;
         float  fArrayPointing_Azimuth;
+        float  fArrayPointing_RotationAngle;
         
         // output trees
         TTree* fOTree;

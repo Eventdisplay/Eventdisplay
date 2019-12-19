@@ -472,7 +472,10 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
     // run parameters from file (optional)
     if( fRunParameterFile.size() > 0 )
     {
-        readRunParameters( fRunParameterFile );
+        if( !readRunParameters( fRunParameterFile ) )
+        {
+             exit( EXIT_FAILURE );
+        }
     }
     // read telescope type dependent weights (optional)
     if( fTelescopeType_weightFile.size() > 0 )
