@@ -66,6 +66,7 @@ class Cshowerpars
         Float_t         Tel_z_SC[VDST_MAXTELESCOPES];
         Float_t         ArrayPointing_Elevation;
         Float_t         ArrayPointing_Azimuth;
+        Float_t         ArrayPointing_deRotationAngle_deg;
         Float_t         WobbleN;
         Float_t         WobbleE;
         UInt_t          NTrig;
@@ -143,6 +144,7 @@ class Cshowerpars
         TBranch*        b_Tel_z_SC;               //!
         TBranch*        b_ArrayPointing_Elevation; //!
         TBranch*        b_ArrayPointing_Azimuth; //!
+        TBranch*        b_ArrayPointing_deRotationAngle_deg; //!
         TBranch*        b_WobbleN;                //!
         TBranch*        b_WobbleE;                //!
         TBranch*        b_NTrig;                  //!
@@ -382,6 +384,14 @@ void Cshowerpars::Init( TTree* tree )
         ArrayPointing_Elevation = 0.;
         ArrayPointing_Azimuth = 0.;
     }
+    if( fChain->GetBranchStatus( "ArrayPointing_deRotationAngle_deg" ) )
+    {
+         fChain->SetBranchAddress( "ArrayPointing_deRotationAngle_deg", &ArrayPointing_deRotationAngle_deg );
+    }
+    else
+    {
+         ArrayPointing_deRotationAngle_deg = 0.;
+    }
     
     fChain->SetBranchAddress( "WobbleN", &WobbleN );
     fChain->SetBranchAddress( "WobbleE", &WobbleE );
@@ -589,6 +599,7 @@ Bool_t Cshowerpars::Notify()
     b_WobbleE = fChain->GetBranch( "WobbleE" );
     b_ArrayPointing_Elevation = fChain->GetBranch( "ArrayPointing_Elevation" );
     b_ArrayPointing_Azimuth = fChain->GetBranch( "ArrayPointing_Azimuth" );
+    b_ArrayPointing_deRotationAngle_deg = fChain->GetBranch( "ArrayPointing_deRotationAngle_deg" );
     b_NTrig = fChain->GetBranch( "NTrig" );
     b_LTrig = fChain->GetBranch( "LTrig" );
     b_NMethods = fChain->GetBranch( "NMethods" );
