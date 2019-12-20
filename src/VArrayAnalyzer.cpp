@@ -106,6 +106,17 @@ void VArrayAnalyzer::doAnalysis()
     {
         getShowerParameters()->fArrayPointing_Elevation = getArrayPointing()->getTelElevation();
         getShowerParameters()->fArrayPointing_Azimuth   = getArrayPointing()->getTelAzimuth();
+        if( isMC() )
+        {
+            getShowerParameters()->fArrayPointing_deRotationAngle_deg = 0.;
+        }
+        else
+        {
+            getShowerParameters()->fArrayPointing_deRotationAngle_deg = 
+                         getArrayPointing()->getDerotationAngle( getShowerParameters()->MJD, getShowerParameters()->time )
+                         *  TMath::RadToDeg();
+
+        }
         getShowerParameters()->fWobbleNorth             = getArrayPointing()->getWobbleNorth();
         getShowerParameters()->fWobbleEast              = getArrayPointing()->getWobbleEast();
     }
@@ -113,6 +124,7 @@ void VArrayAnalyzer::doAnalysis()
     {
         getShowerParameters()->fArrayPointing_Elevation = 0.;
         getShowerParameters()->fArrayPointing_Azimuth   = 0.;
+        getShowerParameters()->fArrayPointing_deRotationAngle_deg = 0.;
         getShowerParameters()->fWobbleNorth = 0.;
         getShowerParameters()->fWobbleEast = 0.;
     }

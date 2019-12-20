@@ -783,6 +783,7 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
         vector< double > sigma2_tel;
         vector< double > sigma2_tel_noRadiusWeigth;
         vector< double > sigma_tel;
+        vector< bool > good_image;
         
         // reset everything
         for( tel = 0; tel < ntel; tel++ )
@@ -865,7 +866,9 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                     if( !fEnergy && sigma > 0. )
                     {
                         // handle showers with (width==0.) correctly
-                        if( w_fill[tel] > 0. )
+                        if( w_fill[tel] > 0. 
+                           && l[tel] < fEventSelectionCut_lossCutMax 
+                           && d[tel] < fEventSelectionCut_distanceCutMax )
                         {
                             value  += ( w_fill[tel] - med ) / sigma * ( med * med ) / ( sigma * sigma );
                             weight += ( med * med ) / ( sigma * sigma );
@@ -891,6 +894,15 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                         else
                         {
                             sigma2_tel.back() = sigma2_tel.back() * 100.*exp( -1.*( r[tel] - scaleDistance ) / 200. );
+                        }
+                        if( l[tel] < fEventSelectionCut_lossCutMax 
+                           && d[tel] < fEventSelectionCut_distanceCutMax )
+                        {
+                            good_image.push_back( true );
+                        }
+                        else
+                        {
+                            good_image.push_back( false );
                         }
                     }
                     else
@@ -920,7 +932,7 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
         // Energy calculation only
         ///////////////////////////////////////////////////////////////
         // calculate mean energy
-        if( energy_tel.size() > 0 )
+        if( energy_tel.size() > 0 && energy_tel.size() == good_image.size() )
         {
             // Occasionally one energy is significantly off and distorts the mean.
             // therefore: get rid of N sigma outliers
@@ -933,8 +945,11 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
             {
                 if( energy_tel.size() < 5 || TMath::Abs( energy_tel[j] - median ) < meanAbsoluteError * 5 )
                 {
-                    value  += energy_tel[j] * sigma2_tel[j];
-                    weight += sigma2_tel[j];
+                    if( good_image[j] )
+                    {
+                        value  += energy_tel[j] * sigma2_tel[j];
+                        weight += sigma2_tel[j];
+                    }
                 }
             }
             if( weight > 0. )
@@ -949,7 +964,8 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                 double z1 = 0;
                 for( unsigned int j = 0; j < energy_tel.size(); j++ )
                 {
-                    if( sigma2_tel_noRadiusWeigth[j] != 0. )
+                    if( sigma2_tel_noRadiusWeigth[j] != 0. 
+                    && good_image[j] )
                     {
                         chi2 += ( value - energy_tel[j] ) * ( value - energy_tel[j] ) * sigma2_tel_noRadiusWeigth[j];
                         z1++;
@@ -967,7 +983,8 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                 z1 = 0.;
                 for( unsigned int j = 0; j < sigma_tel.size(); j++ )
                 {
-                    if( sigma_tel[j] > 0. )
+                    if( sigma_tel[j] > 0.
+                    && good_image[j] )
                     {
                         dE += 1. / ( energy_tel[j] * sigma_tel[j] );
                         z1++;
@@ -982,6 +999,13 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                     dE = 0.;
                 }
             }
+            // energy reconstructed from single image
+            else if( energy_tel.size() == 1 && value > 0. )
+            {
+                chi2 = 0.;
+                dE = 0.;
+            }
+            // expect here no good energy
             else
             {
                 chi2 = -99;

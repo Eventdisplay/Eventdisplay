@@ -183,7 +183,7 @@ void VGammaHadronCuts::resetCutValues()
     fCut_Theta2_max = 100.;
     fCut_Chi2_min = -1.e6;
     fCut_Chi2_max = 1.e10;
-        fCut_Dir_max = 1.e10;
+    fCut_Dir_max = 1.e10;
     fCut_MeanImageDistance_min = -100;
     fCut_MeanImageDistance_max = 100;
     fCut_MeanImageLength_min = -100;
@@ -343,11 +343,11 @@ bool VGammaHadronCuts::readCuts( string i_cutfilename, int iPrint )
                 is_stream >> temp;
                 fCut_Chi2_max = ( atof( temp.c_str() ) );
             }
-                        else if( iCutVariable == "dirdiff" )
-                        {
-                                is_stream >> temp;
-                                fCut_Dir_max = ( atof( temp.c_str() ) );
-                        }
+            else if( iCutVariable == "dirdiff" )
+            {
+                is_stream >> temp;
+                fCut_Dir_max = ( atof( temp.c_str() ) );
+            }
             else if( iCutVariable == "arraydist" )
             {
                 is_stream >> temp;
@@ -498,35 +498,6 @@ bool VGammaHadronCuts::readCuts( string i_cutfilename, int iPrint )
                     fProbabilityCut_ProbID = 0;
                 }
             }
-            // model3D parameters
-            else if( iCutVariable == "showermax3D" )
-            {
-                is_stream >> temp;
-                fCut_ShowerMax3D_min = ( atof( temp.c_str() ) );
-                is_stream >> temp;
-                fCut_ShowerMax3D_max = ( atof( temp.c_str() ) );
-            }
-            else if( iCutVariable == "width3D" )
-            {
-                is_stream >> temp;
-                fCut_Width3D_min = ( atof( temp.c_str() ) );
-                is_stream >> temp;
-                fCut_Width3D_max = ( atof( temp.c_str() ) );
-            }
-            //else if( iCutVariable == "depth3D" )
-            //{
-            //	is_stream >> temp;
-            //	fCut_Depth3D_min = ( atof( temp.c_str() ) );
-            //	is_stream >> temp;
-            //	fCut_Depth3D_max = ( atof( temp.c_str() ) );
-            //}
-            //else if( iCutVariable == "rwidth3D" )
-            //{
-            //	is_stream >> temp;
-            //	fCut_RWidth3D_min = ( atof( temp.c_str() ) );
-            //	is_stream >> temp;
-            //	fCut_RWidth3D_max = ( atof( temp.c_str() ) );
-            //}
             
             // to define the lower bounds in probablity cut ranges  (e.g. random forest)
             else if( iCutVariable == "RFCutLowerVals" )
@@ -1207,10 +1178,6 @@ void VGammaHadronCuts::printCutSummary()
 // require certain quality in stereo reconstruction
 bool VGammaHadronCuts::applyStereoQualityCuts_Chi2( bool bCount )
 {
-    if( useFrogsCuts() )
-    {
-        return true;    //Gernot: "it should simply pass always for frogs."
-    }
     if( fData->getChi2() < fCut_Chi2_min || fData->getChi2() > fCut_Chi2_max )
     {
         if( bCount && fStats )
@@ -1429,7 +1396,7 @@ bool VGammaHadronCuts::applyStereoQualityCuts( unsigned int iEnergyReconstructio
     if( !applyStereoQualityCuts_TableVariables( bCount, iEnergyReconstructionMethod ) )
     {
         return false;
-    }
+    } 
     if( !applyStereoQualityCuts_TelescopeCoreDistance( bCount ) )
     {
         return false;
@@ -1441,7 +1408,7 @@ bool VGammaHadronCuts::applyStereoQualityCuts( unsigned int iEnergyReconstructio
     if( !applyStereoQualityCuts_SecondMaxCut( bCount ) )
     {
         return false;
-    }
+    } 
     
     /////////////////////////////////////////////////////////////////////////
     // apply cut selector from probability tree

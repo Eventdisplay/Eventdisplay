@@ -1250,13 +1250,12 @@ vector< TGraphAsymmErrors* > VTMVAEvaluator::setTMVACutValueFromGraph( string iF
          cout << "\t" << iFileName << endl;
          cout << "exiting..." << endl;
          exit( EXIT_FAILURE );
-         return fTMVACutValueGraph;
     }
     TGraphAsymmErrors *iG = 0;
     char hname[100];
     for( unsigned int i = 0; i < 99; i++ )
     {
-         sprintf( hname, "TMVACutValue_ze%d", i );
+         sprintf( hname, "TMVACutValue_ze%u", i );
          iG = (TGraphAsymmErrors*)fTMVACutValueFile->Get( hname );
          if( !iG )
          {
@@ -1275,11 +1274,15 @@ vector< TGraphAsymmErrors* > VTMVAEvaluator::setTMVACutValueFromGraph( string iF
              int z = 0;
              double e_log10_G = 0.;
              double iV = 0.;
+             // point in energy
+             // (divide energy range into 1000 points)
              for( unsigned int i = 0; i < 1000; i++ )
              {
                   double e_log10 = e_min + i * (e_max - e_min)/1000.;
                   double iM = 0.;
                   double iN = 0.;
+                  // Gaussian smoothing using
+                  // 1000 iterations per energy point
                   for( unsigned int j = 0; j < 1000; j++ )
                   {
                       e_log10_G = e_log10 + gRandom->Gaus( 0., iCutGraphSmoothing );

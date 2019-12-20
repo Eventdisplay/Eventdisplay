@@ -138,16 +138,24 @@ echo "Now processing $VBF_FILE"
 # unzip vbf file to local scratch directory
 if [[ ! -f "$DDIR/$VBF_FILE" ]]; then
     if [[ -e "$SIMDIR/$VBF_FILE.gz" ]]; then
-        echo "Copying $SIMDIR/${VBF_FILE}.gz to $DDIR"
-        cp -f "$SIMDIR/$VBF_FILE.gz" $DDIR/
-        echo " (vbf file copied, was gzipped)"
-        gunzip -f -q "$DDIR/$VBF_FILE.gz"
+        echo "Unzipping $SIMDIR/${VBF_FILE}.gz to $DDIR"
+        gunzip -f -q -c "$SIMDIR/$VBF_FILE.gz" > "$DDIR/$VBF_FILE"
+    elif [[ -e "$SIMDIR/$VBF_FILE.zst" ]]; then
+        # check if zstd if installed
+        if hash zstd 2>/dev/null; then
+            echo "Unzipping $SIMDIR/${VBF_FILE}.zst to $DDIR"
+            ls -l "$SIMDIR/$VBF_FILE.zst" 
+            zstd -d -f "$SIMDIR/$VBF_FILE.zst" -o "$DDIR/$VBF_FILE"
+        else
+            echo "no zstd installed; exiting"
+            exit
+        fi
     elif [[ -e "$SIMDIR/$VBF_FILE.bz2" ]]; then
-        echo "Copying $SIMDIR/$VBF_FILE.bz2 to $DDIR"
-        cp -f "$SIMDIR/$VBF_FILE.bz2" $DDIR/
-        echo " (vbf file copied, was bzipped)"
-        ls -l $DDIR/$VBF_FILE.bz2
-        bunzip2 -f -v "$DDIR/$VBF_FILE.bz2"
+        echo "Unzipping $SIMDIR/$VBF_FILE.bz2 to $DDIR"
+        ls -l "$SIMDIR/$VBF_FILE.bz2" 
+        bunzip2 -f -v -c "$SIMDIR/$VBF_FILE.bz2" > "$DDIR/$VBF_FILE"
+        # TMP
+        #/afs/ifh.de/group/cta/VERITAS/software/bin/zstd $DDIR/$VBF_FILE -o /lustre/fs18/group/cta/test/$VBF_FILE.zst
     elif [[ -e "$SIMDIR/$VBF_FILE" ]]; then
         echo "Copying $VBF_FILE to $DDIR"
         cp -f "$SIMDIR/$VBF_FILE" $DDIR/

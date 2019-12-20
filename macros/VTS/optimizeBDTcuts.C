@@ -207,8 +207,9 @@ void plotCompare( unsigned int iZeBin = 0 )
  */
 void smoothMVA( string iFileName, int iZeBin = 0, 
                 double dEres = 0.25, int iMVAiter = 1,
+                double energy_constant_mva = 1.,
                 double acceptMax = 0.5,
-                double plotMax = 0.3 )
+                double plotMax = 0.3, double plotMin = 0. )
 {
 
      TCanvas *cTMVA = new TCanvas( "cTMVA", "TMVA optimised cut", 10, 10, 800, 800 );
@@ -227,10 +228,11 @@ void smoothMVA( string iFileName, int iZeBin = 0,
      iG->SetMarkerColor( 1 );
      iG->SetLineColor( 1 );
      iG->SetMarkerStyle( 20 );
-     iG->SetMinimum( 0. );
+     iG->SetMinimum( plotMin );
      iG->SetMaximum( plotMax );
      iG->Draw( "ap" );
      iG->GetHistogram()->SetXTitle( "log_{10} energy (TeV)" );
+     iG->GetHistogram()->SetYTitle( "mva optimised cut" );
 
      double x = 0.;
      double y = 0.;
@@ -239,7 +241,7 @@ void smoothMVA( string iFileName, int iZeBin = 0,
      iG->GetPoint( 0, x, y );
      double e_min = x - iG->GetErrorXlow( 0 );
      iG->GetPoint( iG->GetN()-1, x, y );
-     double e_max = x + iG->GetErrorXhigh( 0 );
+     double e_max = x + iG->GetErrorXhigh( iG->GetN()-1 );
 
      // TGraph::Eval
      TProfile *iSmoothedEval = new TProfile( "smoothedEval", "", 100., e_min, e_max, -1., 1. );
@@ -250,7 +252,7 @@ void smoothMVA( string iFileName, int iZeBin = 0,
 
      double iV = 0.;
      double e_log10_G = 0.;
-     for( unsigned int i = 0; i < 1000; i++ )
+/*     for( unsigned int i = 0; i < 1000; i++ )
      {
           double e_log10 = gRandom->Uniform( e_min, e_max );
 
@@ -274,12 +276,13 @@ void smoothMVA( string iFileName, int iZeBin = 0,
 
      }
      iSmoothedEval->Draw( "same" );
-     iSmoothedEvalGauss->Draw( "same" );
+     iSmoothedEvalGauss->Draw( "same" ); */
 
+     //////////////////////////////////
      // Gaussian smoothing
      TGraph *iSmoothedGaussian = new TGraph( 1 );
-     iSmoothedGaussian->SetLineColor( 8 );
-     iSmoothedGaussian->SetMarkerColor( 8 );
+     iSmoothedGaussian->SetLineColor( 30 );
+     iSmoothedGaussian->SetMarkerColor( 30 );
      iSmoothedGaussian->SetMarkerStyle( 22 );
      z = 0;
      for( unsigned int i = 0; i < 1000; i++ )
@@ -308,16 +311,26 @@ void smoothMVA( string iFileName, int iZeBin = 0,
           }
           if( iN > 0. )
           {
-             iSmoothedGaussian->SetPoint( z, e_log10, iM / iN );
+             if( e_log10 > energy_constant_mva )
+             {
+                 iSmoothedGaussian->SetPoint( z, e_log10,
+                          iSmoothedGaussian->Eval( e_min + (i-1) * (e_max - e_min)/1000. ) );
+             }
+             else
+             {
+                 iSmoothedGaussian->SetPoint( z, e_log10, iM / iN );
+             }
              z++;
           }
      }
      iSmoothedGaussian->Draw( "pl" );
+     cout << "Green color: smoothed Gaussian with " << dEres << " width" << endl;
 
      // moving average
      TGraph *iMovingAverage = new TGraph( 1 );
      iMovingAverage->SetMarkerStyle( 21 );
      iMovingAverage->SetMarkerColor( 4 );
+     z = 0;
      for( int i = 0; i < iG->GetN(); i++ )
      {
           double iM = 0.;
@@ -343,5 +356,6 @@ void smoothMVA( string iFileName, int iZeBin = 0,
               z++;
           }
       }
-      iMovingAverage->Draw( "p" );
+      iMovingAverage->Draw( "pl" );
+      cout << "Blue color: moving average" << endl;
 }

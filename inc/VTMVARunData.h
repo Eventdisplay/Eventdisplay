@@ -49,6 +49,7 @@ class VTMVARunData : public TNamed
         
         // training options
         bool              fCheckValidityOfInputVariables;
+        bool              fResetNumberOfTrainingEvents;
         
         // training data
         double            fSignalWeight;
@@ -106,7 +107,7 @@ class VTMVARunData : public TNamed
             fName = iN;
         }
         
-        ClassDef( VTMVARunData, 9 );
+        ClassDef( VTMVARunData, 10 );
 };
 
 #endif

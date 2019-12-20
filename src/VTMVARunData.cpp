@@ -15,6 +15,7 @@ VTMVARunData::VTMVARunData()
     fTrainReconstructionQuality = false;  // in development: please ignore
     
     fCheckValidityOfInputVariables = true;
+    fResetNumberOfTrainingEvents = false;
     
     fOutputDirectoryName = "";
     fOutputFileName = "";
@@ -181,7 +182,6 @@ bool VTMVARunData::openDataFiles()
     
     ///////////////////////////////////////////////////////////////////
     // open output file
-    cout << "output file name size " << fOutputFileName.size() << endl;
     if( fOutputFileName.size() > 0 && fOutputDirectoryName.size() > 0 )
     {
         for( unsigned int i = 0; i < fEnergyCutData.size(); i++ )
@@ -232,7 +232,6 @@ bool VTMVARunData::openDataFiles()
             fOutputFile.push_back( output_zenith );
         }
     }
-    cout << "output file size " << fOutputFile.size()*fOutputFile[0].size() << endl;
     
     if( fDebug )
     {
@@ -564,6 +563,16 @@ bool VTMVARunData::readConfigurationFile( char* iC )
                     int iT = 0;
                     is_stream >> iT;
                     fCheckValidityOfInputVariables = ( bool )iT;
+                }
+            }
+            // check event validity
+            if( temp == "RESETNUMBEROFTRAININGEVENTS" )
+            {
+                if( !is_stream.eof() )
+                {
+                    int iT = 0;
+                    is_stream >> iT;
+                    fResetNumberOfTrainingEvents = ( bool )iT;
                 }
             }
             // signal weight

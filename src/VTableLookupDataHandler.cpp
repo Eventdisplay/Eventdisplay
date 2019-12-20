@@ -282,17 +282,9 @@ bool VTableLookupDataHandler::getNextEvent( bool bShort )
         {
             ftheta2 = ( fYoff_derot - fWobbleN ) * ( fYoff_derot - fWobbleN ) + ( fXoff_derot - fWobbleE ) * ( fXoff_derot - fWobbleE );
         }
-        if( !fIsMC && fIsModel3D && fUseModel3DStereoParameters )
-        {
-            ftheta2 = ( fYoffDeRot3D - fWobbleN ) * ( fYoffDeRot3D - fWobbleN ) + ( fXoffDeRot3D - fWobbleE ) * ( fXoffDeRot3D - fWobbleE );
-        }
-        else if( fIsMC && !fIsModel3D )
+        else
         {
             ftheta2 = ( fXoff - fMCxoff ) * ( fXoff - fMCxoff ) + ( fYoff - fMCyoff ) * ( fYoff - fMCyoff );
-        }
-        else if( fIsMC && fIsModel3D && fUseModel3DStereoParameters )
-        {
-            ftheta2 = ( fXoff3D - fMCxoff ) * ( fXoff3D - fMCxoff ) + ( fYoff3D - fMCyoff ) * ( fYoff3D - fMCyoff );
         }
         
         setEventWeightfromMCSpectrum();
@@ -397,6 +389,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     }
     fArrayPointing_Elevation = fshowerpars->ArrayPointing_Elevation;
     fArrayPointing_Azimuth   = fshowerpars->ArrayPointing_Azimuth;
+    fArrayPointing_RotationAngle = fshowerpars->ArrayPointing_deRotationAngle_deg * TMath::DegToRad();
     
     // the following variables are not set in table filling mode
     if( !fwrite )
@@ -480,53 +473,11 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
         }
         return 0;
     }
-    if( fIsModel3D && fUseModel3DStereoParameters )
-    {
-        if( ! TMath::IsNaN( fmodel3Dpars->Xoff3D ) && ! TMath::IsNaN( fmodel3Dpars->Yoff3D ) )
-        {
-            fXoff = fmodel3Dpars->Xoff3D;
-            fYoff = fmodel3Dpars->Yoff3D;
-            fXoff_derot = fmodel3Dpars->XoffDeRot3D;
-            fYoff_derot = fmodel3Dpars->YoffDeRot3D;
-        }
-        else
-        {
-            fXoff = fshowerpars->Xoff[fMethod];
-            fYoff = fshowerpars->Yoff[fMethod];
-            fXoff_derot = fshowerpars->XoffDeRot[fMethod];
-            fYoff_derot = fshowerpars->YoffDeRot[fMethod];
-        }
-    }
     // standard stereo reconstruction
-    else
-    {
-        fXoff = fshowerpars->Xoff[fMethod];
-        fYoff = fshowerpars->Yoff[fMethod];
-        fXoff_derot = fshowerpars->XoffDeRot[fMethod];
-        fYoff_derot = fshowerpars->YoffDeRot[fMethod];
-    }
-
-    // fill Model3D parameters
-    if( fIsModel3D )
-    {
-        fSmax3D   = fmodel3Dpars->Smax3D;
-        fsigmaL3D = fmodel3Dpars->sigmaL3D;
-        fsigmaT3D = fmodel3Dpars->sigmaT3D;
-        fNc3D = fmodel3Dpars->Nc3D;
-        fXcore3D = fmodel3Dpars->Xcore3D;
-        fYcore3D = fmodel3Dpars->Ycore3D;
-        fXoff3D = fmodel3Dpars->Xoff3D;
-        fYoff3D = fmodel3Dpars->Yoff3D;
-        fXoffDeRot3D = fmodel3Dpars->XoffDeRot3D;
-        fYoffDeRot3D = fmodel3Dpars->YoffDeRot3D;
-        fGoodness3D = fmodel3Dpars->Goodness3D;
-        fOmega3D = fmodel3Dpars->Omega3D;
-        fDepth3D = fmodel3Dpars->Depth3D;
-        fRWidth3D = fmodel3Dpars->RWidth3D;
-        fErrRWidth3D = fmodel3Dpars->ErrRWidth3D;
-        fErrorsigmaT3D = fmodel3Dpars->ErrorsigmaT3D;
-        fConverged3D = fmodel3Dpars->Converged3D;
-    }
+    fXoff = fshowerpars->Xoff[fMethod];
+    fYoff = fshowerpars->Yoff[fMethod];
+    fXoff_derot = fshowerpars->XoffDeRot[fMethod];
+    fYoff_derot = fshowerpars->YoffDeRot[fMethod];
     
     ///////////////////////////////////////////////////////
     // set telescope selection variables
@@ -815,6 +766,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             setEnergyT( i, fDispAnalyzerEnergy->getEnergyT( i ) );
         }
         setNEnergyT( fDispAnalyzerEnergy->getEnergyNT() );
+        setNEnergyQuality( fDispAnalyzerEnergy->getEnergyQualityLabel() );
         
     }
     
@@ -945,13 +897,23 @@ void VTableLookupDataHandler::doStereoReconstruction()
     
     // overwrite the values read from the evndisp file with the newly
     // calculated values
-    fXoff_derot = fXoff; // MC only!
-    fYoff_derot = fYoff; // MC only!
+    if( fIsMC )
+    {
+        fXoff_derot = fXoff; // MC only!
+        fYoff_derot = fYoff; // MC only!
+    }
+    // derotate coordinates
+    else
+    {
+         fXoff_derot = fXoff * cos( fArrayPointing_RotationAngle) 
+                     - fYoff * sin( fArrayPointing_RotationAngle );
+         fYoff_derot = fYoff * cos( fArrayPointing_RotationAngle )
+                     + fXoff * sin( fArrayPointing_RotationAngle );
+    }
     fZe    = i_SR.fShower_Ze;
     fAz    = i_SR.fShower_Az;
     fXcore = i_SR.fShower_Xcore;
     fYcore = i_SR.fShower_Ycore;
-    
 }
 
 /*
@@ -1348,10 +1310,12 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
         {
             sprintf( iDir, "%s/Tel_%u/tpars", finputfile[f].c_str(), i + 1 );
             iT->Add( iDir );
-            gErrorIgnoreLevel = 5000;
-            sprintf( iDir, "%s/Tel_%u/pointing_%u", finputfile[f].c_str(), i + 1, i + 1 );
-            iPC->Add( iDir );
-            gErrorIgnoreLevel = 0;
+            // no pointing corrections for MC analysis
+            if( !fIsMC )
+            {
+                sprintf( iDir, "%s/Tel_%u/pointing_%u", finputfile[f].c_str(), i + 1, i + 1 );
+                iPC->Add( iDir );
+            }
         }
         if( !iT )
         {
@@ -1856,6 +1820,7 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     fOTree->Branch( "dESabs", &feAbsError, iTT );
     sprintf( iTT, "NErecST/I" );
     fOTree->Branch( "NErecST", &fnenergyT, iTT );
+    fOTree->Branch( "ErecQL", &fenergyQL, "ErecQL/I" );
     
     sprintf( iTT, "EmissionHeight/F" );
     fOTree->Branch( "EmissionHeight", &fEmissionHeightMean, iTT );
@@ -2412,6 +2377,7 @@ void VTableLookupDataHandler::reset()
     fnxyoff = 0;
     fnmscw = 0;
     fnenergyT = 0;
+    fenergyQL = -1;
     fmscl = -99.;
     fmscw = -99.;
     fmsc_frgo = -99.;
@@ -2774,6 +2740,7 @@ void VTableLookupDataHandler::resetAll()
     fnxyoff = 0;
     fnmscw = 0;
     fnenergyT = 0;
+    fenergyQL = -1;
     fmscw = 0.;
     fmscl = 0.;
     fmsct = 0.;

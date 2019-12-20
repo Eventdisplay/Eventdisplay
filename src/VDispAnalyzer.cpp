@@ -32,6 +32,7 @@ VDispAnalyzer::VDispAnalyzer()
     fdisp_energy_median = -9999.;
     fdisp_energy_medianAbsoluteError = -9999.;
     fdisp_energy_NT = 0;
+    fdisp_energyQL = -1;
     
     setQualityCuts();
     setDispErrorWeighting();
@@ -839,6 +840,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     fdisp_energy_T.clear();
     fdisp_energy_T.assign( i_ntel, -99. );
     fdisp_energy_NT = 0;
+    fdisp_energyQL = -1;
     
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
@@ -967,11 +969,20 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     if( n2 >= fNImages_min )
     {
         fdisp_energy = fdisp_energy_median;
+        if( n2 == 1 )
+        {
+            fdisp_energyQL = 1;
+        }
+        else
+        {
+            fdisp_energyQL = 0;
+        }
     }
     else
     {
         fdisp_energy = -99.;
         fdisp_energy_NT = 0;
+        fdisp_energyQL = -1;
     }
     
     ///////// DEBUG //////////////////////

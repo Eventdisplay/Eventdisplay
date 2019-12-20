@@ -35,7 +35,7 @@ echo "Temporary directory: $DDIR"
 
 # mscw_energy command line options
 MOPT="-noNoTrigger -nomctree -writeReconstructedEventsOnly=1 -arrayrecid=$RECID -tablefile $TABFILE"
-MOPT="$MOPT -useMedian=0 -distance_energyCuts=1.3"
+MOPT="$MOPT -runparameter $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/MSCWENERGY.runparameter"
 MOPT="$MOPT -redo_stereo_reconstruction"
 echo "MSCW options: $MOPT"
 

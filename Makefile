@@ -310,6 +310,7 @@ VPATH = src:inc
 all VTS:	evndisp \
         printRunParameter \
 	mscw_energy \
+	smoothLookupTables \
 	anasum \
 	combineLookupTables \
 	makeEffectiveArea \

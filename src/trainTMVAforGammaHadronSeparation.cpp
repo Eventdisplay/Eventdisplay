@@ -5,6 +5,7 @@
 
 #include "TChain.h"
 #include "TCut.h"
+#include "TEventList.h"
 #include "TFile.h"
 #include "TH1I.h"
 #include "TH1D.h"
@@ -33,6 +34,76 @@ using namespace std;
 bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, bool iGammaHadronSeparation );
 bool trainGammaHadronSeparation( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin );
 bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin );
+
+/*
+ * check settings for number of training events;
+ * if required reset event numbers
+ *
+ * note! assume name number of training and testing events
+ */
+string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal )
+{
+   string b = "nTrain_Signal=";
+   if( !iSignal )
+   {
+      b = "nTrain_Background";
+   }
+   // extensive string gymnastics
+   Long64_t nS = (Long64_t)atoi( a.substr( a.find( b ) + b.size(), a.find( ":", a.find( b ) - a.find( b ) - b.size() ) ).c_str() );
+   if( nS == 0 )
+   {
+       return a;
+   }
+   cout << "\t requested are " << nS;
+   cout << ", found are " << n << endl;
+   if( n > nS )
+   {
+      cout << "\t (resetting to zero)" << endl;;
+      stringstream r;
+      r << nS;
+      size_t pos = a.find( r.str() );
+      while( pos != string::npos)
+      {
+           a.replace( pos, r.str().size(), "0" );
+           pos = a.find( r.str() );
+      }
+   }
+   return a;
+}
+   
+
+/*
+ * get number of signal or background events after cuts
+ *
+ */
+Long64_t getNumberOfEventsAfterCuts( VTMVARunData* iRun, TCut iCut, bool iSignal )
+{
+    vector< TChain* > iTreeVector;
+    Long64_t n = 0;
+    if( iSignal )
+    {
+        iTreeVector = iRun->fSignalTree;
+    }
+    else
+    {
+        iTreeVector = iRun->fBackgroundTree;
+    }
+    
+    for( unsigned  int i = 0; i < iTreeVector.size(); i++ )
+    {
+        if( iTreeVector[i] )
+        {
+             iTreeVector[i]->Draw( ">>elist", iCut );
+             TEventList *elist = (TEventList*)gDirectory->Get("elist");
+             if( elist )
+             {
+                 n += elist->GetN();
+                 delete elist;
+             }
+        }
+    }
+    return n;
+}
 
 /*
    check if a training variable is constant
@@ -269,6 +340,27 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
         cout << "train: use option SplitMode=Block" << endl;
         iSplitBlock = true;
     }
+    // check for number of training and background events
+     cout << "Reading number of events after cuts: " << endl;
+     Long64_t nEventsSignal = getNumberOfEventsAfterCuts( iRun, iCutSignal, true );
+     cout << "\t total number of signal events after cuts: " << nEventsSignal << endl;
+     Long64_t nEventsBck = getNumberOfEventsAfterCuts( iRun, iCutBck, false );
+     cout << "\t total number of background events after cuts: " << nEventsBck << endl;
+     if( nEventsSignal < 10 || nEventsBck < 10 )
+     {
+         cout << "Warning: not enough training events" << endl;
+         cout << "exiting..." << endl;
+         exit( EXIT_SUCCESS );
+     }
+     // check if this number if consistent with requested number of training events
+     // required at least 10 events
+     if( iRun->fResetNumberOfTrainingEvents )
+     {
+          cout << "Checking number of training events: " << endl;
+          iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions, nEventsSignal, true );
+          iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions, nEventsBck, false );
+          cout << "Updated training options: " <<  iRun->fPrepareTrainingOptions << endl;
+     }
     
     // loop over all trainingvariables and add them to TMVA
     // (test first if variable is constant, TMVA will stop when a variable
@@ -341,6 +433,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     // prepare training events
     if( iTrainGammaHadronSeparation )
     {
+        cout << "Preparing training and test tree" << endl;
         dataloader->PrepareTrainingAndTestTree( iCutSignal, iCutBck, iRun->fPrepareTrainingOptions );
     }
     else
@@ -350,7 +443,6 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     
     //////////////////////////////////////////
     // book all methods
-    char hname[6000];
     char htitle[6000];
     
     for( unsigned int i = 0; i < iRun->fMVAMethod.size(); i++ )
@@ -380,6 +472,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
             if( i < iRun->fMVAMethod_Options.size() )
             {
 #ifdef ROOT6
+                cout << "Booking method " << htitle << endl;
                 factory->BookMethod( dataloader, i_tmva_type, htitle, iRun->fMVAMethod_Options[i].c_str() );
 #else
                 factory->BookMethod( i_tmva_type, htitle, iRun->fMVAMethod_Options[i].c_str() );
@@ -399,28 +492,25 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
         // (note: box cuts needs additional checking, as the code might be outdated)
         else if( iRun->fMVAMethod[i] == "BOXCUTS" )
         {
-            if( i < iRun->fMVAMethod_Options.size() )
-            {
-                sprintf( hname, "%s", iRun->fMVAMethod_Options[i].c_str() );
-            }
-            
+            stringstream i_opt;
+            i_opt << iRun->fMVAMethod_Options[i].c_str();
             for( unsigned int i = 0; i < iRun->fTrainingVariable_CutRangeMin.size(); i++ )
             {
-                sprintf( hname, "%s:CutRangeMin[%u]=%f", hname, i, iRun->fTrainingVariable_CutRangeMin[i] );
+                i_opt << ":CutRangeMin[" << i << "]=" << iRun->fTrainingVariable_CutRangeMin[i];
             }
             for( unsigned int i = 0; i < iRun->fTrainingVariable_CutRangeMax.size(); i++ )
             {
-                sprintf( hname, "%s:CutRangeMax[%u]=%f", hname, i, iRun->fTrainingVariable_CutRangeMax[i] );
+                i_opt << ":CutRangeMax[" << i << "]=" << iRun->fTrainingVariable_CutRangeMax[i];
             }
             for( unsigned int i = 0; i < iRun->fTrainingVariable_VarProp.size(); i++ )
             {
-                sprintf( hname, "%s:VarProp[%u]=%s", hname, i, iRun->fTrainingVariable_VarProp[i].c_str() );
+                i_opt << ":VarProp[" << i << "]=" << iRun->fTrainingVariable_VarProp[i];
             }
             sprintf( htitle, "BOXCUTS_%u_%u", iEnergyBin, iZenithBin );
 #ifdef ROOT6
-            factory->BookMethod( dataloader, TMVA::Types::kCuts, htitle, hname );
+            factory->BookMethod( dataloader, TMVA::Types::kCuts, htitle, i_opt.str().c_str() );
 #else
-            factory->BookMethod( TMVA::Types::kCuts, htitle, hname );
+            factory->BookMethod( TMVA::Types::kCuts, htitle,  i_opt.str().c_str() );
 #endif
         }
     }
