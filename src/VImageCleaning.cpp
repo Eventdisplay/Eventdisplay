@@ -2888,7 +2888,7 @@ void VImageCleaning::cleanImageWithTiming( VImageCleaningRunParameter* iImageCle
         if( fData->getImage()[i] || fData->getBorder()[i] )
         {
             i_ID = fData->getClusterID()[i];
-            if( i_ID != 0 || i_ID != -99 )
+            if( i_ID != 0 && i_ID != -99 )
             {
                 tmp_counter_uncleaned.insert( i_ID );
             }
