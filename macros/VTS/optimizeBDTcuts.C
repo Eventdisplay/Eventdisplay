@@ -205,7 +205,8 @@ void plotCompare( unsigned int iZeBin = 0 )
 /*  smooth MVA eval
  *
  */
-void smoothMVA( string iFileName, int iZeBin = 0, 
+void smoothMVA( string iFileName, string iGraphName = "TMVACutValue_ze",
+                int iZeBin = 0, 
                 double dEres = 0.25, int iMVAiter = 1,
                 double energy_constant_mva = 1.,
                 double acceptMax = 0.5,
@@ -222,7 +223,7 @@ void smoothMVA( string iFileName, int iZeBin = 0,
          return;
      }
      char hname[200];
-     sprintf( hname, "TMVACutValue_ze%d", iZeBin );
+     sprintf( hname, "%s%d", iGraphName.c_str(), iZeBin );
      TGraphAsymmErrors *iG = (TGraphAsymmErrors*)iF->Get( hname );
      iG->SetTitle( "" );
      iG->SetMarkerColor( 1 );
