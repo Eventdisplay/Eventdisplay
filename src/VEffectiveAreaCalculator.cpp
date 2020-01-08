@@ -1669,7 +1669,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
     for( Long64_t i = i_start; i < d_nentries; i++ )
     {
         d->GetEntry( i );
-        
+
         // update cut statistics
         fCuts->newEvent();
         
@@ -2025,6 +2025,8 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
     fXoff = fXWobble[ize];
     fYoff = fYWobble[ize];
     fWoff = sqrt( fXoff * fXoff + fYoff * fYoff );
+
+    cout << "calculating effective areas..." << endl;
     
     // loop over all spectral index
     for( unsigned int s = 0; s < fVSpectralIndex.size(); s++ )
@@ -2063,7 +2065,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
             VHistogramUtilities::normalizeTH2D_y( hVResponseMatrix[s][i_az] );
             VHistogramUtilities::normalizeTH2D_y( hVResponseMatrixQC[s][i_az] );
             VHistogramUtilities::normalizeTH2D_y( hVResponseMatrixNoDirectionCut[s][i_az] );
-            
+
             for( int i = 0; i < 1000; i++ )
             {
                 e0[i] = 0.;
@@ -2158,16 +2160,17 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
             copyHistograms( hAngularLogDiffEmc_2D, hVAngularLogDiffEmc_2D[i_az], true );
             
             // fill angular resolution vs energy
-            fillAngularResolution( i_az, false );
-            fillAngularResolution( i_az, true );
+            /*fillAngularResolution( i_az, false );
+            fillAngularResolution( i_az, true ); */
             
             // Memory Issue when trying to store all the response matrices in the
             // final effectivea area file.
             // Approximating the response matrix to have a gaussian profile.
             // This approximation breaks down as we approach the energy threshold
             // (mainly due to low statistics) consistent and accurate above energy thresholds
-
-            nbins_MC_Res = hVResponseMatrixFineQC[s][i_az]->GetYaxis()->GetNbins();
+            //
+            
+            /*nbins_MC_Res = hVResponseMatrixFineQC[s][i_az]->GetYaxis()->GetNbins();
             for ( int i_ybin = 0 ; i_ybin < nbins_MC_Res ; i_ybin++)
             {
                 fGauss->SetParameter(0,0);
@@ -2186,7 +2189,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
                     e_Rec_Res_Err[i_ybin] = fGauss->GetParameter(2);
                 }
                 delete i_slice;
-            }
+            } */
 
 
 

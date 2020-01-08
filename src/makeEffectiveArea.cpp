@@ -445,7 +445,22 @@ int main( int argc, char* argv[] )
                    c->Merge(fOutputfile, 0, "keep" );
                }
         }
-        
+        if( fCuts->getMVACutGraphs().size() > 0 )
+        {
+              cout << "writing MVA cut graphs to " << fOutputfile->GetName() << endl;
+              fOutputfile->cd();
+              if( fOutputfile->mkdir( "mvaGraphs" ) )
+              {
+                  fOutputfile->cd( "mvaGraphs" );   
+                  for( unsigned int i = 0; i < fCuts->getMVACutGraphs().size(); i++ )
+                  {
+                      if( fCuts->getMVACutGraphs()[i] )
+                      {
+                          fCuts->getMVACutGraphs()[i]->Write();
+                      }
+                  }
+              }
+        }
     }
     // write resolution data to disk only for long output
     for( unsigned int i = 0; i < f_IRF_Name.size(); i++ )

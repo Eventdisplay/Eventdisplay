@@ -81,16 +81,6 @@ VGammaHadronCuts::VGammaHadronCuts()
         fProbabilityCut_SelectionCut[i] = -1.;
     }
     
-    // model3D parameters
-    //fCut_Depth3D_min = -1.;
-    //fCut_Depth3D_max = 9999.;
-    //fCut_RWidth3D_min = -1.;
-    //fCut_RWidth3D_max = 9999.;
-    fCut_ShowerMax3D_min = -1.;
-    fCut_ShowerMax3D_max = 9999.;
-    fCut_Width3D_min = -1.;
-    fCut_Width3D_max = 9999.;
-    
     // TMVA evaluator
     fTMVAEvaluator = 0;
     fTMVA_MVAMethod = "";
@@ -106,6 +96,7 @@ VGammaHadronCuts::VGammaHadronCuts()
     fTMVA_MVACutGraphFileName = "";
     fTMVA_MVACutGraphSmoothing = 0.2;
     fTMVA_MVACutGraphSmoothingMax = 1.e5;
+    fTMVA_MVACutGraphConstantCutEnergy_TeV = 2.e10;
     // Note: for TMVA is this not the probability threshold but the MVA cut value
     fTMVAProbabilityThreshold = -99.;
     fTMVAOptimizeSignalEfficiencyParticleNumberFile = "";
@@ -225,16 +216,6 @@ void VGammaHadronCuts::resetCutValues()
     fCut_SizeSecondMax_max = 1.e10;
     
     fProbabilityCut = 0.5;
-    
-    //fCut_Depth3D_min = -1.;
-    //fCut_Depth3D_max = 9999.;
-    //fCut_RWidth3D_min = -1.;
-    //fCut_RWidth3D_max = 9999.;
-    fCut_ShowerMax3D_min = -1.;
-    fCut_ShowerMax3D_max = 9999.;
-    fCut_Width3D_min = -1.;
-    fCut_Width3D_max = 9999.;
-    
 }
 
 
@@ -822,6 +803,10 @@ bool VGammaHadronCuts::readCuts( string i_cutfilename, int iPrint )
                 {
                     is_stream >> fTMVA_MVACutGraphSmoothingMax;
                 }
+                if( !is_stream.eof() )
+                {
+                    is_stream >> fTMVA_MVACutGraphConstantCutEnergy_TeV;
+                }
             }
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // direction cut values
@@ -907,10 +892,6 @@ bool VGammaHadronCuts::readCuts( string i_cutfilename, int iPrint )
         if( fGammaHadronCutSelector / 10 == 5 )
         {
             fReconstructionType = FROGS;
-        }
-        else if( fGammaHadronCutSelector / 10 == 6 )
-        {
-            fReconstructionType = MODEL3D;
         }
         else if( fGammaHadronCutSelector / 10 == 7 )
         {
@@ -1082,13 +1063,6 @@ void VGammaHadronCuts::printCutSummary()
         {
             cout << ", read from " << fProbabilityCut_File->GetName();
         }
-    }
-    // model3D cuts
-    if( useModel3DCuts() )
-    {
-        cout << " Model3D cuts ( ";
-        cout << fCut_ShowerMax3D_min << " < ShowerMax3D < " << fCut_ShowerMax3D_max;
-        cout << ", " << fCut_Width3D_min << " < Width3D < " << fCut_Width3D_max << " )";
     }
     // TMVA cuts
     if( useTMVACuts() )
@@ -1566,19 +1540,6 @@ bool VGammaHadronCuts::isGamma( int i, bool bCount, bool fIsOn )
         }
     }
     /////////////////////////////////////////////////////////////////////////////
-    // apply Model3D Cuts
-    else if( useModel3DCuts() )
-    {
-        if( !applyModel3DCut() )
-        {
-            if( bCount && fStats )
-            {
-                fStats->updateCutCounter( VGammaHadronCutsStatistics::eIsGamma );
-            }
-            return false;
-        }
-    }
-    /////////////////////////////////////////////////////////////////////////////
     // apply deep learner cuts 
     // (using data_DL tree for cuts)
     else if( useDeepLearnerCuts() )
@@ -1699,7 +1660,7 @@ bool VGammaHadronCuts::applyDeepLearnerCut()
 {
     if( !fData->isDeepLearner() )
     {
-        cout << "VGammaHadronCuts::applyModel3DCut error: input data (mscw file) does not contain Model3D parameters" << endl;
+        cout << "VGammaHadronCuts::applyDeepLearnerCut error: input data (mscw file) does not contain DL parameters" << endl;
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
@@ -1710,30 +1671,6 @@ bool VGammaHadronCuts::applyDeepLearnerCut()
     // cut on gammmaness
     // (hardwired)
     if( fData->dl_gammaness < 0.2 )
-    {
-        return false;
-    }
-    
-    return true;
-}
-
-/*
-   appy Model3D Cuts
-*/
-bool VGammaHadronCuts::applyModel3DCut()
-{
-    if( !fData->isModel3D() )
-    {
-        cout << "VGammaHadronCuts::applyModel3DCut error: input data (mscw file) does not contain Model3D parameters" << endl;
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE );
-    }
-    
-    if( fData->Smax3D < fCut_ShowerMax3D_min )
-    {
-        return false;
-    }
-    if( fData->sigmaT3D > fCut_Width3D_max )
     {
         return false;
     }
@@ -2037,20 +1974,12 @@ bool VGammaHadronCuts::initTMVAEvaluator( string iTMVAFile,
     {
         fTMVAEvaluator->setSignalEfficiency( fTMVASignalEfficiency );
     }
-    // set MVA cut files from a list of graphs in a root file
-    else if( fTMVA_MVACutGraphFileName.size() > 0 )
-    {
-        fTMVAEvaluator->setTMVACutValueFromGraph( fTMVA_MVACutGraphFileName, 
-                                                  fTMVA_MVACutGraphSmoothing, 
-                                                  fTMVA_MVACutGraphSmoothingMax );
-        fTMVAEvaluator->setTMVACutValue( fTMVA_MVACut );
-    }
     // set a fixed probability threshold or (for TMVA) a fixed MVA cut value
     else if( fTMVA_MVACut.size() > 0 )
     {
         fTMVAEvaluator->setTMVACutValue( fTMVA_MVACut );
     }
-    else
+    else if( !fTMVA_MVACutGraphFileName.size() > 0 )
     {
         cout << "VGammaHadronCuts::initTMVAEvaluator error: unclear TMVA cut settings" << endl;
         cout << "\t fTMVASignalEfficiency: " << fTMVASignalEfficiency.size() << endl;
@@ -2068,6 +1997,16 @@ bool VGammaHadronCuts::initTMVAEvaluator( string iTMVAFile,
         cout << "exiting... " << endl;
         exit( EXIT_FAILURE );
     }
+    // set MVA cut files from a list of graphs in a root file
+    if( fTMVA_MVACutGraphFileName.size() > 0 )
+    {
+        fTMVAEvaluator->setTMVACutValueFromGraph( fTMVA_MVACutGraphFileName,
+                                                  fTMVA_MVACutGraphSmoothing, 
+                                                  fTMVA_MVACutGraphSmoothingMax,
+                                                  fTMVA_MVACutGraphConstantCutEnergy_TeV, false );
+        fMVACutGraphs = fTMVAEvaluator->getTMVACutValueGraphs();
+    }
+
     
     fTMVAEvaluatorResults = fTMVAEvaluator->getTMVAEvaluatorResults();
     fTMVAEvaluator->printSignalEfficiency();
