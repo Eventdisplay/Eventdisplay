@@ -460,6 +460,7 @@ int main( int argc, char* argv[] )
                       }
                   }
               }
+              fOutputfile->cd();
         }
     }
     // write resolution data to disk only for long output
