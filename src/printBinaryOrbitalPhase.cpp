@@ -22,7 +22,7 @@ int main( int argc, char* argv[] )
         cout << endl;
         cout << "   print orbit for a whole year: set month and day to -1 each" << endl;
         cout << endl;
-        cout << "   <Object=\"LS I +61 303\", \"HESS J0632+057\", \"LS 5039\", \"PSR B1259–63\">" << endl;
+        cout << "   <Object=\"LS I +61 303\", \"HESS J0632+057\", \"LS 5039\", \"PSR B1259–63\", \"HESS J1832-093\">" << endl;
         cout << endl;
         cout << "   [orbit]   orbital period in days (optional)" << endl;
         cout << "   [T0]      MJD 0" << endl;
@@ -83,6 +83,11 @@ int main( int argc, char* argv[] )
     {
         orbit = 11.5983;
         t0    = 2400000 + 51825.3 - 2400000.5;
+    }
+    else if( object == "HESS J1832-093" )
+    {
+        orbit = 86.28;
+        t0 = 54524.9979255;
     }
     // user given timing parameters
     if( argc > 6 )
