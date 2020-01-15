@@ -33,7 +33,7 @@ tar -xvzf sofa_c-20180130.tar.gz
 ##########################
 # prepare make file
 cd sofa/20180130/c/src/
-sed -i -- "s/$(HOME)/$(EVNDISPSYS)\/sofa/" makefile
+sed -i -- "s/\$(HOME)/\$(EVNDISPSYS)\/sofa/" makefile
 # use clang on OSX
 OS=`uname -s`
 echo "$OS"
