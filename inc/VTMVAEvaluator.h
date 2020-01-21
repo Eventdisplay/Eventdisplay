@@ -174,7 +174,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         unsigned int      fWeightFileIndex_Zmax;
         
         
-        double           evaluateInterPolateMVA( double iErec_log10TeV, double iZe );
+        double           evaluateInterPolateMVA( double iErec_log10TeV, double iZe, unsigned int evaluateInterPolateMVA );
         TH1D*            getEfficiencyHistogram( string iName, TFile* iF, string iMethodTag_2 );
         double           getMeanEnergyAfterCut( TFile* f, double iCut, unsigned int iDataBin );
         bool             optimizeSensitivity( unsigned int iDataBin, string iOptimizationType, string iEpoch = "noepoch" );
@@ -222,6 +222,11 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         TGraphAsymmErrors* fillSmoothedEfficencyGraph( TGraphAsymmErrors* g, unsigned int iZe, bool iSignalEff = true );
         TGraphAsymmErrors* fillSmoothedMVACutGraph( TGraphAsymmErrors* g, unsigned int iZe );
         TGraphAsymmErrors* smoothMVAGraph( TGraphAsymmErrors* g, 
+                                           double iCutGraphSmoothing = 0.25,
+                                           double iCutGraphSmoothingMax = 1.e5,
+                                           double iCutGraphConstantCutEnergy_TeV = 1.e5,
+                                           string iName = "", unsigned int iZe = 0 );
+        vector< TGraphAsymmErrors* > smoothSignalEfficiencyMVAGraph( TGraphAsymmErrors* g, 
                                            double iCutGraphSmoothing = 0.25,
                                            double iCutGraphSmoothingMax = 1.e5,
                                            double iCutGraphConstantCutEnergy_TeV = 1.e5,
