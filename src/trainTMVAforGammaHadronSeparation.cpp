@@ -36,6 +36,23 @@ bool trainGammaHadronSeparation( VTMVARunData* iRun, unsigned int iEnergyBin, un
 bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin );
 
 /*
+ * get number of requested training events
+ *
+ */
+Long64_t getNumberOfRequestedTrainingEvents( string a, bool iSignal )
+{
+   string b = "nTrain_Signal=";
+   if( !iSignal )
+   {
+      b = "nTrain_Background=";
+   }
+   // extensive string gymnastics
+   Long64_t nS = (Long64_t)atoi( a.substr( a.find( b ) + b.size(), a.find( ":", a.find( b ) - a.find( b ) - b.size() ) ).c_str() );
+
+   return nS;
+}
+
+/*
  * check settings for number of training events;
  * if required reset event numbers
  *
@@ -43,13 +60,7 @@ bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, un
  */
 string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal )
 {
-   string b = "nTrain_Signal=";
-   if( !iSignal )
-   {
-      b = "nTrain_Background";
-   }
-   // extensive string gymnastics
-   Long64_t nS = (Long64_t)atoi( a.substr( a.find( b ) + b.size(), a.find( ":", a.find( b ) - a.find( b ) - b.size() ) ).c_str() );
+   Long64_t nS = getNumberOfRequestedTrainingEvents( a, iSignal );
    if( nS == 0 )
    {
        return a;
@@ -76,8 +87,13 @@ string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal )
  * get number of signal or background events after cuts
  *
  */
-Long64_t getNumberOfEventsAfterCuts( VTMVARunData* iRun, TCut iCut, bool iSignal )
+Long64_t getNumberOfEventsAfterCuts( VTMVARunData* iRun, TCut iCut, bool iSignal, bool iResetEventNumbers )
 {
+    if( !iRun )
+    {
+        return 0;
+    }
+    Long64_t nS = getNumberOfRequestedTrainingEvents( iRun->fPrepareTrainingOptions, iSignal );
     vector< TChain* > iTreeVector;
     Long64_t n = 0;
     if( iSignal )
@@ -93,12 +109,31 @@ Long64_t getNumberOfEventsAfterCuts( VTMVARunData* iRun, TCut iCut, bool iSignal
     {
         if( iTreeVector[i] )
         {
-             iTreeVector[i]->Draw( ">>elist", iCut );
+             TTree *t = (TTree*)iTreeVector[i]->Clone("a");
+             t->Draw( ">>elist", iCut );
              TEventList *elist = (TEventList*)gDirectory->Get("elist");
              if( elist )
              {
                  n += elist->GetN();
                  delete elist;
+             }
+             delete t;
+             if( !iResetEventNumbers && n > nS )
+             {
+                 cout << "\t reached required ";
+                 if( iSignal )
+                 {
+                     cout << "signal";
+                 }
+                 else
+                 {
+                     cout << "background";
+                 }
+                 cout << " event numbers ";
+                 cout << "(" << nS << ")";
+                 cout << " after " << i+1 << " tree(s)" << endl;
+                 cout << "\t applied cut: " << iCut << endl;
+                 return n;
              }
         }
     }
@@ -332,7 +367,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
         cout << "train: error: training-variable vectors have different size" << endl;
         return false;
     }
-    
+
     // check split mode
     bool iSplitBlock = false;
     if( iRun->fPrepareTrainingOptions.find( "SplitMode=Block" ) != string::npos )
@@ -342,13 +377,17 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     }
     // check for number of training and background events
      cout << "Reading number of events after cuts: " << endl;
-     Long64_t nEventsSignal = getNumberOfEventsAfterCuts( iRun, iCutSignal, true );
+     Long64_t nEventsSignal = getNumberOfEventsAfterCuts( iRun, 
+                           iCutSignal, true,
+                           iRun->fResetNumberOfTrainingEvents );
      cout << "\t total number of signal events after cuts: " << nEventsSignal << endl;
-     Long64_t nEventsBck = getNumberOfEventsAfterCuts( iRun, iCutBck, false );
+     Long64_t nEventsBck = getNumberOfEventsAfterCuts( iRun, 
+                           iCutBck, false,
+                           iRun->fResetNumberOfTrainingEvents );
      cout << "\t total number of background events after cuts: " << nEventsBck << endl;
      if( nEventsSignal < 10 || nEventsBck < 10 )
      {
-         cout << "Warning: not enough training events" << endl;
+         cout << "Error: not enough training events" << endl;
          cout << "exiting..." << endl;
          exit( EXIT_SUCCESS );
      }
