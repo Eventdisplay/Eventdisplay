@@ -2003,7 +2003,7 @@ bool VGammaHadronCuts::initTMVAEvaluator( string iTMVAFile,
         fTMVAEvaluator->setTMVACutValueFromGraph( fTMVA_MVACutGraphFileName,
                                                   fTMVA_MVACutGraphSmoothing, 
                                                   fTMVA_MVACutGraphSmoothingMax,
-                                                  fTMVA_MVACutGraphConstantCutEnergy_TeV, true );
+                                                  fTMVA_MVACutGraphConstantCutEnergy_TeV, false );
         fMVACutGraphs = fTMVAEvaluator->getTMVACutValueGraphs();
     }
 
