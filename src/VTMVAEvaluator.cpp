@@ -980,7 +980,6 @@ double VTMVAEvaluator::evaluateInterPolateMVA( double iErec_log10TeV, double iZe
     {
         return fTMVAData[iDataBin]->fTMVAReader->EvaluateMVA( fTMVAData[iDataBin]->fTMVAMethodTag_2 );
     }
-    cout << fWeightFileIndex_Emax - fWeightFileIndex_Emin << endl;
 
     for( unsigned int w = 0; w < iW.size(); w++ )
     {
