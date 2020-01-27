@@ -2142,21 +2142,40 @@ void VTMVAEvaluator::printSignalEfficiency()
             cout << "," << fTMVAData[i]->fEnergyCut_Log10TeV_max << "] TeV" << noshowpos;
             cout << ", Ze [" << fTMVAData[i]->fZenithCut_min << "," << fTMVAData[i]->fZenithCut_max << "] deg";
             cout << " (bin " << i << "):\t ";
-            cout << fTMVAData[i]->fSignalEfficiency;
-            if( fTMVAData[i]->fBackgroundEfficiency > 0. )
+            // cut graph
+             if( fTMVACutValueGraph.size() > 0
+             && fTMVAData[i]->fZenithCut_bin < fTMVACutValueGraph.size()
+             && fTMVACutValueGraph[fTMVAData[i]->fZenithCut_bin] )
+             {
+                   // energy bin not needed for getSignalEfficiency
+                   cout << getSignalEfficiency( 0, 
+                                fTMVAData[i]->fEnergyCut_Log10TeV_min, fTMVAData[i]->fEnergyCut_Log10TeV_max,
+                                fTMVAData[i]->fZenithCut_bin,
+                                fTMVAData[i]->fZenithCut_min, fTMVAData[i]->fZenithCut_max,
+                                0, 0.1 );
+                   cout << "\t MVACut: ";
+                   cout << fTMVACutValueGraph[fTMVAData[i]->fZenithCut_bin]->Eval(
+                               0.5*(fTMVAData[i]->fEnergyCut_Log10TeV_min+fTMVAData[i]->fEnergyCut_Log10TeV_max));
+             }
+            // binned cut values
+            else
             {
-                cout << "\t(" << fTMVAData[i]->fBackgroundEfficiency << ")";
-            }
-            cout << "\t MVACut: " << fTMVAData[i]->fTMVACutValue;
-            if( fParticleNumberFileName.size() > 0 )
-            {
-                if( fTMVAData[i]->fTMVAOptimumCutValueFound )
+                cout << fTMVAData[i]->fSignalEfficiency;
+                if( fTMVAData[i]->fBackgroundEfficiency > 0. )
                 {
-                    cout << " (optimum reached for " << fTMVAData[i]->fSourceStrengthAtOptimum_CU << " CU)";
+                    cout << "\t(" << fTMVAData[i]->fBackgroundEfficiency << ")";
                 }
-                else
+                cout << "\t MVACut: " << fTMVAData[i]->fTMVACutValue;
+                if( fParticleNumberFileName.size() > 0 )
                 {
-                    cout << " (no optimum reached (" << fTMVAData[i]->fSourceStrengthAtOptimum_CU << " CU)";
+                    if( fTMVAData[i]->fTMVAOptimumCutValueFound )
+                    {
+                        cout << " (optimum reached for " << fTMVAData[i]->fSourceStrengthAtOptimum_CU << " CU)";
+                    }
+                    else
+                    {
+                        cout << " (no optimum reached (" << fTMVAData[i]->fSourceStrengthAtOptimum_CU << " CU)";
+                    }
                 }
             }
         }
