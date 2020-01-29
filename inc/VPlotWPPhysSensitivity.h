@@ -77,10 +77,16 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
         
         bool fUseIntegratedSensitivityForOffAxisPlots;
         bool fNorthSouthComparision;
+
+        string fCurrentInstrumentRootFile;
+        vector< string > fCurrentInstrumentVector;
         
         // FOM variables
         double fSensitivityFOM;
         double fSensitivityFOM_error;
+
+        // energy bias treatment
+        float fMaximumAllowedEnergyBias;
         
         // projected sensitvity plots
         vector< double >  fProjectionEnergy_min_logTeV;
@@ -88,6 +94,7 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
         map< string, vector< TGraphAsymmErrors* > > fProjectionSensitivityvsCameraOffset;
 
         bool bPlotNoLegend;
+        bool bPlotCrabLines;
         
         void    fillProjectedSensitivityPlot( unsigned int i, TGraphAsymmErrors* g );
         void    initialProjectedSensitivityPlots( bool iIncludeLowestEnergy = true );
@@ -133,6 +140,15 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
                                    unsigned int iRatioSelector = 0, TPad* iSensRatio = 0,
                                    unsigned int iRatioGraphCounter = 0 );
         void reset();
+        void setCurrentInstrumentFile( string iCurrentInstrumentRootFile = "CurrentInstruments.root" )
+        {
+            fCurrentInstrumentRootFile = iCurrentInstrumentRootFile;
+        }
+        void setCurrentInstrumentPlotVector();
+        void setCurrentInstrumentPlotVector( vector< string > iV )
+        {
+            fCurrentInstrumentVector = iV;
+        }
         void setCrabSpectraFile( string iFile = "$CTA_EVNDISP_AUX_DIR/AstroData/TeV_data/EnergySpectrum_literatureValues_CrabNebula.dat",
                                  unsigned int iSpectraID = 5 )
         {
@@ -144,12 +160,21 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
             fMinEnergy_TeV = iMinEnergy_TeV;
             fMaxEnergy_TeV = iMaxEnergy_TeV;
         }
-        
+        void setMaximumAllowedEnergyBias( float emax_bias = -1. )
+        {
+            fMaximumAllowedEnergyBias = emax_bias;
+        }
         void setNorthSouthComparision( bool iNS = false );
-        bool setPlotCTARequirements( string iRequirements = "", float iRequirementsScalingFactor = 1., double iRequirementsLineWidth = 1. );
+        bool setPlotCTARequirements( string iRequirements = "", 
+                float iRequirementsScalingFactor = 1., double iRequirementsLineWidth = 1.,
+                bool iRequirementsSystematic = false );
         void setPlotNoLegend( bool iPlotNoLegend = false )
         {
              bPlotNoLegend = iPlotNoLegend;
+        }
+        void setPlotCrabLines( bool iPlot = true )
+        {
+            bPlotCrabLines = iPlot;
         }
         void setUseIntegratedSensitivityForOffAxisPlots( bool iUseIntegratedSensitivityForOffAxisPlots = false )
         {

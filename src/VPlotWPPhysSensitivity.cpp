@@ -13,6 +13,10 @@ VPlotWPPhysSensitivity::VPlotWPPhysSensitivity()
     setEnergyRange_Lin_TeV();
     setCrabSpectraFile();
     setPlotCTARequirements();
+    setPlotCrabLines();
+    setMaximumAllowedEnergyBias();
+    setCurrentInstrumentFile();
+    setCurrentInstrumentPlotVector();
     
     fSensitivityFOM = -1.;
     fSensitivityFOM_error = -1.;
@@ -823,10 +827,13 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
         {
             cout << "NOW AT " << fData[i]->fSiteFileName[j] << ", " << fData[i]->fCameraOffset_deg[j] << endl;
             VSensitivityCalculator* a = new VSensitivityCalculator();
-            // TMPTMP hard wired maximum energy bias
-            a->setMaximumEnergyBias( 1.3 );
-            // (END TMPTMPTMP)
+            if( fMaximumAllowedEnergyBias > 0. )
+            {
+                cout << "\t max allowed energy bias: " << fMaximumAllowedEnergyBias << endl;
+            }
+            a->setMaximumEnergyBias( fMaximumAllowedEnergyBias );
             a->setMonteCarloParametersCTA_MC( fData[i]->fSiteFileName[j], fData[i]->fCameraOffset_deg[j], fCrabSpectraFile, fCrabSpectraID );
+            a->setPlotCrabLines( bPlotCrabLines );
             a->setEnergyRange_Lin( fMinEnergy_TeV, fMaxEnergy_TeV );
             a->setPlotCanvasSize( 900, 600 );
             a->setPlottingStyle( fData[i]->fPlottingColor[j], fData[i]->fPlottingLineStyle[j], 2., 21, 1., fData[i]->fPlottingFillStyle[j] );
@@ -884,6 +891,8 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             b->setPlotCanvasName( "cSensitivityInterpolated", "sensitivity vs energy (interpolated)" );
             b->setFluxRange_ENERG( iMinSensitivity, iMaxSensitivity );
             b->setEnergyRange_Lin( fMinEnergy_TeV, fMaxEnergy_TeV );
+            b->setPlotCrabLines( bPlotCrabLines );
+            b->setMaximumEnergyBias( fMaximumAllowedEnergyBias );
             if( fData[i]->fPlottingColor.size() > 0 )
             {
                 b->setPlottingStyle( fData[i]->fPlottingColor[0], fData[i]->fPlottingLineStyle[0], 2.,
@@ -896,7 +905,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
                 {
                     if( fPlotCTARequirements[p] )
                     {
-                        fPlotCTARequirements[p]->plotRequirement_DifferentialSensitivity( cSensInter) ;
+                        fPlotCTARequirements[p]->plotRequirement_DifferentialSensitivity( cSensInter );
                     }
                 }
             }
@@ -1089,7 +1098,10 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
  * (updated requirements from Dec 2017)
  *
 */
-bool VPlotWPPhysSensitivity::setPlotCTARequirements( string iRequirements, float fRequirementsScalingFactor, double iRequirementsLineWidth )
+bool VPlotWPPhysSensitivity::setPlotCTARequirements( string iRequirements, 
+        float fRequirementsScalingFactor, 
+        double iRequirementsLineWidth,
+        bool iRequirementsSystematics )
 {
     fRequirementsString = iRequirements;
 
@@ -1100,6 +1112,7 @@ bool VPlotWPPhysSensitivity::setPlotCTARequirements( string iRequirements, float
     
     fPlotCTARequirements.push_back( new VCTARequirements() );
     fPlotCTARequirements.back()->setRequirementsGraphLineWidth( iRequirementsLineWidth );
+    fPlotCTARequirements.back()->setRequirementsPlotSystematics( iRequirementsSystematics );
     
     return fPlotCTARequirements.back()->setRequirement( iRequirements, fRequirementsScalingFactor );
 }
@@ -1189,6 +1202,24 @@ void VPlotWPPhysSensitivity::plotSensitivitySystematicUncertainties(
 }
 
 /*
+ * default list of instruments to be plotted
+ */
+void VPlotWPPhysSensitivity::setCurrentInstrumentPlotVector()
+{
+    fCurrentInstrumentVector.clear();
+    fCurrentInstrumentVector.push_back( "LATp8_0_0" );
+    fCurrentInstrumentVector.push_back( "LATp8_120_145" );
+    fCurrentInstrumentVector.push_back( "MAGIC" );
+    fCurrentInstrumentVector.push_back( "VERITAS" );
+    fCurrentInstrumentVector.push_back( "HESS" );
+    fCurrentInstrumentVector.push_back( "HAWC5y" );
+    fCurrentInstrumentVector.push_back( "HAWC1y" );
+    fCurrentInstrumentVector.push_back( "LHAASO1y" );
+    fCurrentInstrumentVector.push_back( "SWGO1y" );
+    fCurrentInstrumentVector.push_back( "SWGO5y" );
+}
+
+/*
  * temporary routing
  *
  * plot sensitivities from current instruments
@@ -1203,34 +1234,22 @@ vector< TGraph* > VPlotWPPhysSensitivity::plotCurrentInstruments( TCanvas* c )
     
     vector< TGraph* > iG;
     
-    vector< string > iName;
-//    iName.push_back( "LATp8_0_0" );
-//    iName.push_back( "LATp8_120_145" );
-//    iName.push_back( "MAGIC" );
-    iName.push_back( "VERITAS" );
-//    iName.push_back( "HESS" );
-//    iName.push_back( "HAWC5y" );
-//    iName.push_back( "HAWC1y" );
-//    iName.push_back( "LHAASO1y" );
-//    iName.push_back( "SWGO1y" );
-//    iName.push_back( "SWGO5y" );
-    
-    TFile* iF = new TFile( "CurrentInstruments.root" );
+    TFile* iF = new TFile( fCurrentInstrumentRootFile.c_str() );
     if( iF->IsZombie() )
     {
         return iG;
     }
+    cout << "reading current instrument performances from : " << fCurrentInstrumentRootFile << endl;
     
-    
-    for( unsigned int i = 0; i < iName.size(); i++ )
+    for( unsigned int i = 0; i < fCurrentInstrumentVector.size(); i++ )
     {
-        iG.push_back( ( TGraph* )iF->Get( iName[i].c_str() ) );
+        iG.push_back( ( TGraph* )iF->Get( fCurrentInstrumentVector[i].c_str() ) );
         if( iG.back() )
         {
             iG.back()->SetLineWidth( 2 );
             // scale Fermi sensitivity by 25% (4 vs 5 bins per decade)
             // (2017-09-29 GM: already done for the current root file)
-            /*            if( iName[i] == "LATp8_0_0" || iName[i] == "LATp8_120_145" )
+            /*            if( fCurrentInstrumentVector[i] == "LATp8_0_0" || fCurrentInstrumentVector[i] == "LATp8_120_145" )
                         {
                             double x = 0.;
                             double y = 0.;
@@ -1247,7 +1266,7 @@ vector< TGraph* > VPlotWPPhysSensitivity::plotCurrentInstruments( TCanvas* c )
         }
 /*        if( c )
         {
-            string i_text = iName[i] + "_text";
+            string i_text = fCurrentInstrumentVector[i] + "_text";
             TText* i_t = ( TText* )iF->Get( i_text.c_str() );
             // TMPTMP: plot only KSP...
             if( i_t && fPlotCTARequirementsID == 3 )

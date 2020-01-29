@@ -192,7 +192,8 @@ class VSensitivityCalculator : public TObject, public VPlotUtilities, public VHi
         string fDebugParticleNumberFile;                // write non/noff to disk
         // values of Crab fluxes to be plotted as lines into the sensitivity vs energy graph (in Crab Units)
         vector< double > fPlottingCrabFlux_CU;
-        
+        bool bPlotCrabLines;
+
         // private functions
         void       applyEnergyBiasCut( TH1F*, TGraphAsymmErrors*, double iMaxEBias );
         bool       checkCutOptimization( double iEnergy, bool iPrint = false );
@@ -343,6 +344,10 @@ class VSensitivityCalculator : public TObject, public VPlotUtilities, public VHi
                                           int az = 0, double woff = 0.5, int noise = 150, double index = 2.5,
                                           double iEnergy_min_log = -10., double iEnergy_max_log = 10., string bUnit = "CU" );
         void     setObservationTimeRange( double iObs_min = 0.5e-3, double iObs_max = 5.e4, int iObs_steps = 1000 );    // hours
+        void setPlotCrabLines( bool iPlot = true )
+        {
+            bPlotCrabLines = iPlot;
+        }
         void     setRequireCutsToBeOptimized( bool iB = true )
         {
             fRequireCutsToBeOptimized = iB;

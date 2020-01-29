@@ -126,6 +126,7 @@ void VSensitivityCalculator::reset()
     setBackgroundMissingParticleFraction();
     setRequireCutsToBeOptimized();
     setMaximumEnergyBias();
+    setPlotCrabLines();
     
     fGraphObsvsTime.clear();
     fData.clear();
@@ -688,7 +689,8 @@ bool VSensitivityCalculator::calculateParticleNumberGraphs_MC( double dE_Log10 )
     bNewCanvas:   plot histograms and Crab lines
 
 */
-TCanvas* VSensitivityCalculator::plotSensitivityvsEnergyFromCrabSpectrum( TCanvas* cSensitivity, string bUnit, double dE_Log10, bool bNewCanvas )
+TCanvas* VSensitivityCalculator::plotSensitivityvsEnergyFromCrabSpectrum( 
+        TCanvas* cSensitivity, string bUnit, double dE_Log10, bool bNewCanvas )
 {
 
     // get canvas
@@ -1165,9 +1167,10 @@ TCanvas* VSensitivityCalculator::plotCanvas_SensitivityvsEnergy( string bUnit, b
     {
         if( i < i_fFunCrabFlux.size() && i_fFunCrabFlux[i] )
         {
-            //TMPTMP
-            // continue;
-            //TMTMTP
+            if( !bPlotCrabLines )
+            {
+                continue;
+            }
             i_fFunCrabFlux[i]->SetLineColor( 16 );
             i_fFunCrabFlux[i]->Draw( "l" );
             
