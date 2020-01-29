@@ -121,6 +121,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         double                  fOptimizationSourceSignificance;
         double                  fOptimizationFixedSignalEfficiency;
         double                  fOptimizationMinSourceStrength;
+        double                  fOptimizationMaxSourceStrength;
         double                  fOptimizationMinSignalEvents;
         double                  fOptimizationMinBackGroundEvents;
         double                  fOptimizationBackgroundAlpha;
@@ -294,7 +295,9 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         }
         
         void   setSensitivityOptimizationFixedSignalEfficiency( double iOptimizationFixedSignalEfficiency = 1. );
-        void   setSensitivityOptimizationMinSourceStrength( double iOptimizationMinSourceStrength = 0.001 );
+        void   setSensitivityOptimizationSourceStrength( 
+                             double iOptimizationMinSourceStrength = 0.001,
+                             double iOptimizationMaxSourceStrength = 30. );
         void   setOptimizeAngularContainment( bool iO = false )
         {
             fTMVA_OptimizeAngularContainment = iO;
@@ -348,7 +351,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         void   setTMVAMethod( string iMethodName = "BDT", int iMethodCounter = 0 );
         bool   writeOptimizedMVACutValues( string iRootFile );
         
-        ClassDef( VTMVAEvaluator, 49 );
+        ClassDef( VTMVAEvaluator, 50 );
 };
 
 #endif

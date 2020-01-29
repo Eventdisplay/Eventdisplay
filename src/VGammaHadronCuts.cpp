@@ -1967,7 +1967,7 @@ bool VGammaHadronCuts::initTMVAEvaluator( string iTMVAFile,
         fTMVAEvaluator->setSensitivityOptimizationFixedSignalEfficiency( fTMVAFixedSignalEfficiencyMax );
         fTMVAEvaluator->setParticleNumberFile( fTMVAOptimizeSignalEfficiencyParticleNumberFile,
                                                fTMVAParticleNumberFile_Conversion_Rate_to_seconds );
-        fTMVAEvaluator->setSensitivityOptimizationMinSourceStrength( fTMVAMinSourceStrength );
+        fTMVAEvaluator->setSensitivityOptimizationSourceStrength( fTMVAMinSourceStrength );
     }
     // set a constant signal efficiency
     else if( fTMVASignalEfficiency.size() > 0 )

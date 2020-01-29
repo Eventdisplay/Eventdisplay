@@ -66,7 +66,7 @@ void VTMVAEvaluator::reset()
     setPrintPlotting();
     setSensitivityOptimizationParameters();
     setSensitivityOptimizationFixedSignalEfficiency();
-    setSensitivityOptimizationMinSourceStrength();
+    setSensitivityOptimizationSourceStrength();
     setOptimizeAngularContainment();
     setTMVAAngularContainmentThetaFixedMinRadius();
     setTMVAMethod();
@@ -627,7 +627,10 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
     // smooth and Interpolate
     if( fParticleNumberFileName.size() > 0 && fSmoothAndInterpolateMVAValues )
     {
-        smoothAndInterpolateMVAValue( 0, 0, iWeightFileIndex_Emin, iWeightFileIndex_Emax, iWeightFileIndex_Zmin, iWeightFileIndex_Zmax, iEnergyStepSize );
+        smoothAndInterpolateMVAValue( 0, 0, 
+                 iWeightFileIndex_Emin, iWeightFileIndex_Emax, 
+                 iWeightFileIndex_Zmin, iWeightFileIndex_Zmax, 
+                 iEnergyStepSize );
     }
     
     // print some info to screen
@@ -2232,10 +2235,8 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin,
         cout << fTMVAngularContainmentRadiusMax << "%)";
         cout << endl;
     }
-    else
-    {
-        cout << "VTVMAEvaluator::optimizeSensitivity: no angular containment histogram found" << endl;
-    }
+    // (no error message if angular containment histogram is not found
+    //  simply means that theta2 cut is not optimised)
     
     ///////////////////////////////////////////////////////////////////////////////
     // get number of events (after quality cuts) at this energy from on/off graphs
@@ -2418,6 +2419,7 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin,
     double i_Signal_to_sqrtNoise_atMaximum = 0.;
     double i_AngularContainmentRadiusAtMaximum = 0.;
     double i_AngularContainmentFractionAtMaximum = 0.;
+    double iSourceStrength = 0.;
     
     TGraph* iGSignal_to_sqrtNoise = 0;
     TGraph* iGSignalEvents        = 0;
@@ -2429,11 +2431,14 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin,
     //////////////////////////////////////////////////////
     // loop over different source strengths (in Crab Units)
     // (hardwired: start at 0.001 CU to 30 CU)
-    unsigned int iSourceStrengthStepSizeN = ( unsigned int )( ( log10( 30. ) - log10( fOptimizationMinSourceStrength ) ) / 0.005 );
+    unsigned int iSourceStrengthStepSizeN = 
+              ( unsigned int )( ( log10( fOptimizationMaxSourceStrength ) - log10( fOptimizationMinSourceStrength ) ) / 0.005 );
     cout << "VTVMAEvaluator::optimizeSensitivity: source strength steps: " << iSourceStrengthStepSizeN << endl;
+    cout << "VTVMAEvaluator::optimizeSensitivity: range for source strength: (";
+    cout << fOptimizationMinSourceStrength << ", " << fOptimizationMaxSourceStrength << ") CU" << endl;
     for( unsigned int s = 0; s < iSourceStrengthStepSizeN; s++ )
     {
-        double iSourceStrength = log10( fOptimizationMinSourceStrength ) + s * 0.005;
+        iSourceStrength = log10( fOptimizationMinSourceStrength ) + s * 0.005;
         iSourceStrength = TMath::Power( 10., iSourceStrength );
         
         // source events
@@ -2700,6 +2705,8 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin,
             }
         }
     } // end of loop over source strength
+    cout << "VTVMAEvaluator::optimizeSensitivity (finished looping over source strengths)";
+    cout << ", last value: " << iSourceStrength << endl;
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
@@ -2726,6 +2733,9 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin,
                 }
             }
         }
+        cout << "VTMVAEvaluator::optimizeSensitivity: found signal efficiency ";
+        cout << i_SignalEfficiency_AtMaximum << " above allowed value (";
+        cout << fOptimizationFixedSignalEfficiency << ")" << endl;
         i_SignalEfficiency_AtMaximum = fOptimizationFixedSignalEfficiency;
         cout << "VTMVAEvaluator::optimizeSensitivity: setting signal efficiency to ";
         cout << fOptimizationFixedSignalEfficiency << endl;
@@ -2747,11 +2757,16 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin,
     else
     {
         cout << "VTMVAEvaluator::optimizeSensitivity: no maximum in signal efficiency found" << endl;
-        cout << "...(not good)..." << endl;
+        if( fOptimizationMaxSourceStrength > 0. &&
+            iSourceStrength / fOptimizationMaxSourceStrength > 0.95 )
+         {
+             cout << "VTMVAEvaluator::optimizeSensitivity: (reached max source strength of ";
+             cout << fOptimizationMaxSourceStrength << ")" << endl;
+         }
     }
     cout << "\t MVA parameter: " << i_TMVACutValue_AtMaximum;
     cout << ", background efficiency: " << i_BackgroundEfficiency_AtMaximum << endl;
-    if( i_AngularContainmentFractionAtMaximum > 0. )
+    if( i_AngularContainmentRadiusAtMaximum > 0. )
     {
         cout << "\t angular containment is " << i_AngularContainmentFractionAtMaximum * 100.;
         cout << "%, radius ";
@@ -3379,9 +3394,12 @@ void VTMVAEvaluator::setSensitivityOptimizationFixedSignalEfficiency( double iOp
     fOptimizationFixedSignalEfficiency = iOptimizationFixedSignalEfficiency;
 }
 
-void VTMVAEvaluator::setSensitivityOptimizationMinSourceStrength( double iOptimizationMinSourceStrength )
+void VTMVAEvaluator::setSensitivityOptimizationSourceStrength( 
+                            double iOptimizationMinSourceStrength,
+                            double iOptimizationMaxSourceStrength )
 {
     fOptimizationMinSourceStrength = iOptimizationMinSourceStrength;
+    fOptimizationMaxSourceStrength = iOptimizationMaxSourceStrength;
 }
 
 /*
