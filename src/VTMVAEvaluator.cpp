@@ -338,7 +338,7 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
                 // central data element for this energy bin
                 fTMVAData.push_back( new VTMVAEvaluatorData() );
                 fTMVAData.back()->fEnergyCut_bin = i;
-                fTMVAData.back()->fZenithCut_bin = j;
+                fTMVAData.back()->fZenithCut_bin = j + iWeightFileIndex_Zmin;
                 // find e_min and e_max
                 fTMVAData.back()->fEnergyCut_Log10TeV_min = e;
                 if( iEnergyStepSize > 0. )
@@ -1225,7 +1225,9 @@ TGraph* VTMVAEvaluator::getOptimalTheta2Cut_Graph()
  * plot signal and background efficiencies
  *
  */
-TGraphAsymmErrors* VTMVAEvaluator::plotSignalAndBackgroundEfficiencies( bool iLogY, double iYmin, double iMVA_min, double iMVA_max )
+TGraphAsymmErrors* VTMVAEvaluator::plotSignalAndBackgroundEfficiencies( 
+                          bool iLogY, double iYmin, 
+                          double iMVA_min, double iMVA_max )
 {
     if( fTMVAData.size() == 0 )
     {
@@ -1290,7 +1292,10 @@ TGraphAsymmErrors* VTMVAEvaluator::plotSignalAndBackgroundEfficiencies( bool iLo
         }
         else
         {
-            cout << "VTMVAEvaluator::plotSignalAndBackgroundEfficiencies: signal / background efficiency histograms not found " << endl;
+            cout << "VTMVAEvaluator::plotSignalAndBackgroundEfficiencies: ";
+            cout << "signal / background efficiency histograms not found in " << endl;
+            cout << fTMVAData[i]->fTMVAFileName << endl;
+            cout << "Signal and background efficiency: ";
             cout << fTMVAData[i]->fSignalEfficiency << "\t" << fTMVAData[i]->fBackgroundEfficiency << endl;
         }
         if( fTMVAData[i]->fBackgroundEfficiency < iMinBck )
@@ -2711,8 +2716,12 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin,
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
-    // check if signal efficiency is above allowed value
-    if( i_SignalEfficiency_AtMaximum > fOptimizationFixedSignalEfficiency )
+    // check if 
+    // - signal efficiency is above allowed value
+    // - source strengh maximum has been reached
+    if( i_SignalEfficiency_AtMaximum > fOptimizationFixedSignalEfficiency ||
+        ( fOptimizationMaxSourceStrength > 0. &&
+            iSourceStrength / fOptimizationMaxSourceStrength > 0.95 ) )
     {
         if( fOptimizationFixedSignalEfficiency > 0.99 )
         {
@@ -2727,8 +2736,11 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin,
                 {
                     i_TMVACutValue_AtMaximum         = effS->GetBinCenter( i );
                     i_BackgroundEfficiency_AtMaximum = effB->GetBinContent( i );
-                    i_AngularContainmentRadiusAtMaximum = iGOpt_AngularContainmentRadius->Eval( i_TMVACutValue_AtMaximum );
-                    i_AngularContainmentFractionAtMaximum = iGOpt_AngularContainmentFraction->Eval( i_TMVACutValue_AtMaximum );
+                    if( iGOpt_AngularContainmentRadius && iGOpt_AngularContainmentFraction )
+                    {
+                        i_AngularContainmentRadiusAtMaximum = iGOpt_AngularContainmentRadius->Eval( i_TMVACutValue_AtMaximum );
+                        i_AngularContainmentFractionAtMaximum = iGOpt_AngularContainmentFraction->Eval( i_TMVACutValue_AtMaximum );
+                    }
                     break;
                 }
             }
