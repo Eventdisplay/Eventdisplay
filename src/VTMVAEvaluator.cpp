@@ -1964,6 +1964,23 @@ void VTMVAEvaluator::printAngularContainmentRadius()
     {
         return;
     }
+    // make sure that there are any valid values
+    bool iPrint = false;
+    for( unsigned int i = 0; i < fTMVAData.size(); i++ )
+    {
+        if( fTMVAData[i] )
+        {
+             if( fTMVAData[i]->fAngularContainmentRadius >= 0. )
+             {
+                 iPrint = true;
+                 break;
+             }
+         }
+    }
+    if( !iPrint )
+    {
+        return;
+    }
     
     cout << endl;
     cout << "======================= VTMVAEvaluator: energy dependent optimal containment radius cut =======================" << endl;
