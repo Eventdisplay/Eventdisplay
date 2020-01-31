@@ -987,7 +987,7 @@ double VTMVAEvaluator::evaluateInterPolateMVA( double iErec_log10TeV, double iZe
     for( unsigned int w = 0; w < iW.size(); w++ )
     {
         // ignore very small weights
-        if( iW[w] > 0.001 && w < fTMVAData.size() 
+        if( w < fTMVAData.size() && iW[w] > 0.001
         && fTMVAData[w]->fTMVAReader )
         {
              double t = fTMVAData[w]->fTMVAReader->EvaluateMVA( fTMVAData[w]->fTMVAMethodTag_2 );
@@ -1872,7 +1872,7 @@ vector< TGraphAsymmErrors* > VTMVAEvaluator::smoothSignalEfficiencyMVAGraph( TGr
                   for( unsigned int w = 0; w < iW.size(); w++ )
                   {
                       // ignoring small weights
-                      if( iW[w] > 0.001 && w < fTMVAData.size() )
+                      if( w < fTMVAData.size() && iW[w] > 0.001 )
                       {
                           y = iG->Eval( e_log10_G );
                           iEffS += iW[w] * y;
