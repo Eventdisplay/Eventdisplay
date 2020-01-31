@@ -45,7 +45,7 @@ void optimizeBDTcuts( string particleraterootfile,
 
     a.setSensitivityOptimizationParameters( significance, min_events, observing_time_h, min_backgroundrateratio, min_backgroundevents );
     a.setSensitivityOptimizationFixedSignalEfficiency( signalefficiency );
-    a.setSensitivityOptimizationMinSourceStrength( min_sourcestrength_CU );
+    a.setSensitivityOptimizationSourceStrength( min_sourcestrength_CU );
 
 
     ostringstream iFullWeightFileName;

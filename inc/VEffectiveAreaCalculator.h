@@ -254,7 +254,7 @@ class VEffectiveAreaCalculator
         double fEffectiveAreas_meanPedVar;
         double fEffectiveAreas_meanIndex;
         double fEffectiveAreas_meanN;
-        
+
         // Gaussian function for approximating the response matrix
         TF1 *fGauss;
         // Bool to handle if likelihood analysis is required
@@ -323,7 +323,6 @@ class VEffectiveAreaCalculator
         TGraphAsymmErrors*  getMeanEffectiveArea();
         TGraph2DErrors*     getTimeBinnedMeanEffectiveArea();
         TGraphAsymmErrors*  getMeanEffectiveAreaMC();
-
         TH1D*               getMCHistogram()
         {
             return hEmc;

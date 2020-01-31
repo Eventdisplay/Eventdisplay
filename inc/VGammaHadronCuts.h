@@ -134,6 +134,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
         string          fTMVA_MVACutGraphFileName;
         double          fTMVA_MVACutGraphSmoothing;
         double          fTMVA_MVACutGraphSmoothingMax;
+        double          fTMVA_MVACutGraphConstantCutEnergy_TeV;
         double          fTMVAProbabilityThreshold;
         string          fTMVAOptimizeSignalEfficiencyParticleNumberFile;
         double          fTMVAParticleNumberFile_Conversion_Rate_to_seconds;
@@ -145,6 +146,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
         double          fTMVAFixedThetaCutMin;
         double          fTMVA_EvaluationResult;
         VTMVAEvaluatorResults* fTMVAEvaluatorResults;
+        vector< TGraphAsymmErrors* > fMVACutGraphs;
         
         // parameters for energy dependent theta2 cuts
         // (implemented for MC only)
@@ -166,7 +168,6 @@ class VGammaHadronCuts : public VAnalysisUtilities
         
         bool   applyProbabilityCut( int i, bool fIsOn );
         bool   applyFrogsCut();
-        bool   applyModel3DCut();
         bool   applyDeepLearnerCut();
         double getEnergyDependentCut( double energy_TeV, TGraph* iG, bool bUseEvalue = true, bool bMaxCut = true );
         TGraph* getEnergyDependentCut( string iCutName );
@@ -236,15 +237,6 @@ class VGammaHadronCuts : public VAnalysisUtilities
         vector <double> fProbabilityCutRangeUpper;
         
         vector< VNTelTypeCut* > fNTelTypeCut;
-        
-        //double fCut_Depth3D_min;
-        //double fCut_Depth3D_max;
-        //double fCut_RWidth3D_min;
-        //double fCut_RWidth3D_max;
-        double fCut_ShowerMax3D_min;
-        double fCut_ShowerMax3D_max;
-        double fCut_Width3D_min;
-        double fCut_Width3D_max;
         
         VGammaHadronCuts();
         ~VGammaHadronCuts();
@@ -360,6 +352,10 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             return fTMVAEvaluatorResults;
         }
+        vector< TGraphAsymmErrors* > getMVACutGraphs()
+        {
+            return fMVACutGraphs;
+        }
         void   initialize();
         bool   isGamma( int i = 0, bool bCount = false, bool fIsOn = true );
         bool   isMCCuts()
@@ -421,10 +417,6 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             return ( fReconstructionType == DEEPLEARNER );
         }
-        bool   useModel3DCuts()
-        {
-            return ( fReconstructionType == MODEL3D );
-        }
         bool   useFrogsCuts()
         {
             return ( fReconstructionType == FROGS );
@@ -437,6 +429,6 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             fReconstructionType = type;
         }
-        ClassDef( VGammaHadronCuts, 62 );
+        ClassDef( VGammaHadronCuts, 65 );
 };
 #endif

@@ -66,7 +66,7 @@ void VTMVAEvaluator::reset()
     setPrintPlotting();
     setSensitivityOptimizationParameters();
     setSensitivityOptimizationFixedSignalEfficiency();
-    setSensitivityOptimizationMinSourceStrength();
+    setSensitivityOptimizationSourceStrength();
     setOptimizeAngularContainment();
     setTMVAAngularContainmentThetaFixedMinRadius();
     setTMVAMethod();
@@ -338,7 +338,7 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
                 // central data element for this energy bin
                 fTMVAData.push_back( new VTMVAEvaluatorData() );
                 fTMVAData.back()->fEnergyCut_bin = i;
-                fTMVAData.back()->fZenithCut_bin = j;
+                fTMVAData.back()->fZenithCut_bin = j + iWeightFileIndex_Zmin;
                 // find e_min and e_max
                 fTMVAData.back()->fEnergyCut_Log10TeV_min = e;
                 if( iEnergyStepSize > 0. )
@@ -394,8 +394,11 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
                 fTMVAData.back()->fAngularContainmentRadius = -99.;
                 fTMVAData.back()->fAngularContainmentFraction = -99.;
                 sprintf( hname, "bin %d, %.2f < log10(E) < %.2f, %.2f < Ze < %.2f)",
-                         ( int )( fTMVAData.size() - 1 ), fTMVAData.back()->fEnergyCut_Log10TeV_min, fTMVAData.back()->fEnergyCut_Log10TeV_max,
-                         fTMVAData.back()->fZenithCut_min, fTMVAData.back()->fZenithCut_max );
+                         ( int )( fTMVAData.size() - 1 ),
+                         fTMVAData.back()->fEnergyCut_Log10TeV_min,
+                         fTMVAData.back()->fEnergyCut_Log10TeV_max,
+                         fTMVAData.back()->fZenithCut_min, 
+                         fTMVAData.back()->fZenithCut_max );
                 fTMVAData.back()->SetTitle( hname );
                 
                 sprintf( hname, "MVA%u%u", i, j );
@@ -412,7 +415,11 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
                 fTMVAData.back()->fTMVAMethodTag_2 = hname;
                 fTMVAData.back()->fTMVAFileName = iFullFileName;
                 fTMVAData.back()->fTMVAFileNameXML = iFullFileNameXML;
-                
+
+                TFile *iTMVAFile = new TFile( fTMVAData.back()->fTMVAFileName.c_str() );
+                fTMVAData.back()->hSignalEfficiency = getEfficiencyHistogram( "effS", iTMVAFile, fTMVAData.back()->fTMVAMethodTag_2 );
+                fTMVAData.back()->hBackgroundEfficiency = getEfficiencyHistogram( "effB", iTMVAFile, fTMVAData.back()->fTMVAMethodTag_2 );
+
                 if( iEnergyStepSize < 0. )
                 {
                     break;
@@ -580,7 +587,8 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
         }
         if( fDebug )
         {
-            cout << "Following " << iTrainingVariables.size() << " variables have been found and are used for TMVA separation: " << endl;
+            cout << "Following " << iTrainingVariables.size();
+            cout << " variables have been found and are used for TMVA separation: " << endl;
             for( unsigned int t = 0; t < iTrainingVariables.size(); t++ )
             {
                 cout << "\t" << iTrainingVariables[t];
@@ -619,7 +627,10 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
     // smooth and Interpolate
     if( fParticleNumberFileName.size() > 0 && fSmoothAndInterpolateMVAValues )
     {
-        smoothAndInterpolateMVAValue( 0, 0, iWeightFileIndex_Emin, iWeightFileIndex_Emax, iWeightFileIndex_Zmin, iWeightFileIndex_Zmax, iEnergyStepSize );
+        smoothAndInterpolateMVAValue( 0, 0, 
+                 iWeightFileIndex_Emin, iWeightFileIndex_Emax, 
+                 iWeightFileIndex_Zmin, iWeightFileIndex_Zmax, 
+                 iEnergyStepSize );
     }
     
     // print some info to screen
@@ -649,7 +660,7 @@ void VTMVAEvaluator::fillTMVAEvaluatorResults()
     }
 }
 
-TH1F* VTMVAEvaluator::getEfficiencyHistogram( string iName, TFile* iF, string iMethodTag_2 )
+TH1D* VTMVAEvaluator::getEfficiencyHistogram( string iName, TFile* iF, string iMethodTag_2 )
 {
     if( !iF )
     {
@@ -662,20 +673,20 @@ TH1F* VTMVAEvaluator::getEfficiencyHistogram( string iName, TFile* iF, string iM
              fTMVAMethodName.c_str(), iMethodTag_2.c_str(), iName.c_str() );
              
     // read signal efficiency histogram
-    TH1F* eff = ( TH1F* )iF->Get( hname );
+    TH1D* eff = ( TH1D* )iF->Get( hname );
     if( !eff )
     {
         sprintf( hname, "Method_%s/%s_%d/MVA_%s_%d_%s", fTMVAMethodName.c_str(),
                  fTMVAMethodName.c_str(), fTMVAMethodCounter,
                  fTMVAMethodName.c_str(), fTMVAMethodCounter, iName.c_str() );
-        eff = ( TH1F* )iF->Get( hname );
+        eff = ( TH1D* )iF->Get( hname );
         if( !eff )
         {
             sprintf( hname, "Method_%s_%d/%s_%d/MVA_%s_%d_%s", 
                      fTMVAMethodName.c_str(), fTMVAMethodCounter,
                      fTMVAMethodName.c_str(), fTMVAMethodCounter,
                      fTMVAMethodName.c_str(), fTMVAMethodCounter, iName.c_str() );
-            eff = ( TH1F* )iF->Get( hname );
+            eff = ( TH1D* )iF->Get( hname );
             if( !eff )
             {
                 cout << "VTMVAEvaluator::getEfficiencyHistogram() error finding efficiency histogram " << hname;
@@ -724,11 +735,13 @@ bool VTMVAEvaluator::getValuesFromEfficiencyHistograms( unsigned int b )
     TFile* iTMVAFile = new TFile( fTMVAData[b]->fTMVAFileName.c_str() );
     if( iTMVAFile->IsZombie() )
     {
-        cout << "VTMVAEvaluator::getValuesFromEfficiencyHistograms() error reading TMVA root file: " << fTMVAData[b]->fTMVAFileName << endl;
+        cout << "VTMVAEvaluator::getValuesFromEfficiencyHistograms() ";
+        cout << "error reading TMVA root file: ";
+        cout << fTMVAData[b]->fTMVAFileName << endl;
         return false;
     }
-    TH1F* effS = getEfficiencyHistogram( "effS", iTMVAFile, fTMVAData[b]->fTMVAMethodTag_2 );
-    TH1F* effB = getEfficiencyHistogram( "effB", iTMVAFile, fTMVAData[b]->fTMVAMethodTag_2 );
+    TH1D* effS = getEfficiencyHistogram( "effS", iTMVAFile, fTMVAData[b]->fTMVAMethodTag_2 );
+    TH1D* effB = getEfficiencyHistogram( "effB", iTMVAFile, fTMVAData[b]->fTMVAMethodTag_2 );
     if( !effS || !effB )
     {
         return false;
@@ -752,8 +765,26 @@ bool VTMVAEvaluator::getValuesFromEfficiencyHistograms( unsigned int b )
     {
         fTMVAData[b]->fTMVACutValue = fTMVACutValueGraph[fTMVAData[b]->fZenithCut_bin]->Eval(
                             fTMVAData[b]->fSpectralWeightedMeanEnergy_Log10TeV );
-        fTMVAData[b]->fSignalEfficiency     = effS->GetBinContent( effS->GetXaxis()->FindBin( fTMVAData[b]->fTMVACutValue ) );
-        fTMVAData[b]->fBackgroundEfficiency = effB->GetBinContent( effB->GetXaxis()->FindBin( fTMVAData[b]->fTMVACutValue ) );
+        if( fTMVAData[b]->fZenithCut_bin < fTMVASignalEfficencyGraph.size()
+            && fTMVASignalEfficencyGraph[fTMVAData[b]->fZenithCut_bin] )
+        {
+              fTMVAData[b]->fSignalEfficiency = fTMVASignalEfficencyGraph[fTMVAData[b]->fZenithCut_bin]->Eval(
+                            fTMVAData[b]->fSpectralWeightedMeanEnergy_Log10TeV );
+        }
+        else
+        {
+            fTMVAData[b]->fSignalEfficiency     = effS->GetBinContent( effS->GetXaxis()->FindBin( fTMVAData[b]->fTMVACutValue ) );
+        }
+        if( fTMVAData[b]->fZenithCut_bin < fTMVABackgroundEfficencyGraph.size()
+            && fTMVABackgroundEfficencyGraph[fTMVAData[b]->fZenithCut_bin] )
+        {
+              fTMVAData[b]->fBackgroundEfficiency = fTMVABackgroundEfficencyGraph[fTMVAData[b]->fZenithCut_bin]->Eval(
+                            fTMVAData[b]->fSpectralWeightedMeanEnergy_Log10TeV );
+        }
+        else
+        {
+            fTMVAData[b]->fBackgroundEfficiency = effB->GetBinContent( effB->GetXaxis()->FindBin( fTMVAData[b]->fTMVACutValue ) );
+        }
 
         if( fDebug )
         {
@@ -882,7 +913,7 @@ bool VTMVAEvaluator::evaluate()
         return false;
     }
     
-    // find correct bin (e.g. depending on energy or zenith)
+    // find correct bin (e.g., depending on energy or zenith)
     unsigned int iDataBin = getDataBin( fData->getEnergy_Log10(), fData->getZe() );
     
     fTMVA_EvaluationResult = -99.;
@@ -898,18 +929,27 @@ bool VTMVAEvaluator::evaluate()
         }
         
         // evaluate MVA for this event
-        fTMVA_EvaluationResult = fTMVAData[iDataBin]->fTMVAReader->EvaluateMVA( fTMVAData[iDataBin]->fTMVAMethodTag_2 );
-        
+        // fTMVA_EvaluationResult = fTMVAData[iDataBin]->fTMVAReader->EvaluateMVA( fTMVAData[iDataBin]->fTMVAMethodTag_2 );
+
+        // evaluate interpolate MVA for this event
+        fTMVA_EvaluationResult = evaluateInterPolateMVA( fData->getEnergy_Log10(), fData->getZe(), iDataBin );
+
         // apply MVA cut
         // -> can be either
-        //    i) a 2D Graph
+        //    i) a 1D Graph (vector of graphs in ze)
         //    ii) a map for values in energy and zenith
-        if( fTMVACutValueGraph.size() > 0 && iDataBin % 10 + 1 < fTMVACutValueGraph.size() )
+        if( fTMVACutValueGraph.size() > 0
+        && fTMVAData[iDataBin]->fZenithCut_bin < fTMVACutValueGraph.size()
+        && fTMVACutValueGraph[fTMVAData[iDataBin]->fZenithCut_bin] )
         {
-            double iV = fTMVACutValueGraph[iDataBin % 10]->Eval( fData->getEnergy_Log10() );
-            if( fTMVA_EvaluationResult < iV )
+            // fTMVACutValueGraph is a vector of the size of ze bins
+            if( fTMVA_EvaluationResult < fTMVACutValueGraph[fTMVAData[iDataBin]->fZenithCut_bin]->Eval( fData->getEnergy_Log10() ) )
             {
                 return false;
+            }
+            else
+            {
+                return true;
             }
         }
         else if( fTMVA_EvaluationResult < fTMVAData[iDataBin]->fTMVACutValue )
@@ -924,12 +964,155 @@ bool VTMVAEvaluator::evaluate()
     return false;
 }
 
+/*
+ * calculate MVA for a given event
+ *
+ * interpolate over different bins and calculate
+ * the weighted average
+ *
+ */
+double VTMVAEvaluator::evaluateInterPolateMVA( double iErec_log10TeV, double iZe, unsigned int iDataBin )
+{
+    vector< double > iW = getDataBinWeights( iErec_log10TeV, iZe );
+    double iMVA = 0.;
+    double iMVA_tot = 0.;
+
+    // efficiency check: don't interpolate if there is only one energy bin
+    // for the TMVAs
+    if( fWeightFileIndex_Emax - fWeightFileIndex_Emin == 1 )
+    {
+        return fTMVAData[iDataBin]->fTMVAReader->EvaluateMVA( fTMVAData[iDataBin]->fTMVAMethodTag_2 );
+    }
+
+    for( unsigned int w = 0; w < iW.size(); w++ )
+    {
+        // ignore very small weights
+        if( w < fTMVAData.size() && iW[w] > 0.001
+        && fTMVAData[w]->fTMVAReader )
+        {
+             double t = fTMVAData[w]->fTMVAReader->EvaluateMVA( fTMVAData[w]->fTMVAMethodTag_2 );
+             iMVA += iW[w] * t;
+             iMVA_tot += iW[w];
+        }
+    }
+    if( iMVA_tot > 0. )
+    {
+        return iMVA / iMVA_tot;
+    }
+
+    return -99.;
+}
 
 /*
+ * for given E and Ze, get weights depending on the 
+ * distance in energy
  *
+ * no interpolation in zenith angle
+ *
+ * return vector always same legnth is fTMVAData
+ *
+ */
+vector< double > VTMVAEvaluator::getDataBinWeights( double iErec_log10TeV, unsigned int iZeBin )
+{
+    vector< double > iW( fTMVAData.size(), 0. );
+    for( unsigned int i = 0; i < fTMVAData.size(); i++ )
+    {
+           if( fTMVAData[i]->fZenithCut_bin == iZeBin )
+           {
+                return getDataBinWeights( iErec_log10TeV,
+                     0.5 * ( fTMVAData[i]->fZenithCut_min
+                           + fTMVAData[i]->fZenithCut_max ) );
+           }
+    }
+    return iW;
+}
+
+/*
+ * for given E and Ze, get weights depending on the 
+ * distance in energy
+ *
+ * no interpolation in zenith angle
+ *
+ * return vector always same legnth is fTMVAData
+ *
+ */
+vector< double > VTMVAEvaluator::getDataBinWeights( double iErec_log10TeV, double iZe )
+{
+    vector< double > iW( fTMVAData.size(), 0. );
+
+    double iMeanEnergy = 1.e10;
+    double i_tot = 0.;
+
+    for( unsigned int i = 0; i < fTMVAData.size(); i++ )
+    {
+        // get zenith bin for the current zenith (read from fData)
+        if( ( iZe > fTMVAData[i]->fZenithCut_min && iZe <= fTMVAData[i]->fZenithCut_max ) || iZe < -998. )
+        {
+            // mean energy of this energy bin (possibly spectral weighted)
+            iMeanEnergy = VMathsandFunctions::getMeanEnergyInBin( 2, fTMVAData[i]->fEnergyCut_Log10TeV_min,
+                          fTMVAData[i]->fEnergyCut_Log10TeV_max,
+                          fSpectralIndexForEnergyWeighting );
+            if( iErec_log10TeV < iMeanEnergy )
+            {
+                if( TMath::Abs(iMeanEnergy-fTMVAData[i]->fEnergyCut_Log10TeV_min) > 0. )
+                {
+                    iW[i] = 1. - tanh( 2.* TMath::Abs( iMeanEnergy - iErec_log10TeV ) / TMath::Abs(iMeanEnergy-fTMVAData[i]->fEnergyCut_Log10TeV_min)  );
+                }
+                else
+                {
+                    iW[i] = 1.;
+                }
+            }
+            else
+            {
+                if( TMath::Abs(iMeanEnergy+fTMVAData[i]->fEnergyCut_Log10TeV_max) > 0. )
+                {
+                    iW[i] = 1. - tanh( 2. * TMath::Abs( iMeanEnergy - iErec_log10TeV ) / TMath::Abs(iMeanEnergy+fTMVAData[i]->fEnergyCut_Log10TeV_max) );
+                }
+                else
+                {
+                    iW[i] = 1.;
+                }
+            }
+            i_tot += iW[i];
+        }
+     }
+     if( i_tot > 0. )
+     {
+         for( unsigned int i = 0; i < iW.size(); i++ )
+         {
+             iW[i] = iW[i] / i_tot;
+         }
+     }
+     return iW;
+}
+
+/*
+ *   get bin number for current event
+ *
+ *   --> ZeBin given
+ */
+unsigned int VTMVAEvaluator::getDataBin( double iErec_log10TeV, unsigned int iZeBin )
+{
+      for( unsigned int i = 0; i < fTMVAData.size(); i++ )
+      {
+           if( fTMVAData[i]->fZenithCut_bin == iZeBin )
+           {
+                return getDataBin( iErec_log10TeV,
+                     0.5 * ( fTMVAData[i]->fZenithCut_min
+                           + fTMVAData[i]->fZenithCut_max ) );
+           }
+      }
+
+      // ze bin not found
+      return 9999;
+}
+
+
+/*
  *   get bin number for current event
  */
-unsigned int VTMVAEvaluator::getDataBin( double iErec, double iZe )
+unsigned int VTMVAEvaluator::getDataBin( double iErec_log10TeV, double iZe )
 {
     double       i_Diff_Energy = 1.e10;           // difference between energy of current event and mean bin energy
     double       iMeanEnergy = 0.;
@@ -945,10 +1128,10 @@ unsigned int VTMVAEvaluator::getDataBin( double iErec, double iZe )
             iMeanEnergy = VMathsandFunctions::getMeanEnergyInBin( 2, fTMVAData[i]->fEnergyCut_Log10TeV_min,
                           fTMVAData[i]->fEnergyCut_Log10TeV_max,
                           fSpectralIndexForEnergyWeighting );
-            // check which energy bin is closest
-            if( TMath::Abs( iMeanEnergy - iErec ) < i_Diff_Energy )
+            // check which energy bin is closest (on log scale)
+            if( TMath::Abs( iMeanEnergy - iErec_log10TeV ) < i_Diff_Energy )
             {
-                i_Diff_Energy = TMath::Abs( iMeanEnergy - iErec );
+                i_Diff_Energy = TMath::Abs( iMeanEnergy - iErec_log10TeV );
                 iBin = i;
                 iMeanEnergy_min = iMeanEnergy;
             }
@@ -959,7 +1142,7 @@ unsigned int VTMVAEvaluator::getDataBin( double iErec, double iZe )
         cout << "VTMVAEvaluator::getDataBin: " << iBin << endl;
         fTMVAData[iBin]->print();
         cout << "\t mean energy " << iMeanEnergy_min;
-        cout << ", log10 energy " << iErec << "\t" << i_Diff_Energy ;
+        cout << ", log10 energy " << iErec_log10TeV << "\t" << i_Diff_Energy ;
         cout << "\t" << fSpectralIndexForEnergyWeighting << endl;
     }
     
@@ -1042,7 +1225,9 @@ TGraph* VTMVAEvaluator::getOptimalTheta2Cut_Graph()
  * plot signal and background efficiencies
  *
  */
-TGraphAsymmErrors* VTMVAEvaluator::plotSignalAndBackgroundEfficiencies( bool iLogY, double iYmin, double iMVA_min, double iMVA_max )
+TGraphAsymmErrors* VTMVAEvaluator::plotSignalAndBackgroundEfficiencies( 
+                          bool iLogY, double iYmin, 
+                          double iMVA_min, double iMVA_max )
 {
     if( fTMVAData.size() == 0 )
     {
@@ -1107,7 +1292,10 @@ TGraphAsymmErrors* VTMVAEvaluator::plotSignalAndBackgroundEfficiencies( bool iLo
         }
         else
         {
-            cout << "VTMVAEvaluator::plotSignalAndBackgroundEfficiencies: signal / background efficiency histograms not found " << endl;
+            cout << "VTMVAEvaluator::plotSignalAndBackgroundEfficiencies: ";
+            cout << "signal / background efficiency histograms not found in " << endl;
+            cout << fTMVAData[i]->fTMVAFileName << endl;
+            cout << "Signal and background efficiency: ";
             cout << fTMVAData[i]->fSignalEfficiency << "\t" << fTMVAData[i]->fBackgroundEfficiency << endl;
         }
         if( fTMVAData[i]->fBackgroundEfficiency < iMinBck )
@@ -1212,6 +1400,10 @@ TGraphAsymmErrors* VTMVAEvaluator::plotSignalAndBackgroundEfficiencies( bool iLo
     return igCVa;
 }
 
+/*
+ * constant (not dependend on energy and zenith angle)
+ * signal efficiency
+ */
 void VTMVAEvaluator::setSignalEfficiency( double iSignalEfficiency )
 {
     fSignalEfficiencyMap[9999] = iSignalEfficiency;
@@ -1219,6 +1411,10 @@ void VTMVAEvaluator::setSignalEfficiency( double iSignalEfficiency )
     fSignalEfficiencyNoVec = iSignalEfficiency;
 }
 
+/*
+ * signal efficiency
+ * dependend on energy and zenith angle
+ */
 void VTMVAEvaluator::setSignalEfficiency( map< unsigned int, double > iSignalEfficiencyMap )
 {
     fSignalEfficiencyMap = iSignalEfficiencyMap;
@@ -1228,20 +1424,57 @@ void VTMVAEvaluator::setSignalEfficiency( map< unsigned int, double > iSignalEff
 }
 
 /*
+ * return all TMVA cut graphs as a single vector
+ * (MVA, signal and background efficiency)
+ */
+vector< TGraphAsymmErrors* > VTMVAEvaluator::getTMVACutValueGraphs()
+{
+     vector< TGraphAsymmErrors* > iG;
+     for( unsigned int i = 0; i < fTMVACutValueGraph.size(); i++ )
+     {
+          if( fTMVACutValueGraph[i] )
+          {
+               iG.push_back( fTMVACutValueGraph[i] );
+          }
+     }
+     for( unsigned int i = 0; i < fTMVASignalEfficencyGraph.size(); i++ )
+     {
+          if( fTMVASignalEfficencyGraph[i] )
+          {
+               iG.push_back( fTMVASignalEfficencyGraph[i] );
+          }
+     }
+     for( unsigned int i = 0; i < fTMVABackgroundEfficencyGraph.size(); i++ )
+     {
+          if( fTMVABackgroundEfficencyGraph[i] )
+          {
+               iG.push_back( fTMVABackgroundEfficencyGraph[i] );
+          }
+     }
+     return iG;
+}
+
+/*
  * optimised cuts are given in energy dependent graphs
  *
  * naming of graphs:
  *   TMVACutValue_ze0, TMVACutValue_ze1 for different zenith angle bins
  *
+ *   optimally apply smoothing here:
+ *   - set iCutGraphSmoothing > 0 (best to roughly Eres, 0.1-0.2
+ *
  */
-
 vector< TGraphAsymmErrors* > VTMVAEvaluator::setTMVACutValueFromGraph( string iFileName, 
                                                                        double iCutGraphSmoothing,
-                                                                       double iCutGraphSmoothingMax )
+                                                                       double iCutGraphSmoothingMax,
+                                                                       double iCutGraphConstantCutEnergy_TeV,
+                                                                       bool iSmoothTMVAGraph )
 {
     fTMVACutValueGraph.clear();
+    fTMVASignalEfficencyGraph.clear();
+    fTMVABackgroundEfficencyGraph.clear();
 
-    iFileName = VUtilities::testFileLocation( iFileName, "GammaHadronCutFiles", true );
+    iFileName = VUtilities::testFileLocation( iFileName, "", true );
     fTMVACutValueFile =  new TFile( iFileName.c_str() );
     if( fTMVACutValueFile->IsZombie() )
     {
@@ -1253,66 +1486,80 @@ vector< TGraphAsymmErrors* > VTMVAEvaluator::setTMVACutValueFromGraph( string iF
     }
     TGraphAsymmErrors *iG = 0;
     char hname[100];
+    // lazy loop; assume not more than 99 zenith bins
     for( unsigned int i = 0; i < 99; i++ )
     {
-         sprintf( hname, "TMVACutValue_ze%u", i );
-         iG = (TGraphAsymmErrors*)fTMVACutValueFile->Get( hname );
-         if( !iG )
+         // smooth TMVA graph
+         // note: this might lead to steps in the 
+         // signal efficiency vs energy function
+         // when changing between energy bins
+         if( iSmoothTMVAGraph )
          {
-              break;
-         }
-         // smooth graph roughly with bin width / energy resolutions
-         if( iCutGraphSmoothing > 0 && iG->GetN() > 1 )
-         {
-             double x = 0.;
-             double y = 0.;
-             iG->GetPoint( 0, x, y );
-             double e_min = x - iG->GetErrorXlow( 0 );
-             iG->GetPoint( iG->GetN()-1, x, y );
-             double e_max = x + iG->GetErrorXhigh( 0 );
-             TGraphAsymmErrors *iSmoothedGaussian = new TGraphAsymmErrors( 1 );
-             int z = 0;
-             double e_log10_G = 0.;
-             double iV = 0.;
-             // point in energy
-             // (divide energy range into 1000 points)
-             for( unsigned int i = 0; i < 1000; i++ )
+             sprintf( hname, "TMVACutValue_ze%u", i );
+             iG = (TGraphAsymmErrors*)fTMVACutValueFile->Get( hname );
+             if( !iG )
              {
-                  double e_log10 = e_min + i * (e_max - e_min)/1000.;
-                  double iM = 0.;
-                  double iN = 0.;
-                  // Gaussian smoothing using
-                  // 1000 iterations per energy point
-                  for( unsigned int j = 0; j < 1000; j++ )
-                  {
-                      e_log10_G = e_log10 + gRandom->Gaus( 0., iCutGraphSmoothing );
-                      // make sure that values are in the given energy range
-                      // (extrapolation might otherwise result in very wrong
-                      // values)
-                      if( e_log10_G > e_min && e_log10_G < e_max )
-                      {
-                          iV = iG->Eval( e_log10_G );
-                          // accept only cut values below a maximum
-                          // (optimisation might give in the threshold region
-                          //  very high values)
-                          if( iV < iCutGraphSmoothingMax )
-                          {
-                              iM += iV;
-                              iN++;
-                          }
-                      }
-                  }
-                  if( iN > 0. )
-                  {
-                     iSmoothedGaussian->SetPoint( z, e_log10, iM / iN );
-                     z++;
-                  }
+                  break;
              }
-             fTMVACutValueGraph.push_back( iSmoothedGaussian );
+             // smooth graph roughly with bin width / energy resolutions
+             if( iCutGraphSmoothing > 0 && iG->GetN() > 1 )
+             {
+                 fTMVACutValueGraph.push_back(
+                          smoothMVAGraph( iG,
+                          iCutGraphSmoothing,
+                          iCutGraphSmoothingMax,
+                          iCutGraphConstantCutEnergy_TeV,
+                          hname, i ) );
+                 fTMVASignalEfficencyGraph.push_back(
+                      fillSmoothedEfficencyGraph(
+                        fTMVACutValueGraph.back(),
+                        i, 
+                        true ) );
+                 fTMVABackgroundEfficencyGraph.push_back(
+                      fillSmoothedEfficencyGraph(
+                        fTMVACutValueGraph.back(),
+                        i, 
+                        false) );
+             }
          }
+         // smooth signal efficiency
          else
          {
-             fTMVACutValueGraph.push_back( iG );
+             sprintf( hname, "SignalEfficiency_ze%u", i );
+             iG = (TGraphAsymmErrors*)fTMVACutValueFile->Get( hname );
+             if( !iG )
+             {
+                  break;
+             }
+             // smooth graph roughly with bin width / energy resolutions
+             if( iCutGraphSmoothing > 0 && iG->GetN() > 1 )
+             {
+                 sprintf( hname, "SignalEfficiency_ze%u", i );
+                 /*fTMVASignalEfficencyGraph.push_back(
+                          smoothMVAGraph( iG,
+                          iCutGraphSmoothing,
+                          1.,                  // -> max signal efficiency of 100%
+                          iCutGraphConstantCutEnergy_TeV,
+                          hname, i ) );
+                 fTMVACutValueGraph.push_back(
+                      fillSmoothedMVACutGraph(
+                          fTMVASignalEfficencyGraph.back(),
+                          i ) );*/
+                 
+                 vector< TGraphAsymmErrors* > iRG = 
+                      smoothSignalEfficiencyMVAGraph( iG,
+                          iCutGraphSmoothing,
+                          1.,                  // -> max signal efficiency of 100%
+                          iCutGraphConstantCutEnergy_TeV,
+                          hname, i );
+                 fTMVASignalEfficencyGraph.push_back( iRG[0] );
+                 fTMVACutValueGraph.push_back( iRG[1] ); 
+                 fTMVABackgroundEfficencyGraph.push_back(
+                      fillSmoothedEfficencyGraph(
+                        fTMVACutValueGraph.back(),
+                        i, 
+                        false ) );
+              }
          }
     }  
     if( fTMVACutValueGraph.size() == 0 )
@@ -1327,13 +1574,353 @@ vector< TGraphAsymmErrors* > VTMVAEvaluator::setTMVACutValueFromGraph( string iF
     cout << "\tfound graphs for " << fTMVACutValueGraph.size() << " zenith angle bin(s)" << endl;
     if( iCutGraphSmoothing > 0 )
     {
-         cout << "\tapplied cut graph Gaussian smoothing with dE = " << iCutGraphSmoothing;
+         cout << "\tapply cut graph Gaussian smoothing with dE = " << iCutGraphSmoothing;
          cout << " ( max " << iCutGraphSmoothingMax;
+         cout << " (constant cut energy " << iCutGraphConstantCutEnergy_TeV << " TeV";
          cout << ", " << fTMVACutValueGraph.back()->GetN() << " points in energy)" << endl;
+         if( iSmoothTMVAGraph )
+         { 
+             cout << "\tsmooth mva values" << endl;
+         }
+         else
+         { 
+             cout << "\tsmooth signal efficiencies" << endl;
+         }
     }
 
     return fTMVACutValueGraph;
 }
+
+/*
+ * fill mva cut value from smooth signal efficiency graph
+ * (reverse of TGraphAsymmErrors* VTMVAEvaluator::fillSmoothedEfficencyGraph() )
+ */
+TGraphAsymmErrors* VTMVAEvaluator::fillSmoothedMVACutGraph(
+                             TGraphAsymmErrors* iG,
+                             unsigned int iZe )
+{
+    if( !iG )
+    {
+        return 0;
+    }
+    string iName = "TMVACutValue_ze";
+    TGraphAsymmErrors *iSmoothed = new TGraphAsymmErrors( 1 );
+    iSmoothed->SetLineColor( iZe+1 );
+    iSmoothed->SetMarkerColor( iZe+1 );
+    ostringstream iGName;
+    iGName << iName << iZe << "_smoothed";
+    iSmoothed->SetName( iGName.str().c_str() );
+    iSmoothed->SetTitle( iGName.str().c_str() );
+    double x, y;
+    // loop over energies (fine bins)
+    for( int i = 0; i < iG->GetN(); i++ )
+    {
+        iG->GetPoint( i, x, y );
+        vector< double > iW = getDataBinWeights( x, iZe );
+        double iMVA = 0.;
+        double iMVA_tot = 0.;
+        for( unsigned int w = 0; w < iW.size(); w++ )
+        {
+            // ignoring small weights
+            if( iW[w] > 0.001 && w < fTMVAData.size() )
+            {
+                 if( fTMVAData[w]->hSignalEfficiency )
+                 {
+                     iMVA += iW[w] * 
+                           fTMVAData[w]->hSignalEfficiency->GetBinCenter( 
+                                   fTMVAData[w]->hSignalEfficiency->FindLastBinAbove( y ) );
+                     iMVA_tot += iW[w];
+                 }
+            }
+       }
+       // weighted MVA cut
+       if( iMVA_tot > 0. )
+       {
+            iSmoothed->SetPoint( i, x, iMVA / iMVA_tot );
+       }
+    }
+
+    return iSmoothed;
+}
+
+
+/*
+ * fill signal/background efficencies for a smooth mva graph
+ * (reverse of TGraphAsymmErrors* VTMVAEvaluator::fillSmoothedMVACutGraph() )
+ *
+ */
+TGraphAsymmErrors* VTMVAEvaluator::fillSmoothedEfficencyGraph(
+                             TGraphAsymmErrors* iG,
+                             unsigned int iZe,
+                             bool iSignalEfficiency )
+{
+    if( !iG )
+    {
+        return 0;
+    }
+    string iName = "SignalEfficiency_ze";
+    if( !iSignalEfficiency )
+    {
+         iName = "BackgroundEfficiency_ze";
+    }
+    TGraphAsymmErrors *iSmoothed = new TGraphAsymmErrors( 1 );
+    iSmoothed->SetLineColor( iZe+1 );
+    iSmoothed->SetMarkerColor( iZe+1 );
+    ostringstream iGName;
+    iGName << iName << iZe << "_smoothed";
+    iSmoothed->SetName( iGName.str().c_str() );
+    iSmoothed->SetTitle( iGName.str().c_str() );
+    double x, y;
+    int z = 0;
+    for( int i = 0; i < iG->GetN(); i++ )
+    {
+        iG->GetPoint( i, x, y );
+        vector< double > iW = getDataBinWeights( x, iZe );
+        double iEff = 0.;
+        double iEff_tot = 0.; 
+        for( unsigned int w = 0; w < iW.size(); w++ )
+        {
+            if( iW[w] > 0.001 && w < fTMVAData.size() )
+            {
+                 if( iSignalEfficiency &&
+                 fTMVAData[w]->hSignalEfficiency )
+                 {
+                     iEff += iW[w] *
+                          fTMVAData[w]->hSignalEfficiency->GetBinContent(
+                          fTMVAData[w]->hSignalEfficiency->GetXaxis()->FindBin( y ) );
+                     iEff_tot += iW[w];
+                 }
+                 else if( !iSignalEfficiency &&
+                     fTMVAData[w]->hBackgroundEfficiency )
+                 {
+                     iEff = iW[w] *
+                          fTMVAData[w]->hBackgroundEfficiency->GetBinContent(
+                          fTMVAData[w]->hBackgroundEfficiency->GetXaxis()->FindBin( y ) );
+                     iEff_tot += iW[w];
+                 }
+           }
+        }
+        if( iEff_tot > 0. )
+        {
+            iSmoothed->SetPoint( z, x, iEff / iEff_tot );
+            z++;
+        }
+    }
+
+    return iSmoothed;
+}
+
+/*
+ * smooth a graph roughly with bin width and energy resolution
+ *
+ */
+TGraphAsymmErrors* VTMVAEvaluator::smoothMVAGraph( TGraphAsymmErrors* iG,
+                                                   double iCutGraphSmoothing,
+                                                   double iCutGraphSmoothingMax,
+                                                   double iCutGraphConstantCutEnergy_TeV,
+                                                   string iName, unsigned int iZe )
+{
+     if( !iG )
+     {
+          return 0;
+     }
+
+     double x = 0.;
+     double y = 0.;
+     iG->GetPoint( 0, x, y );
+     double e_min = x - iG->GetErrorXlow( 0 );
+     iG->GetPoint( iG->GetN()-1, x, y );
+     double e_max = x + iG->GetErrorXhigh( iG->GetN()-1 );
+     TGraphAsymmErrors *iSmoothedGaussian = new TGraphAsymmErrors( 1 );
+     ostringstream iGName;
+     iGName << iName << "_smoothed";
+     iSmoothedGaussian->SetName( iGName.str().c_str() );
+     iSmoothedGaussian->SetTitle( iGName.str().c_str() );
+
+     int z = 0;
+     double e_log10_G = 0.;
+     unsigned int nToyMC_Ebins = 100;
+     // point in energy
+     // (divide energy range into 1000 points)
+     for( unsigned int i = 0; i < nToyMC_Ebins; i++ )
+     {
+          double e_log10 = e_min + i * (e_max - e_min)/(double)nToyMC_Ebins;
+          double iM = 0.;
+          double iN = 0.;
+          // Gaussian smoothing using
+          // 10000 iterations per energy point
+          for( unsigned int j = 0; j < 10000; j++ )
+          {
+              e_log10_G = e_log10 + gRandom->Gaus( 0., iCutGraphSmoothing );
+              // make sure that values are in the given energy range
+              // (extrapolation might otherwise result in very wrong
+              // values)
+              if( e_log10_G > e_min && e_log10_G < e_max )
+              {
+                  vector< double > iW = getDataBinWeights( e_log10_G, iZe );
+                  double iMVA = 0.;
+                  double iMVA_tot = 0.;
+                  for( unsigned int w = 0; w < iW.size(); w++ )
+                  {
+                      // ignoring small weights
+                      if( iW[w] > 0.001 && w < fTMVAData.size() )
+                      {
+                          iG->GetPoint( fTMVAData[w]->fEnergyCut_bin, x, y );
+                          iMVA += iW[w] * y;
+                          iMVA_tot += iW[w];
+                      }
+                  }
+                  // accept only cut values below a maximum
+                  // (optimisation might give in the threshold region
+                  //  very high values)
+                  if( iMVA_tot > 0. && iMVA / iMVA_tot < iCutGraphSmoothingMax )
+                  {
+                       iM +=  iMVA / iMVA_tot;
+                       iN++;
+                  }
+              }
+          }
+          if( iN > 0. )
+          {
+             // apply constant cut value above this energy
+             if( e_log10 > log10( iCutGraphConstantCutEnergy_TeV ) )
+             {
+                 iSmoothedGaussian->SetPoint( z, e_log10, 
+                                   iSmoothedGaussian->Eval( e_min + (i-1) * (e_max - e_min)/(double)nToyMC_Ebins ) );
+             }
+             else
+             {
+                 iSmoothedGaussian->SetPoint( z, e_log10, iM / iN );
+             }
+             z++;
+          }
+     }
+     return iSmoothedGaussian;
+}
+
+/*
+ * smooth a graph roughly with bin width and energy resolution
+ *
+ */
+vector< TGraphAsymmErrors* > VTMVAEvaluator::smoothSignalEfficiencyMVAGraph( TGraphAsymmErrors* iG,
+                                                   double iCutGraphSmoothing,
+                                                   double iCutGraphSmoothingMax,
+                                                   double iCutGraphConstantCutEnergy_TeV,
+                                                   string iName, unsigned int iZe )
+{
+     vector< TGraphAsymmErrors* > iRG;
+     if( !iG )
+     {
+          iRG.push_back( 0 );
+          iRG.push_back( 0 );
+          return iRG;
+     }
+
+     double x = 0.;
+     double y = 0.;
+     iG->GetPoint( 0, x, y );
+     double e_min = x - iG->GetErrorXlow( 0 );
+     iG->GetPoint( iG->GetN()-1, x, y );
+     double e_max = x + iG->GetErrorXhigh( iG->GetN()-1 );
+
+     // first element: smooth signal efficiency
+     iRG.push_back( new TGraphAsymmErrors( 1 ) );
+     ostringstream iGName;
+     iGName << iName << "_smoothed";
+     iRG.back()->SetName( iGName.str().c_str() );
+     iRG.back()->SetTitle( iGName.str().c_str() );
+     // second element: smoothed mva efficiency
+     iRG.push_back( new TGraphAsymmErrors( 1 ) );
+     ostringstream iHName;
+     iHName << "TMVACutValue_ze" << iZe << "_smoothed";
+     iRG.back()->SetName( iHName.str().c_str() );
+     iRG.back()->SetTitle( iHName.str().c_str() );
+     // second element: smoothed mva efficiency
+
+     int z = 0;
+     double e_log10_G = 0.;
+     unsigned int nToyMC_Ebins = 100;
+     unsigned int nToyMC = 10000;
+     if( iCutGraphSmoothing < 1.e-7 )
+     {
+         nToyMC = 1;
+
+     }
+     // point in energy
+     // (divide energy range into 1000 points)
+     for( unsigned int i = 0; i < nToyMC_Ebins; i++ )
+     {
+          double e_log10 = e_min + i * (e_max - e_min)/(double)nToyMC_Ebins;
+          double iS = 0.;
+          double iM = 0.;
+          double iN = 0.;
+          // Gaussian smoothing using
+          // 10000 iterations per energy point
+          for( unsigned int j = 0; j < nToyMC; j++ )
+          {
+              e_log10_G = e_log10 + gRandom->Gaus( 0., iCutGraphSmoothing );
+              // make sure that values are in the given energy range
+              // (extrapolation might otherwise result in very wrong
+              // values)
+              if( e_log10_G > e_min && e_log10_G < e_max )
+              {
+                  vector< double > iW = getDataBinWeights( e_log10_G, iZe );
+                  double iEffS = 0.;
+                  double iEffS_tot = 0.;
+                  double iMVA = 0.;
+                  double iMVA_tot = 0.;
+                  for( unsigned int w = 0; w < iW.size(); w++ )
+                  {
+                      // ignoring small weights
+                      if( w < fTMVAData.size() && iW[w] > 0.001 )
+                      {
+                          y = iG->Eval( e_log10_G );
+                          iEffS += iW[w] * y;
+                          iEffS_tot += iW[w];
+                          // get MVA value for this signal efficiency
+                          if( fTMVAData[w]->hSignalEfficiency )
+                          {
+                                 iMVA += iW[w] *
+                                 fTMVAData[w]->hSignalEfficiency->GetBinCenter( 
+                                               fTMVAData[w]->hSignalEfficiency->FindLastBinAbove( y ) ); 
+                                 iMVA_tot += iW[w];
+                          }
+                      }
+                  }
+                  // accept only cut values below a maximum
+                  // (optimisation might give in the threshold region
+                  //  very high values)
+                  if( iEffS_tot > 0. 
+                  && iEffS / iEffS_tot < iCutGraphSmoothingMax
+                  && iMVA_tot > 0. )
+                  {
+                       iS +=  iEffS / iEffS_tot;
+                       iM +=  iMVA / iMVA_tot;
+                       iN++;
+                  }
+              }
+          }
+          if( iN > 0. )
+          {
+             // apply constant cut value above this energy
+             if( e_log10 > log10( iCutGraphConstantCutEnergy_TeV ) )
+             {
+                 iRG[0]->SetPoint( z, e_log10, 
+                                   iRG[0]->Eval( e_min + (i-1) * (e_max - e_min)/(double)nToyMC_Ebins) );
+                 iRG[1]->SetPoint( z, e_log10, 
+                                   iRG[1]->Eval( e_min + (i-1) * (e_max - e_min)/(double)nToyMC_Ebins) );
+             }
+             else
+             {
+                 iRG[0]->SetPoint( z, e_log10, iS / iN );
+                 iRG[1]->SetPoint( z, e_log10, iM / iN );
+             }
+             z++;
+          }
+     }
+     return iRG;
+}
+
 
 /*
  * tmva cuts are given by maps
@@ -1377,6 +1964,23 @@ void VTMVAEvaluator::printAngularContainmentRadius()
     {
         return;
     }
+    // make sure that there are any valid values
+    bool iPrint = false;
+    for( unsigned int i = 0; i < fTMVAData.size(); i++ )
+    {
+        if( fTMVAData[i] )
+        {
+             if( fTMVAData[i]->fAngularContainmentRadius >= 0. )
+             {
+                 iPrint = true;
+                 break;
+             }
+         }
+    }
+    if( !iPrint )
+    {
+        return;
+    }
     
     cout << endl;
     cout << "======================= VTMVAEvaluator: energy dependent optimal containment radius cut =======================" << endl;
@@ -1384,8 +1988,9 @@ void VTMVAEvaluator::printAngularContainmentRadius()
     {
         if( fTMVAData[i] )
         {
-            cout << "E [" << showpoint << setprecision( 3 ) << fTMVAData[i]->fEnergyCut_Log10TeV_min << "," << fTMVAData[i]->fEnergyCut_Log10TeV_max << "] TeV";
-            cout << ", Ze [" << fTMVAData[i]->fZenithCut_min << "," << fTMVAData[i]->fZenithCut_max << "] deg";
+            cout << "E [" << showpoint << setprecision( 3 );
+            cout << showpos << fTMVAData[i]->fEnergyCut_Log10TeV_min << "," << fTMVAData[i]->fEnergyCut_Log10TeV_max << "] TeV";
+            cout << noshowpos <<  ", Ze [" << fTMVAData[i]->fZenithCut_min << "," << fTMVAData[i]->fZenithCut_max << "] deg";
             cout << " (bin " << i << "):\t ";
             cout << fTMVAData[i]->fAngularContainmentRadius << " [deg], ";
             cout << "T^2: " << fTMVAData[i]->fAngularContainmentRadius* fTMVAData[i]->fAngularContainmentRadius << " [deg^2], ";
@@ -1501,9 +2106,9 @@ bool VTMVAEvaluator::writeOptimizedMVACutValues( string iRootFile )
         {
              sprintf( hname, "TMVACutValue_ze%u", i );
              ivG[i]->Write( hname );
-             sprintf( hname, "SignalEfficiency_%u", i );
+             sprintf( hname, "SignalEfficiency_ze%u", i );
              ivS[i]->Write( hname );
-             sprintf( hname, "BackgroundEfficiency_%u", i );
+             sprintf( hname, "BackgroundEfficiency_ze%u", i );
              ivB[i]->Write( hname );
         }
     }
@@ -1541,7 +2146,10 @@ void VTMVAEvaluator::printOptimizedMVACutValues( string iEpoch )
     cout << "(first digit: energy bin, second digit: zenith bin)" << endl;
 }
    
-
+/* 
+ * print a table with signal efficiencies
+ *
+ */
 void VTMVAEvaluator::printSignalEfficiency()
 {
     if( fTMVAData.size() == 0 )
@@ -1555,25 +2163,44 @@ void VTMVAEvaluator::printSignalEfficiency()
     {
         if( fTMVAData[i] )
         {
-            cout << "E [" << showpoint << setprecision( 3 ) << fTMVAData[i]->fEnergyCut_Log10TeV_min;
-            cout << "," << fTMVAData[i]->fEnergyCut_Log10TeV_max << "] TeV";
+            cout << "E [" << showpoint << setprecision( 3 ) <<  showpos << fTMVAData[i]->fEnergyCut_Log10TeV_min;
+            cout << "," << fTMVAData[i]->fEnergyCut_Log10TeV_max << "] TeV" << noshowpos;
             cout << ", Ze [" << fTMVAData[i]->fZenithCut_min << "," << fTMVAData[i]->fZenithCut_max << "] deg";
             cout << " (bin " << i << "):\t ";
-            cout << fTMVAData[i]->fSignalEfficiency;
-            if( fTMVAData[i]->fBackgroundEfficiency > 0. )
+            // cut graph
+             if( fTMVACutValueGraph.size() > 0
+             && fTMVAData[i]->fZenithCut_bin < fTMVACutValueGraph.size()
+             && fTMVACutValueGraph[fTMVAData[i]->fZenithCut_bin] )
+             {
+                   // energy bin not needed for getSignalEfficiency
+                   cout << getSignalEfficiency( 0, 
+                                fTMVAData[i]->fEnergyCut_Log10TeV_min, fTMVAData[i]->fEnergyCut_Log10TeV_max,
+                                fTMVAData[i]->fZenithCut_bin,
+                                fTMVAData[i]->fZenithCut_min, fTMVAData[i]->fZenithCut_max,
+                                0, 0.1 );
+                   cout << "\t MVACut: ";
+                   cout << fTMVACutValueGraph[fTMVAData[i]->fZenithCut_bin]->Eval(
+                               0.5*(fTMVAData[i]->fEnergyCut_Log10TeV_min+fTMVAData[i]->fEnergyCut_Log10TeV_max));
+             }
+            // binned cut values
+            else
             {
-                cout << "\t(" << fTMVAData[i]->fBackgroundEfficiency << ")";
-            }
-            cout << "\t MVACut: " << fTMVAData[i]->fTMVACutValue;
-            if( fParticleNumberFileName.size() > 0 )
-            {
-                if( fTMVAData[i]->fTMVAOptimumCutValueFound )
+                cout << fTMVAData[i]->fSignalEfficiency;
+                if( fTMVAData[i]->fBackgroundEfficiency > 0. )
                 {
-                    cout << " (optimum reached for " << fTMVAData[i]->fSourceStrengthAtOptimum_CU << " CU)";
+                    cout << "\t(" << fTMVAData[i]->fBackgroundEfficiency << ")";
                 }
-                else
+                cout << "\t MVACut: " << fTMVAData[i]->fTMVACutValue;
+                if( fParticleNumberFileName.size() > 0 )
                 {
-                    cout << " (no optimum reached (" << fTMVAData[i]->fSourceStrengthAtOptimum_CU << " CU)";
+                    if( fTMVAData[i]->fTMVAOptimumCutValueFound )
+                    {
+                        cout << " (optimum reached for " << fTMVAData[i]->fSourceStrengthAtOptimum_CU << " CU)";
+                    }
+                    else
+                    {
+                        cout << " (no optimum reached (" << fTMVAData[i]->fSourceStrengthAtOptimum_CU << " CU)";
+                    }
                 }
             }
         }
@@ -1592,7 +2219,9 @@ void VTMVAEvaluator::printSignalEfficiency()
 
 */
 
-bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimizationType, string iInstrumentEpoch )
+bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, 
+                                          string iOptimizationType, 
+                                          string iInstrumentEpoch )
 {
     // valid data bin
     if( iDataBin >= fTMVAData.size() || !fTMVAData[iDataBin] )
@@ -1628,10 +2257,8 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
         cout << fTMVAngularContainmentRadiusMax << "%)";
         cout << endl;
     }
-    else
-    {
-        cout << "VTVMAEvaluator::optimizeSensitivity: no angular containment histogram found" << endl;
-    }
+    // (no error message if angular containment histogram is not found
+    //  simply means that theta2 cut is not optimised)
     
     ///////////////////////////////////////////////////////////////////////////////
     // get number of events (after quality cuts) at this energy from on/off graphs
@@ -1782,54 +2409,16 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
         return false;
     }
     // get signal and background efficiency histograms
-    TH1F* effS = getEfficiencyHistogram( "effS", iTMVAFile, fTMVAData[iDataBin]->fTMVAMethodTag_2 );
-    TH1F* effB = getEfficiencyHistogram( "effB", iTMVAFile, fTMVAData[iDataBin]->fTMVAMethodTag_2 );
+    // TH1D* effS = getEfficiencyHistogram( "effS", iTMVAFile, fTMVAData[iDataBin]->fTMVAMethodTag_2 );
+    // TH1D* effB = getEfficiencyHistogram( "effB", iTMVAFile, fTMVAData[iDataBin]->fTMVAMethodTag_2 );
+    TH1D* effS = fTMVAData[iDataBin]->hSignalEfficiency;
+    TH1D* effB = fTMVAData[iDataBin]->hBackgroundEfficiency;
     if( !effS || !effB )
     {
         cout << "VTVMAEvaluator::optimizeSensitivity: error:" << endl;
         cout << " cannot find signal and/or background efficiency histogram(s)" << endl;
         cout << effS << "\t" << effB << endl;
         return false;
-    }
-    // evaluate errors on determination of background cut efficiency and remove bins with large errors
-    // (GM) is this actually used anywhere?
-    char hname[800];
-    sprintf( hname, "Method_%s/%s_%d/MVA_%s_%d_B", fTMVAMethodName.c_str(),
-             fTMVAMethodName.c_str(), fTMVAMethodCounter, fTMVAMethodName.c_str(), fTMVAMethodCounter );
-    TH1F* effB_counts = ( TH1F* )iTMVAFile->Get( hname );
-    if( effB_counts )
-    {
-        double iMaxMVACutValue = -1.;
-        for( int i = effB_counts->GetNbinsX() - 1; i > 0; i-- )
-        {
-            if( effB_counts->GetBinContent( i ) > 0. )
-            {
-                if( effB_counts->GetBinError( i ) / effB_counts->GetBinContent( i ) > fTMVAErrorFraction_min )
-                {
-                    iMaxMVACutValue = effB_counts->GetBinCenter( i );
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-        if( iMaxMVACutValue > 0. )
-        {
-            cout << "VTVMAEvaluator::optimizeSensitivity: removing low significance bins from background efficiency curve (";
-            cout << fTMVAErrorFraction_min << ", " << iMaxMVACutValue << ")" << endl;
-            for( int i = 1; i <= effB->GetNbinsX(); i++ )
-            {
-                if( effB->GetBinCenter( i ) > iMaxMVACutValue )
-                {
-                    effB->SetBinContent( i, 0. );
-                }
-            }
-        }
-    }
-    else
-    {
-        cout << "VTVMAEvaluator::optimizeSensitivity: no background efficiency histogram for cut on efficiency uncertainty found" << endl;
     }
     
     cout << "VTVMAEvaluator::optimizeSensitivity: optimization parameters: ";
@@ -1852,6 +2441,7 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
     double i_Signal_to_sqrtNoise_atMaximum = 0.;
     double i_AngularContainmentRadiusAtMaximum = 0.;
     double i_AngularContainmentFractionAtMaximum = 0.;
+    double iSourceStrength = 0.;
     
     TGraph* iGSignal_to_sqrtNoise = 0;
     TGraph* iGSignalEvents        = 0;
@@ -1863,11 +2453,14 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
     //////////////////////////////////////////////////////
     // loop over different source strengths (in Crab Units)
     // (hardwired: start at 0.001 CU to 30 CU)
-    unsigned int iSourceStrengthStepSizeN = ( unsigned int )( ( log10( 30. ) - log10( fOptimizationMinSourceStrength ) ) / 0.005 );
+    unsigned int iSourceStrengthStepSizeN = 
+              ( unsigned int )( ( log10( fOptimizationMaxSourceStrength ) - log10( fOptimizationMinSourceStrength ) ) / 0.005 );
     cout << "VTVMAEvaluator::optimizeSensitivity: source strength steps: " << iSourceStrengthStepSizeN << endl;
+    cout << "VTVMAEvaluator::optimizeSensitivity: range for source strength: (";
+    cout << fOptimizationMinSourceStrength << ", " << fOptimizationMaxSourceStrength << ") CU" << endl;
     for( unsigned int s = 0; s < iSourceStrengthStepSizeN; s++ )
     {
-        double iSourceStrength = log10( fOptimizationMinSourceStrength ) + s * 0.005;
+        iSourceStrength = log10( fOptimizationMinSourceStrength ) + s * 0.005;
         iSourceStrength = TMath::Power( 10., iSourceStrength );
         
         // source events
@@ -2006,17 +2599,26 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
                 }
             }
         } // END loop over all signal efficiency bins
+        /////////////////////////
+        // determine position of maximum significance
         // fill a histogram from these values, smooth it, and determine position of maximum significance
         double i_xmax = -99.;
         if( iGSignal_to_sqrtNoise )
         {
             TGraphSmooth* iGSmooth = new TGraphSmooth( "s" );
             iGSignal_to_sqrtNoise_Smooth = iGSmooth->SmoothKern( iGSignal_to_sqrtNoise, "normal", 0.05, 100 );
-            // get maximum values
+            // find maximum in significance plot
             double i_ymax = -99.;
+            double i_xmax_global = -99.;
+            double i_ymax_global = -99.;
             for( int i = 0; i < iGSignal_to_sqrtNoise_Smooth->GetN(); i++ )
             {
                 iGSignal_to_sqrtNoise_Smooth->GetPoint( i, i_xmax, i_ymax );
+
+                /// check if this point passes all critera:
+                // - significance
+                // - systematic criterium
+                // - min number of background events
 
                 // passed significance criteria
                 if( i_ymax >= fOptimizationSourceSignificance )
@@ -2031,54 +2633,26 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
                              // number of signal events criterium
                              if( Ndif * i_SignalEfficiency_AtMaximum >= fOptimizationMinSignalEvents )
                              {
-                                  break;
+                                  // check if this is a global maximum
+                                  // (otherwise would find first bin above sig requirement)
+                                  if( i_ymax > i_ymax_global )
+                                  {
+                                       i_xmax_global = i_xmax;
+                                       i_ymax_global = i_ymax;
+                                  }
                              }
                         }
                     }
                 }
             }
-            i_SignalEfficiency_AtMaximum     = effS->GetBinContent( effS->FindBin( i_xmax ) );
-            i_BackgroundEfficiency_AtMaximum = effB->GetBinContent( effB->FindBin( i_xmax ) );
-            i_TMVACutValue_AtMaximum         = i_xmax;
-            i_Signal_to_sqrtNoise_atMaximum  = i_ymax;
+            i_SignalEfficiency_AtMaximum     = effS->GetBinContent( effS->FindBin( i_xmax_global ) );
+            i_BackgroundEfficiency_AtMaximum = effB->GetBinContent( effB->FindBin( i_xmax_global ) );
+            i_TMVACutValue_AtMaximum         = i_xmax_global;
+            i_Signal_to_sqrtNoise_atMaximum  = i_ymax_global;
             i_SourceStrength_atMaximum       = iSourceStrength;
-            i_AngularContainmentRadiusAtMaximum = iGOpt_AngularContainmentRadius->Eval( i_xmax );
-            i_AngularContainmentFractionAtMaximum = iGOpt_AngularContainmentFraction->Eval( i_xmax );
+            i_AngularContainmentRadiusAtMaximum = iGOpt_AngularContainmentRadius->Eval( i_xmax_global );
+            i_AngularContainmentFractionAtMaximum = iGOpt_AngularContainmentFraction->Eval( i_xmax_global );
         }
-        ///////////////////////////////////////////////////////
-        // check if value if really at the optimum or if information is missing from background efficiency curve
-        // (check if maximum was find in the last bin or if next bin content is zero)
-        /*if( ( effB->FindBin( i_xmax ) + 1  < effB->GetNbinsX()
-                && effB->GetBinContent( effB->FindBin( i_xmax ) + 1 ) < 1.e-10 )
-                || ( effB->FindBin( i_xmax ) == effB->GetNbinsX() ) )
-        {
-            if( fDebug )
-            {
-                cout << "VTMVAEvaluator::optimizeSensitivity: no optimum found" << endl;
-                cout << "\t sampling of background cut efficiency not sufficient" << endl;
-                if( effB->FindBin( i_xmax ) + 1  < effB->GetNbinsX() )
-                {
-                    cout << "\t bin " << effB->FindBin( i_xmax ) << "\t" << " bin content ";
-                    cout << effB->GetBinContent( effB->FindBin( i_xmax ) + 1 ) << endl;
-                }
-            }
-            // now check slope of sqrtNoise curve (if close to constant -> maximum reached)
-            if( iGSignal_to_sqrtNoise_Smooth->Eval( i_TMVACutValue_AtMaximum ) > 0.
-                    && iGSignal_to_sqrtNoise_Smooth->Eval( i_TMVACutValue_AtMaximum - 0.02 ) /
-                    iGSignal_to_sqrtNoise_Smooth->Eval( i_TMVACutValue_AtMaximum ) > 0.98 )
-            {
-                cout << "VTMVAEvaluator::optimizeSensitivity: recovered energy bin ";
-                cout << iGSignal_to_sqrtNoise_Smooth->Eval( i_TMVACutValue_AtMaximum - 0.02 ) /
-                     iGSignal_to_sqrtNoise_Smooth->Eval( i_TMVACutValue_AtMaximum );
-                cout << " (" << iDataBin << ")" << endl;
-                fTMVAData[iDataBin]->fTMVAOptimumCutValueFound = true;
-            }
-            fTMVAData[iDataBin]->fTMVAOptimumCutValueFound = false;
-        }
-        else
-        {
-            fTMVAData[iDataBin]->fTMVAOptimumCutValueFound = true;
-        } */
         fTMVAData[iDataBin]->fTMVAOptimumCutValueFound = true;
         /////////////////////////////////
         // check detection criteria
@@ -2091,7 +2665,9 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
         bool bPasses_MinimumSystematicCut = false;
         if( i_BackgroundEfficiency_AtMaximum * Nof > 0 && fOptimizationBackgroundAlpha > 0. )
         {
-            bPasses_MinimumSystematicCut = ( Ndif * i_SignalEfficiency_AtMaximum / ( i_BackgroundEfficiency_AtMaximum * Nof ) >= fMinBackgroundRateRatio_min );
+            bPasses_MinimumSystematicCut = 
+                       ( Ndif * i_SignalEfficiency_AtMaximum / ( i_BackgroundEfficiency_AtMaximum * Nof )
+                       >= fMinBackgroundRateRatio_min );
         }
         
         if( bPassed_MinimumSignificance && !bPassed_MinimumSignalEvents )
@@ -2115,6 +2691,7 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
             }
             cout << endl;
         }
+        // good! Passed all three requirements --> exit loop over source strengths
         if( bPassed_MinimumSignificance && bPassed_MinimumSignalEvents && bPasses_MinimumSystematicCut )
         {
             break;
@@ -2150,12 +2727,18 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
             }
         }
     } // end of loop over source strength
+    cout << "VTVMAEvaluator::optimizeSensitivity (finished looping over source strengths)";
+    cout << ", last value: " << iSourceStrength << endl;
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
-    // check if signal efficiency is above allowed value
-    if( i_SignalEfficiency_AtMaximum > fOptimizationFixedSignalEfficiency )
+    // check if 
+    // - signal efficiency is above allowed value
+    // - source strengh maximum has been reached
+    if( i_SignalEfficiency_AtMaximum > fOptimizationFixedSignalEfficiency ||
+        ( fOptimizationMaxSourceStrength > 0. &&
+            iSourceStrength / fOptimizationMaxSourceStrength > 0.95 ) )
     {
         if( fOptimizationFixedSignalEfficiency > 0.99 )
         {
@@ -2170,16 +2753,25 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
                 {
                     i_TMVACutValue_AtMaximum         = effS->GetBinCenter( i );
                     i_BackgroundEfficiency_AtMaximum = effB->GetBinContent( i );
-                    i_AngularContainmentRadiusAtMaximum = iGOpt_AngularContainmentRadius->Eval( i_TMVACutValue_AtMaximum );
-                    i_AngularContainmentFractionAtMaximum = iGOpt_AngularContainmentFraction->Eval( i_TMVACutValue_AtMaximum );
+                    if( iGOpt_AngularContainmentRadius && iGOpt_AngularContainmentFraction )
+                    {
+                        i_AngularContainmentRadiusAtMaximum = iGOpt_AngularContainmentRadius->Eval( i_TMVACutValue_AtMaximum );
+                        i_AngularContainmentFractionAtMaximum = iGOpt_AngularContainmentFraction->Eval( i_TMVACutValue_AtMaximum );
+                    }
                     break;
                 }
             }
         }
+        cout << "VTMVAEvaluator::optimizeSensitivity: found signal efficiency ";
+        cout << i_SignalEfficiency_AtMaximum << " above allowed value (";
+        cout << fOptimizationFixedSignalEfficiency << ")" << endl;
         i_SignalEfficiency_AtMaximum = fOptimizationFixedSignalEfficiency;
         cout << "VTMVAEvaluator::optimizeSensitivity: setting signal efficiency to ";
         cout << fOptimizationFixedSignalEfficiency << endl;
     }
+    // regular case: 
+    //   - maximum found and reasonable
+    //   - signal efficiency in allowed range
     else if( i_SourceStrength_atMaximum > 0. )
     {
         cout << "VTMVAEvaluator::optimizeSensitivity: signal efficiency at maximum (";
@@ -2193,15 +2785,27 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
     }
     else
     {
-        cout << "VTMVAEvaluator::optimizeSensitivity: no signal efficiency at maximum found" << endl;
+        cout << "VTMVAEvaluator::optimizeSensitivity: no maximum in signal efficiency found" << endl;
+        if( fOptimizationMaxSourceStrength > 0. &&
+            iSourceStrength / fOptimizationMaxSourceStrength > 0.95 )
+         {
+             cout << "VTMVAEvaluator::optimizeSensitivity: (reached max source strength of ";
+             cout << fOptimizationMaxSourceStrength << ")" << endl;
+         }
     }
     cout << "\t MVA parameter: " << i_TMVACutValue_AtMaximum;
     cout << ", background efficiency: " << i_BackgroundEfficiency_AtMaximum << endl;
-    cout << "\t angular containment is " << i_AngularContainmentFractionAtMaximum * 100. << "%, radius ";
-    cout << i_AngularContainmentRadiusAtMaximum << " [deg]";
+    if( i_AngularContainmentRadiusAtMaximum > 0. )
+    {
+        cout << "\t angular containment is " << i_AngularContainmentFractionAtMaximum * 100.;
+        cout << "%, radius ";
+        cout << i_AngularContainmentRadiusAtMaximum << " [deg]";
+    }
     if( iHAngContainment )
     {
-        cout << " (scaled from " << iHAngContainment->GetBinContent( iHAngContainment->GetXaxis()->FindBin( fTMVAData[iDataBin]->fSpectralWeightedMeanEnergy_Log10TeV ),
+        cout << " (scaled from ";
+        cout << iHAngContainment->GetBinContent( 
+                iHAngContainment->GetXaxis()->FindBin( fTMVAData[iDataBin]->fSpectralWeightedMeanEnergy_Log10TeV ),
                 iHAngContainment->GetYaxis()->FindBin( fTMVAngularContainmentRadiusMax ) );
         cout << " [deg], " << fTMVAngularContainmentRadiusMax * 100. << "%)";
     }
@@ -2219,8 +2823,12 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
     ////////////////////////////////////////////////////////////////
     
     // get mean energy for this bin
-    double iMeanEnergyAfterCuts = getMeanEnergyAfterCut( iTMVAFile, i_TMVACutValue_AtMaximum, iDataBin );
-    cout << "Mean energy after cuts [TeV]: " << iMeanEnergyAfterCuts << endl;
+    double iMeanEnergyAfterCuts = -99.;
+    if( fDebug )
+    {
+        iMeanEnergyAfterCuts = getMeanEnergyAfterCut( iTMVAFile, i_TMVACutValue_AtMaximum, iDataBin );
+        cout << "Mean energy after cuts [TeV]: " << iMeanEnergyAfterCuts << endl;
+    }
     
     // fill results into data vectors
     fTMVAData[iDataBin]->fSignalEfficiency           = i_SignalEfficiency_AtMaximum;
@@ -2252,7 +2860,7 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin, string iOptimiz
  *
  * Important: this is not the default analysis
  */
-bool VTMVAEvaluator::optimizeSensitivity_using_qfactor( TH1F* effS, TH1F* effB,
+bool VTMVAEvaluator::optimizeSensitivity_using_qfactor( TH1D* effS, TH1D* effB,
         double& i_SignalEfficiency_AtMaximum,
         double& i_BackgroundEfficiency_AtMaximum,
         double& i_TMVACutValue_AtMaximum )
@@ -2302,7 +2910,7 @@ bool VTMVAEvaluator::optimizeSensitivity_using_qfactor( TH1F* effS, TH1F* effB,
  note: signal and background efficiencies are not updated
 
 */
-void VTMVAEvaluator::smoothAndInterpolateMVAValue( TH1F* effS, TH1F* effB,
+void VTMVAEvaluator::smoothAndInterpolateMVAValue( TH1D* effS, TH1D* effB,
         unsigned int iWeightFileIndex_Emin,
         unsigned int iWeightFileIndex_Emax,
         unsigned int iWeightFileIndex_Zmin,
@@ -2363,8 +2971,8 @@ void VTMVAEvaluator::smoothAndInterpolateMVAValue( TH1F* effS, TH1F* effB,
                 
                 // get efficiency histograms
                 TFile iTMVAFile( fTMVAData[i]->fTMVAFileName.c_str() );
-                TH1F* effS = getEfficiencyHistogram( "effS", &iTMVAFile, fTMVAData[i]->fTMVAMethodTag_2 );
-                TH1F* effB = getEfficiencyHistogram( "effB", &iTMVAFile, fTMVAData[i]->fTMVAMethodTag_2 );
+                TH1D* effS = getEfficiencyHistogram( "effS", &iTMVAFile, fTMVAData[i]->fTMVAMethodTag_2 );
+                TH1D* effB = getEfficiencyHistogram( "effB", &iTMVAFile, fTMVAData[i]->fTMVAMethodTag_2 );
                 
                 if( effS )
                 {
@@ -2410,7 +3018,7 @@ void VTMVAEvaluator::smoothAndInterpolateMVAValue( TH1F* effS, TH1F* effB,
                 TFile iTMVAFile( fTMVAData[l]->fTMVAFileName.c_str() );
                 if( !iTMVAFile.IsZombie() )
                 {
-                    TH1F* effS = getEfficiencyHistogram( "effS", &iTMVAFile, fTMVAData[l]->fTMVAMethodTag_2 );
+                    TH1D* effS = getEfficiencyHistogram( "effS", &iTMVAFile, fTMVAData[l]->fTMVAMethodTag_2 );
                     if( effS )
                     {
                         effS_value[l] = effS->GetBinContent( effS->FindBin( fTMVAData[l]->fTMVACutValue ) );
@@ -2429,7 +3037,7 @@ void VTMVAEvaluator::smoothAndInterpolateMVAValue( TH1F* effS, TH1F* effB,
                 {
                     continue;
                 }
-                TH1F* effS = getEfficiencyHistogram( "effS", &iTMVAFile, fTMVAData[l]->fTMVAMethodTag_2 );
+                TH1D* effS = getEfficiencyHistogram( "effS", &iTMVAFile, fTMVAData[l]->fTMVAMethodTag_2 );
                 if( !effS )
                 {
                     continue;
@@ -2559,7 +3167,7 @@ void VTMVAEvaluator::getOptimalAngularContainmentRadius( double effS, double eff
 
 
 void VTMVAEvaluator::plotEfficiencyPlotsPerBin( unsigned int iBin, TGraph* iGSignal_to_sqrtNoise,
-        TGraph* iGSignal_to_sqrtNoise_Smooth, TH1F* hEffS, TH1F* hEffB,
+        TGraph* iGSignal_to_sqrtNoise_Smooth, TH1D* hEffS, TH1D* hEffB,
         TGraph* iGSignalEvents, TGraph* iGBackgroundEvents,
         TGraph* iGOpt_AngularContainmentRadius, TGraph* iGOpt_AngularContainmentFraction,
         bool bPlotContainmentFraction )
@@ -2815,26 +3423,32 @@ void VTMVAEvaluator::setSensitivityOptimizationFixedSignalEfficiency( double iOp
     fOptimizationFixedSignalEfficiency = iOptimizationFixedSignalEfficiency;
 }
 
-void VTMVAEvaluator::setSensitivityOptimizationMinSourceStrength( double iOptimizationMinSourceStrength )
+void VTMVAEvaluator::setSensitivityOptimizationSourceStrength( 
+                            double iOptimizationMinSourceStrength,
+                            double iOptimizationMaxSourceStrength )
 {
     fOptimizationMinSourceStrength = iOptimizationMinSourceStrength;
+    fOptimizationMaxSourceStrength = iOptimizationMaxSourceStrength;
 }
 
 /*
- * MVA cut or signal efficiciency is stored in a map:
+ * MVA cut or signal efficiency is stored in a map:
  *
  * e.g. energy bin 3 and zenith angle bin 2: entry 21
  *
  */
 double VTMVAEvaluator::getValueFromMap( map< unsigned int, double > iDataMap, double iDefaultData,
                                         unsigned int iEnergyBin, double iE_min_log10, double iE_max_log10,
-                                        unsigned int iZenithBin, double iZ_min, double iZ_max, unsigned int iNCut, double iEnergyStepSize, string iVariable )
+                                        unsigned int iZenithBin, double iZ_min, double iZ_max, 
+                                        unsigned int iNCut, double iEnergyStepSize, string iVariable )
 {
     if( iDataMap.size() == 0 )
     {
         return iDefaultData;
     }
-    
+
+    // iIter->first:
+    // [energy bins*10+zenith bin]
     map< unsigned int, double >::iterator iIter;
     for( iIter = iDataMap.begin(); iIter != iDataMap.end(); ++iIter )
     {
@@ -2875,12 +3489,24 @@ double VTMVAEvaluator::getValueFromMap( map< unsigned int, double > iDataMap, do
     return -1.;
 }
 
+/*
+ * return signal efficiency for the given energy
+ *
+ */
 double VTMVAEvaluator::getSignalEfficiency( unsigned int iEnergyBin, 
                                             double iE_min_log10, double iE_max_log10, 
                                             unsigned int iZenithBin, 
                                             double iZ_min, double iZ_max, 
                                             unsigned int iNCut, double iEnergyStepSize )
 {
+    // read signal efficiency from graph
+    if( fTMVASignalEfficencyGraph.size() > 0
+       && iZenithBin < fTMVASignalEfficencyGraph.size()
+       && fTMVASignalEfficencyGraph[iZenithBin] )
+    {
+         return fTMVASignalEfficencyGraph[iZenithBin]->Eval( 0.5*(iE_min_log10+iE_max_log10) );
+    }
+    // read signal efficiency from a map
     return getValueFromMap( fSignalEfficiencyMap, fSignalEfficiencyNoVec, 
                             iEnergyBin, iE_min_log10, iE_max_log10, 
                             iZenithBin, iZ_min, iZ_max, iNCut, 
@@ -2893,6 +3519,15 @@ double VTMVAEvaluator::getTMVACutValue( unsigned int iEnergyBin,
                                         double iZ_min, double iZ_max, 
                                         unsigned int iNCut, double iEnergyStepSize )
 {
+    // read MVA cut value from graph
+    if( fTMVACutValueGraph.size() > 0
+       && iZenithBin < fTMVACutValueGraph.size()
+       && fTMVACutValueGraph[iZenithBin] )
+    {
+         return fTMVACutValueGraph[iZenithBin]->Eval( 0.5*(iE_min_log10+iE_max_log10) );
+    }
+
+    // read MVA cut value from map
     return getValueFromMap( fTMVACutValueMap, fTMVACutValueNoVec, 
                             iEnergyBin, iE_min_log10, iE_max_log10, 
                             iZenithBin, iZ_min, iZ_max, iNCut, 
@@ -3213,7 +3848,10 @@ VTMVAEvaluatorData::VTMVAEvaluatorData()
     fSourceStrengthAtOptimum_CU = -99.;
     fAngularContainmentRadius = -99.;
     fAngularContainmentFraction = -99.;
-    
+
+    hSignalEfficiency = 0;
+    hBackgroundEfficiency = 0;
+
     // transients
     fTMVAReader = 0;
 }

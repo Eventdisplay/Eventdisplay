@@ -211,23 +211,6 @@ class VStereoAnalysis
         
         double fTreeSelected_MVA;
         
-        /// model3D parameters ///
-        double fTreeSelected_Smax3D;
-        double fTreeSelected_sigmaL3D;
-        double fTreeSelected_sigmaT3D;
-        double fTreeSelected_Nc3D;
-        double fTreeSelected_Xcore3D;
-        double fTreeSelected_Ycore3D;
-        double fTreeSelected_Xoff3D;
-        double fTreeSelected_Yoff3D;
-        double fTreeSelected_XoffDeRot3D;
-        double fTreeSelected_YoffDeRot3D;
-        double fTreeSelected_Goodness3D;
-        double fTreeSelected_Depth3D;
-        double fTreeSelected_RWidth3D;
-        double fTreeSelected_ErrRWidth3D;
-        bool fTreeSelected_Converged3D;
-        
         /// frogs ///
         int   fTreeSelescted_frogsEventID;
         int   fTreeSelescted_frogsGSLConStat;
