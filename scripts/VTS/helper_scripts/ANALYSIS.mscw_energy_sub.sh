@@ -10,7 +10,7 @@ RECID=RECONSTRUCTIONID
 ODIR=OUTPUTDIRECTORY
 INFILE=EVNDISPFILE
 
-BFILE=`basename $INFILE .root`
+BFILE=$(basename $INFILE .root)
 
 # temporary (scratch) directory
 if [[ -n $TMPDIR ]]; then
@@ -30,12 +30,12 @@ cp -f -v "$INFILE" "$TEMPDIR"
 MSCWDATAFILE="$ODIR/$BFILE.mscw.root"
 
 MOPT="-arrayrecid=$RECID -writeReconstructedEventsOnly=1"
-MOPT="$MOPT -runparameter \"$VERITAS_EVNDISP_AUX_DIR/ParameterFiles/MSCWENERGY.runparameter\""
+MOPT="$MOPT -runparameter $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/MSCWENERGY.runparameter"
 MOPT="$MOPT -redo_stereo_reconstruction"
 echo "MOPT $MOPT"
 
 # run mscw_energy
-"$EVNDISPSYS"/bin/mscw_energy -tablefile "$TABFILE" $MOPT -inputfile "$TEMPDIR/$BFILE.root" &> "$MSCWLOGFILE"
+"$EVNDISPSYS"/bin/mscw_energy -tablefile "$TABFILE" "$MOPT" -inputfile "$TEMPDIR/$BFILE.root" &> "$MSCWLOGFILE"
 
 # move output file from scratch and clean up
 cp -f -v "$TEMPDIR/$BFILE.mscw.root" "$MSCWDATAFILE"
