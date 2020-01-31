@@ -30,7 +30,7 @@ cp -f -v "$INFILE" "$TEMPDIR"
 MSCWDATAFILE="$ODIR/$BFILE.mscw.root"
 
 MOPT="-arrayrecid=$RECID -writeReconstructedEventsOnly=1"
-MOPT="$MOPT -runparameter $VERITAS_EVNDISP_AUX_DIR/ParameterFiles/MSCWENERGY.runparameter"
+MOPT="$MOPT -runparameter \"$VERITAS_EVNDISP_AUX_DIR/ParameterFiles/MSCWENERGY.runparameter\""
 MOPT="$MOPT -redo_stereo_reconstruction"
 echo "MOPT $MOPT"
 
