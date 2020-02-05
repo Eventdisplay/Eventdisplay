@@ -96,7 +96,7 @@ class VPlotInstrumentResponseFunction : public VPlotUtilities, public VHistogram
         TCanvas*     plotCoreResolution( string iXaxis = "energy", double iMax = -1.e99 );
         TCanvas*     plotCoreResolution2D( unsigned int iDataSetID = 0, string iXaxis = "energy" );
         void         plotCutEfficiency( unsigned int iDataSetID = 0 );
-        void         plotCutEfficiencyRatio( unsigned int iDataSetID = 0, unsigned int iCutID = 999,
+        TCanvas*     plotCutEfficiencyRatio( unsigned int iDataSetID = 0, unsigned int iCutID = 999,
                                              double iPlotMinimum = 0., double iPlotMaximum = 1.2 );
         TCanvas*     plotEffectiveArea( double iEffAreaMin_m2 = -1., double iEffAreaMax_m2 = -1., TPad* iEffAreaPad = 0, bool iSmooth = false );
         TCanvas*     plotEffectiveAreaRatio( unsigned int iDataSetID = 0, double ymin = 0., double ymax = 1.3 );

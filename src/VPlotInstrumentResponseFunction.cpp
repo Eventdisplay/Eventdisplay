@@ -704,12 +704,12 @@ void VPlotInstrumentResponseFunction::plotEnergyReconstructionMatrix( unsigned i
 }
 
 
-void VPlotInstrumentResponseFunction::plotCutEfficiencyRatio( unsigned int iDataSetID, unsigned int iCutID,
+TCanvas* VPlotInstrumentResponseFunction::plotCutEfficiencyRatio( unsigned int iDataSetID, unsigned int iCutID,
         double iPlotMinimum, double iPlotMaximum )
 {
     if( !checkDataSetID( iDataSetID ) && iDataSetID < 999 )
     {
-        return;
+        return 0;
     }
     
     char hname[200];
@@ -760,6 +760,8 @@ void VPlotInstrumentResponseFunction::plotCutEfficiencyRatio( unsigned int iData
             }
         }
     }
+
+    return iCutEfficencyRatioPlottingCanvas;
     
 }
 
