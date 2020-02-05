@@ -320,7 +320,6 @@ all VTS:	evndisp \
 	compareDatawithMC \
 	VTS.getRunListFromDB \
 	VTS.getLaserRunFromDB \
-	optimiseBDTCuts \
 	writeParticleRateFilesForTMVA \
 	trainTMVAforGammaHadronSeparation \
 	extrasMessage doneMessage
@@ -1546,30 +1545,6 @@ smoothLookupTables:	./obj/smoothLookupTables.o ./obj/VGlobalRunParameter.o ./obj
 			./obj/VInterpolate2DHistos.o ./obj/VInterpolate2DHistos_Dict.o
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
-
-########################################################
-
-OPTCUTOBJECT = 	./obj/VTMVAEvaluator.o ./obj/VTMVAEvaluator_Dict.o \
-		./obj/VPlotUtilities.o ./obj/VPlotUtilities_Dict.o \
-		./obj/VTMVARunDataEnergyCut.o ./obj/VTMVARunDataEnergyCut_Dict.o \
-		./obj/VTMVARunDataZenithCut.o ./obj/VTMVARunDataZenithCut_Dict.o \
-		./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
-		./obj/VSkyCoordinatesUtilities.o ./obj/VUtilities.o \
-		./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-		./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o \
-		./obj/VHistogramUtilities.o ./obj/VHistogramUtilities_Dict.o \
-		./obj/VAnalysisUtilities.o ./obj/VAnalysisUtilities_Dict.o \
-		./obj/VRunList.o ./obj/VRunList_Dict.o ./obj/CRunSummary.o ./obj/CRunSummary_Dict.o \
-		./obj/optimiseBDTCuts.o
-
-./obj/optimiseBDTCuts.o:	./src/optimiseBDTCuts.cpp \
-				
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-optimiseBDTCuts:	$(OPTCUTOBJECT)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
 
 ########################################################
 # checkAnalysisResultFile
