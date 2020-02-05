@@ -46,8 +46,14 @@ ANAMETHOD="TL5025"
 SIMSUB=""
 
 VERSIONSUB="${VERSION}${SIMSUB}"
+######
 # CUTS
- CUTS=( "NTel2-PointSource-Soft-TMVA-Preselection" "NTel2-PointSource-Moderate-TMVA-Preselection" "NTel4-PointSource-Moderate-TMVA-Preselection" )
+# hard cuts
+CUTS=( "NTel4-PointSource-Hard-TMVA-Preselection" )
+# cut list used for optimisation
+CUTS=( "NTel2-PointSource-Soft-TMVA-Preselection" "NTel2-PointSource-Moderate-TMVA-Preselection" "NTel4-PointSource-Moderate-TMVA-Preselection" "NTel4-PointSource-Hard-TMVA-Preselection" )
+# TMVA cuts
+CUTS=( "NTel4-PointSource-Moderate-TMVA-BDT" "NTel2-PointSource-Moderate-TMVA-BDT" "NTel2-PointSource-Soft-TMVA-BDT" "NTel4-PointSource-Hard-TMVA-BDT" )
 
 # V4
 SIMTYPE="GRISU-SW6"
@@ -73,16 +79,19 @@ PREFIX="$VERITAS_USER_DATA_DIR/analysis/Results/${VERSION}/"
 # SS 433: V4, V5
 # Mrk501 Mrk421
 # PKS1424p240
+# PKS1424p240
 # 1ES1959p650 MAXIJ1820p070
 # BDTtraining  Segue1
 for O in ${OBJECTLIST}
 do
-    echo $O
+    echo "Object $O"
     echo
 
     # run list
     RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat.EP"
     RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat"
+    RLIST="$PREFIX/$O/${LIST}${EPOCH}.SZE.dat"
+    # RLIST="$PREFIX/$O/test.dat"
 
     # output directory
     ODIR="$PREFIX/$O/${VERSIONSUB}_${ANAMETHOD}"
@@ -149,6 +158,7 @@ do
                         if [[ -e "$ODIR.root" ]]
                         then
                             rm -f "$RFIL.log"
+                            echo "rate calculation output file: $RFIL.root"
                             $EVNDISPSYS/bin/writeParticleRateFilesForTMVA "$ODIR.root" "$RFIL.root" > "$RFIL.log"
                         else
                             echo "error: no anasum file found for rate calculation"
@@ -167,9 +177,8 @@ do
                                       CCUT="${Ccut}"
                                   fi
                               done
-                              MVADIR="$VERITAS_EVNDISP_AUX_DIR/GammaHadron_BDTs/${EPOCH}/$CCUT/"
+                              MVADIR="$VERITAS_EVNDISP_AUX_DIR/GammaHadron_BDTs/${EPOCH}/BINFOUR-${CCUT}/"
                               echo "MVADIR $MVADIR"
-                              rm -f "CFIL.log"
                               if [ -d ${MVADIR} ]
                               then
                                   MVAN="mva"
@@ -177,13 +186,18 @@ do
                                   # observation time for optimisation
                                   MVATOBS=20.
                                   # number of energy and zenith angle bins
-                                  NEBIN=4
+                                  NEBIN=10
                                   NZBIN=1
-                                  root -b -q "$EVNDISPSYS/macros/VTS/optimizeBDTcuts.C( \"$RFIL.root\", \"$MVADIR\", \"$MVAN\", \"$MVAM\", 0, ${MVATOBS}, 0, ${NEBIN}, 0, ${NZBIN}, 3., 5. )" > "$CFIL.log"
+                                  TMVAGRAPH="$MVADIR/TMVACUT-${MVATOBS}h"
+                                  echo "TMVA cut graph: $TMVAGRAPH"
+                                  rm -f "${TMVAGRAPH}.log"
+                                  root -b -q "$EVNDISPSYS/macros/VTS/optimizeBDTcuts.C( \"$RFIL.root\", \"$MVADIR\", \"$MVAN\", \"$MVAM\", 0, ${MVATOBS}, 0, ${NEBIN}, 0, ${NZBIN}, 3., 3., false, true, \"${TMVAGRAPH}.root\"  )" > "${TMVAGRAPH}.log"
                               else
                                   echo "error: mva directory not found"
                                   echo "   missing is $MVADIR"
                               fi
+                         else
+                            echo "Error: $RFIL.root not found"
                          fi
                     fi
                done
