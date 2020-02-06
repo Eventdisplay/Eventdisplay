@@ -1397,7 +1397,7 @@ TCanvas* VSensitivityCalculator::plotObservationTimevsFlux( unsigned int iD, TCa
 }
 
 
-void VSensitivityCalculator::list_sensitivity( unsigned int iD )
+void VSensitivityCalculator::list_sensitivity( unsigned int iD, ostream& terminal )
 {
     if( !checkDataSet( iD, "plotObservationTimevsFlux" ) )
     {
@@ -1406,20 +1406,20 @@ void VSensitivityCalculator::list_sensitivity( unsigned int iD )
     
     calculateObservationTimevsFlux( iD );
     
-    cout << " Flux               time           time" << endl;
-    cout << " [Crab Units]       [min]           [h]" << endl;
-    cout << " ========================================" << endl;
+    terminal << " Flux               time           time" << endl;
+    terminal << " [Crab Units]       [min]           [h]" << endl;
+    terminal << " ========================================" << endl;
     
     for( unsigned int i = 0; i < fSourceStrength.size(); i++ )
     {
-        cout << " " << fSourceStrength[i] << "\t\t" << setw( 8 ) << setprecision( 3 );
-        cout << fGraphObsvsTime[iD]->Eval( fSourceStrength[i] ) * 60. << "\t" << setw( 8 ) << setprecision( 3 );
-        cout << fGraphObsvsTime[iD]->Eval( fSourceStrength[i] );
-        cout << endl;
+        terminal << " " << fSourceStrength[i] << "\t\t" << setw( 8 ) << setprecision( 3 );
+        terminal << fGraphObsvsTime[iD]->Eval( fSourceStrength[i] ) * 60. << "\t" << setw( 8 ) << setprecision( 3 );
+        terminal << fGraphObsvsTime[iD]->Eval( fSourceStrength[i] );
+        terminal << endl;
     }
     
-    cout << "(requiring a significance of at least " << fSignificance_min << " sigma or " << fEvents_min;
-    cout << " events, and using Li & Ma formula " << fLiAndMaEqu << ")" << endl;
+    terminal << "(requiring a significance of at least " << fSignificance_min << " sigma or " << fEvents_min;
+    terminal << " events, and using Li & Ma formula " << fLiAndMaEqu << ")" << endl;
 }
 
 /*
