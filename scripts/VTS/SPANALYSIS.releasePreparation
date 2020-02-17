@@ -48,12 +48,10 @@ SIMSUB=""
 VERSIONSUB="${VERSION}${SIMSUB}"
 ######
 # CUTS
-# hard cuts
-CUTS=( "NTel4-PointSource-Hard-TMVA-Preselection" )
 # cut list used for optimisation
-CUTS=( "NTel2-PointSource-Soft-TMVA-Preselection" "NTel2-PointSource-Moderate-TMVA-Preselection" "NTel4-PointSource-Moderate-TMVA-Preselection" "NTel4-PointSource-Hard-TMVA-Preselection" )
-# TMVA cuts
-CUTS=( "NTel4-PointSource-Moderate-TMVA-BDT" "NTel2-PointSource-Moderate-TMVA-BDT" "NTel2-PointSource-Soft-TMVA-BDT" "NTel4-PointSource-Hard-TMVA-BDT" )
+CUTS=( "NTel2-PointSource-Soft-TMVA-Preselection" "NTel3-PointSource-Moderate-TMVA-Preselection" "NTel3-PointSource-Hard-TMVA-Preselection" )
+# cut list for optimised TMVA cuts
+CUTS=( "NTel3-PointSource-Moderate-TMVA-BDT" "NTel3-PointSource-Hard-TMVA-BDT" "NTel2-PointSource-Soft-TMVA-BDT" )
 
 # V4
 SIMTYPE="GRISU-SW6"
@@ -177,7 +175,7 @@ do
                                       CCUT="${Ccut}"
                                   fi
                               done
-                              MVADIR="$VERITAS_EVNDISP_AUX_DIR/GammaHadron_BDTs/${EPOCH}/BINFOUR-${CCUT}/"
+                              MVADIR="$VERITAS_EVNDISP_AUX_DIR/GammaHadron_BDTs/${EPOCH}/${CCUT}/"
                               echo "MVADIR $MVADIR"
                               if [ -d ${MVADIR} ]
                               then
