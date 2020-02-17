@@ -56,11 +56,6 @@ IRFTYPE=$2
 [[ "$6" ]] && CUTSLISTFILE=$6 || CUTSLISTFILE=""
 [[ "$7" ]] && SIMDIR=$7 || SIMDIR=""
 
-#ANAMETHOD="NNMA20"
-#EVNDISPRUNPARAMETER="EVNDISP.reconstruction.runparameter.NN"
-
-#ANAMETHOD="TL5035MA20"
-#EVNDISPRUNPARAMETER="EVNDISP.reconstruction.runparameter"
 
 # If ANAMETHOD is not among env variables, set a default value
 ANAMETHOD="NN"
@@ -103,7 +98,12 @@ elif [[ ${SIMTYPE:0:4} = "CARE" ]]; then
     ZENITH_ANGLES=( 00 20 30 35 40 45 50 55 )
     NSB_LEVELS=( 50 75 100 130 160 200 250 300 350 400 450 )
     ZENITH_ANGLES=( 20 30 35 40 )
-    NSB_LEVELS=( 130 160 200 250 )
+    #NSB_LEVELS=( 130 )
+    #ZENITH_ANGLES=( 20 )
+    #NSB_LEVELS=( 130 160 200 250 )
+    #WOBBLE_OFFSETS=( 0.5 0.0 0.25 0.75  )
+    #ZENITH_ANGLES=( 20 )
+    #NSB_LEVELS=( 160 )
     if [[ $ATMOS == "62" ]]; then
           ZENITH_ANGLES=( 00 20 30 35 )
     fi
@@ -123,9 +123,14 @@ if [[ $CUTSLISTFILE != "" ]]; then
     CUTLIST=$(IFS=$'\r\n'; cat $CUTSLISTFILE)
 else
     # preselection cut list
-    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Moderate-TMVA-Preselection.dat
-    ANASUM.GammaHadron-Cut-NTel4-PointSource-Moderate-TMVA-Preselection.dat
-    ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-TMVA-Preselection.dat"
+    CUTLIST="
+    ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-TMVA-Preselection.dat
+    ANASUM.GammaHadron-Cut-NTel3-PointSource-Moderate-TMVA-Preselection.dat
+    ANASUM.GammaHadron-Cut-NTel3-PointSource-Hard-TMVA-Preselection.dat"
+    # MVA cut list
+    CUTLIST="ANASUM.GammaHadron-Cut-NTel2-PointSource-Soft-TMVA-BDT.dat
+    ANASUM.GammaHadron-Cut-NTel3-PointSource-Moderate-TMVA-BDT.dat
+    ANASUM.GammaHadron-Cut-NTel3-PointSource-Hard-TMVA-BDT.dat"
 fi
 CUTLIST=`echo "$CUTLIST" |tr '\r' ' '`
 CUTLIST=${CUTLIST//$'\n'/}
@@ -164,7 +169,7 @@ for VX in $EPOCH; do
        if [[ $IRFTYPE == "TRAINTMVA" ]]
        then
             for VX in $EPOCH; do
-                for C in "Moderate" "Soft"
+                for C in "Moderate" "Soft" "Hard"
                 do
                     echo "Training $C cuts for ${VX}"
                     MVADIR="$VERITAS_EVNDISP_AUX_DIR/GammaHadron_BDTs/${VX}/${C}/"
@@ -198,7 +203,11 @@ for VX in $EPOCH; do
             ######################
             # train MVA for angular resolution
             if [[ $IRFTYPE == "TRAINMVANGRES" ]]; then
-               $(dirname "$0")/IRF.trainTMVAforAngularReconstruction.sh $VX $ATM $ZA 200 $SIMTYPE
+               $(dirname "$0")/IRF.trainTMVAforAngularReconstruction.sh $VX $ATM $ZA 200 $SIMTYPE ${ANAMETHOD} "BDTDisp"
+               continue
+            fi
+            if [[ $IRFTYPE == "TRAINMVERES" ]]; then
+               $(dirname "$0")/IRF.trainTMVAforAngularReconstruction.sh $VX $ATM $ZA 200 $SIMTYPE ${ANAMETHOD} "BDTDispEnergy"
                continue
             fi
             for NOISE in ${NSB_LEVELS[@]}; do
@@ -226,8 +235,7 @@ for VX in $EPOCH; do
                         for ID in $RECID; do
                             #METH="RECMETHOD${ID}"
                             METH="RECMETHOD0"
-                            # $(dirname "$0")/IRF.mscw_energy_MC.sh "${TFIL}${METH}" $VX $ATM $ZA $WOBBLE $NOISE $ID $SIMTYPE 1 $ANAMETHOD
-                            $(dirname "$0")/IRF.mscw_energy_MC.sh "${TFIL}${METH}" $VX $ATM $ZA $WOBBLE $NOISE $ID $SIMTYPE 1 $ANAMETHOD
+                            $(dirname "$0")/IRF.mscw_energy_MC.sh "${TFIL}${METH}-smoothed" $VX $ATM $ZA $WOBBLE $NOISE $ID $SIMTYPE 1 $ANAMETHOD
                         done
                     ######################
                     # analyse effective areas
