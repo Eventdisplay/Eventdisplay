@@ -88,7 +88,8 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         f.SetBranchStatus( "e_MC_Res", 1 );
         f.SetBranchStatus( "e_Rec_Res", 1 );
         f.SetBranchStatus( "e_Rec_Res_Err", 1 );
-        f.SetBranchStatus( "hAngularDiff_2D", 1 );
+        // f.SetBranchStatus( "hAngularDiff_2D", 1 );
+        f.SetBranchStatus( "hAngularLogDiffEmc_2D", 1 );
         f.SetBranchStatus( "gEffAreaRec", 1 );
         f.SetBranchStatus( "gEffAreaNoTh2MC", 1 );
         f.SetBranchStatus( "gEffAreaNoTh2Rec", 1 );
