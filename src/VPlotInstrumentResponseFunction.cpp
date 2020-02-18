@@ -530,6 +530,14 @@ void VPlotInstrumentResponseFunction::plotEnergyReconstructionLogBias2D( unsigne
     }
 }
 
+void VPlotInstrumentResponseFunction::printResponseMatrixTypes()
+{
+    cout << "Response matrix types: " << endl;
+    cout << "\t default" << endl;
+    cout << "\t QC" << endl;
+    cout << "\t noTheta2Cut" << endl;
+}
+
 /*
  *
  * plot energy migration matrix
