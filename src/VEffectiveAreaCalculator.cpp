@@ -1,6 +1,13 @@
 /*! \class VEffectiveAreaCalculator
  *  \brief calculate effective areas and energy spectra
  *
+ *  How to add new histograms:
+ *  - add a new enum depending on the histogram type
+ *  (E_HIS1D, E_HIS1P, E_HIS2D)
+ *  - add a call to newEffectiveAreaHistogram()
+ *  - add an entry in the enum to string function getEffectiveAreaNamefromEnumInt()
+ *  - add the corresponding filling of the histogram
+ *
  */
 
 #include "VEffectiveAreaCalculator.h"
