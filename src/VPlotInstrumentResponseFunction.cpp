@@ -396,7 +396,7 @@ void VPlotInstrumentResponseFunction::plotCutEfficiency( unsigned int iDataSetID
     }
     hceff->Draw( "" );
     hceff->Draw( "AH" );
-    
+
     plot_nullHistogram( iCutEfficencyPlottingCanvas, hceff, getPlottingAxis( "energy_Lin" )->fLogAxis, true,
                         hceff->GetYaxis()->GetTitleOffset(), getPlottingAxis( "energy_Lin" )->fMinValue, getPlottingAxis( "energy_Lin" ) ->fMaxValue );
                         
