@@ -522,7 +522,6 @@ bool VInstrumentResponseFunctionReader::getDataFromFile()
             gEnergyResolutionQC = getEnergyResolutionMPropInterval( ( TH2D* )c->hResponseMatrixFineQC, fEnergyXaxisIsEtrue, gEnergyResolutionQC );
             gEnergyResolutionNoDirectionCuts = getEnergyResolutionMPropInterval( ( TH2D* )c->hResponseMatrixFineNoDirectionCuts, fEnergyXaxisIsEtrue, gEnergyResolutionNoDirectionCuts );
         }
-        //       getEnergyResolutionPlot( (TProfile*)c->hEsysRec );
         setGraphPlottingStyle( gEnergyResolution );
         setGraphPlottingStyle( gEnergyResolutionQC );
         setGraphPlottingStyle( gEnergyResolutionNoDirectionCuts );
