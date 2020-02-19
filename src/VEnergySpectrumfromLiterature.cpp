@@ -432,14 +432,14 @@ TF1* VEnergySpectrumfromLiterature::getEnergySpectrum( unsigned int iID, bool bL
             // broken power law (e.g. A&A 457, 899 (2006))
             else if( fData[iID].Type == 3 )
             {
-                sprintf( hname, "[1]*TMath::Power( %s / [0], [2] ) ", h_energy );
-                sprintf( hname, "%s * TMath::Power( 1. + TMath::Power( %s / [0], 1./[4] ), [4]*([3]-[2]) )", hname, h_energy );
+                sprintf( h_exponent, "[1]*TMath::Power( %s / [0], [2] ) ", h_energy );
+                sprintf( hname, "%s * TMath::Power( 1. + TMath::Power( %s / [0], 1./[4] ), [4]*([3]-[2]) )", h_exponent, h_energy );
             }
             // broken power law (2)
             else if( fData[iID].Type == 4 )
             {
-                sprintf( hname, "[1]*TMath::Power( %s / %f, -1. ) ", h_energy, fData[iID].Parameter[0] );
-                sprintf( hname, "%s * TMath::Power( 1. + TMath::Power( %s / [0], [2] ), -1. )", hname, h_energy );
+                sprintf( h_exponent, "[1]*TMath::Power( %s / %f, -1. ) ", h_energy, fData[iID].Parameter[0] );
+                sprintf( hname, "%s * TMath::Power( 1. + TMath::Power( %s / [0], [2] ), -1. )", h_exponent, h_energy );
             }
             // power law with exponential cut off (with beta factor for cut-off strength)
             else if( fData[iID].Type == 5 )
@@ -450,8 +450,8 @@ TF1* VEnergySpectrumfromLiterature::getEnergySpectrum( unsigned int iID, bool bL
             // power law with exponential cut off (Gaussian factor)
             else if( fData[iID].Type == 6 )
             {
-                sprintf( hname, "[0]*TMath::Power( %s / %f, [4] ) ", h_energy, fData[iID].Parameter[0] );
-                sprintf( hname, "%s * (1.+[1]*(exp(TMath::Gaus(log10(%s),[2], [3] ))-1.))", hname, h_energy );
+                sprintf( h_exponent, "[0]*TMath::Power( %s / %f, [4] ) ", h_energy, fData[iID].Parameter[0] );
+                sprintf( hname, "%s * (1.+[1]*(exp(TMath::Gaus(log10(%s),[2], [3] ))-1.))", h_exponent, h_energy );
             }
             
         }
@@ -466,10 +466,11 @@ TF1* VEnergySpectrumfromLiterature::getEnergySpectrum( unsigned int iID, bool bL
     }
     
     // plotting multiplier
-    sprintf( hname, "%s * TMath::Power( %s, %f )", hname, h_energy, fPlottingMultiplierIndex );
+    char hisnmae[1000];
+    sprintf( hisnmae, "%s * TMath::Power( %s, %f )", hname, h_energy, fPlottingMultiplierIndex );
     
     // create function
-    f = new TF1( fData[iID].Name.c_str(), hname, xmin, xmax );
+    f = new TF1( fData[iID].Name.c_str(), hisnmae, xmin, xmax );
     
     // set parameters
     for( unsigned int i = 1; i < fData[iID].Parameter.size(); i++ )
