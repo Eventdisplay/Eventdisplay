@@ -34,6 +34,8 @@
 #include <string>
 #include <vector>
 
+#define VMAXBINS 1000
+
 using namespace std;
 
 class VEffectiveAreaCalculator
@@ -167,29 +169,27 @@ class VEffectiveAreaCalculator
         float fTNoisePE;
         float fTPedvar;
         int   nbins;
-        float e0[1000];
-        float eff[1000];
+        float e0[VMAXBINS];
+        float eff[VMAXBINS];
 	int nbins_MC;
-	float e0_MC[1000];
-	float eff_MC[1000];
-        float seff_L[1000];
-        float seff_U[1000];
-        float eff_error[1000];
-        float esys_rel[1000];
-        int   Rec_nbins;
-        float Rec_e0[1000];
-        float Rec_eff[1000];
-        float Rec_seff_L[1000];
-        float Rec_seff_U[1000];
-        float Rec_eff_error[1000];
-        float Rec_angRes_p68[1000];
-        float Rec_angRes_p80[1000];
-        float Rec_angRes_kingSigma[1000];
-        float Rec_angRes_kingGamma[1000];
+	float e0_MC[VMAXBINS];
+	float eff_MC[VMAXBINS];
+        float eff_error[VMAXBINS];
+        float effNoTh2[VMAXBINS];
+        float effNoTh2_error[VMAXBINS];
+        float esys_rel[VMAXBINS];
+        float Rec_eff[VMAXBINS];
+        float Rec_eff_error[VMAXBINS];
+        float Rec_effNoTh2[VMAXBINS];
+        float Rec_effNoTh2_error[VMAXBINS];
+        float Rec_angRes_p68[VMAXBINS];
+        float Rec_angRes_p80[VMAXBINS];
+        float Rec_angRes_kingSigma[VMAXBINS];
+        float Rec_angRes_kingGamma[VMAXBINS];
         int nbins_MC_Res;
-        float e_MC_Res[1000];
-        float e_Rec_Res[1000];
-        float e_Rec_Res_Err[1000];
+        float e_MC_Res[VMAXBINS];
+        float e_Rec_Res[VMAXBINS];
+        float e_Rec_Res_Err[VMAXBINS];
         
         TTree* fAcceptance_AfterCuts_tree;       //Information for all the events after cuts to construct the background map
         double fXoff_aC;
@@ -229,7 +229,8 @@ class VEffectiveAreaCalculator
         bool bIsOn;
 
         TGraphAsymmErrors* applyResponseMatrix( TH2* h, TGraphAsymmErrors* g );
-        bool               binomialDivide( TGraphAsymmErrors* g, TH1D* hrec, TH1D* hmc );
+        bool               binomialDivide( TGraphAsymmErrors* g, TH1D* hrec, TH1D* hmc,
+                               float *eff = 0, float* eff_error = 0 );
         void               copyProfileHistograms( TProfile*,  TProfile* );
         void               copyHistograms( TH1*,  TH1*, bool );
         void               fillAngularResolution( unsigned int i_az, bool iContaintment_80p );
@@ -255,8 +256,8 @@ class VEffectiveAreaCalculator
                                                       int i_nbins_y = -1,
                                                       double i_ymin = -1., double i_ymax = 1.,
                                                       string iPOpt = "" );
-        void               multiplyByScatterArea( TGraphAsymmErrors* g );
         void               reset();
+        void               resetEffAreaArray( float *v );
         void               resetTimeBin();
         void               resetHistograms( unsigned int iZe );
         void               resetHistogramsVectors();
@@ -279,10 +280,10 @@ class VEffectiveAreaCalculator
         {
             return fEffArea;
         }
-                TTree*             getEventCutDataTree()
-                {
-                        return fEventTreeCuts;
-                }
+        TTree*             getEventCutDataTree()
+        {
+                return fEventTreeCuts;
+        }
         TTree*             getAcceptance_AfterCuts()
         {
             return fAcceptance_AfterCuts_tree;

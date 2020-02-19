@@ -69,8 +69,6 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         f.SetBranchStatus( "eff", 1 );
         f.SetBranchStatus( "eff_error", 1 );
         f.SetBranchStatus( "esys_rel", 1 );
-        f.SetBranchStatus( "Rec_nbins", 1 );
-        f.SetBranchStatus( "Rec_e0", 1 );
         f.SetBranchStatus( "Rec_eff", 1 );
         f.SetBranchStatus( "Rec_eff_error", 1 );
         f.SetBranchStatus( "Rec_angRes_p68", 1 );

@@ -37,20 +37,14 @@ class CEffArea : public TObject
         Int_t           nbins;
         Float_t        e0[1000];                 //[nbins]
         Float_t        eff[1000];                //[nbins]
-        Float_t        seff_L[1000];             //[nbins]
-        Float_t        seff_U[1000];             //[nbins]
         Float_t        eff_error[1000];                //[nbins]
         Float_t        esys_rel[1000];                //[nbins]
-        Int_t           Rec_nbins;
-        Float_t         Rec_e0[1000];             //[Rec_nbins]
-        Float_t         Rec_eff[1000];            //[Rec_nbins]
-        Float_t         Rec_seff_L[1000];         //[Rec_nbins]
-        Float_t         Rec_seff_U[1000];         //[Rec_nbins]
+        Float_t         Rec_eff[1000];            //[nbins]
         Float_t         Rec_eff_error[1000];            //[nbins]
-        Float_t         Rec_angRes_p68[1000];     //[Rec_nbins]
-        Float_t         Rec_angRes_p80[1000];     //[Rec_nbins]
-        Float_t         Rec_angRes_kingSigma[1000]; //[Rec_nbins]
-        Float_t         Rec_angRes_kingGamma[1000]; //[Rec_nbins]
+        Float_t         Rec_angRes_p68[1000];     //[nbins]
+        Float_t         Rec_angRes_p80[1000];     //[nbins]
+        Float_t         Rec_angRes_kingSigma[1000]; //[nbins]
+        Float_t         Rec_angRes_kingGamma[1000]; //[nbins]
         TH1D*            hEmc;
         TH1D*            hEcut;
         TH1D*            hEcutUW;
@@ -102,18 +96,12 @@ class CEffArea : public TObject
         TBranch*        b_eff;                    //!
         TBranch*        b_eff_error;                    //!
         TBranch*        b_esys_rel;                    //!
-        TBranch*        b_seff_L;                 //!
-        TBranch*        b_seff_U;                 //!
-        TBranch*        b_Rec_nbins;              //!
-        TBranch*        b_Rec_e0;                 //!
         TBranch*        b_Rec_angRes_p68;         //!
         TBranch*        b_Rec_angRes_p80;         //!
         TBranch*        b_Rec_angRes_kingSigma;   //!
         TBranch*        b_Rec_angRes_kingGamma;   //!
         TBranch*        b_Rec_eff;                //!
         TBranch*        b_Rec_eff_error;                //!
-        TBranch*        b_Rec_seff_L;             //!
-        TBranch*        b_Rec_seff_U;             //!
         TBranch*        b_hEmc;                   //!
         TBranch*        b_hEcut;                  //!
         TBranch*        b_hEcutUW;                  //!
@@ -347,25 +335,6 @@ void CEffArea::Init( TTree* tree )
         }
     }
     
-    if( fChain->GetBranchStatus( "seff_L" ) )
-    {
-        fChain->SetBranchAddress( "seff_L", seff_L, &b_seff_L );
-        fChain->SetBranchAddress( "seff_U", seff_U, &b_seff_U );
-        fChain->SetBranchAddress( "Rec_seff_L", Rec_seff_L, &b_Rec_seff_L );
-        fChain->SetBranchAddress( "Rec_seff_U", Rec_seff_U, &b_Rec_seff_U );
-    }
-    else
-    {
-        for( int i = 0; i < 1000; i++ )
-        {
-            seff_L[i] = 0.;
-            seff_U[i] = 0.;
-            Rec_seff_L[i] = 0.;
-            Rec_seff_U[i] = 0.;
-        }
-    }
-    fChain->SetBranchAddress( "Rec_nbins", &Rec_nbins, &b_Rec_nbins );
-    fChain->SetBranchAddress( "Rec_e0", Rec_e0, &b_Rec_e0 );
     fChain->SetBranchAddress( "Rec_eff", Rec_eff, &b_Rec_eff );
     
     if( fChain->GetBranchStatus( "Rec_angRes_p68" ) )

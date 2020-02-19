@@ -400,12 +400,17 @@ bool VInstrumentResponseFunctionReader::getDataFromFile()
         }
         else if( c->nbins > 0 )
         {
-            gEffArea_MC  = new TGraphAsymmErrors( c->nbins );
+            gEffArea_MC  = new TGraphAsymmErrors( 1 );
+            unsigned int z = 0;
             for( int k = 0; k < c->nbins; k++ )
             {
-                gEffArea_MC->SetPoint( k, c->e0[k], c->eff[k] );
-                gEffArea_MC->SetPointEYlow( k, c->seff_L[k] );
-                gEffArea_MC->SetPointEYhigh( k, c->seff_U[k] );
+                if( c->eff[k] > 0. )
+                {
+                    gEffArea_MC->SetPoint( z, c->e0[k], c->eff[k] );
+                    gEffArea_MC->SetPointEYlow( z, c->eff_error[k] );
+                    gEffArea_MC->SetPointEYhigh( z, c->eff_error[k] );
+                    z++;
+                }
             }
             if( gEffArea_MC )
             {
@@ -424,14 +429,19 @@ bool VInstrumentResponseFunctionReader::getDataFromFile()
                 setGraphPlottingStyle( gEffArea_Rec );
             }
         }
-        else if( c->Rec_nbins > 0 )
+        else if( c->nbins > 0 )
         {
-            gEffArea_Rec  = new TGraphAsymmErrors( c->Rec_nbins );
-            for( int k = 0; k < c->Rec_nbins; k++ )
+            gEffArea_Rec  = new TGraphAsymmErrors( 1 );
+            unsigned int z = 0;
+            for( int k = 0; k < c->nbins; k++ )
             {
-                gEffArea_Rec->SetPoint( k, c->Rec_e0[k], c->Rec_eff[k] );
-                gEffArea_Rec->SetPointEYlow( k, c->Rec_seff_L[k] );
-                gEffArea_Rec->SetPointEYhigh( k, c->Rec_seff_U[k] );
+                if( c->Rec_eff[k] > 0. )
+                {
+                    gEffArea_Rec->SetPoint( z, c->e0[k], c->Rec_eff[k] );
+                    gEffArea_Rec->SetPointEYlow( z, c->Rec_eff_error[k] );
+                    gEffArea_Rec->SetPointEYhigh( z, c->Rec_eff_error[k] );
+                    z++;
+                }
             }
             setGraphPlottingStyle( gEffArea_Rec );
         }
