@@ -1529,7 +1529,6 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
     // get full data set and loop over all entries
     ///////////////////////////////////////////////////////
     Long64_t d_nentries = d->fChain->GetEntries();
-    d_nentries = 10000;
     Long64_t i_start = 0;
     if( fRunPara && fRunPara->fIgnoreFractionOfEvents > 0. )
     {
