@@ -137,9 +137,7 @@ class VEffectiveAreaCalculator
         vector< TGraphErrors* > fGraph_AngularResolutionKingSigma;
         vector< TGraphErrors* > fGraph_AngularResolutionKingGamma;
 
-        vector< TH2D* >         hVAngularDiff_2D;
         vector< TH2D* >         hVAngularLogDiffEmc_2D;
-        TH2D *hAngularDiff_2D;
         TH2D *hAngularLogDiffEmc_2D;
         
         // the following histograms are written to the output file

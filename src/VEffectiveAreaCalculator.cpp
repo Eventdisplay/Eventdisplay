@@ -273,17 +273,6 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         fEnergyAxis_maximum_defaultValue,
                         500, -2.3, 2.7, "" );
     
-    // angular difference histogram (vs reconstructed energy)
-    // (GM): check if this histogram is needd
-    sprintf( hname, "hAngularDiff_2D" );
-    hAngularDiff_2D = new TH2D( hname, "angular difference histogram (vs reconstructed energy)",
-                                      25, -1.9, 3.5,
-                                      9000, 0., 4.5 );
-    hAngularDiff_2D->SetXTitle( "energy_{rec} [TeV]" );
-    hAngularDiff_2D->SetYTitle( "angular diff. (R,MC) [deg]" );
-    hisTreeList->Add( hAngularDiff_2D );
-    hisTreeListofHistograms->Add( hAngularDiff_2D );
-
     // log angular difference histogram (vs true energy)
     sprintf( hname, "hAngularLogDiffEmc_2D" );
     hAngularLogDiffEmc_2D = new TH2D( hname, "log angular difference histogram (vs true energy)",
@@ -300,7 +289,6 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
         fGraph_AngularResolution80p.push_back( 0 );
         fGraph_AngularResolutionKingSigma.push_back( 0 );
         fGraph_AngularResolutionKingGamma.push_back( 0 );
-        hVAngularDiff_2D.push_back( 0 );
         hVAngularLogDiffEmc_2D.push_back( 0 );
     }
     
@@ -1290,7 +1278,6 @@ void VEffectiveAreaCalculator::reset()
     gEffAreaNoTh2MC = 0;
     gEffAreaNoTh2Rec = 0;
     
-    hAngularDiff_2D = 0;
     hAngularLogDiffEmc_2D = 0;
     fEffArea = 0;
     hisTreeList = 0;
@@ -1948,7 +1935,6 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
                          true );
             }
             
-            copyHistograms( hAngularDiff_2D, hVAngularDiff_2D[i_az], true );
             copyHistograms( hAngularLogDiffEmc_2D, hVAngularLogDiffEmc_2D[i_az], true );
             
             // fill angular resolution vs energy
@@ -3425,9 +3411,8 @@ void VEffectiveAreaCalculator::fillAngularResolution( unsigned int i_az, bool iC
 
 void VEffectiveAreaCalculator::setAngularResolution2D(  unsigned int i_az, vector< TH2D* > h )
 {
-    if( i_az < hVAngularDiff_2D.size() && h.size() == 4 )
+    if( i_az < hVAngularLogDiffEmc_2D.size() && h.size() == 4 )
     {
-          hVAngularDiff_2D[i_az] = h[0];
           hVAngularLogDiffEmc_2D[i_az] = h[3];
     }
 }
