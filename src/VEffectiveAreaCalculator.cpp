@@ -1911,7 +1911,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
             map< int, TH1D* >::iterator h_HIS1D_iterator;
             for( h_HIS1D_iterator = h_HIS1D.begin();
                    h_HIS1D_iterator !=  h_HIS1D.end();
-                   h_HIS1D_iterator++ )
+                   ++h_HIS1D_iterator )
             {
                   copyHistograms( h_HIS1D_iterator->second,
                          hV_HIS1D[h_HIS1D_iterator->first][s][i_az],
@@ -1920,7 +1920,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
             map< int, TProfile* >::iterator h_HIS1P_iterator;
             for( h_HIS1P_iterator = h_HIS1P.begin();
                    h_HIS1P_iterator !=  h_HIS1P.end();
-                   h_HIS1P_iterator++ )
+                   ++h_HIS1P_iterator )
             {
                   copyProfileHistograms( h_HIS1P_iterator->second,
                          hV_HIS1P[h_HIS1P_iterator->first][s][i_az] );
@@ -1928,7 +1928,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
             map< int, TH2D* >::iterator h_HIS2D_iterator;
             for( h_HIS2D_iterator = h_HIS2D.begin();
                    h_HIS2D_iterator !=  h_HIS2D.end();
-                   h_HIS2D_iterator++ )
+                   ++h_HIS2D_iterator )
             {
                   copyHistograms( h_HIS2D_iterator->second,
                          hV_HIS2D[h_HIS2D_iterator->first][s][i_az],
