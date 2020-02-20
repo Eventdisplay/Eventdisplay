@@ -396,7 +396,7 @@ void VPlotInstrumentResponseFunction::plotCutEfficiency( unsigned int iDataSetID
     }
     hceff->Draw( "" );
     hceff->Draw( "AH" );
-    
+
     plot_nullHistogram( iCutEfficencyPlottingCanvas, hceff, getPlottingAxis( "energy_Lin" )->fLogAxis, true,
                         hceff->GetYaxis()->GetTitleOffset(), getPlottingAxis( "energy_Lin" )->fMinValue, getPlottingAxis( "energy_Lin" ) ->fMaxValue );
                         
@@ -528,6 +528,14 @@ void VPlotInstrumentResponseFunction::plotEnergyReconstructionLogBias2D( unsigne
         iL->SetLineStyle( 2 );
         iL->Draw();
     }
+}
+
+void VPlotInstrumentResponseFunction::printResponseMatrixTypes()
+{
+    cout << "Response matrix types: " << endl;
+    cout << "\t default" << endl;
+    cout << "\t QC" << endl;
+    cout << "\t noTheta2Cut" << endl;
 }
 
 /*

@@ -944,8 +944,10 @@ void VTableLookup::readLookupTable()
         }
         
         // get zenith angle for first valid MC event from MC files
-        if( bFirst && fData->getMCEnergy() > 0.001 )
+        if( bFirst && fData->getMCEnergy() > 0.001
+          && fTLRunParameter->ze < 0. )
         {
+            cout << "\t\t setting IRF ze from first event" << endl;
             if( fNTel > 0 )
             {
                 fTLRunParameter->ze = TMath::Floor( ( 90. - fData->getTelElevation() ) + 0.5 );

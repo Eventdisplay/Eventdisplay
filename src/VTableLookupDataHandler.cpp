@@ -1932,11 +1932,13 @@ bool VTableLookupDataHandler::readRunParameter()
             }
             ///////////////////////////
             // simulated energy spectrum
+            // and zenith angle
             if( iMC )
             {
                 setMCMinEnergy( iMC->E_range[0] );
                 setMCMaxEnergy( iMC->E_range[1] );
                 setMCSpectralIndex( -1 * iMC->spectral_index );
+                fTLRunParameter->ze = iMC->getMeanZenithAngle_Deg();
             }
             ifInput.Close();
             if( fOutFile )

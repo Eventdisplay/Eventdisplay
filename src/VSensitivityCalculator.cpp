@@ -2560,7 +2560,7 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
                     if( c->e0[n] > iMCPara->energy_lowEdge[i] && c->e0[n] < iMCPara->energy_upEdge[i] )
                     {
                         iMCPara->effArea.back() += c->eff[n];
-                        iMCPara->effArea_error.back() += ( 0.5 * ( c->seff_L[n] + c->seff_U[n] ) * 0.5 * ( c->seff_L[n] + c->seff_U[n] ) );
+                        iMCPara->effArea_error.back() += (c->eff_error[n]*c->eff_error[n] );
                         z++;
                     }
                 }

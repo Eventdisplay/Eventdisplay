@@ -37,20 +37,14 @@ class CEffArea : public TObject
         Int_t           nbins;
         Float_t        e0[1000];                 //[nbins]
         Float_t        eff[1000];                //[nbins]
-        Float_t        seff_L[1000];             //[nbins]
-        Float_t        seff_U[1000];             //[nbins]
         Float_t        eff_error[1000];                //[nbins]
         Float_t        esys_rel[1000];                //[nbins]
-        Int_t           Rec_nbins;
-        Float_t         Rec_e0[1000];             //[Rec_nbins]
-        Float_t         Rec_eff[1000];            //[Rec_nbins]
-        Float_t         Rec_seff_L[1000];         //[Rec_nbins]
-        Float_t         Rec_seff_U[1000];         //[Rec_nbins]
+        Float_t         Rec_eff[1000];            //[nbins]
         Float_t         Rec_eff_error[1000];            //[nbins]
-        Float_t         Rec_angRes_p68[1000];     //[Rec_nbins]
-        Float_t         Rec_angRes_p80[1000];     //[Rec_nbins]
-        Float_t         Rec_angRes_kingSigma[1000]; //[Rec_nbins]
-        Float_t         Rec_angRes_kingGamma[1000]; //[Rec_nbins]
+        Float_t         Rec_angRes_p68[1000];     //[nbins]
+        Float_t         Rec_angRes_p80[1000];     //[nbins]
+        Float_t         Rec_angRes_kingSigma[1000]; //[nbins]
+        Float_t         Rec_angRes_kingGamma[1000]; //[nbins]
         TH1D*            hEmc;
         TH1D*            hEcut;
         TH1D*            hEcutUW;
@@ -62,8 +56,6 @@ class CEffArea : public TObject
         TGraphAsymmErrors* gEffAreaNoTh2MC;
         TGraphAsymmErrors* gEffAreaNoTh2Rec;
         TProfile*        hEmcSWeight;
-        TProfile*        hEsysRec;
-        TProfile*        hEsysMC;
         TProfile*        hEsysMCRelative;
         TH2D*            hEsysMCRelativeRMS;
         TH2D*            hEsysMCRelative2D;
@@ -76,8 +68,6 @@ class CEffArea : public TObject
         TH2D*            hResponseMatrixNoDirectionCuts;
         TH2D*            hResponseMatrixFineNoDirectionCuts;
         TH2D*            hAngularDiff_2D;
-        TH2D*            hAngularDiffEmc_2D;
-        TH2D*            hAngularLogDiff_2D;
         TH2D*            hAngularLogDiffEmc_2D;
         TH1D*            hhEcutTrigger;
         TH1D*            hhEcutFiducialArea;
@@ -106,18 +96,12 @@ class CEffArea : public TObject
         TBranch*        b_eff;                    //!
         TBranch*        b_eff_error;                    //!
         TBranch*        b_esys_rel;                    //!
-        TBranch*        b_seff_L;                 //!
-        TBranch*        b_seff_U;                 //!
-        TBranch*        b_Rec_nbins;              //!
-        TBranch*        b_Rec_e0;                 //!
         TBranch*        b_Rec_angRes_p68;         //!
         TBranch*        b_Rec_angRes_p80;         //!
         TBranch*        b_Rec_angRes_kingSigma;   //!
         TBranch*        b_Rec_angRes_kingGamma;   //!
         TBranch*        b_Rec_eff;                //!
         TBranch*        b_Rec_eff_error;                //!
-        TBranch*        b_Rec_seff_L;             //!
-        TBranch*        b_Rec_seff_U;             //!
         TBranch*        b_hEmc;                   //!
         TBranch*        b_hEcut;                  //!
         TBranch*        b_hEcutUW;                  //!
@@ -129,8 +113,6 @@ class CEffArea : public TObject
         TBranch*        b_gEffAreaNoTh2MC;             //!
         TBranch*        b_gEffAreaNoTh2Rec;            //!
         TBranch*        b_hEmcSWeight;            //!
-        TBranch*        b_hEsysRec;               //!
-        TBranch*        b_hEsysMC;                //!
         TBranch*        b_hEsysMCRelative;        //!
         TBranch*        b_hEsysMCRelativeRMS;        //!
         TBranch*        b_hEsysMCRelative2D;        //!
@@ -144,7 +126,6 @@ class CEffArea : public TObject
         TBranch*        b_hResponseMatrixFineNoDirectionCuts;                //!
         TBranch*        b_hAngularDiff_2D;                //!
         TBranch*        b_hAngularDiff_Emc2D;                //!
-        TBranch*        b_hAngularLogDiff_2D;                //!
         TBranch*        b_hAngularLogDiff_Emc2D;                //!
         TBranch*        b_hhEcutTrigger;   //!
         TBranch*        b_hhEcutFiducialArea;   //!
@@ -260,8 +241,6 @@ void CEffArea::Init( TTree* tree )
     gEffAreaNoTh2MC = 0;
     gEffAreaNoTh2Rec = 0;
     hEmcSWeight = 0;
-    hEsysRec = 0;
-    hEsysMC = 0;
     hEsysMCRelative = 0;
     hEsysMCRelativeRMS = 0;
     hEsysMCRelative2D = 0;
@@ -274,8 +253,6 @@ void CEffArea::Init( TTree* tree )
     hResponseMatrixNoDirectionCuts = 0;
     hResponseMatrixFineNoDirectionCuts = 0;
     hAngularDiff_2D = 0;
-    hAngularDiffEmc_2D = 0;
-    hAngularLogDiff_2D = 0;
     hAngularLogDiffEmc_2D = 0;
     hhEcutTrigger = 0;
     hhEcutFiducialArea = 0;
@@ -358,25 +335,6 @@ void CEffArea::Init( TTree* tree )
         }
     }
     
-    if( fChain->GetBranchStatus( "seff_L" ) )
-    {
-        fChain->SetBranchAddress( "seff_L", seff_L, &b_seff_L );
-        fChain->SetBranchAddress( "seff_U", seff_U, &b_seff_U );
-        fChain->SetBranchAddress( "Rec_seff_L", Rec_seff_L, &b_Rec_seff_L );
-        fChain->SetBranchAddress( "Rec_seff_U", Rec_seff_U, &b_Rec_seff_U );
-    }
-    else
-    {
-        for( int i = 0; i < 1000; i++ )
-        {
-            seff_L[i] = 0.;
-            seff_U[i] = 0.;
-            Rec_seff_L[i] = 0.;
-            Rec_seff_U[i] = 0.;
-        }
-    }
-    fChain->SetBranchAddress( "Rec_nbins", &Rec_nbins, &b_Rec_nbins );
-    fChain->SetBranchAddress( "Rec_e0", Rec_e0, &b_Rec_e0 );
     fChain->SetBranchAddress( "Rec_eff", Rec_eff, &b_Rec_eff );
     
     if( fChain->GetBranchStatus( "Rec_angRes_p68" ) )
@@ -435,8 +393,6 @@ void CEffArea::Init( TTree* tree )
         fChain->SetBranchAddress( "gEffAreaMC", &gEffAreaMC, &b_gEffAreaMC );
         
         fChain->SetBranchAddress( "hEmcSWeight", &hEmcSWeight, &b_hEmcSWeight );
-        fChain->SetBranchAddress( "hEsysRec", &hEsysRec, &b_hEsysRec );
-        fChain->SetBranchAddress( "hEsysMC", &hEsysMC, &b_hEsysMC );
         fChain->SetBranchAddress( "hEsys2D", &hEsys2D, &b_hEsys2D );
         fChain->SetBranchAddress( "hResponseMatrix", &hResponseMatrix, &b_hResponseMatrix );
         if( fChain->GetBranchStatus( "hEmcCutCTA" ) )
@@ -498,8 +454,6 @@ void CEffArea::Init( TTree* tree )
         gEffAreaNoTh2MC = 0;
         gEffAreaNoTh2Rec = 0;
         hEmcSWeight = 0;
-        hEsysRec = 0;
-        hEsysMC = 0;
         hEsysMCRelative = 0;
         hEsysMCRelativeRMS = 0;
         hEsysMCRelative2D = 0;
@@ -553,22 +507,6 @@ void CEffArea::Init( TTree* tree )
     {
         hAngularDiff_2D = 0;
     }
-    if( fChain->GetBranchStatus( "hAngularDiffEmc_2D" ) )
-    {
-        fChain->SetBranchAddress( "hAngularDiffEmc_2D", &hAngularDiffEmc_2D, &b_hAngularDiff_Emc2D );
-    }
-    else
-    {
-        hAngularDiffEmc_2D = 0;
-    }
-    if( fChain->GetBranchStatus( "hAngularLogDiff_2D" ) )
-    {
-        fChain->SetBranchAddress( "hAngularLogDiff_2D", &hAngularLogDiff_2D, &b_hAngularLogDiff_2D );
-    }
-    else
-    {
-        hAngularLogDiff_2D = 0;
-    }
     if( fChain->GetBranchStatus( "hAngularLogDiffEmc_2D" ) )
     {
         fChain->SetBranchAddress( "hAngularLogDiffEmc_2D", &hAngularLogDiffEmc_2D, &b_hAngularLogDiff_Emc2D );
@@ -604,6 +542,16 @@ void CEffArea::Init( TTree* tree )
         fChain->SetBranchAddress( "hhEcutDirection", &hhEcutDirection, &b_hhEcutDirection );
         fChain->SetBranchAddress( "hhEcutEnergyReconstruction", &hhEcutEnergyReconstruction, &b_hhEcutEnergyReconstruction );
         fChain->SetBranchAddress( "hhEcutGammaHadron", &hhEcutGammaHadron, &b_hhEcutGammaHadron );
+    }
+    else if( fChain->GetBranchStatus( "hEcutTrigger" ) )
+    {
+        fChain->SetBranchAddress( "hEcutTrigger", &hhEcutTrigger, &b_hhEcutTrigger );
+        fChain->SetBranchAddress( "hEcutFiducialArea", &hhEcutFiducialArea, &b_hhEcutFiducialArea );
+        fChain->SetBranchAddress( "hEcutStereoQuality", &hhEcutStereoQuality, &b_hhEcutStereoQuality );
+        fChain->SetBranchAddress( "hEcutTelType", &hhEcutTelType, &b_hhEcutTelType );
+        fChain->SetBranchAddress( "hEcutDirection", &hhEcutDirection, &b_hhEcutDirection );
+        fChain->SetBranchAddress( "hEcutEnergyReconstruction", &hhEcutEnergyReconstruction, &b_hhEcutEnergyReconstruction );
+        fChain->SetBranchAddress( "hEcutGammaHadron", &hhEcutGammaHadron, &b_hhEcutGammaHadron );
     }
     else
     {

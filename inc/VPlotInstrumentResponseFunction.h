@@ -125,6 +125,7 @@ class VPlotInstrumentResponseFunction : public VPlotUtilities, public VHistogram
         TCanvas*     plotTheta2( double iTheta2AxisMax = 0.05, bool iCumulative = false );
         TCanvas*     plotTheta2( vector< double > i_Energy_TeV_lin, double iTheta2AxisMax = 0.05, bool iCumulative = false );
         TCanvas*     plotWeightedRate();
+        void         printResponseMatrixTypes();
         bool         removeInstrumentResponseData( int iDataSetID );
         void         resetInstrumentResponseData();
         void         setCanvasSize( int iX = 600, int iY = 600 )
