@@ -691,8 +691,6 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
     float TazMin = 0.;
     float TazMax = 0.;
     float Tpedvar = 1.;
-    int   nbins_MC = 0;
-    float e0_MC[VMAXBINS];
     iEffArea->SetBranchAddress( "azMin", &TazMin );
     iEffArea->SetBranchAddress( "azMax", &TazMax );
     iEffArea->SetBranchAddress( "pedvar", &Tpedvar );
@@ -700,37 +698,29 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
     iEffArea->SetBranchAddress( "ze", &ze );
     iEffArea->SetBranchAddress( "Woff", &fWoff );
     // MC binning required for systematic error estimation
-    iEffArea->SetBranchAddress( "nbins", &nbins_MC );
-    iEffArea->SetBranchAddress( "e0", e0_MC );
+    iEffArea->SetBranchAddress( "e0", e0 );
+    iEffArea->SetBranchAddress( "nbins", &nbins );
     // effective areas vs true energy
     if( fEffectiveAreaVsEnergyMC == 0 )
     {
-        iEffArea->SetBranchAddress( "nbins", &nbins );
-        iEffArea->SetBranchAddress( "e0", e0 );
         iEffArea->SetBranchAddress( "eff", eff );
     }
     // effective area vs reconstruction energy
     // this method should be used for the correction unfolding method
     else if( fEffectiveAreaVsEnergyMC == 1 )
     {
-        iEffArea->SetBranchAddress( "nbins", &nbins );
         iEffArea->SetBranchAddress( "Rec_eff", eff );
     }
     // Binned likelihood analysis requires
     // MC effective areas and response matrix
     // Getting MC eff
-    if( bLikelihoodAnalysis && bIsOn )
-    {
-        // MC effective areas
-        iEffArea->SetBranchAddress( "nbins", &nbins_MC );
-        iEffArea->SetBranchAddress( "e0", e0_MC );
-        iEffArea->SetBranchAddress( "eff", eff_MC );
-        // Response Matrix
-        iEffArea->SetBranchAddress( "nbins_MC_Res", &nbins_MC_Res );
-        iEffArea->SetBranchAddress( "e_MC_Res" , e_MC_Res );
-        iEffArea->SetBranchAddress( "e_Rec_Res" , e_Rec_Res );
-        iEffArea->SetBranchAddress( "e_Rec_Res_Err" , e_Rec_Res_Err );
-    }
+    iEffArea->SetBranchAddress( "nbins_MC_Res", &nbins_MC_Res );
+    // MC effective areas
+    iEffArea->SetBranchAddress( "eff", eff_MC );
+    // Response Matrix
+    iEffArea->SetBranchAddress( "e_MC_Res" , e_MC_Res );
+    iEffArea->SetBranchAddress( "e_Rec_Res" , e_Rec_Res );
+    iEffArea->SetBranchAddress( "e_Rec_Res_Err" , e_Rec_Res_Err );
     // bias in energy reconstruction
     iEffArea->SetBranchAddress( "esys_rel", esys_rel );
     
@@ -757,24 +747,15 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
     // temporary vectors filled into the effective area maps later
     // effective areas (energy axis depend on fEffectiveAreaVsEnergyMC)
     vector< float > i_temp_Eff( i_hEMC->GetNbinsX(), 0. );
+    vector< float > i_temp_Eff_MC(i_hEMC->GetNbinsX(), 0. );
     // bias in energy reconstruction (energy axis is in E_true)
     vector< float > i_temp_Esys( i_hEMC->GetNbinsX(), 0. );
     
     // temp vectors for binned likelihood analysis
     // used to fill maps
-    vector< float > i_temp_Eff_MC;
-    vector< float > i_e_MC_Res;
-    vector< float > i_e_Rec_Res;
-    vector< float > i_e_Rec_Res_Err;
-
-    if ( bLikelihoodAnalysis && bIsOn)
-    {
-        i_e_MC_Res.resize(nbins_MC_Res);
-        i_e_Rec_Res.resize(nbins_MC_Res);
-        i_e_Rec_Res_Err.resize(nbins_MC_Res);
-        i_temp_Eff_MC.resize( nbins_MC );
-        fVTimeBinnedMeanEffectiveAreaMC.assign( i_hEMC->GetNbinsX(), 0. );
-    }
+    vector< float > i_e_MC_Res( nbins_MC_Res, 0. );
+    vector< float > i_e_Rec_Res( nbins_MC_Res, 0. );
+    vector< float > i_e_Rec_Res_Err( nbins_MC_Res, 0. );
 
     cout << "\t selecting effective areas for mean az " << iAzMean << " deg, spectral index ";
     cout << iSpectralIndex << ", noise level " << ipedvar << endl;
@@ -1041,62 +1022,38 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
             for( unsigned int e = 0; e < fEff_E0.size(); e++ )
             {
                 i_temp_Eff[e] = 0.;
+                i_temp_Eff_MC[e] = 0.;
+                i_temp_Esys[e] = 0.;
                 for( int j = 0; j < nbins; j++ )
                 {
                     if( TMath::Abs( e0[j] - fEff_E0[e] ) < 1.e-5 )
                     {
                         i_temp_Eff[e] = eff[j];
-                    }
-                }
-                i_temp_Esys[e] = 0.;
-                for( int j = 0; j < nbins_MC; j++ )
-                {
-                    if( TMath::Abs( e0_MC[j] - fEff_E0[e] ) < 1.e-5 )
-                    {
+                        i_temp_Eff_MC[e] = eff_MC[j];
                         i_temp_Esys[e]  = esys_rel[j];
                     }
-                    
                 }
             }
-            fEffArea_map[i_ID]         = i_temp_Eff;
+            fEffArea_map[i_ID]        = i_temp_Eff;
+            fEffAreaMC_map[i_ID]      = i_temp_Eff_MC;
+            fEff_EsysMCRelative[i_ID] = i_temp_Esys;
 
-            if ( bLikelihoodAnalysis && bIsOn )
+            // Setting Values for the generating the migration matrix
+            i_e_MC_Res.resize( nbins_MC_Res );
+            i_e_Rec_Res.resize( nbins_MC_Res );
+            i_e_Rec_Res_Err.resize( nbins_MC_Res );
+
+            for ( int j = 0; j < nbins_MC_Res; j++ )
             {
-                // Setting Values for the generating the migration matrix
-                i_e_MC_Res.resize( nbins_MC_Res );
-                i_e_Rec_Res.resize( nbins_MC_Res );
-                i_e_Rec_Res_Err.resize( nbins_MC_Res );
-
-                for ( int j = 0; j < nbins_MC_Res; j++ )
-                {
-                        i_e_MC_Res[j] = e_MC_Res[j];
-                        i_e_Rec_Res[j] = e_Rec_Res[j];
-                        i_e_Rec_Res_Err[j] = e_Rec_Res_Err[j];
-                }
-
-                // Assigning Key to Map
-                fe_MC_Res_map[i_ID] = i_e_MC_Res;
-                fe_Rec_Res_map[i_ID] = i_e_Rec_Res;
-                fe_Rec_Res_Err_map[i_ID] = i_e_Rec_Res_Err;
-
-                i_temp_Eff_MC.assign( fEff_E0.size(), 0 );
-
-                for( unsigned int e = 0; e < fEff_E0.size(); e++ )
-                {
-                    i_temp_Eff_MC[e] = 0.;
-                    for( int j = 0; j < nbins_MC; j++ )
-                    {
-                        if( TMath::Abs( e0_MC[j] - fEff_E0[e] ) < 1.e-5 )
-                        {
-                            i_temp_Eff_MC[e] = eff_MC[j];
-                        }
-                    }
-                }
-
-                fEffAreaMC_map[i_ID] = i_temp_Eff_MC;
-                fEntry_map[i_ID] = i;
+                    i_e_MC_Res[j] = e_MC_Res[j];
+                    i_e_Rec_Res[j] = e_Rec_Res[j];
             }
-            fEff_EsysMCRelative[i_ID]  = i_temp_Esys;
+            // Assigning Key to Map
+            fe_MC_Res_map[i_ID] = i_e_MC_Res;
+            fe_Rec_Res_map[i_ID] = i_e_Rec_Res;
+            fe_Rec_Res_Err_map[i_ID] = i_e_Rec_Res_Err;
+
+            fEntry_map[i_ID] = i;
             
             // this is neeeded only if there are no azimuth dependent effective areas
             iIndexAz++;
@@ -1529,7 +1486,6 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
     // get full data set and loop over all entries
     ///////////////////////////////////////////////////////
     Long64_t d_nentries = d->fChain->GetEntries();
-    d_nentries = 10000;
     Long64_t i_start = 0;
     if( fRunPara && fRunPara->fIgnoreFractionOfEvents > 0. )
     {
@@ -2093,7 +2049,8 @@ vector< unsigned int > VEffectiveAreaCalculator::getUpperLowBins( vector< double
  *
  *
  */
-double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, double ze, double woff,
+double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( 
+        double erec, double ze, double woff,
         double iPedVar, double iSpectralIndex,
         bool bAddtoMeanEffectiveArea )
 {
@@ -2119,7 +2076,8 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
     }
     float lerec = log10( erec );
     
-    // calculate mean values
+    // calculate mean values of
+    // phase space parameters
     fEffectiveAreas_meanZe     += ze;
     fEffectiveAreas_meanWoff   += woff;
     fEffectiveAreas_meanPedVar += iPedVar;
@@ -2135,9 +2093,8 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
     // Assigning and shaping vectors
     if ( bLikelihoodAnalysis && bIsOn )
     {
-        //cout << "\t\t\tVEffectiveAreaCalculator::getEffectiveAreasFromHistograms initializing Arrays" << endl;
         // Temp Response Matrix Vectors
-        // Typiclly nbins_REC != nbins_MC hence requiring
+        // Typically nbins_REC != nbins_MC hence requiring
         // the vectors being assigned this way
         i_eff_MC_temp.assign( nbins_MC, 0. );
 
@@ -2163,6 +2120,9 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
         i_ze_e_Rec_Res_Err_temp[1].resize( i_e_Rec_Res_Err_temp.size() );
 
     }
+    // following: step-by-step interpolation for
+    // ze, az, NSB in effective areas
+    // loop over all zenith bins
     for( unsigned int i = 0; i < i_ze_bins.size(); i++ )
     {
         ////////////////////////////////////////////////////////
@@ -2177,7 +2137,6 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
             vector< vector< float > > i_woff_e_Rec_Res_temp;
             vector< vector< float > > i_woff_e_Rec_Res_Err_temp;
 
-
             if ( bLikelihoodAnalysis && bIsOn )
             {
                 // Temp EffectiveAreas Vector
@@ -2190,17 +2149,14 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
                 i_woff_e_Rec_Res_temp[0].resize( i_e_Rec_Res_temp.size() );
                 i_woff_e_Rec_Res_Err_temp[0].resize( i_e_Rec_Res_Err_temp.size() );
 
-
                 i_woff_eff_MC_temp[0].resize( i_eff_MC_temp.size() );
                 i_woff_eff_MC_temp[1].resize( i_eff_MC_temp.size() );
-
 
                 i_woff_e_MC_Res_temp[1].resize( i_e_MC_Res_temp.size() );
                 i_woff_e_Rec_Res_temp[1].resize( i_e_Rec_Res_temp.size() );
                 i_woff_e_Rec_Res_Err_temp[1].resize( i_e_Rec_Res_Err_temp.size() );
-
             }
-
+            // wobble offset bins
             for( unsigned int w = 0; w < i_woff_bins.size(); w++ )
             {
                 ////////////////////////////////////////////////////////
@@ -2215,11 +2171,8 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
                     vector< vector< float > > i_noise_e_Rec_Res_temp;
                     vector< vector< float > > i_noise_e_Rec_Res_Err_temp;
 
-
                     if ( bLikelihoodAnalysis && bIsOn )
                     {
-                        //cout << "\t\t\t\tVEffectiveAreaCalculator::getEffectiveAreasFromHistograms Interpolating Arrays" << endl;
-
                         // Temp EffectiveAreas Vector
                         i_noise_eff_MC_temp.resize( 2 );
                         i_noise_e_MC_Res_temp.resize( 2 );
@@ -2237,6 +2190,7 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
                         i_noise_e_Rec_Res_temp[1].resize( i_e_Rec_Res_temp.size() );
                         i_noise_e_Rec_Res_Err_temp[1].resize( i_e_Rec_Res_Err_temp.size() );
                     }
+                    // pedvar / NSB interpolation
                     for( unsigned int n = 0; n < i_noise_bins.size(); n++ )
                     {
                         ////////////////////////////////////////////////////////
@@ -2268,29 +2222,22 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
                                                       fEffAreaMC_map[i_ID_1], false );
 
                                 i_noise_e_MC_Res_temp[n] = interpolate_effectiveArea( iSpectralIndex,
-                                                                                  fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
-                                                                                  fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
+                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
+                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
                                                                                   fe_MC_Res_map[i_ID_0],
                                                                                   fe_MC_Res_map[i_ID_1], false );
 
                                 i_noise_e_Rec_Res_temp[n] = interpolate_effectiveArea( iSpectralIndex,
-                                                                                  fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
-                                                                                  fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
+                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
+                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
                                                                                   fe_Rec_Res_map[i_ID_0],
                                                                                   fe_Rec_Res_map[i_ID_1], false );
 
                                 i_noise_e_Rec_Res_Err_temp[n] = interpolate_effectiveArea( iSpectralIndex,
-                                                                                  fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
-                                                                                  fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
+                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
+                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
                                                                                   fe_Rec_Res_Err_map[i_ID_0],
                                                                                   fe_Rec_Res_Err_map[i_ID_1], false );
-
-                                // cout << i_noise_e_MC_Res_temp[n].size() << "  " << i_noise_e_Rec_Res_temp[n].size() << " " << i_noise_e_Rec_Res_Err_temp[n].size() << endl;
-                                // cout << fEntry_map[i_ID_0] << " " << i_noise_e_MC_Res_temp[n].size() << " binza: " << i_noise_e_MC_Res_temp[n][0] << " - " << i_noise_e_MC_Res_temp[n][i_noise_e_MC_Res_temp.size() -1] << endl;
-                                // cout << "Checking Maps" << endl;
-                                // cout << fEntry_map[i_ID_0] << " " << fe_MC_Res_map[n].size() << "  " << fe_MC_Res_map[n][0] << " - " << fe_MC_Res_map[n][fe_MC_Res_map.size() -1] << endl;
-
-
                             }
                         }
                         else
@@ -2342,8 +2289,6 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
                                          fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[1]],
                                          i_noise_e_Rec_Res_Err_temp[0],
                                          i_noise_e_Rec_Res_Err_temp[1], false );
-
-
                     }
                 }
                 else
@@ -2365,7 +2310,6 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
                                i_woff_eff_temp[1], false );
             if ( bLikelihoodAnalysis && bIsOn )
             {
-
                 // Interpolating Wobble
                 i_ze_eff_MC_temp[i] = interpolate_effectiveArea( woff,
                                    fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[0]],
@@ -2406,10 +2350,14 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
     {
 
         // Interpolating Zenith
-        i_eff_MC_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], i_ze_eff_MC_temp[0], i_ze_eff_MC_temp[1], true );
-        i_e_MC_Res_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], i_ze_e_MC_Res_temp[0], i_ze_e_MC_Res_temp[1], true );
-        i_e_Rec_Res_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], i_ze_e_Rec_Res_temp[0], i_ze_e_Rec_Res_temp[1], true );
-        i_e_Rec_Res_Err_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], i_ze_e_Rec_Res_Err_temp[0], i_ze_e_Rec_Res_Err_temp[1], true );
+        i_eff_MC_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]],
+                                                   i_ze_eff_MC_temp[0], i_ze_eff_MC_temp[1], true );
+        i_e_MC_Res_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], 
+                                                   i_ze_e_MC_Res_temp[0], i_ze_e_MC_Res_temp[1], true );
+        i_e_Rec_Res_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], 
+                                                   i_ze_e_Rec_Res_temp[0], i_ze_e_Rec_Res_temp[1], true );
+        i_e_Rec_Res_Err_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], 
+                                                   i_ze_e_Rec_Res_Err_temp[0], i_ze_e_Rec_Res_Err_temp[1], true );
 
     }
     if( fEff_E0.size() == 0 )
@@ -2429,7 +2377,6 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
     
     if ( bLikelihoodAnalysis && bIsOn )
     {
-
         // Adding to mean effective area (MC)
         if( bAddtoMeanEffectiveArea && fVTimeBinnedMeanEffectiveAreaMC.size() == i_eff_MC_temp.size())
         {
@@ -2447,6 +2394,7 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
     }
     /////////////////////////////////////////
     // effective area for a specific energy
+    // (as requested by VStereoAnalysis)
     /////////////////////////////////////////
     float i_eff_e = 1.;
     unsigned int ie0_low = 0;
@@ -2473,11 +2421,14 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( double erec, d
     }
     
     ///////////////////////////////////
-    // linear interpolate between energies
+    // final result on effective area:
+    // linear interpolate between two 
+    // adjacent energy bins
     ///////////////////////////////////
-    
-    i_eff_e = VStatistics::interpolate( i_eff_temp[ie0_low], fEff_E0[ie0_low], i_eff_temp[ie0_up], fEff_E0[ie0_up], lerec, false );
-    
+    i_eff_e = VStatistics::interpolate( i_eff_temp[ie0_low], fEff_E0[ie0_low], 
+                                        i_eff_temp[ie0_up], fEff_E0[ie0_up], 
+                                        lerec, false );
+
     if( i_eff_e > 0. )
     {
         return 1. / i_eff_e;
