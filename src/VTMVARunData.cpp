@@ -371,7 +371,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
         if( is_line.size() > 0 )
         {
             istringstream is_stream( is_line );
-            if( is_stream.eof() )
+            if( (is_stream>>std::ws).eof() )
             {
                 continue;
             }
@@ -381,7 +381,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             {
                 continue;
             }
-            if( is_stream.eof() )
+            if( (is_stream>>std::ws).eof() )
             {
                 continue;
             }
@@ -392,12 +392,12 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             ///////////////////////////////////////////////////////////////////////////////////////////
             if( temp == "MVA_METHOD" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> temp;
                     fMVAMethod.push_back( temp );
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> temp;
                     fMVAMethod_Options.push_back( temp );
@@ -410,7 +410,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // Box cuts: kept for backwards compatibility
             if( temp == "OPTIMIZATION_METHOD" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> temp;
                     fMVAMethod.push_back( "BOXCUTS" );
@@ -426,28 +426,28 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // training variables
             if( temp == "VARIABLE" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     char iV = 'F';
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> iV;
                     }
                     fTrainingVariableType.push_back( iV );
                     float iR = -1.;
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> iR;
                     }
                     fTrainingVariable_CutRangeMin.push_back( iR );
                     iR = -1.;
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> iR;
                     }
                     fTrainingVariable_CutRangeMax.push_back( iR );
                     temp = "NotEnforced";
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> temp;
                     }
@@ -463,7 +463,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // spectator variables
             if( temp == "SPECTATOR" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     fSpectatorVariable.push_back( is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ) );
                 }
@@ -471,7 +471,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // preselection cut
             if( temp == "SELECTION_CUTS" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     fQualityCuts = is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ).c_str();
                 }
@@ -484,7 +484,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // preselection cuts specific to background
             if( temp == "SELECTION_CUTS_BKG" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     fQualityCutsBkg = is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ).c_str();
                 }
@@ -497,7 +497,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // preselection cuts specific to signal
             if( temp == "SELECTION_CUTS_SIGNAL" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     fQualityCutsSignal = is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ).c_str();
                 }
@@ -510,7 +510,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // MC arrival direction cut
             if( temp == "MCXYOFF" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     fMCxyoffCut = is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ).c_str();
                 }
@@ -522,7 +522,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             }
             if( temp == "MCXYCUTSignalOnly" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     fMCxyoffCutSignalOnly = ( atoi )( is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ).c_str() );
                 }
@@ -530,7 +530,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // cut on azimuth direction
             if( temp == "AZIMUTH" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     fAzimuthCut = is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ).c_str();
                 }
@@ -543,7 +543,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // prepare training options
             if( temp == "PREPARE_TRAINING_OPTIONS" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     fPrepareTrainingOptions = is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ).c_str();
                     fPrepareTrainingOptions = VUtilities::removeSpaces( fPrepareTrainingOptions );
@@ -558,7 +558,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // check event validity
             if( temp == "CHECKEVENTVALIDITY" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     int iT = 0;
                     is_stream >> iT;
@@ -568,7 +568,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // check event validity
             if( temp == "RESETNUMBEROFTRAININGEVENTS" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     int iT = 0;
                     is_stream >> iT;
@@ -578,7 +578,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // signal weight
             if( temp == "SIGNALWEIGHT" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> fSignalWeight;
                 }
@@ -591,7 +591,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // signal files
             if( temp == "SIGNALFILE" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> temp;
                     fSignalFileName.push_back( temp );
@@ -605,7 +605,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // background weight
             if( temp == "BACKGROUNDWEIGHT" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> fBackgroundWeight;
                 }
@@ -618,7 +618,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // background files
             if( temp == "BACKGROUNDFILE" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> temp;
                     fBackgroundFileName.push_back( temp );
@@ -632,11 +632,11 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // output file
             if( temp == "OUTPUTFILE" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> fOutputDirectoryName;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> fOutputFileName;
                 }
@@ -655,13 +655,13 @@ bool VTMVARunData::readConfigurationFile( char* iC )
                 
                 // energy reconstruction method (should be 1, unless you know it better)
                 unsigned int iEMethod;
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iEMethod;
                 }
                 
                 // read in energy bin
-                while( !is_stream.eof() )
+                while( !(is_stream>>std::ws).eof() )
                 {
                     double iT = 0.;
                     is_stream >> iT;
@@ -717,7 +717,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
                 vector< TCut > iZenithCut;
                 
                 // read in zenith angle bin
-                while( !is_stream.eof() )
+                while( !(is_stream>>std::ws).eof() )
                 {
                     double iT = 0.;
                     is_stream >> iT;
@@ -761,11 +761,11 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             // minimum number of events
             if( temp == "MINEVENTS" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> fMinSignalEvents;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> fMinBackgroundEvents;
                 }

@@ -71,7 +71,7 @@ void VFrogs::processParamFile()
                 continue;
             }
             // print runparameter to stdout
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> temp;
                 if( temp == "DCTOPE" )

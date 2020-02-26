@@ -131,13 +131,13 @@ bool VSpecialChannel::readSpecialChannels( int iRun, string ifile, string iDirec
                 // channel status
                 else if( is_temp == "STATUS" )
                 {
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         // get status flag
                         unsigned int iStatusFlag = 1;
                         is_stream >> iStatusFlag;
                         fChannelStatus.clear();
-                        while( !is_stream.eof() )
+                        while( !(is_stream>>std::ws).eof() )
                         {
                             is_stream >> is_temp;
                             unsigned int iC = ( unsigned int )atoi( is_temp.c_str() );
@@ -150,13 +150,13 @@ bool VSpecialChannel::readSpecialChannels( int iRun, string ifile, string iDirec
                 // HIGHQE channels
                 else if( is_temp == "HIGHQE" )
                 {
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> is_temp;
                         unsigned int iC = ( unsigned int )atoi( is_temp.c_str() );
                         if( fHIGHQE_gainfactor.find( iC ) == fHIGHQE_gainfactor.end() )
                         {
-                            if( !is_stream.eof() )
+                            if( !(is_stream>>std::ws).eof() )
                             {
                                 is_stream >> is_temp;
                                 double iF = atof( is_temp.c_str() );

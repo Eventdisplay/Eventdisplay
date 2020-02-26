@@ -83,13 +83,13 @@ bool readInputParameter( string i_filename )
             }
             // print runparameter to stdout
             cout << is_line << endl;
-            if( is_stream.eof() )
+            if( (is_stream>>std::ws).eof() )
             {
                 cout << "error reading runparameter file" << endl;
                 return false;
             }
             is_stream >> temp;
-            if( is_stream.eof() )
+            if( (is_stream>>std::ws).eof() )
             {
                 cout << "error reading runparameter file" << endl;
                 return false;
@@ -131,7 +131,7 @@ bool readInputParameter( string i_filename )
             }
             else if( temp == "ZENITHANGLE" )
             {
-                while( !is_stream.eof() )
+                while( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> temp;
                     f_ze.push_back( temp );
@@ -139,7 +139,7 @@ bool readInputParameter( string i_filename )
             }
             else if( temp == "WOBBLEOFFSET" )
             {
-                while( !is_stream.eof() )
+                while( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> temp;
                     f_woff.push_back( temp );
@@ -147,7 +147,7 @@ bool readInputParameter( string i_filename )
             }
             else if( temp == "NOISELEVEL" )
             {
-                while( !is_stream.eof() )
+                while( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> temp;
                     f_noise.push_back( temp );

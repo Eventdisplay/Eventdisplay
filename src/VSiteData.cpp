@@ -156,7 +156,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     while( getline( is, is_line ) )
     {
         istringstream is_stream( is_line );
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             // ignore lines with '#' in the beginning
@@ -203,7 +203,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     while( getline( is, is_line ) )
     {
         istringstream is_stream( is_line );
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             // ignore lines with '#' in the beginning
@@ -229,7 +229,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         // not need for most analysis
         if( !iShortDataListVersion )
         {
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> fHemisphere;
                 if( fHemisphere != "S" && fHemisphere != "N" )
@@ -245,28 +245,28 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
                     fSiteRequirementID = 3;
                 }
             }
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> fReferenceSiteName;
             }
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> fSite_asl;
             }
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> fSite_B_N;
             }
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> fSite_B_S;
             }
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> fSite_B_dB;
             }
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             // add direction string
@@ -277,7 +277,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
             fSiteFileName.push_back( iTemp );
             fSiteFile_exists.push_back( false );
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             fArray.push_back( iTemp );
@@ -286,7 +286,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         {
             fArray.push_back( "" );
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             fObservationTime_s.push_back( atof( iTemp.c_str() ) );
@@ -295,7 +295,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         {
             fObservationTime_s.push_back( 0. );
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             fCameraOffset_deg.push_back( atof( iTemp.c_str() ) );
@@ -304,7 +304,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         {
             fCameraOffset_deg.push_back( 0. );
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             fSiteFile_Emin.push_back( atof( iTemp.c_str() ) );
@@ -313,7 +313,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         {
             fSiteFile_Emin.push_back( 1.e-5 );
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             fSiteFile_Emax.push_back( atof( iTemp.c_str() ) );
@@ -322,7 +322,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         {
             fSiteFile_Emax.push_back( 1.e5 );
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             fPlottingColor.push_back( atoi( iTemp.c_str() ) );
@@ -331,7 +331,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         {
             fPlottingColor.push_back( 1 );
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             fPlottingLineStyle.push_back( atoi( iTemp.c_str() ) );
@@ -340,7 +340,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         {
             fPlottingLineStyle.push_back( 1 );
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             fPlottingFillStyle.push_back( atoi( iTemp.c_str() ) );
@@ -349,7 +349,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         {
             fPlottingFillStyle.push_back( 1 );
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             is_stream >> iTemp;
             fPlottingMarkerStyle.push_back( atoi( iTemp.c_str() ) );
@@ -358,7 +358,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         {
             fPlottingMarkerStyle.push_back( 21 );
         }
-        if( !is_stream.eof() )
+        if( !(is_stream>>std::ws).eof() )
         {
             fLegend.push_back( is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ) );
         }

@@ -133,20 +133,20 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
         istringstream is_stream( h->fSimConfigFile );
         string iTemp = "";
         
-        while( !is_stream.eof() )
+        while( !(is_stream>>std::ws).eof() )
         {
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iTemp;
             }
             
             if( iTemp == "corsikaIOreader" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp;
                 }
@@ -154,14 +154,14 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "DATE" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->shower_date;
                 }
             }
             else if( iTemp == "CORSIKAVERSION" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp;
                 }
@@ -169,7 +169,7 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "PARTICLEID" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->primary_id;
                 }
@@ -177,7 +177,7 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             else if( iTemp == "OBSLEVEL" )
             {
                 float i_f = 0.;
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> i_f;
                 }
@@ -189,42 +189,42 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "ALTITUDE" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->injection_height;
                 }
             }
             else if( iTemp == "TSTART" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->fixed_int_depth;
                 }
             }
             else if( iTemp == "E_SLOPE" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->spectral_index;
                 }
             }
             else if( iTemp == "E_MIN" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->E_range[0];
                 }
             }
             else if( iTemp == "E_MAX" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->E_range[1];
                 }
             }
             else if( iTemp == "ZENITH_MIN" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->alt_range[0];
                 }
@@ -232,7 +232,7 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "ZENITH_MAX" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->alt_range[1];
                 }
@@ -240,7 +240,7 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "AZIMUTH_MIN" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->az_range[0];
                 }
@@ -248,7 +248,7 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "AZIMUTH_MAX" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->az_range[1];
                 }
@@ -256,7 +256,7 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "VIEWCONE_MIN" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->viewcone[0];
                 }
@@ -264,7 +264,7 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "VIEWCONE_MAX" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->viewcone[1];
                 }
@@ -272,63 +272,63 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "NSCATT" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->num_use;
                 }
             }
             else if( iTemp == "XSCATT" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->core_range[0];
                 }
             }
             else if( iTemp == "YSCATT" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->core_range[1];
                 }
             }
             else if( iTemp == "CBUNCH" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->corsika_bunchsize;
                 }
             }
             else if( iTemp == "C_WMIN" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->corsika_wlen_min;
                 }
             }
             else if( iTemp == "C_WMAX" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->corsika_wlen_max;
                 }
             }
             else if( iTemp == "GEO_X" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->B_inclination;    // entry will be corrected later
                 }
             }
             else if( iTemp == "GEO_Z" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->B_total;    // entry will be corrected later
                 }
             }
             else if( iTemp == "GEO_A" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->B_declination;
                 }
@@ -336,28 +336,28 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "HAD_LOW" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->corsika_low_E_model;
                 }
             }
             else if( iTemp == "HAD_HIGH" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->corsika_high_E_model;
                 }
             }
             else if( iTemp == "HAD_TRANS" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->corsika_low_high_E;
                 }
             }
             else if( iTemp == "CFLAG" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iMCRunHeader->corsika_iact_options;
                 }
@@ -365,11 +365,11 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             else if( iTemp == "ATM" )
             {
                 int iATM = 0;
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iATM;
                 }
@@ -381,21 +381,21 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
             }
             else if( iTemp == "*" )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp;
                 }
                 if( iTemp == "SOURC" )
                 {
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> iTemp;
                     }
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> iTemp;
                     }
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> iTemp;
                     }
@@ -411,12 +411,12 @@ VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* pack
                 {
                     for( int kk = 0; kk < 7; kk ++ )
                     {
-                        if( !is_stream.eof() )
+                        if( !(is_stream>>std::ws).eof() )
                         {
                             is_stream >> iTemp;
                         }
                     }
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> iTemp;
                         iMCRunHeader->fFADC_hilo_multipler = atof( iTemp.c_str() );

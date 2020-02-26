@@ -929,7 +929,7 @@ void VHoughTransform::readHTParameterFile( unsigned int fTelID )
                 is_stream >> iTemp;
                 iTemp = VUtilities::upperCase( iTemp );
                 is_stream >> iTemp2;
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp3;
                 }
@@ -937,7 +937,7 @@ void VHoughTransform::readHTParameterFile( unsigned int fTelID )
                 {
                     iTemp3 = "";
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp4;
                 }
@@ -945,7 +945,7 @@ void VHoughTransform::readHTParameterFile( unsigned int fTelID )
                 {
                     iTemp4 = "";
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp5;
                 }

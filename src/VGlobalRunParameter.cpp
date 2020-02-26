@@ -73,7 +73,7 @@ bool VGlobalRunParameter::readRunparameterFile( string i_filename )
                 continue;
             }
             // print runparameter to stdout
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> temp;
                 if( temp == "OBSERVATORY" )
@@ -82,15 +82,15 @@ bool VGlobalRunParameter::readRunparameterFile( string i_filename )
                 }
                 else if( temp == "OBSERVATORY_COORDINATES" )
                 {
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> fObservatory_Latitude_deg;
                     }
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> fObservatory_Longitude_deg;
                     }
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> fObservatory_Height_m;
                     }
