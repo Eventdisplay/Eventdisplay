@@ -537,7 +537,7 @@ void VGrIsuReader::readPedsfromPlines()
                 }
                 fhPeds[i_telID][i_channel]->Reset();
                 is_stream >> is_Temp;
-                while( !is_stream.eof() )
+                while( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> is_Temp;
                     i_val.push_back( atof( is_Temp.c_str() ) );

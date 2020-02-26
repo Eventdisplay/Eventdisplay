@@ -297,7 +297,7 @@ bool VSpectralEnergyDistribution::readSED( string ifile )
             is_stream >> is_temp;
             i_pF_temp.MJD_max = atof( is_temp.c_str() );
             
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> is_temp;
                 i_pF_temp.Color = atoi( is_temp.c_str() );
@@ -306,7 +306,7 @@ bool VSpectralEnergyDistribution::readSED( string ifile )
             {
                 i_pF_temp.Color = 1 + z;
             }
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> is_temp;
                 i_pF_temp.Marker = atoi( is_temp.c_str() );
@@ -315,7 +315,7 @@ bool VSpectralEnergyDistribution::readSED( string ifile )
             {
                 i_pF_temp.Marker = 20 + z;
             }
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 i_pF_temp.name = is_stream.str().substr( is_stream.tellg(), is_stream.str().size() );
             }
@@ -355,7 +355,7 @@ bool VSpectralEnergyDistribution::readSED( string ifile )
             {
                 i_pF_temp.flux_error_down_ergscms.back() = 0.;
             }
-            if( is_stream.eof() )
+            if( (is_stream>>std::ws).eof() )
             {
                 i_pF_temp.flux_error_up_ergscms.push_back( atof( is_temp.c_str() ) );
                 if( TMath::Abs( i_pF_temp.flux_error_up_ergscms.back() ) < 1.e-16 )
@@ -1035,7 +1035,7 @@ bool VSpectralEnergyDistribution::readGalacticExtinction( string ifile, bool iPr
         stringstream is_stream( is_line );
         
         int k = 0;
-        while( !is_stream.eof() )
+        while( !(is_stream>>std::ws).eof() )
         {
             is_stream >> is_temp;
             if( i == 0 )

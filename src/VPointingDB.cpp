@@ -451,7 +451,7 @@ bool VPointingDB::readPointingFromVPMTextFile( string iDirectory )
         // test line for completeness (expect 11 columns)
         int nC = 0;
         istringstream is_streamT( is_line );
-        while( !is_streamT.eof() )
+        while( !(is_streamT>>std::ws).eof() )
         {
             is_streamT >> iTemp;
             nC++;

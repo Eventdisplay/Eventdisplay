@@ -120,7 +120,7 @@ void readInputfile( string fInputFile )
             // check that there are enough parameters in this line
             istringstream is_check( is_line );
             int z = 0;
-            while( !is_check.eof() )
+            while( !(is_check>>std::ws).eof() )
             {
                 is_check >> temp;
                 z++;
@@ -151,20 +151,20 @@ void readInputfile( string fInputFile )
             }
             
             // az range
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> a.fAz_deg_min;
             }
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> a.fAz_deg_max;
             }
             // ze range
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> a.fZe_deg_min;
             }
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> a.fZe_deg_max;
             }

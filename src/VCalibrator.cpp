@@ -2052,7 +2052,7 @@ bool VCalibrator::readPeds_from_textfile( string iFile, bool iLowGain, unsigned 
                 do
                 {
                     count += 1;
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> rms;
                     }
@@ -2082,7 +2082,7 @@ bool VCalibrator::readPeds_from_textfile( string iFile, bool iLowGain, unsigned 
                         getPedrms( iLowGain )[ch] = rms;
                     }
                 }
-                while( !is_stream.eof() );
+                while( !(is_stream>>std::ws).eof() );
                 if( count < i_SumWindow )
                 {
                     cout << "VCalibrator::readPeds_from_textfile error:";
@@ -3436,14 +3436,14 @@ int VCalibrator::readLowGainCalibrationValues_fromCalibFile( string iVariable, u
                 continue;
             }
             
-            if( is_stream.eof() )
+            if( (is_stream>>std::ws).eof() )
             {
                 continue;
             }
             is_stream >> is_Temp;
             if( is_Temp == iVariable )
             {
-                if( is_stream.eof() )
+                if( (is_stream>>std::ws).eof() )
                 {
                     continue;
                 }
@@ -3458,12 +3458,12 @@ int VCalibrator::readLowGainCalibrationValues_fromCalibFile( string iVariable, u
                 
                 is_stream >> iTel;
                 iTel--;              // internal counting starts at 0
-                if( is_stream.eof() )
+                if( (is_stream>>std::ws).eof() )
                 {
                     continue;
                 }
                 is_stream >> iRunMin;
-                if( is_stream.eof() )
+                if( (is_stream>>std::ws).eof() )
                 {
                     continue;
                 }
@@ -3475,7 +3475,7 @@ int VCalibrator::readLowGainCalibrationValues_fromCalibFile( string iVariable, u
                     {
                         cout << "reading low-gain parameters for run range " << iRunMin << ", " << iRunMax << endl;
                     }
-                    if( is_stream.eof() )
+                    if( (is_stream>>std::ws).eof() )
                     {
                         continue;
                     }
@@ -3626,25 +3626,25 @@ int VCalibrator::getCalibrationRunNumbers_fromCalibFile()
             is_stream >> iPed;
             
             // get gain file number
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iGain;
             }
             
             // get toff file number
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iToff;
             }
             
             // get pixel status number
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iPix;
             }
             
             // get pad file number
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iPad;
             }
@@ -3652,7 +3652,7 @@ int VCalibrator::getCalibrationRunNumbers_fromCalibFile()
             // get low gain pedestal file number
             if( fCalibrationfileVersion > 1 )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iLowGainPeds;
                 }
@@ -3674,11 +3674,11 @@ int VCalibrator::getCalibrationRunNumbers_fromCalibFile()
             // low gain gains and time offsets
             if( fCalibrationfileVersion > 3 )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iLowGainGains;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iLowGainToff;
                 }
@@ -3687,7 +3687,7 @@ int VCalibrator::getCalibrationRunNumbers_fromCalibFile()
             // get low gain multiplier file name
             if( fCalibrationfileVersion > 2 )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iLowGainMultiplier;
                 }

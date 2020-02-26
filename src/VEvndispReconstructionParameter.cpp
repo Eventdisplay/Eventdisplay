@@ -1237,7 +1237,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
             // read variable identifieres
             for( unsigned int i = 0; i < iTemp.size(); i++ )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp[i];
                 }
