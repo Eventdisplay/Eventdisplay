@@ -114,16 +114,17 @@ class VAtmosphereSoundings
         double getWaterVaporDensity( double T, double RH );
         double getWaterVaporMassDensity( double ATEMP );
         Color_t getSeasonColor( int iMonth );
+        Color_t getSeasonColor( int counter, int atmo );
         TCanvas* plotCORSIKA( TCanvas* c, int iPlotID, vector< VAtmosphereSoundingData* > iData, double iHeightMin = 0., double iHeightMax = 120. );
         void   plotProfiles( unsigned int iYearStart, unsigned int iMonthStart, unsigned int iYearStop, unsigned int iMonthStop, bool b2D = false,
                              string iPlotOption = "", bool bSames = false );
         bool   readPlottingPeriodsFromTextFile( string );
-        bool   readRootFile();
+        bool   readRootFile( unsigned npoints_min = 0 );
         
     public:
     
         VAtmosphereSoundings();
-        VAtmosphereSoundings( string iRootFile );
+        VAtmosphereSoundings( string iRootFile, unsigned int npoints_min = 0 );
         ~VAtmosphereSoundings() {}
         bool     add_user_Atmosphere( unsigned int iIndexCORSIKAMODTRAN, double iHeightMaxData, string iName = "" );
         bool     readSoundingsFromTextFile( string iFileList );
@@ -214,7 +215,7 @@ class VAtmosphereSoundings
         }
         int     read_CORSIKA_Atmosphere( string iFile, string iName = "", int iColor = 2, int iLineStyle = 1 );
         int     read_MODTRAN_Atmosphere( string iFile, string iName = "", int iColor = 2, int iLineStyle = 1 );
-        bool     readSoundingsFromRootFile( string iRootFile );
+        bool     readSoundingsFromRootFile( string iRootFile, unsigned int npoints_min = 0 );
         void     setGeographicPosition( double iLatitude = 31.675, double iObsHeight_km = 1.27 )
         {
             fObservatoryLatitude = iLatitude;
@@ -300,6 +301,9 @@ class VAtmosphereSoundings
         TCanvas *plot_season( vector<VAtmosphereSoundingData*> v, TString season_name, string value, TString outfileprefix ) ;
         TCanvas* plot_season( int year_start, int month_start, int day_start, int year_end, int month_end , int day_end, string value );
         TCanvas* plot_monthly( vector< int > year, vector< int > month, vector< int > day, double intervall_days, int offset_months, string value );
+
+        int readEpochsAndAtmospheres( TString iDstart, double iMonthLength_days,
+                   string iEpochFile = "$VERITAS_EVNDISP_AUX_DIR/ParameterFiles/VERITAS.Epochs.runparameter" );
         
         
 };
