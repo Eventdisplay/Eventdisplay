@@ -130,7 +130,7 @@ class VAtmosphereSoundings
         bool     readSoundingsFromTextFile( string iFileList );
         bool     readGDASFromTextFile( string iFileList );
         double   getAmosphericVaporPressure( double T );
-        double   getDewPoint( double temperature, double relativeHumidity, int iMethod = 0 );
+        double   getDewPoint( double temperature, double relativeHumidity, int iMethod = 1 );
         void     list_datasets();
         void     list_datasets_CORSIKAMODTRAN();
         
