@@ -2109,7 +2109,7 @@ bool VReadRunParameter::readEpochsAndAtmospheres()
     if( fRunPara->fAtmosphereID <= 0 )
     {
         cout << "Error file reading epoch for summer/winter atmosphere from " << fRunPara->fEpochFile << endl;
-        cout << "\t no corresponding epoch fine. Exiting..." << endl;
+        cout << "\t no corresponding epoch found. Exiting..." << endl;
         exit( EXIT_FAILURE );
     }
     
