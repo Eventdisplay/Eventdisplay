@@ -130,7 +130,7 @@ class VAtmosphereSoundings
         bool     readSoundingsFromTextFile( string iFileList );
         bool     readGDASFromTextFile( string iFileList );
         double   getAmosphericVaporPressure( double T );
-        double   getDewPoint( double temperature, double relativeHumidity, int iMethod = 0 );
+        double   getDewPoint( double temperature, double relativeHumidity, int iMethod = 1 );
         void     list_datasets();
         void     list_datasets_CORSIKAMODTRAN();
         
@@ -299,7 +299,7 @@ class VAtmosphereSoundings
         
         TGraph* getResidualGraph( TGraph* data, TGraph* model , int color = 2 ) ;
         TCanvas *plot_season( vector<VAtmosphereSoundingData*> v, TString season_name, string value, TString outfileprefix ) ;
-        TCanvas* plot_season( int year_start, int month_start, int day_start, int year_end, int month_end , int day_end, string value );
+        TCanvas* plot_season( int year_start, int month_start, int day_start, int year_end, int month_end , int day_end, string value, int bWriteCorsika = -1 );
         TCanvas* plot_monthly( vector< int > year, vector< int > month, vector< int > day, double intervall_days, int offset_months, string value );
 
         int readEpochsAndAtmospheres( TString iDstart, double iMonthLength_days,
