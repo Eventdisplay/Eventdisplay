@@ -299,7 +299,7 @@ class VAtmosphereSoundings
         
         TGraph* getResidualGraph( TGraph* data, TGraph* model , int color = 2 ) ;
         TCanvas *plot_season( vector<VAtmosphereSoundingData*> v, TString season_name, string value, TString outfileprefix ) ;
-        TCanvas* plot_season( int year_start, int month_start, int day_start, int year_end, int month_end , int day_end, string value );
+        TCanvas* plot_season( int year_start, int month_start, int day_start, int year_end, int month_end , int day_end, string value, int bWriteCorsika = -1 );
         TCanvas* plot_monthly( vector< int > year, vector< int > month, vector< int > day, double intervall_days, int offset_months, string value );
 
         int readEpochsAndAtmospheres( TString iDstart, double iMonthLength_days,

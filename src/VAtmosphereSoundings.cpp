@@ -3430,7 +3430,7 @@ TCanvas* VAtmosphereSoundings::plot_season(
     summer->getGraph( value )->SetTitle( "" );
     winter->getGraph( value )->Draw( "al" );
     TAxis* axis = winter->getGraph( value )->GetXaxis();
-    axis->SetLimits( 0., 30 );
+    axis->SetLimits( fPlottingHeight_min, fPlottingHeight_max );
     axis->SetTitle( "height a.s.l. [km]" );
     TAxis* axisY = winter->getGraph( value )->GetYaxis();
     axisY->SetTitleOffset( 1.5 );
@@ -3488,7 +3488,7 @@ TCanvas* VAtmosphereSoundings::plot_season(
     temp->Draw( "al" );
     temp->GetYaxis()->SetTitle( "rel diff to winter (%)" );
     axis = temp->GetXaxis();
-    axis->SetLimits( 0., 30 );
+    axis->SetLimits( fPlottingHeight_min, fPlottingHeight_max );
     axis->SetTitle( "height a.s.l. [km]" );
     
     temp = getResidualGraph( winter->getGraph( value ), winter->getGraph( value ), 4 );
@@ -3522,7 +3522,7 @@ TCanvas* VAtmosphereSoundings::plot_season(
     temp->SetMaximum( 15. );
     temp->Draw( "al" );
     axis = temp->GetXaxis();
-    axis->SetLimits( 0., 30 );
+    axis->SetLimits( fPlottingHeight_min, fPlottingHeight_max );
     axis->SetTitle( "height a.s.l. [km]" );
     temp->GetYaxis()->SetTitle( "rel diff to summer (%)" );
     temp = getResidualGraph( summer->getGraph( value ), summer->getGraph( value ), 2 );
@@ -3579,7 +3579,8 @@ TCanvas* VAtmosphereSoundings::plot_season(
 TCanvas* VAtmosphereSoundings::plot_season( 
         int year_start, int month_start, int day_start, 
         int year_end, int month_end , int day_end, 
-        string value )
+        string value,
+        int bWriteCorsika )
 {
     
     double mjd_start = 0.;
@@ -3645,6 +3646,23 @@ TCanvas* VAtmosphereSoundings::plot_season(
                 t->getGraph( value )->SetMarkerStyle( 24 );
             }
             v.push_back( t );
+        }
+    }
+
+    // write CORSIKA files (if requested)
+    if( bWriteCorsika > 0 )
+    {
+        for( unsigned int i = 0; i < v.size(); i++ )
+        {
+            if( !v[i] )
+            {
+                continue;
+            }
+            stringstream i_fname;
+            i_fname << "ATM" << (bWriteCorsika + i) << ".dat";
+            cout << "Writing CORSIKA file: " << endl;
+            cout << "\t" << i_fname.str() << endl;
+            v[i]->write_CORSIKA_UserProfile( bWriteCorsika + i, i_fname.str() );
         }
     }
 
