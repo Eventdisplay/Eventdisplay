@@ -615,7 +615,7 @@ class VTableLookupDataHandler
             }
             return sqrt( fXoff * fXoff + fYoff * fYoff );
         }
-        bool isReconstructed();
+        bool isReconstructed( bool isReconstructed = false );
         bool readRunParameter();
         void reset();                             //!< reset a few output variables
         void resetAll();

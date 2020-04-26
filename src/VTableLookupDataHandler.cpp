@@ -331,11 +331,10 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     // for table filling: check as soon as possible if the event is useful
     // (also expect that this will not change if stereo reconstruction
     //  is repeated; this is probably not true)
-    if( fwrite && !isReconstructed() )
+    if( fwrite && !isReconstructed(true) )
     {
         fEventStatus = false;
         fEventCounter++;
-        fNStats_Chi2Cut++;
         return 0;
     }
     ///////////////////////////////////
@@ -2507,11 +2506,12 @@ void VTableLookupDataHandler::resetImageParameters( unsigned int i )
  * reconstructed in eventdisplay
  *
  */
-bool VTableLookupDataHandler::isReconstructed()
+bool VTableLookupDataHandler::isReconstructed( bool iEventCounters )
 {
     // require successful reconstruction
     if( fchi2 < 0 )
     {
+        if( iEventCounters ) fNStats_Chi2Cut++;
         return false;
     }
     // require stereo events with the given multiplicity
@@ -2520,6 +2520,7 @@ bool VTableLookupDataHandler::isReconstructed()
     //  can be removed)
     if( fNImages < ( int )fTLRunParameter->fTableFillingCut_NImages_min )
     {
+        if( iEventCounters ) fNStats_NImagesCut++;
         return false;
     }
     
