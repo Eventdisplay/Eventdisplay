@@ -271,6 +271,10 @@ bool VGlobalRunParameter::getEVNDISP_TREE_isShort( TTree* t )
     {
         return true;
     }
+    else if( !t->GetBranchStatus( "dataFormat" ) )
+    {
+        return true;
+    }
     
     return false;
 }
