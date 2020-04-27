@@ -2054,7 +2054,7 @@ bool VTableLookupDataHandler::terminate( TNamed* iM )
         
         ///////////////////////////////////////////////////////////////////////////
         // copy TTree 'pointingDataReduced' and 'deadPixelRegistry' from evndisp.<>.root to mscw.<>.root
-        if( finputfile.size() > 1 )
+        if( finputfile.size() > 1 && !fIsMC )
         {
             cout << "Warning, VTableLookupDataHandler->finputfile.size() isn't 1, not sure which input file to copy TTree 'pointingDataReduced' from";
             cout << ", copying from file finputfile[0]:" << finputfile[0] << endl;
