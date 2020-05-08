@@ -1,7 +1,7 @@
 #!/bin/bash
-#merge VBF files from input directory
+# submit mergeVBF for vbf files
 
-# Computer time asked
+#qsub parameters
 h_rt=48:00:00
 # Send mail (b - begin, a - abort, e - end)
 #-m a
