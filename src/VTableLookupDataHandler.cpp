@@ -2509,7 +2509,7 @@ void VTableLookupDataHandler::resetImageParameters( unsigned int i )
 bool VTableLookupDataHandler::isReconstructed( bool iEventCounters )
 {
     // require successful reconstruction
-    if( fchi2 < 0 )
+  /*  if( fchi2 < 0 )
     {
         if( iEventCounters ) fNStats_Chi2Cut++;
         return false;
@@ -2522,7 +2522,7 @@ bool VTableLookupDataHandler::isReconstructed( bool iEventCounters )
     {
         if( iEventCounters ) fNStats_NImagesCut++;
         return false;
-    }
+    }*/
     
     return true;
 }
@@ -2813,22 +2813,22 @@ void VTableLookupDataHandler::resetAll()
 bool VTableLookupDataHandler::cut( bool bWrite )
 {
     // require at least two images
-    if( fNImages < ( int )fTLRunParameter->fTableFillingCut_NImages_min )
+    /*if( fNImages < ( int )fTLRunParameter->fTableFillingCut_NImages_min )
     {
         fNStats_NImagesCut++;
         return false;
-    }
+    }*/
     
     // number of reconstructed events
     fNStats_Rec++;
     
-    if( getWobbleOffset() < 0. || getWobbleOffset() > fTLRunParameter->fTableFillingCut_WobbleCut_max )
+    /*if( getWobbleOffset() < 0. || getWobbleOffset() > fTLRunParameter->fTableFillingCut_WobbleCut_max )
     {
         fNStats_WobbleCut++;
         return false;
-    }
+    }*/
     
-    if( bWrite )
+    /*if( bWrite )
     {
         if( fMCxoff * fMCxoff + fMCyoff * fMCyoff < fMC_distance_to_cameracenter_min * fMC_distance_to_cameracenter_min )
         {
@@ -2840,7 +2840,7 @@ bool VTableLookupDataHandler::cut( bool bWrite )
             fNStats_WobbleMaxCut++;
             return false;
         }
-    }
+    }*/
     
     return true;
 }
