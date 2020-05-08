@@ -116,7 +116,8 @@ fi
 # detector configuration
 [[ $EPOCH == "V4" ]] && CFG="EVN_V4_Oct2012_oldArrayConfig_20130428_v420.txt"
 [[ $EPOCH == "V5" ]] && CFG="EVN_V5_Oct2012_newArrayConfig_20121027_v420.txt"
-[[ $EPOCH == "V6" ]] && CFG="EVN_V6_Upgrade_20121127_v420.txt"
+#[[ $EPOCH == "V6" ]] && CFG="EVN_V6_Upgrade_20121127_v420.txt"
+[[ $EPOCH == "V6" ]] && CFG="testpSCTcameraconfig.txt"
 
 # temporary directory
 if [[ -n "$TMPDIR" ]]; then 

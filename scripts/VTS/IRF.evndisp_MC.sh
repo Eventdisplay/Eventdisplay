@@ -80,7 +80,7 @@ ZA=$4
 WOBBLE=$5
 NOISE=$6
 SIMTYPE=$7
-[[ "$8" ]] && ACUTS=$8 || ACUTS=EVNDISP.reconstruction.runparameter
+[[ "$8" ]] && ACUTS=$8 || ACUTS=EVNDISP.reconstruction.runparameter.pSCT
 [[ "$9" ]] && EXTNOISE=$9 || EXTNOISE=0
 [[ "${10}" ]] && PARTICLE=${10} || PARTICLE=1
 [[ "${11}" ]] && ANAMETHOD=${11} || ANAMETHOD="TL"
