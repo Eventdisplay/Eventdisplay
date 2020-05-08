@@ -17,6 +17,7 @@ ATM=ATMOSPHERE
 ACUTS="RECONSTRUCTIONRUNPARAMETERFILE"
 PARTICLE=PARTICLETYPE
 SIMTYPE=SIMULATIONTYPE
+PART=PAART
 ODIR=OUTPUTDIR
 ANAMETHOD=ANALYSISMETHOD
 NONSB=NNNOISEFILES
@@ -100,7 +101,7 @@ elif [ ${SIMTYPE:0:4} == "CARE" ]; then
     else
         _RHV=""
     fi
-    [[ $PARTICLE == "1" ]]  && VBFNAME="gamma${_RHV}_${ZA}deg_750m_${WOB}wob_${NOISE}mhz_up_ATM${ATM}_part0"
+    [[ $PARTICLE == "1" ]]  && VBFNAME="gamma${_RHV}_${ZA}deg_750m_${WOB}wob_${NOISE}mhz_up_ATM${ATM}_part${PART}"
     [[ $PARTICLE == "2" ]]  && VBFNAME="electron${_RHV}_${ZA}deg_noise${NOISE}MHz___"
     [[ $PARTICLE == "14" ]] && VBFNAME="proton${_RHV}_${ZA}deg_noise${NOISE}MHz___"
 
@@ -185,7 +186,7 @@ mkdir -p $ODIR/Calibration
 
 #######################################
 # option for all steps of the analysis
-MCOPT=" -runnumber=$RUNNUM -sourcetype=2 -epoch $EPOCH -camera=$CFG -reconstructionparameter $ACUTS -sourcefile $VBF_FILE -deadchannelfile $DEAD -donotusedbinfo -calibrationdirectory $ODIR"
+MCOPT=" -runnum=$RUNNUM -sourcetype=2 -epoch $EPOCH -camera=$CFG -reconstructionparameter $ACUTS -sourcefile $VBF_FILE -deadchannelfile $DEAD -donotusedbinfo -calibrationdirectory $ODIR"
 # CARE simulations: add Gaussian noise of 3.6 mV/ (7.84 mV/dc)  / 2
 # Current (2018) CARE simulations:
 #    no electronic noise included - therefore add

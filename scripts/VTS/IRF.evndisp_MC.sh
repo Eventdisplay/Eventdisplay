@@ -85,6 +85,7 @@ SIMTYPE=$7
 [[ "${10}" ]] && PARTICLE=${10} || PARTICLE=1
 [[ "${11}" ]] && ANAMETHOD=${11} || ANAMETHOD="TL"
 [[ "${12}" ]] && NEVENTS=${12}  || NEVENTS=-1
+[[ "${13}" ]] && PART=${13}  || PART=0
 
 # check and print analysis method
 if [[ $ANAMETHOD != "TL"* ]] && [[ $ANAMETHOD != "NN"* ]]
@@ -108,7 +109,7 @@ if [[ ! -z "$VERITAS_IRFPRODUCTION_DIR" ]]; then
     ODIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/${SIMTYPE}/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}_${ANAMETHOD}"
 fi
 # output dir
-OPDIR=${ODIR}"/ze"$ZA"deg_offset"$WOBBLE"deg_NSB"$NOISE"MHz"
+OPDIR=${ODIR}"/ze"$ZA"deg_offset"$WOBBLE"deg_NSB"$NOISE"MHz/part"$PART
 mkdir -p "$OPDIR"
 chmod -R g+w "$OPDIR"
 echo -e "Output files will be written to:\n $OPDIR"
@@ -123,7 +124,7 @@ if [[ ${SIMTYPE:0:5} = "GRISU" ]]; then
 elif [ ${SIMTYPE:0:4} = "CARE" ]; then
     [[ $EPOCH == "V4" ]] && RUNNUM="941200"
     [[ $EPOCH == "V5" ]] && RUNNUM="951200"
-    [[ $EPOCH == "V6" ]] && RUNNUM="961200"
+    [[ $EPOCH == "V6" ]] && RUNNUM="961200_$PART"
 fi
 
 # Job submission script
@@ -150,6 +151,7 @@ sed -e "s|DATADIR|$SIMDIR|" \
     -e "s|ANALYSISMETHOD|$ANAMETHOD|" \
     -e "s|RECONSTRUCTIONRUNPARAMETERFILE|$ACUTS|" \
     -e "s|SIMULATIONTYPE|$SIMTYPE|" \
+    -e "s|PAART|$PART|" \
     -e "s|NNNOISEFILES|$EXTNOISE|" \
     -e "s|REDHVFLAG|$RHVFLAG|" \
     -e "s|PARTICLETYPE|$PARTICLE|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
