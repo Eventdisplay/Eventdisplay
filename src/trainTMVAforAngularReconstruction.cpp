@@ -872,8 +872,8 @@ int main( int argc, char* argv[] )
     string iTMVAOptions = "VarTransform=N:NTrees=200:BoostType=AdaBoost:MaxDepth=8";
     string       iDataDirectory = "";
     string       iLayoutFile = "";
-    string       iQualityCut = "size>1.&&ntubes>4.&&width>0.&&width<2.&&length>0.&&length<10.";
-    iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&EHeight<100.&&Rcore<2000.";
+    string       iQualityCut = "size>1.&&ntubes>4.&&width>0.&&width<2.&&length>0.&&length<10.&&tgrad_x<100.*100.&&loss<0.20"; //mono cuts
+    //iQualityCut = iQualityCut + "&&cross<20.0&&EHeight<100.&&Rcore<2000."; //stereo cuts
     if( argc >=  7 )
     {
         iTargetBDT =       argv[6]   ;
