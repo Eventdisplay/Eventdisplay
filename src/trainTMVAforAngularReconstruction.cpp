@@ -168,16 +168,17 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     {
         dataloader->AddVariable( "tgrad_x*tgrad_x", 'F' );
     }
-    dataloader->AddVariable( "cross" , 'F' );
+    //No stereo variables used
+    //dataloader->AddVariable( "cross" , 'F' );
     dataloader->AddVariable( "asym"  , 'F' );
     dataloader->AddVariable( "loss"  , 'F' );
     dataloader->AddVariable( "dist"  , 'F' );
     dataloader->AddVariable( "fui"  , 'F' );
-    if( iTargetBDT == "BDTDispEnergy" )
+    /*if( iTargetBDT == "BDTDispEnergy" )
     {
         dataloader->AddVariable( "EHeight", 'F' );
         dataloader->AddVariable( "Rcore", 'F' );
-    }
+    }*/
     // spectators
     dataloader->AddSpectator( "MCe0", 'F' );
     dataloader->AddSpectator( "MCxoff", 'F' );
