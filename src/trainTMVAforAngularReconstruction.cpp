@@ -628,7 +628,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     int nentries = i_showerpars.fChain->GetEntries();
     cout << "Loop over " << nentries << " entries in source files" << endl;
     
-    for( int n = 0; n < nentries; n++ )
+    /*for( int n = 0; n < nentries; n++ )
     {
         // read events from event trees
         i_showerpars.GetEntry( n );
@@ -648,10 +648,10 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                 ||  i_showerpars.NImages[iRecID] < 2 )
         {
             continue;
-        }
+        }*/
         
         // check if there are image of this particle teltype
-        int i_nteltypecounter = 0;
+        /*int i_nteltypecounter = 0;
         for( unsigned int i = 0; i < fTelType.size(); i++ )
         {
             if( (fTelType[i] == iTelType || iTelType == 0)
@@ -663,11 +663,11 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         if( i_nteltypecounter == 0 )
         {
             continue;
-        }
+        }*/
         
         /////////////////////////////////////////////////////////
-        // calculate emission height
-        for( unsigned int i = 0; i < i_tpars.size(); i++ )
+        // calculate emission height - unused in this analysis
+        /*for( unsigned int i = 0; i < i_tpars.size(); i++ )
         {
             fEM_size[i] = -1.;
             fEM_cen_x[i] = 0.;
@@ -698,13 +698,13 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         EmissionHeight = fEmissionHeightCalculator->getEmissionHeight( fEM_cen_x, fEM_cen_y, fEM_size,
                          i_showerpars.ArrayPointing_Azimuth,
                          i_showerpars.ArrayPointing_Elevation );
-
+*/
         //////////////////////////////////////
         // loop over all telescopes
         for( unsigned int i = 0; i < i_tpars.size(); i++ )
         {
             // check if telescope was reconstructed
-            if( ( int )i_showerpars.ImgSel_list[iRecID][i] < 1
+            /*if( ( int )i_showerpars.ImgSel_list[iRecID][i] < 1
                     || i_showerpars.NImages[iRecID] < 2 )
             {
                 continue;
@@ -720,7 +720,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                     && sqrt( i_showerpars.MCxoff * i_showerpars.MCxoff + i_showerpars.MCyoff * i_showerpars.MCyoff ) > iFOV_tel[i] * 0.5 * 1.2 )
             {
                 continue;
-            }
+            }*/
             i_tpars[i]->GetEntry( n );
             
             /////////////////////////////////
@@ -774,10 +774,10 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             Rcore       = VUtilities::line_point_distance( Ycore,   -1.*Xcore,   0., ze, az, fTelY[i], -1.*fTelX[i], fTelZ[i] );
             MCrcore     = VUtilities::line_point_distance( MCycore, -1.*MCxcore, 0., MCze, MCaz, fTelY[i], -1.*fTelX[i], fTelZ[i] );
             
-            if( Rcore < 0. )
+            /*if( Rcore < 0. )
             {
                 continue;
-            }
+            }*/
             
             //////////////////////////////////////////////////////////////////////////////////////////////////
             // calculate disp (observe sign convention for MC in y direction for MCyoff and Yoff)
