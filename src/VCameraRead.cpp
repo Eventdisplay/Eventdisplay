@@ -570,10 +570,10 @@ bool VCameraRead::readGrisucfg( string iFile, unsigned int iNTel )
                 i_telID -= 1;
             }
             i_stream >> i_chan;
-            if( i_chan > 0 )
+            /*if( i_chan > 0 )
             {
                 i_chan -= 1;
-            }
+            }*/
             if( fGrIsuVersion >= 400 )
             {
                 i_stream >> i_char;
@@ -612,10 +612,10 @@ bool VCameraRead::readGrisucfg( string iFile, unsigned int iNTel )
                 i_telID -= 1;
             }
             i_stream >> i_chan;
-            if( i_chan > 0 )
+            /*if( i_chan > 0 )
             {
                 i_chan -= 1;
-            }
+            }*/
             i_stream >> i_NN;
             if( i_telID < fNTel  && i_chan < fCNChannels[i_telID] )
             {
@@ -639,7 +639,9 @@ bool VCameraRead::readGrisucfg( string iFile, unsigned int iNTel )
                     {
                         i_stream >> fNeighbour[i_telID][i_chan][j];
                         // grisu starts at 1 with counting, evndisp at 0
-                        fNeighbour[i_telID][i_chan][j] -= 1;
+                        //fNeighbour[i_telID][i_chan][j] -= 1;
+                    if( fNeighbour[i_telID][i_chan][j] < 0 )
+                    	cout << "We have a problem!!!!!!" << endl;
                     }
                     else
                     {
@@ -1172,8 +1174,8 @@ void VCameraRead::resetTelVectors()
     fCameraFieldofView.assign( fNTel, 3.5 );
     fLowGainMultiplier_Trace.assign( fNTel, 6.0 );
     fLowGainActivator.assign( fNTel, 255 );
-    // maximal number of neighbours is 6 (for circular pixel type)
-    fMaxNeighbour.assign( fNTel, 6 );
+    // maximal number of neighbours is 8 (for square pixel type)
+    fMaxNeighbour.assign( fNTel, 8 );
     // set default values for array of four telescopes
     //  later this values are overwritten by the values from the .cfg file
     if( fNTel == 4 )
