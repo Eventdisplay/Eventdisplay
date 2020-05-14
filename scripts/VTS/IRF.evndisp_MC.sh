@@ -109,7 +109,7 @@ if [[ ! -z "$VERITAS_IRFPRODUCTION_DIR" ]]; then
     ODIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/${SIMTYPE}/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}_${ANAMETHOD}"
 fi
 # output dir
-OPDIR=${ODIR}"/ze"$ZA"deg_offset"$WOBBLE"deg_NSB"$NOISE"MHz/fullcamera"
+OPDIR=${ODIR}"/fullcamera/ze"$ZA"deg_offset"$WOBBLE"deg_NSB"$NOISE"MHz/"
 mkdir -p "$OPDIR"
 chmod -R g+w "$OPDIR"
 echo -e "Output files will be written to:\n $OPDIR"

@@ -628,13 +628,13 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     int nentries = i_showerpars.fChain->GetEntries();
     cout << "Loop over " << nentries << " entries in source files" << endl;
     
-    /*for( int n = 0; n < nentries; n++ )
+    for( int n = 0; n < nentries; n++ )
     {
-        // read events from event trees
+    	// read events from event trees
         i_showerpars.GetEntry( n );
         
         // check recid
-        if( iRecID >= i_showerpars.NMethods )
+       /* if( iRecID >= i_showerpars.NMethods )
         {
             cout << "Error: invalid reconstruction ID.";
             cout << " Maximum allowed value is " << i_showerpars.NMethods << endl;
