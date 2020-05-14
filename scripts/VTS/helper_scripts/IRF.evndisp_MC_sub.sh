@@ -187,7 +187,7 @@ mkdir -p $ODIR/Calibration
 
 #######################################
 # option for all steps of the analysis
-MCOPT=" -runnum=$RUNNUM -sourcetype=2 -epoch $EPOCH -camera=$CFG -reconstructionparameter $ACUTS -sourcefile $VBF_FILE -deadchannelfile $DEAD -donotusedbinfo -calibrationdirectory $ODIR"
+MCOPT=" -runnumber=$RUNNUM -sourcetype=2 -epoch $EPOCH -camera=$CFG -reconstructionparameter $ACUTS -sourcefile $VBF_FILE -deadchannelfile $DEAD -donotusedbinfo -calibrationdirectory $ODIR"
 # CARE simulations: add Gaussian noise of 3.6 mV/ (7.84 mV/dc)  / 2
 # Current (2018) CARE simulations:
 #    no electronic noise included - therefore add
