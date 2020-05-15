@@ -481,6 +481,11 @@ void VTableLookup::setMCTableFiles_forTableReading( string itablefile, string is
         vector< string > iDNameTel = getSortedListOfDirectories( fLookupTableFile );
         for( unsigned int t = 0; t < iDNameTel.size(); t++ )
         {
+            // skip debug directories
+            if( iDNameTel[t].find( "makeTable" ) != string::npos )
+            {
+                continue;
+            }
             fLookupTableFile->cd( iDNameTel[t].c_str() );
             fTableTelTypes.push_back( ( ULong64_t )( atoi )( iDNameTel[t].substr( 4, iDNameTel[t].size() ).c_str() ) );
             
