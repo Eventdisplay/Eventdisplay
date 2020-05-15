@@ -15,12 +15,16 @@ class VPointingCorrectionsTreeReader
     private:
       float fPointingErrorX;
       float fPointingErrorY;
+      bool  fPointingCorrectionTreeSetting;
 
       TChain* fTree;
 
     public:
        VPointingCorrectionsTreeReader( TChain *t = 0 );
-       bool initialize();
+       bool is_initialized() 
+       {
+            return fPointingCorrectionTreeSetting;
+       }
        int getEntry( Long64_t );
        Long64_t getEntries();
 

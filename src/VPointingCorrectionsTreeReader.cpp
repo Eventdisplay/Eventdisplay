@@ -12,12 +12,18 @@ VPointingCorrectionsTreeReader::VPointingCorrectionsTreeReader( TChain *t )
 {
     fPointingErrorX = 0.;
     fPointingErrorY = 0.;
+    fPointingCorrectionTreeSetting = false;
 
     fTree = t;
     if( fTree )
     {
-        fTree->SetBranchAddress( "PointingErrorX", &fPointingErrorX );
-        fTree->SetBranchAddress( "PointingErrorY", &fPointingErrorY );
+        if( fTree->GetBranchStatus( "PointingErrorX" ) &&
+            fTree->GetBranchStatus( "PointingErrorY" ) )
+        {
+            fTree->SetBranchAddress( "PointingErrorX", &fPointingErrorX );
+            fTree->SetBranchAddress( "PointingErrorY", &fPointingErrorY );
+            fPointingCorrectionTreeSetting = true;
+        }
     }
 
 }

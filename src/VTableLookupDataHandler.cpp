@@ -591,7 +591,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fwidth[i] = ftpars[i]->width;
             flength[i] = ftpars[i]->length;
             ftgrad_x[i] = ftpars[i]->tgrad_x;
-            if( i < fpointingCorrections.size() && fpointingCorrections[i] )
+            if( i < fpointingCorrections.size() && fpointingCorrections[i]
+               && fpointingCorrections[i]->is_initialized() )
             {
                  fpointingCorrections[i]->getEntry( fEventCounter );
                  fcen_x[i] = fpointingCorrections[i]->getCorrected_cen_x( ftpars[i]->cen_x );
