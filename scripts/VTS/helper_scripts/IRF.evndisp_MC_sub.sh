@@ -132,7 +132,7 @@ echo "Temporary directory: $DDIR"
 if [[ ${SIMTYPE:0:5} == "GRISU" ]]; then
     VBF_FILE=$VBFNAME"wobb.vbf"
 elif [[ ${SIMTYPE:0:4} == "CARE" ]]; then
-    VBF_FILE="$VBFNAME.cvbf"
+    VBF_FILE="$VBFNAME.vbf"
 fi
 echo 
 echo "Now processing $VBF_FILE"
