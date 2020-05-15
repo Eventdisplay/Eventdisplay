@@ -165,7 +165,14 @@ float VTMVADispAnalyzer::evaluate( float iWidth, float iLength, float iSize, flo
     fAz = iAz;
     // %%@^#%!@(#
     // fcross = sqrt( ( icen_y - yoff_4 ) * ( icen_y - yoff_4 ) + ( icen_x - xoff_4 ) * ( icen_x - xoff_4 ) );
-    fcross = sqrt( ( icen_y + yoff_4 ) * ( icen_y + yoff_4 ) + ( icen_x - xoff_4 ) * ( icen_x - xoff_4 ) );
+    if( yoff_4 > -999. && xoff_4 > -999. )
+    {
+        fcross = sqrt( ( icen_y + yoff_4 ) * ( icen_y + yoff_4 ) + ( icen_x - xoff_4 ) * ( icen_x - xoff_4 ) );
+    }
+    else
+    {
+        fcross = 0.;
+    }
     
     fLoss = iLoss;
     fAsymm = iAsymm;

@@ -216,6 +216,11 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         }
         
     }
+    // multiplicity 1: set value to 90 deg (!)
+    else if( cosphi.size() == 1 )
+    {
+        f_angdiff = 180.;
+    }
     else
     {
         // calculate average angle between image lines
@@ -299,7 +304,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         fdisp_ys_T.clear();
         fdisp_xs_T.assign( v_weight.size(), 0. );
         fdisp_ys_T.assign( v_weight.size(), 0. );
-        
+
         // loop over all images and calculate x,y from disp
         // select always cluster of points with smallest
         // distance to each other
@@ -313,6 +318,11 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
                 
                 y1 = y[ii] - v_disp[ii] * sinphi[ii];
                 y2 = y[ii] + v_disp[ii] * sinphi[ii];
+
+                fdisp_xs_T[0] = x1;
+                fdisp_ys_T[0] = y1;
+
+                calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, 1 );
             }
             // image #2
             else if( ii == 1 )
@@ -515,7 +525,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         }
         calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
     }
-    
+
     // apply a completely unnecessary sign flip
     ys *= -1.;
 }
@@ -543,6 +553,15 @@ void VDispAnalyzer::calculateMeanShowerDirection( vector< float > v_x, vector< f
         cout << "invalid vector size " << endl;
         exit( EXIT_FAILURE );
     }
+
+    // single image 
+    if( iMaxN == 1 && v_x.size() == 1 && v_y.size() == 1 && v_weight.size() == 1 )
+    {
+        dispdiff = 0.;
+        xs = v_x[0];
+        ys = v_y[0];
+        return;
+    }
     
     float z = 0.;
     for( unsigned int n = 0; n < iMaxN; n++ )
@@ -567,7 +586,7 @@ void VDispAnalyzer::calculateMeanShowerDirection( vector< float > v_x, vector< f
         dispdiff /= z;
     }
     //
-    if( v_x.size() < 2 )
+    if( v_x.size() < 2 && iMaxN >= 2 )
     {
         dispdiff = -9999.;
         xs = -99999.;
@@ -608,7 +627,7 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
     f_dispDiff = -99.;
     f_xs = -99.;
     f_ys = -99.;
-    
+
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
@@ -650,6 +669,11 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
             {
                 continue;
             }
+            // use asymmetry to get right directory for image
+            if( img_asym[i] < 0. )
+            {
+                disp *= -1.;
+            }
             v_disp.push_back( disp );
             
             // use estimated uncertainty on disp direction reconstruction as
@@ -684,7 +708,6 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
     // calculate expected direction
     calculateMeanDirection( f_xs, f_ys, x, y, cosphi, sinphi, v_disp, v_weight, f_dispDiff, xoff_4, yoff_4 );
     fdisp_xy_weight_T = v_weight;
-    
 }
 
 float VDispAnalyzer::getDispErrorT( unsigned int iTelescopeNumber )
@@ -985,41 +1008,6 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
         fdisp_energy_NT = 0;
         fdisp_energyQL = -1;
     }
-    
-    ///////// DEBUG //////////////////////
-    /*     if( iMCEnergy > 1. && iMCEnergy < 10. && fdisp_energy / iMCEnergy > 2. )
-         {
-               cout << "MCTEST " << iMCEnergy << " DISP " << fdisp_energy << " RATIO " << fdisp_energy / iMCEnergy << "\t #Tel " << energy_tel.size() << "\t ORG " << fdisp_energy_T.size() << "\t median " << fdisp_energy_median << "\t" << " abserror " << fdisp_energy_medianAbsoluteError <<  endl;
-               for( unsigned int j = 0; j < energy_tel.size(); j++ )
-               {
-                   if( energy_tel.size() < 5 || TMath::Abs( energy_tel[j] - fdisp_energy_median ) < fdisp_energy_medianAbsoluteError * 3. )
-                   {
-                         cout << "\t MC TEST " << j << "\t" << energy_tel[j] << "\t W " << energy_weight[j];
-                         cout << "\t Size " << iS[j] << "\t IMW " << iW[j] << "\t R " << iR[j] << "\t L " << iL[j];
-                         cout << "\t Tg " << iT[j] << "\t WI " << iWi[j] << "\t LE " << iLe[j];
-                         cout << "\t TEL_RATIO " << energy_tel[j]  / iMCEnergy;
-                         cout << "\t ABSError " << fdisp_energy_medianAbsoluteError << "\t DEVABVS " <<  TMath::Abs( energy_tel[j] - fdisp_energy_median );
-    
-                         cout << endl;
-                   }
-                   else
-                   {
-                         cout << "\t MC MISSED " << j << "\t" << energy_tel[j] << "\t W " << energy_weight[j];
-                         cout << "\t Size " << iS[j] << "\t IMW " << iW[j] << "\t R " << iR[j] << "\t L " << iL[j];
-                         cout << "\t Tg " << iT[j] << "\t WI " << iWi[j] << "\t LE " << iLe[j];
-                         cout << "\t TEL_RATIO " << energy_tel[j]  / iMCEnergy;
-                         cout << "\t ABSError " << fdisp_energy_medianAbsoluteError << "\t DEVABVS " <<  TMath::Abs( energy_tel[j] - fdisp_energy_median);
-    
-                         cout << endl;
-                   }
-               }
-               for( unsigned int i = 0; i < fdisp_energy_T.size(); i++ )
-               {
-                        cout << "\t MISSED? " << fdisp_energy_T[i] << "\t" << img_size[i] << "\t" << img_weight[i] << endl;
-               }
-         }     */
-    ///////// DEBUG //////////////////////
-    
     
     ///////////////////
     // calculate chi2 and dE

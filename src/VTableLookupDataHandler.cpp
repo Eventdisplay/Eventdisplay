@@ -723,6 +723,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
         for( unsigned int i = 0; i < getNTel(); i++ )
         {
             fR[i] = fDispAnalyzerCore->getCoreDistance( i );
+            // (strictly not correct, but good enough)
+            fRTel[i] = fDispAnalyzerCore->getCoreDistance( i );
         }
     }
     
@@ -754,7 +756,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fEmissionHeightMean,
             fMCEnergy,
             ffui );
-            
+
         // fill results
         setEnergy( fDispAnalyzerEnergy->getEnergy(),
                    fDispAnalyzerEnergy->getEnergyChi2(),
@@ -810,8 +812,8 @@ void VTableLookupDataHandler::doStereoReconstruction()
     ////////////////////////////////////////////////////////////////////
     // DISP method for updated disp reconstruction
     ////////////////////////////////////////////////////////////////////
-    if( fDispAnalyzerDirection && fNImages >= 2
-            && fNImages <= ( int )fTLRunParameter->fRerunStereoReconstruction_BDTNImages_max )
+    if( fDispAnalyzerDirection
+        && fNImages <= ( int )fTLRunParameter->fRerunStereoReconstruction_BDTNImages_max )
     {
     
         vector< float > iDispError( getNTel(), -9999. );
@@ -862,10 +864,10 @@ void VTableLookupDataHandler::doStereoReconstruction()
             getWeight(),
             i_SR.fShower_Xoffset, i_SR.fShower_Yoffset,
             iDispError, ffui );
-            
         // reconstructed direction by disp method:
         fXoff = fDispAnalyzerDirection->getXcoordinate_disp();
         fYoff = fDispAnalyzerDirection->getYcoordinate_disp();
+            
         // dispersion of disp values
         fDispDiff = fDispAnalyzerDirection->getDispDiff();
         fimg2_ang = fDispAnalyzerDirection->getAngDiff();
@@ -2418,30 +2420,17 @@ void VTableLookupDataHandler::reset()
 void VTableLookupDataHandler::calcDistances( int nimages )
 {
     // check for successfull reconstruction
-    if( nimages > 1 && fZe >= 0. && fXcore > -9998. && fYcore > -9998. )
+    for( unsigned int tel = 0; tel < fNTel; tel++ )
     {
-        for( unsigned int tel = 0; tel < fNTel; tel++ )
+        fR_MC[tel] = VUtilities::line_point_distance( fMCycore, -1.*fMCxcore, 0., fMCze, fMCaz, fTelY[tel], -1.*fTelX[tel], fTelZ[tel] );
+        if( fImgSel_list[tel] && fZe >= 0. && fXcore > -9998. && fYcore > -9998. )
         {
-            if( fImgSel_list[tel] )
-            {
-                fR[tel]    = VUtilities::line_point_distance( fYcore, -1.*fXcore, 0., fZe, fAz, fTelY[tel], -1.*fTelX[tel], fTelZ[tel] );
-                fR_MC[tel] = VUtilities::line_point_distance( fMCycore, -1.*fMCxcore, 0., fZe, fAz, fTelY[tel], -1.*fTelX[tel], fTelZ[tel] );
-                fRTel[tel]    = VUtilities::line_point_distance( fYcore, -1.*fXcore, 0., 90. - fArrayPointing_Elevation, fArrayPointing_Azimuth, fTelY[tel], -1.*fTelX[tel], fTelZ[tel] );
-            }
-            else
-            {
-                fR[tel] = -99.;
-                fR_MC[tel] = -99.;
-                fRTel[tel] = -99.;
-            }
+            fR[tel]    = VUtilities::line_point_distance( fYcore, -1.*fXcore, 0., fZe, fAz, fTelY[tel], -1.*fTelX[tel], fTelZ[tel] );
+            fRTel[tel] = VUtilities::line_point_distance( fYcore, -1.*fXcore, 0., 90. - fArrayPointing_Elevation, fArrayPointing_Azimuth, fTelY[tel], -1.*fTelX[tel], fTelZ[tel] );
         }
-    }
-    else
-    {
-        for( unsigned int tel = 0; tel < fNTel; tel++ )
+        else
         {
             fR[tel] = -99.;
-            fR_MC[tel] = -99.;
             fRTel[tel] = -99.;
         }
     }
@@ -2510,7 +2499,7 @@ void VTableLookupDataHandler::resetImageParameters( unsigned int i )
 bool VTableLookupDataHandler::isReconstructed( bool iEventCounters )
 {
     // require successful reconstruction
-    if( fchi2 < 0 )
+    if( fchi2 < 0 && fNImages < ( int )fTLRunParameter->fTableFillingCut_NImages_min )
     {
         if( iEventCounters ) fNStats_Chi2Cut++;
         return false;
@@ -2825,8 +2814,12 @@ bool VTableLookupDataHandler::cut( bool bWrite )
     
     if( getWobbleOffset() < 0. || getWobbleOffset() > fTLRunParameter->fTableFillingCut_WobbleCut_max )
     {
-        fNStats_WobbleCut++;
-        return false;
+        // do not cut away single telescope images and if redo steroreconstruction is requested
+        if( fNImages != 1 && !fTLRunParameter->fRerunStereoReconstruction )
+        {
+            fNStats_WobbleCut++;
+            return false;
+        }
     }
     
     if( bWrite )
