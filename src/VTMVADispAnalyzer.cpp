@@ -116,6 +116,13 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         ostringstream iFileName;
         iFileName << iFile << fTelescopeTypeList[i] << ".weights.xml";
         cout << "initializing TMVA disp analyzer: " <<  iFileName.str() << endl;
+        // check that TMVA file exists
+        ifstream i_temp_TMVAFILE( iFileName.str().c_str() );
+        if( !i_temp_TMVAFILE.good() )
+        {
+            bZombie = true;
+            return;
+        }
         if( !fTMVAReader[fTelescopeTypeList[i]]->BookMVA( "BDTDisp", iFileName.str().c_str() ) )
         {
             cout << "VTMVADispAnalyzer initializion error: xml weight file not found:" << endl;

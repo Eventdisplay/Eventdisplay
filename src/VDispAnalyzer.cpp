@@ -102,7 +102,8 @@ bool VDispAnalyzer::initialize( string iFile, string iDispMethod, string iDispTy
     {
         cout << "VDispAnalyzer::initialize ERROR initializing method " << fDispMethod << endl;
         cout << "\t no input file: " << iFile << endl;
-        return false;
+        cout << "\t exiting..." << endl;
+        exit( EXIT_FAILURE );
     }
     
     return true;
