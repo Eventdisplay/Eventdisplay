@@ -2324,7 +2324,10 @@ void VTableLookupDataHandler::copyMCHistograms()
                         if( iMC_his_temp && i_spectral_index.size() > 0 )
                         {
                             iMC_his_temp->matchDataVectors( i_az_min, i_az_max, i_spectral_index );
-                            iMC_his->add( iMC_his_temp );
+                        }
+                        if( iMC_his_temp )
+                        {
+                                iMC_his->add( iMC_his_temp );
                         }
                     }
                     ifInput->Close();
