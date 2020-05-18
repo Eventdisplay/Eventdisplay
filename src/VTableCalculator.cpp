@@ -716,9 +716,6 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                         // fill width/length/energy into a 1D and 2D histogram
                         // (chi2 is here an external weight (from e.g. spectral weighting))
                         Oh[is][ir]->Fill( w_fill[tel], chi2 );
-                        //============================================================================================================
-                        // PRELIMINARY_START
-                        // GM: not clear why this is preliminary)
                         if( fEnergy )
                         {
                             if( w_fill[tel] < Oh[is][ir]->GetXaxis()->GetXmin() || w_fill[tel] > Oh[is][ir]->GetXaxis()->GetXmax() )
@@ -727,8 +724,6 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                                 cout << Oh[is][ir]->GetXaxis()->GetXmin() << "\t" << Oh[is][ir]->GetXaxis()->GetXmax() << endl;
                             }
                         }
-                        // PRELIMINARY_END
-                        //============================================================================================================
                     }
                     if( fFillMedianApproximations && ir < ( int )OMedian.size() )
                     {

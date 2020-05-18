@@ -2505,6 +2505,12 @@ void VTableLookupDataHandler::resetImageParameters( unsigned int i )
  */
 bool VTableLookupDataHandler::isReconstructed( bool iEventCounters )
 {
+    // use MC parameters for table filling
+    if( fTLRunParameter->fTableFilling_useStereoMCParameter 
+       && fNImages >= ( int )fTLRunParameter->fTableFillingCut_NImages_min )
+    {
+        return true;
+    }
     // require successful reconstruction
     if( fchi2 < 0 && fNImages < ( int )fTLRunParameter->fTableFillingCut_NImages_min )
     {

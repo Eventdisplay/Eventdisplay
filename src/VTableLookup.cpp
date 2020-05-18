@@ -795,12 +795,12 @@ void VTableLookup::fillLookupTable()
                 
                 // arrays for size and distance
                 double* i_s2        = fData->getSize2( 1., t, fTLRunParameter->fUseSelectedImagesOnly );
-                double* i_r         = fData->getDistanceToCore( t );
+                double* i_r         = fData->getDistanceToCore( t, fTLRunParameter->fTableFilling_useStereoMCParameter );
                 double* i_l         = fData->getLoss( t );
                 double* i_d         = fData->getDistance( t );
                 // number of telescope of this particular type
                 unsigned int iN_type = fData->getNTel_type( t );
-                
+
                 ////////////////////////////////////////////////
                 // for zenith-angle == 0 deg fill all az bins
                 if( fabs( fData->getMCZe() ) < 3. )

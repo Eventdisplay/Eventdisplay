@@ -31,6 +31,7 @@ VTableLookupRunParameter::VTableLookupRunParameter()
     fSpectralIndex = 2.0;
     fWobbleOffset = 500;     // integer of wobble offset * 100
     fNoiseLevel = 250;
+    fTableFilling_useStereoMCParameter = false;
     fTableFillingCut_NImages_min = 2;
     fTableFillingCut_WobbleCut_max = 15.;
     fminsize = 0.;
@@ -382,6 +383,10 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
             {
                 bWriteReconstructedEventsOnly = 0;
             }
+        }
+        else if( iTemp.find( "use_mc_parameters" ) < iTemp.size() )
+        {
+            fTableFilling_useStereoMCParameter = true;
         }
         else if( iTemp.find( "use_tgrad_tables" ) < iTemp.size() )
         {
@@ -935,6 +940,10 @@ void VTableLookupRunParameter::print( int iP )
         cout << "\t minimum telescope multiplicity: " << fTableFillingCut_NImages_min << endl;
         cout << "\t distance to camera: > " << fMC_distance_to_cameracenter_min << " [deg], <";
         cout << fMC_distance_to_cameracenter_max << " [deg]" << endl;
+        if( fTableFilling_useStereoMCParameter )
+        {
+             cout << "\t using MC core and direction for table filling " << endl;
+        }
     }
     if( fRerunStereoReconstruction )
     {
