@@ -58,6 +58,8 @@ void VEvndispReconstructionParameter::reset()
 
      apply array analysis cuts for this set of image parameters
 
+     returns true if image is good and selected
+
 */
 bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth, unsigned int iTel, unsigned int iTelType,
         VImageParameter* iImageParameter, unsigned short int iLocalTriggerType,
@@ -156,6 +158,7 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
     {
         if( iTel < fRunPara->fLogLikelihoodLoss_min.size() && iTel < fRunPara->fLogLikelihoodLoss_max.size() )
         {
+            // remove images with bad fit status (fitstatus <1)
             if( iImageParameter->loss > fRunPara->fLogLikelihoodLoss_min[iTel] && iImageParameter->Fitstat < 1
                     && iImageParameter->loss > fRunPara->fLogLikelihoodLoss_max[iTel] )
             {
@@ -166,7 +169,7 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
                     cout << iImageParameter->Fitstat << endl;
                 }
             }
-            // check number of events at the edge of the FOV
+            // remove images which are too small at the edge of FOV (after LL fit)
             if( iTel < fRunPara->fLogLikelihoodLoss_min.size()
                     && iTel < fRunPara->fLogLikelihoodLoss_max.size()
                     && iTel < fRunPara->fLogLikelihood_Ntubes_min.size() )
@@ -191,6 +194,7 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
     ////////////////////////////////////////////
     // remove image which is too close to a bright star
     // (use list of image and border pixels)
+    // __this cut is disabled__
     if( iStarCatalogue && fRunPara && iImageParameter->ntubes < fRunPara->fMinStarNTubes )
     {
         for( unsigned int i = 0; i < iImageParameter->fImageBorderPixelPosition_x.size(); i++ )
@@ -1233,7 +1237,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
             // read variable identifieres
             for( unsigned int i = 0; i < iTemp.size(); i++ )
             {
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp[i];
                 }
@@ -1537,7 +1541,7 @@ vector< int > VEvndispReconstructionParameter::getTelescopeType_counter_from_Mir
     ULong64_t v = 0;
     ULong64_t v2 = 0;
     set< ULong64_t >::iterator fTel_type_iter;
-    for( fTel_type_iter = fTel_type.begin(); fTel_type_iter != fTel_type.end(); fTel_type_iter++ )
+    for( fTel_type_iter = fTel_type.begin(); fTel_type_iter != fTel_type.end(); ++fTel_type_iter )
     {
         v = *fTel_type_iter;
         
@@ -1961,8 +1965,7 @@ VEvndispReconstructionParameterData::VEvndispReconstructionParameterData( unsign
         fL2TriggerType.push_back( 9999 );
     }
     
-    // reconstruction parameter
-    fUseEventdisplayPointing = true;
+    fUseEventdisplayPointing = false;
     
     // MLP parameters for array reconstruction
     fDISP_MLPFileName = "";
@@ -1990,6 +1993,8 @@ bool VEvndispReconstructionParameterData::testUserImage( unsigned int iTelType )
 
        test a cut value for a given cut (iVarName)
        (double version)
+
+      return true if cut was passed (or not applicable)
 
 */
 bool VEvndispReconstructionParameterData::test( unsigned int iTelType, string iVarName, double iVarD, int iNtubes )
@@ -2032,6 +2037,8 @@ bool VEvndispReconstructionParameterData::test( unsigned int iTelType, string iV
 
        test a cut value for a given cut (iVarName)
        (int version)
+
+      return true if cut was passed (or not applicable)
 
 */
 bool VEvndispReconstructionParameterData::test( unsigned int iTelType, string iVarName, int iVarI, int iNtubes )

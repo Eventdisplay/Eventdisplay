@@ -251,7 +251,7 @@ void VFluxDataPoint::printResults( ostream& output )
                           VFluxAndLightCurveUtilities::convertPhotonFlux_to_CrabUnits( fMinEnergy_TeV, fFluxUL ) );
         }
         // convert integral flux limit to a differential flux
-        double iDF = fFluxUL * ( fAlpha + 1 ) / fMinEnergy_TeV;
+        double iDF = fFluxUL * ( fSpectralIndex + 1 ) / fMinEnergy_TeV;
         cout << Form( "\t Upper Flux Limit F(E > %e Hz, %d%% CL) [erg/s/cm^2]: %e\n",
                       VFluxAndLightCurveUtilities::convertEnergy_TeV_to_Hz( fMinEnergy_TeV ), ( int )( fUpperLimit * 100. ),
                       VFluxAndLightCurveUtilities::convertPhotonFlux_to_Ergs( fMinEnergy_TeV, iDF, true ) );
@@ -267,7 +267,7 @@ void VFluxDataPoint::printResults( ostream& output )
                           VFluxAndLightCurveUtilities::convertPhotonFlux_to_CrabUnits( fMinEnergy_TeV, fFluxUL_Expected ) );
         }
         // convert integral flux limit to a differential flux
-        double iDF = fFluxUL_Expected * ( fAlpha + 1 ) / fMinEnergy_TeV;
+        double iDF = fFluxUL_Expected * ( fSpectralIndex + 1 ) / fMinEnergy_TeV;
         cout << Form( "\t Expected upper Flux Limit F(E > %e Hz, %d%% CL) [erg/s/cm^2]: %e\n",
                       VFluxAndLightCurveUtilities::convertEnergy_TeV_to_Hz( fMinEnergy_TeV ), ( int )( fUpperLimit * 100. ),
                       VFluxAndLightCurveUtilities::convertPhotonFlux_to_Ergs( fMinEnergy_TeV, iDF, true ) );

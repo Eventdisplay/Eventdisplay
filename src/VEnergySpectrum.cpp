@@ -2090,7 +2090,7 @@ TCanvas* VEnergySpectrum::plotCrabNebulaSpectrum( double iPlottingMultiplierInde
     
     // plotting
     setPlottingEnergyRangeLinear( 0.08, 50. );
-    setPlottingYaxis( 1e-15, 1.e-6 );
+    setPlottingYaxis( 1e-16, 1.e-6 );
     if( iPlottingMultiplierIndex > 2. )
     {
         setPlottingYaxis( 9.e-12, 2.e-10 );

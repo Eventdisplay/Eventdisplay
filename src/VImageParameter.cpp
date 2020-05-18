@@ -81,6 +81,9 @@ void VImageParameter::initTree( string iName, string iTitle, bool iMC, bool iLL,
     tpars->Branch( "meanPedvar_Image", &fmeanPedvar_Image, "meanPedvar_Image/F" );
     tpars->Branch( "cen_x", &cen_x, "cen_x/F" );
     tpars->Branch( "cen_y", &cen_y, "cen_y/F" );
+    tpars->Branch( "f_d", &f_d, "f_d/F" );
+    tpars->Branch( "f_s", &f_s, "f_s/F" );
+    tpars->Branch( "f_sdevxy", &f_sdevxy, "f_sdevxy/F" );
     if( fShortTree < 1 )
     {
         tpars->Branch( "cen_x_trig", &cen_x_trig, "cen_x_trig/F" );
@@ -360,7 +363,6 @@ void VImageParameter::printParameters()
 
 bool VImageParameter::hasImage()
 {
-    // (GM) contains now number of bad channels   if( bad != 0 ) return false;
     if( ntubes > 0 )
     {
         return true;

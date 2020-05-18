@@ -37,12 +37,12 @@ void help()
 }
 
 void optimizeBDTcuts( string particleraterootfile, 
-                      string weightFileDir, string weightFileName = "mva",
+                      const string weightFileDir, string weightFileName = "mva",
                       string MVAName = "BDT", unsigned int MVACounter = 0,
                       double observing_time_h = 20., 
-                      int weightFileIndex_Emin = 0, int weightFileIndex_Emax = 4, 
+                      int weightFileIndex_Emin = 0, int weightFileIndex_Emax = 2,
                       int weightFileIndex_Zmin = 0, int weightFileIndex_Zmax = 2,
-                      double significance = 3., int min_events = 5,
+                      double significance = 3., int min_events = 3,
                       bool iPlotEfficiencyPlots = false, bool iPlotOptimisationResults = true,
                       string iWriteTMACuts = "" )
 {
@@ -50,24 +50,33 @@ void optimizeBDTcuts( string particleraterootfile,
 
     // fixed parameters
     double min_sourcestrength_CU = 0.00001;
+    // conversion parameter for particle rates and
+    // observation time (h-->s)
     double timeparticlerate = 3600.;
-    double energyStepSize = 0.2;
+    // use energy bins defined for training
+    // (note that all other options will 
+    // lead to a misassignment of xml files 
+    // to energy bins!)
+    double energyStepSize = 0.25;
+    // typical alpha
     double min_backgroundrateratio = 1. / 5.;
     double min_backgroundevents = 0.;
     double signalefficiency = 0.90;
-    // use energy bins defined for training
-    // energyStepSize = -1.;
-
+    // systematic cut
+    double iSignaltoMinBackgroundRateRatio = 0.;
     
     VTMVAEvaluator a;
     a.setTMVAMethod( MVAName, MVACounter );
-    a.setPrintPlotting( true );
+    a.setPrintPlotting( false );
     a.setPlotEfficiencyPlotsPerBin( iPlotEfficiencyPlots );
     a.setParticleNumberFile( particleraterootfile, timeparticlerate );
 
-    a.setSensitivityOptimizationParameters( significance, min_events, observing_time_h, min_backgroundrateratio, min_backgroundevents );
+    a.setSensitivityOptimizationParameters( significance, min_events, observing_time_h, 
+                            min_backgroundrateratio, min_backgroundevents, iSignaltoMinBackgroundRateRatio );
     a.setSensitivityOptimizationFixedSignalEfficiency( signalefficiency );
-    a.setSensitivityOptimizationMinSourceStrength( min_sourcestrength_CU );
+    a.setSensitivityOptimizationSourceStrength( min_sourcestrength_CU );
+    // default: smoothing happens in makeEffectiveArea
+    a.setSmoothAndInterpolateMVAValues( false );
 
 
     ostringstream iFullWeightFileName;
@@ -75,8 +84,8 @@ void optimizeBDTcuts( string particleraterootfile,
     a.initializeWeightFiles( iFullWeightFileName.str().c_str(), 
                              weightFileIndex_Emin, weightFileIndex_Emax, 
                              weightFileIndex_Zmin, weightFileIndex_Zmax, 
-                             // energyStepSize, "VTS", "UseInterpolatedCounts" );
                              energyStepSize, "VTS", "UseAveragedCounts" );
+    // (do not change "UseAveragedCounts", interpolation is less robust)
 
     if( iPlotOptimisationResults )
     {
@@ -124,7 +133,7 @@ void plotCompare( unsigned int iZeBin = 0 )
          }
          cout << "reading " << iF->GetName() << endl;
          cTMVA->cd();
-         sprintf( hname, "TMVACutValue_ze%d", iZeBin );
+         sprintf( hname, "TMVACutValue_ze%u", iZeBin );
          TGraphAsymmErrors *iG = (TGraphAsymmErrors*)iF->Get( hname );
          if( iG )
          {
@@ -151,7 +160,7 @@ void plotCompare( unsigned int iZeBin = 0 )
              cout << "\t " << endl;
          }
          cSEff->cd();
-         sprintf( hname, "SignalEfficiency_%d", iZeBin );
+         sprintf( hname, "SignalEfficiency_ze%u", iZeBin );
          iG = (TGraphAsymmErrors*)iF->Get( hname );
          if( iG )
          {
@@ -173,7 +182,7 @@ void plotCompare( unsigned int iZeBin = 0 )
              }
          }
          cBEff->cd();
-         sprintf( hname, "BackgroundEfficiency_%d", iZeBin );
+         sprintf( hname, "BackgroundEfficiency_ze%u", iZeBin );
          iG = (TGraphAsymmErrors*)iF->Get( hname );
          if( iG )
          {
@@ -201,10 +210,12 @@ void plotCompare( unsigned int iZeBin = 0 )
 /*  smooth MVA eval
  *
  */
-void smoothMVA( string iFileName, int iZeBin = 0, 
+void smoothMVA( string iFileName, string iGraphName = "TMVACutValue_ze",
+                int iZeBin = 0, 
                 double dEres = 0.25, int iMVAiter = 1,
+                double energy_constant_mva = 1.,
                 double acceptMax = 0.5,
-                double plotMax = 0.3 )
+                double plotMax = 0.3, double plotMin = 0. )
 {
 
      TCanvas *cTMVA = new TCanvas( "cTMVA", "TMVA optimised cut", 10, 10, 800, 800 );
@@ -217,16 +228,17 @@ void smoothMVA( string iFileName, int iZeBin = 0,
          return;
      }
      char hname[200];
-     sprintf( hname, "TMVACutValue_ze%d", iZeBin );
+     sprintf( hname, "%s%d", iGraphName.c_str(), iZeBin );
      TGraphAsymmErrors *iG = (TGraphAsymmErrors*)iF->Get( hname );
      iG->SetTitle( "" );
      iG->SetMarkerColor( 1 );
      iG->SetLineColor( 1 );
      iG->SetMarkerStyle( 20 );
-     iG->SetMinimum( 0. );
+     iG->SetMinimum( plotMin );
      iG->SetMaximum( plotMax );
      iG->Draw( "ap" );
      iG->GetHistogram()->SetXTitle( "log_{10} energy (TeV)" );
+     iG->GetHistogram()->SetYTitle( "mva optimised cut" );
 
      double x = 0.;
      double y = 0.;
@@ -235,7 +247,7 @@ void smoothMVA( string iFileName, int iZeBin = 0,
      iG->GetPoint( 0, x, y );
      double e_min = x - iG->GetErrorXlow( 0 );
      iG->GetPoint( iG->GetN()-1, x, y );
-     double e_max = x + iG->GetErrorXhigh( 0 );
+     double e_max = x + iG->GetErrorXhigh( iG->GetN()-1 );
 
      // TGraph::Eval
      TProfile *iSmoothedEval = new TProfile( "smoothedEval", "", 100., e_min, e_max, -1., 1. );
@@ -246,7 +258,7 @@ void smoothMVA( string iFileName, int iZeBin = 0,
 
      double iV = 0.;
      double e_log10_G = 0.;
-     for( unsigned int i = 0; i < 1000; i++ )
+/*     for( unsigned int i = 0; i < 1000; i++ )
      {
           double e_log10 = gRandom->Uniform( e_min, e_max );
 
@@ -270,12 +282,13 @@ void smoothMVA( string iFileName, int iZeBin = 0,
 
      }
      iSmoothedEval->Draw( "same" );
-     iSmoothedEvalGauss->Draw( "same" );
+     iSmoothedEvalGauss->Draw( "same" ); */
 
+     //////////////////////////////////
      // Gaussian smoothing
      TGraph *iSmoothedGaussian = new TGraph( 1 );
-     iSmoothedGaussian->SetLineColor( 8 );
-     iSmoothedGaussian->SetMarkerColor( 8 );
+     iSmoothedGaussian->SetLineColor( 30 );
+     iSmoothedGaussian->SetMarkerColor( 30 );
      iSmoothedGaussian->SetMarkerStyle( 22 );
      z = 0;
      for( unsigned int i = 0; i < 1000; i++ )
@@ -304,16 +317,26 @@ void smoothMVA( string iFileName, int iZeBin = 0,
           }
           if( iN > 0. )
           {
-             iSmoothedGaussian->SetPoint( z, e_log10, iM / iN );
+             if( e_log10 > energy_constant_mva )
+             {
+                 iSmoothedGaussian->SetPoint( z, e_log10,
+                          iSmoothedGaussian->Eval( e_min + (i-1) * (e_max - e_min)/1000. ) );
+             }
+             else
+             {
+                 iSmoothedGaussian->SetPoint( z, e_log10, iM / iN );
+             }
              z++;
           }
      }
      iSmoothedGaussian->Draw( "pl" );
+     cout << "Green color: smoothed Gaussian with " << dEres << " width" << endl;
 
      // moving average
      TGraph *iMovingAverage = new TGraph( 1 );
      iMovingAverage->SetMarkerStyle( 21 );
      iMovingAverage->SetMarkerColor( 4 );
+     z = 0;
      for( int i = 0; i < iG->GetN(); i++ )
      {
           double iM = 0.;
@@ -339,8 +362,6 @@ void smoothMVA( string iFileName, int iZeBin = 0,
               z++;
           }
       }
-      iMovingAverage->Draw( "p" );
-
-
-
+      iMovingAverage->Draw( "pl" );
+      cout << "Blue color: moving average" << endl;
 }

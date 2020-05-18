@@ -45,15 +45,15 @@ if [[ ! -f "$RLIST" ]] ; then
     echo "Error, runlist $RLIST not found, exiting..."
     exit 1
 fi
-RUNNUMS=`cat $RLIST`
+RUNNUMS=`cat "$RLIST"`
 echo "Laser files to analyze:"
-echo $RUNNUMS
+echo "$RUNNUMS"
 
 # Output directory for error/output from batch system
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/EVNDISP.ANADATA"
 echo "Log files will be written to: $LOGDIR"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 # Job submission script
 SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/ANALYSIS.evndisp_laser_sub"
@@ -62,7 +62,7 @@ SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/ANALYSIS.evndisp_laser_sub"
 # loop over all files in files loop
 for RUN in $RUNNUMS; do
     # check if laser file exists
-    DFILE=`find -L $VERITAS_DATA_DIR/data/ -name "$RUN.cvbf"`
+    DFILE=`find -L "$VERITAS_DATA_DIR/data/" -name "$RUN.cvbf"`
     if [ -z "$DFILE" ]; then
         echo "Error: laser vbf file not found for run $RUN"
     else
@@ -79,16 +79,16 @@ for RUN in $RUNNUMS; do
 
         sed -e "s|RUNFILE|$RUN|" \
             -e "s|TELTOANACOMB|$TELTOANA|" \
-            -e "s|LOGDIRECTORY|$LOGDIR|" $SUBSCRIPT.sh > $FSCRIPT.sh
+            -e "s|LOGDIRECTORY|$LOGDIR|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
-        chmod u+x $FSCRIPT.sh
-        echo $FSCRIPT.sh
+        chmod u+x "$FSCRIPT.sh"
+        echo "$FSCRIPT.sh"
 
         # run locally or on cluster
         SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
         SUBC=`eval "echo \"$SUBC\""`
         if [[ $SUBC == *"ERROR"* ]]; then
-            echo $SUBC
+            echo "$SUBC"
             exit
         fi
         if [[ $SUBC == *qsub* ]]; then
@@ -102,7 +102,7 @@ for RUN in $RUNNUMS; do
             
             echo "RUN $RUN: JOBID $JOBID"
         elif [[ $SUBC == *parallel* ]]; then
-            echo "$FSCRIPT.sh &> $FSCRIPT.log" >> $LOGDIR/runscripts.dat
+            echo "$FSCRIPT.sh &> $FSCRIPT.log" >> "$LOGDIR/runscripts.dat"
         elif [[ "$SUBC" == *simple* ]] ; then
 	    "$FSCRIPT.sh" |& tee "$FSCRIPT.log"	
         fi
@@ -111,7 +111,7 @@ done
 
 # Execute all FSCRIPTs locally in parallel
 if [[ $SUBC == *parallel* ]]; then
-    cat $LOGDIR/runscripts.dat | $SUBC
+    cat "$LOGDIR/runscripts.dat" | "$SUBC"
 fi
 
 exit

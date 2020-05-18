@@ -84,6 +84,7 @@ void VShowerParameters::initTree( string iName, string iTitle, bool iMC )
     }
     fTreeSC->Branch( "ArrayPointingElevation", &fArrayPointing_Elevation, "ArrayPointingElevation/F" );
     fTreeSC->Branch( "ArrayPointingAzimuth", &fArrayPointing_Azimuth, "ArrayPointingAzimuth/F" );
+    fTreeSC->Branch( "ArrayPointing_deRotationAngle_deg", &fArrayPointing_deRotationAngle_deg, "ArrayPointing_deRotationAngle_deg/F" );
     
     fTreeSC->Branch( "WobbleN", &fWobbleNorth, "WobbleN/F" );
     fTreeSC->Branch( "WobbleE", &fWobbleEast, "WobbleE/F" );
@@ -232,6 +233,7 @@ void VShowerParameters::reset( unsigned int iNTel )
     
     fArrayPointing_Elevation = 0.;
     fArrayPointing_Azimuth = 0.;
+    fArrayPointing_deRotationAngle_deg = 0.;
     fWobbleNorth     = 0.0;
     fWobbleEast      = 0.0;
     

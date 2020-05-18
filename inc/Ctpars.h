@@ -12,13 +12,10 @@
 //
 //   DO NOT OVERWRITE !!!!
 //
-//   (GM)
 ///////////////////////////////////////////
 
 #ifndef Ctpars_h
 #define Ctpars_h
-
-#define TREES_VERSION2
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -35,7 +32,6 @@ class Ctpars
         Int_t           fCurrent;                 //!current Tree number in a TChain
         
         // Declaration of leave types
-#ifdef TREES_VERSION2
         Int_t           telID;
         Int_t           runNumber;
         Int_t           MJD;
@@ -62,6 +58,9 @@ class Ctpars
         Float_t         meanPedvar_Image;
         Float_t         cen_x;
         Float_t         cen_y;
+        Float_t         f_s;
+        Float_t         f_d;
+        Float_t         f_sdevxy;
         Float_t         length;
         Float_t         width;
         Float_t         size;
@@ -102,66 +101,6 @@ class Ctpars
         Int_t           muonValid;
         Int_t           houghMuonValid;
         Int_t           Fitstat;
-#else
-        Int_t           telID;
-        Int_t           runNumber;
-        Int_t           MJD;
-        Double_t        Time;
-        Int_t           eventNumber;
-        Double_t        fimagethresh;
-        Double_t        fborderthresh;
-        Int_t           fsumfirst;
-        Int_t           fsumwindow;
-        Int_t           fsumwindow_2;
-        Int_t           fsumwindowsmall;
-        Short_t         LocalTrigger;
-        Int_t           MCprim;
-        Double_t        MCe0;
-        Double_t        MCxcore;
-        Double_t        MCycore;
-        Double_t        MCxcos;
-        Double_t        MCycos;
-        Double_t        MCLocalTriggerTime;
-        Double_t        MCLocalDelayedTriggerTime;
-        Double_t        MCTel_Xoff;
-        Double_t        MCTel_Yoff;
-        Double_t        cen_x;
-        Double_t        cen_y;
-        Double_t        length;
-        Double_t        width;
-        Double_t        size;
-        Double_t        size2;
-        Double_t        loss;
-        Double_t        dist;
-        Double_t        azwidth;
-        Double_t        alpha;
-        Double_t        los;
-        Double_t        miss;
-        Double_t        phi;
-        Double_t        cosphi;
-        Double_t        sinphi;
-        Int_t           ntubes;
-        Int_t           ntrig;
-        Int_t           ntrig_per_patch;
-        Int_t           nsat;
-        Int_t		nlowgain;
-        Int_t           bad;
-        Double_t        max[3];
-        Int_t           index_of_max[3];
-        Double_t        frac[3];
-        Double_t        asymmetry;
-        Double_t        tgrad_x;
-        Double_t        tgrad_y;
-        Double_t        tgrad_r;
-        Double_t        tint_x;
-        Double_t        tgrad_dx;
-        Double_t        tint_dx;
-        Double_t        tchisq_x;
-        Double_t        tmin;
-        Double_t        tmax;
-        Double_t        tmean;
-        Int_t           Fitstat;
-#endif
         
         // List of branches
         TBranch*        b_telID;                  //!
@@ -191,6 +130,9 @@ class Ctpars
         TBranch*        b_meanPedvar_Image;       //!
         TBranch*        b_cen_x;                  //!
         TBranch*        b_cen_y;                  //!
+        TBranch*        b_f_s;                    //!
+        TBranch*        b_f_d;                    //!
+        TBranch*        b_f_sdevxy;               //!
         TBranch*        b_length;                 //!
         TBranch*        b_width;                  //!
         TBranch*        b_size;                   //!
@@ -382,6 +324,31 @@ void Ctpars::Init( TTree* tree )
         }
         fChain->SetBranchAddress( "cen_x", &cen_x );
         fChain->SetBranchAddress( "cen_y", &cen_y );
+        if( fChain->GetBranchStatus( "f_d" ) )
+        {
+               fChain->SetBranchAddress( "f_d", &f_d );
+        }
+        else
+        {
+               f_d = 0.;
+        }
+        if( fChain->GetBranchStatus( "f_s" ) )
+        {
+               fChain->SetBranchAddress( "f_s", &f_s );
+        }
+        else
+        {
+               f_s = 0.;
+        }
+        if( fChain->GetBranchStatus( "f_sdevxy" ) )
+        {
+               fChain->SetBranchAddress( "f_sdevxy", &f_sdevxy );
+        }
+        else
+        {
+               f_sdevxy = 0.;
+        }
+
         fChain->SetBranchAddress( "size", &size );
         fChain->SetBranchAddress( "loss", &loss );
         if( fChain->GetBranchStatus( "fracLow" ) )
@@ -540,6 +507,9 @@ Bool_t Ctpars::Notify()
     b_size2 = 0;
     b_cen_x = 0;
     b_cen_y = 0;
+    b_f_s = 0;
+    b_f_d = 0;
+    b_f_sdevxy = 0;
     b_loss = 0;
     b_fracLow = 0;
     b_alpha = 0;
@@ -607,6 +577,21 @@ Bool_t Ctpars::Notify()
         fChain->AddBranchToCache( b_cen_x );
         b_cen_y = fChain->GetBranch( "cen_y" );
         fChain->AddBranchToCache( b_cen_y );
+        if( fChain->GetBranchStatus( "f_d" ) )
+        {
+             b_f_d = fChain->GetBranch( "f_d" );
+             fChain->AddBranchToCache( b_f_d );
+        }
+        if( fChain->GetBranchStatus( "f_s" ) )
+        {
+             b_f_s = fChain->GetBranch( "f_s" );
+             fChain->AddBranchToCache( b_f_s );
+        }
+        if( fChain->GetBranchStatus( "f_sdevxy" ) )
+        {
+             b_f_sdevxy = fChain->GetBranch( "f_sdevxy" );
+             fChain->AddBranchToCache( b_f_sdevxy );
+        }
         b_size = fChain->GetBranch( "size" );
         fChain->AddBranchToCache( b_size );
         if( fChain->GetBranchStatus( "loss" ) )

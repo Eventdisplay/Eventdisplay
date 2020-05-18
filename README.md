@@ -2,6 +2,9 @@
 
 Original developers: Gernot Maier and Jamie Holder
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3559076.svg)](https://doi.org/10.5281/zenodo.3559075)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c4203cc5d45f4db2b30affccd6e0c641)](https://www.codacy.com/manual/GernotMaier/Eventdisplay?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Eventdisplay/Eventdisplay&amp;utm_campaign=Badge_Grade)
+
 ## Overview
 
 eventdisplay is a reconstruction and analysis pipline for data of
@@ -14,8 +17,8 @@ following publication:
 Maier, G.; Holder, J., Eventdisplay: An Analysis and Reconstruction Package for 
 Ground-based Gamma-ray Astronomy,  35th International Cosmic Ray Conference.
 10-20 July, 2017. Bexco, Busan, Korea, Proceedings of Science, Vol. 301.
-Online at https://pos.sissa.it/cgi-bin/reader/conf.cgi?confid=301, id.747
-https://arxiv.org/abs/1708.04048
+Online at [https://pos.sissa.it/cgi-bin/reader/conf.cgi?confid=301], id.747
+[https://arxiv.org/abs/1708.04048]
 
 
 For guidelines on installation, see INSTALL. For further information, 

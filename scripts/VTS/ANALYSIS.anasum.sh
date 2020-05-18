@@ -66,11 +66,11 @@ fi
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/ANASUM.ANADATA"
 echo -e "Log files will be written to:\n $LOGDIR"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 # output directory
 echo -e "Output files will be written to:\n $ODIR"
-mkdir -p $ODIR
+mkdir -p "$ODIR"
 
 # Job submission script
 SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/ANALYSIS.anasum_sub"
@@ -82,20 +82,20 @@ sed -e "s|FILELIST|$FLIST|" \
     -e "s|DATADIR|$INDIR|"  \
     -e "s|OUTDIR|$ODIR|"    \
     -e "s|OUTNAME|$ONAME|"  \
-    -e "s|RUNPARAM|$RUNP|" $SUBSCRIPT.sh > $FSCRIPT.sh
+    -e "s|RUNPARAM|$RUNP|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
-chmod u+x $FSCRIPT.sh
-echo $FSCRIPT.sh
+chmod u+x "$FSCRIPT.sh"
+echo "$FSCRIPT.sh"
 
 # run locally or on cluster
-SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
+SUBC=`"$EVNDISPSYS"/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
 SUBC=`eval "echo \"$SUBC\""`
 if [[ $SUBC == *"ERROR"* ]]; then
-    echo $SUBC
+    echo "$SUBC"
     exit
 fi
 if [[ $SUBC == *qsub* ]]; then
-    JOBID=`$SUBC $FSCRIPT.sh`
+    JOBID=`$SUBC "$FSCRIPT.sh"`
     
     # account for -terse changing the job number format
     if [[ $SUBC != *-terse* ]] ; then
@@ -106,15 +106,11 @@ if [[ $SUBC == *qsub* ]]; then
     echo "RUN $AFILE JOBID $JOBID"
     
 elif [[ $SUBC == *parallel* ]]; then
-    echo "$FSCRIPT.sh &> $FSCRIPT.log" >> $LOGDIR/runscripts.$TIMETAG.dat
-    cat $LOGDIR/runscripts.$TIMETAG.dat | $SUBC
+    echo "$FSCRIPT.sh &> $FSCRIPT.log" >> "$LOGDIR/runscripts.$TIMETAG.dat"
+    cat "$LOGDIR/runscripts.$TIMETAG.dat" | $SUBC
 
 elif [[ $SUBC == *simple* ]]; then
-	"$FSCRIPT.sh" |& tee $FSCRIPT.log
-fi
-
-elif [[ $SUBC == *simple* ]]; then
-	"$FSCRIPT.sh" |& tee $FSCRIPT.log
+	"$FSCRIPT.sh" |& tee "$FSCRIPT.log"
 fi
 
 exit

@@ -660,7 +660,7 @@ bool VImageCleaning::BoundarySearch( unsigned int teltype, float thresh, TF1* fP
         return 0;
     }
     
-    float TimeForReSearch = 0.;
+//    float TimeForReSearch = 0.;
     bool iffound = false;
     Int_t n = 0;
     float time = 0.;
@@ -679,7 +679,7 @@ bool VImageCleaning::BoundarySearch( unsigned int teltype, float thresh, TF1* fP
     // check THIS pix and ring of neighbours
     if( n > 0.5 )
     {
-        TimeForReSearch = time / float( n );
+        float TimeForReSearch = time / float( n );
         float dT = fabs( TIMES[idx] - TimeForReSearch );
         float times[2] = {refdT, dT};
         float maxtime = 1E6;
@@ -746,6 +746,7 @@ unsigned int VImageCleaning::NNGroupSearchProbCurve( unsigned int type, TF1* fPr
         return 0;
     }
     
+    // (GM) unclear why this is hardwired here
     int NSBpix = 5;
     
     //////////////////////////////
@@ -1355,7 +1356,7 @@ void VImageCleaning::DiscardLocalTimeOutlayers( float NNthresh[6] )
             {
                 pixcnt++;
             }
-            else if( dist >= 2.1 )
+            else
             {
                 pixzerocnt++;
             }
@@ -1971,7 +1972,7 @@ void VImageCleaning::cleanNNImageFixed( VImageCleaningRunParameter* iImageCleani
     if( teltype >= VDST_MAXTELTYPES )
     {
         char hname[200];
-        sprintf( hname, "VImageCleaning::cleanNNImageFixed, invalid telescope type: %d", teltype );
+        sprintf( hname, "VImageCleaning::cleanNNImageFixed, invalid telescope type: %u", teltype );
         printDataError( hname );
     }
     
@@ -2185,7 +2186,6 @@ void VImageCleaning::FillIPR( unsigned int teltype ) //tel type
 
 TGraphErrors* VImageCleaning::GetIPRGraph( unsigned int teltype, float ScanWindow )
 {
-    TString title = Form( "IPRtype%dExtractor%d", teltype, fData->getRunParameter()->fTraceIntegrationMethod[fData->getTelID()] );
     float RATES[fIPRdim],  RATESERR[fIPRdim];
     float RATESX[fIPRdim], RATESXERR[fIPRdim];
     
@@ -2210,11 +2210,9 @@ TGraphErrors* VImageCleaning::GetIPRGraph( unsigned int teltype, float ScanWindo
     gRate->GetYaxis()->SetTitle( "Rate, Hz" );
     gRate->SetMinimum( 1 );
     
-    //TFile* fgraph = new TFile( "$CTA_USER_DATA_DIR/" + title + ".root", "RECREATE" );
     TFile* fgraph = new TFile( "$CTA_USER_DATA_DIR/TestIPRtrunk.root", "RECREATE" );
     gRate->Write();
     fgraph->Close();
-    //std::cout << "[TriggerAnalogueSummation::GetIPRGraph()]: graph root file written:" << "$CTA_USER_DATA_DIR/" + title + ".root" << std::endl;
     std::cout << "[TriggerAnalogueSummation::GetIPRGraph()]: graph root file written:" << fgraph->GetName() << std::endl;
     return gRate;
 }
@@ -2611,8 +2609,6 @@ void VImageCleaning::cleanImageWithTiming( VImageCleaningRunParameter* iImageCle
     double i_clustertime;   // weighted mean time of all pixels in a cluster
     
     double i_cenx, i_ceny;
-    double i_clustercenx = 0.; // X center of gravity of the cluster
-    double i_clusterceny = 0.; // Y center of gravity of the cluster
     
     double i_mainclustersize = 0; // size of the "main cluster"
     
@@ -2623,9 +2619,9 @@ void VImageCleaning::cleanImageWithTiming( VImageCleaningRunParameter* iImageCle
         i_clusterNpix = 0;
         i_clustersize = 0.;
         i_clustertime = 0.;
-        i_clustercenx = 0.;
+        double i_clustercenx = 0.;
         i_cenx = 0.;
-        i_clusterceny = 0.;
+        double i_clusterceny = 0.;
         i_ceny = 0.;
         
         for( unsigned int i = 0; i < fData->getNChannels(); i++ )
@@ -2664,9 +2660,6 @@ void VImageCleaning::cleanImageWithTiming( VImageCleaningRunParameter* iImageCle
         fData->setClusterCenx( cluster, i_clustercenx );
         fData->setClusterCeny( cluster, i_clusterceny );
         
-        //       cout << "### " << cluster << " Npix=" << i_clusterNpix << " size=" << i_clustersize << " time=" << i_clustertime
-        // 	   << " cenx=" << i_clustercenx << " ceny=" << i_clusterceny << endl;
-        
         if( i_clustersize == -99 )
         {
             fData->setMainClusterID( 0 );
@@ -2691,21 +2684,20 @@ void VImageCleaning::cleanImageWithTiming( VImageCleaningRunParameter* iImageCle
     
     int i_ID = 0;
     
-    float i_mainX = 0.;    // c.o.g. (main cluster)
-    float i_mainY = 0.;    // c.o.g. (main cluster)
-    float i_mainXpos = 0.; // position on major axis
-    float i_mainXtime = 0.; // time on major axis
-    
     float i_clusterX, i_clusterY;  // c.o.g. (cluster)
     float i_clusterXpos;           // position on major axis
     float i_clusterXtime;          // time on major axis
     
     if( fData->getImageParameters()->tgrad_x != 0 && fData->getImageParameters()->tint_x != 0 )
     {
-        i_mainX = fData->getClusterCenx()[ fData->getMainClusterID() ];
-        i_mainY = fData->getClusterCeny()[ fData->getMainClusterID() ];
-        i_mainXpos = i_mainX * fData->getImageParameters()->cosphi + i_mainY * fData->getImageParameters()->sinphi;
-        i_mainXtime = fData->getImageParameters()->tgrad_x * i_mainXpos;
+        // c.o.g. (main cluster)
+        float i_mainX = fData->getClusterCenx()[ fData->getMainClusterID() ];
+        // c.o.g. (main cluster)
+        float i_mainY = fData->getClusterCeny()[ fData->getMainClusterID() ];
+        // position on major axis
+        float i_mainXpos = i_mainX * fData->getImageParameters()->cosphi + i_mainY * fData->getImageParameters()->sinphi;
+        // time on major axis
+        float i_mainXtime = fData->getImageParameters()->tgrad_x * i_mainXpos;
         
         i_clusterX = 0.;
         i_clusterY = 0.;
@@ -2896,7 +2888,7 @@ void VImageCleaning::cleanImageWithTiming( VImageCleaningRunParameter* iImageCle
         if( fData->getImage()[i] || fData->getBorder()[i] )
         {
             i_ID = fData->getClusterID()[i];
-            if( i_ID != 0 || i_ID != -99 )
+            if( i_ID != 0 && i_ID != -99 )
             {
                 tmp_counter_uncleaned.insert( i_ID );
             }
@@ -2922,7 +2914,7 @@ void VImageCleaning::cleanImageWithTiming( VImageCleaningRunParameter* iImageCle
         if( fData->getImage()[i] || fData->getBorder()[i] )
         {
             i_ID = fData->getClusterID()[i];
-            if( i_ID != 0 || i_ID != -99 )
+            if( i_ID != 0 && i_ID != -99 )
             {
                 tmp_counter_cleaned.insert( i_ID );
             }

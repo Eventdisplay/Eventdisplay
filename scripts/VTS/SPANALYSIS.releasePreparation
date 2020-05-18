@@ -1,0 +1,205 @@
+# scripts to prepare a release
+# 
+# includes
+# - testing
+# - cut optimisation
+#
+# script used for developing code and testing
+#
+#  many hard wired parameters
+
+# check run parameters
+
+if [ $# -lt 2 ]; then
+    echo
+    echo "./SPANALYSIS.releasePreparation.sh <analysis step> <source list>"
+    echo
+    echo " script for release testing (note: several hard wired parameters)"
+    echo
+    echo "  analysis step: EVNDISP, MSCW, ANASUM, ANASUM_SUB, RATES, OPTIMIZECUTS"
+    echo 
+    echo "  source list:, e.g. \"Crab BDTtraining Tycho PKS1424p240 Mrk501 Mrk421 HESSJ0632057\" "
+    echo 
+    echo "Steps for cut optimisation:"
+    echo "    ./SPANALYSIS.releasePreparation RATES Crab"
+    echo "    ./SPANALYSIS.releasePreparation OPTIMIZECUTS Crab"
+    echo
+    exit
+fi
+
+RUNTYPE="$1"
+[[ "$2" ]] && OBJECTLIST="$2" || ANAMETHOD="Crab"
+
+# evndisp version
+VERSION="g500"
+# ATMOSPHERE
+ATM="ATM61"
+# run list
+LIST="runlist_releaseTesting"
+# evndisp run parameter files
+ERUN="EVNDISP.reconstruction.runparameter.NN"
+ANAMETHOD="NN"
+
+ERUN="EVNDISP.reconstruction.runparameter.TL5025"
+ANAMETHOD="TL5025"
+
+SIMSUB=""
+
+VERSIONSUB="${VERSION}${SIMSUB}"
+######
+# CUTS
+# cut list used for optimisation
+CUTS=( "NTel2-PointSource-Soft-TMVA-Preselection" "NTel3-PointSource-Moderate-TMVA-Preselection" "NTel3-PointSource-Hard-TMVA-Preselection" )
+# cut list for optimised TMVA cuts
+CUTS=( "NTel3-PointSource-Moderate-TMVA-BDT" "NTel3-PointSource-Hard-TMVA-BDT" "NTel2-PointSource-Soft-TMVA-BDT" )
+
+# V4
+SIMTYPE="GRISU-SW6"
+EPOCH="V4"
+
+# V5
+SIMTYPE="GRISU-SW6"
+EPOCH="V5"
+SIMTYPE="CARE_Apr1419${SIMSUB}"
+EPOCH="V5"
+
+# V6
+SIMTYPE="CARE_June1702${SIMSUB}"
+EPOCH="V6"
+
+# directories
+# PREFIX="$VERITAS_DATA_DIR/ANADATA-v500RC/analysis/Results/${VERSION}/"
+PREFIX="$VERITAS_USER_DATA_DIR/analysis/Results/${VERSION}/"
+
+# PKS1424p240: V4, V5, V6
+# Tycho: V6
+# Crab: V4, V5, V6
+# SS 433: V4, V5
+# Mrk501 Mrk421
+# PKS1424p240
+# PKS1424p240
+# 1ES1959p650 MAXIJ1820p070
+# BDTtraining  Segue1
+for O in ${OBJECTLIST}
+do
+    echo "Object $O"
+    echo
+
+    # run list
+    RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat.EP"
+    RLIST="$PREFIX/$O/${LIST}${EPOCH}.dat"
+    RLIST="$PREFIX/$O/${LIST}${EPOCH}.SZE.dat"
+    # RLIST="$PREFIX/$O/test.dat"
+
+    # output directory
+    ODIR="$PREFIX/$O/${VERSIONSUB}_${ANAMETHOD}"
+
+    mkdir -p "$ODIR"
+    ########### START EVNDISP
+    if [[ $RUNTYPE = "EVNDISP" ]]
+    then
+       $(dirname "$0")/ANALYSIS.evndisp.sh "$RLIST" "$ODIR" "$ERUN" 1 "$ANAMETHOD"
+       continue
+    fi
+    ########### END EVNDISP
+    # reconstruction ID
+    for ID in 0
+    do
+        IDIR="$PREFIX/${O}/${D}/${VERSIONSUB}_${ANAMETHOD}/RecID${ID}_${SIMTYPE}"
+        ########### START MSCW
+        if [[ $RUNTYPE = "MSCW" ]]
+        then
+           TFIL=table-$VERSION-${ANAMETHOD}-auxv01-${SIMTYPE}-${ATM}-${EPOCH}-RECMETHOD${ID}-smoothed
+           echo "$TFIL"
+           $(dirname "$0")/ANALYSIS.mscw_energy.sh "$TFIL" "$RLIST" "$ODIR" "$ID" "$IDIR"
+           continue
+        fi
+        ########### END MSCW
+
+        ############ ANASUM and CUT OPITMISATION ###############
+        ##
+        # cut
+        NCUTS=${#CUTS[@]}
+        for (( m = 0; m < $NCUTS; m++ ))
+        do
+              C=${CUTS[$m]}
+              for BC in RE
+              do
+                    # ouptut directory for anasum files
+                    ODIR="$PREFIX/${O}/${VERSIONSUB}_${EPOCH}_anasum_${ANAMETHOD}/${ANAMETHOD}_ID${ID}_${C}_${BC}_N8"
+                    # runparameter file
+                    RUNPAR="$PREFIX/${O}/runparameter.dat"
+                    # rate files
+                    RFIL="$ODIR.rates"
+                    # cut optimisation results
+                    CFIL="$ODIR.mvaOptimisation"
+                    
+                    echo "$IDIR"
+                    echo "$ODIR"
+                    echo "$RUNPAR"
+                    echo "$RLIST"
+
+                    ############################
+                    ## anasum summary file
+                    if [[ $RUNTYPE = "ANASUM" ]]
+                    then
+                         rm -f "$ODIR.log"
+                         $EVNDISPSYS/bin/anasum -i 1 -d "$ODIR" -f "$RUNPAR" -l "$ODIR/$C.anasum.dat" -o "$ODIR.root" > "$ODIR.log"
+                    ## anasum pre run
+                    elif [[ $RUNTYPE = "ANASUM_SUB" ]]
+                    then
+                        $(dirname "$0")/ANALYSIS.anasum_parallel_from_runlist.sh "${RLIST}" "$ODIR" "$C" "${BC}" "$RUNPAR" "$IDIR" "$SIMTYPE" "$ANAMETHOD" 1 61 "$ID"
+                    echo "DONE $ODIR"
+                    ############################
+                    elif [[ $RUNTYPE = "RATES" ]]
+                    then
+                        if [[ -e "$ODIR.root" ]]
+                        then
+                            rm -f "$RFIL.log"
+                            echo "rate calculation output file: $RFIL.root"
+                            $EVNDISPSYS/bin/writeParticleRateFilesForTMVA "$ODIR.root" "$RFIL.root" > "$RFIL.log"
+                        else
+                            echo "error: no anasum file found for rate calculation"
+                            echo "   missing is $ODIR.root"
+                        fi
+                    ############################
+                    elif [[ $RUNTYPE = "OPTIMIZECUTS" ]]
+                    then
+                         if [[ -e "$RFIL.root" ]]
+                         then
+                              # mva training is cut dependent
+                              for Ccut in "Soft" "Moderate" "Hard"
+                              do
+                                  if echo ${C} | grep -iqF ${Ccut}
+                                  then
+                                      CCUT="${Ccut}"
+                                  fi
+                              done
+                              MVADIR="$VERITAS_EVNDISP_AUX_DIR/GammaHadron_BDTs/${EPOCH}/${CCUT}/"
+                              echo "MVADIR $MVADIR"
+                              if [ -d ${MVADIR} ]
+                              then
+                                  MVAN="mva"
+                                  MVAM="BDT"
+                                  # observation time for optimisation
+                                  MVATOBS=20.
+                                  # number of energy and zenith angle bins
+                                  NEBIN=10
+                                  NZBIN=1
+                                  TMVAGRAPH="$MVADIR/TMVACUT-${MVATOBS}h"
+                                  echo "TMVA cut graph: $TMVAGRAPH"
+                                  rm -f "${TMVAGRAPH}.log"
+                                  root -b -q "$EVNDISPSYS/macros/VTS/optimizeBDTcuts.C( \"$RFIL.root\", \"$MVADIR\", \"$MVAN\", \"$MVAM\", 0, ${MVATOBS}, 0, ${NEBIN}, 0, ${NZBIN}, 3., 3., false, true, \"${TMVAGRAPH}.root\"  )" > "${TMVAGRAPH}.log"
+                              else
+                                  echo "error: mva directory not found"
+                                  echo "   missing is $MVADIR"
+                              fi
+                         else
+                            echo "Error: $RFIL.root not found"
+                         fi
+                    fi
+               done
+        done
+        ############ ANASUM ###############
+    done
+done

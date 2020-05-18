@@ -1111,7 +1111,10 @@ unsigned int VImageBaseAnalyzer::fillZeroSuppressed()
     for( unsigned int i = 0; i < getZeroSuppressed().size(); i++ )
     {
         setZeroSuppressed( i, getReader()->getZeroSuppressionFlag( i ) );
-        z++;
+        if( getZeroSuppressed()[i] )
+        {
+            z++;
+        }
     }
     
     return z;

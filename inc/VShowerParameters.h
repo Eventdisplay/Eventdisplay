@@ -40,6 +40,7 @@ class VShowerParameters
         // pointing information (array pointing)
         float fArrayPointing_Elevation;
         float fArrayPointing_Azimuth;
+        float fArrayPointing_deRotationAngle_deg;
         // pointing information per telescope
         // calculated from time and source position
         float fTelElevation[VDST_MAXTELESCOPES];

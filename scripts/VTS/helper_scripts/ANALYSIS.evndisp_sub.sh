@@ -2,7 +2,7 @@
 # script to analyse VTS raw files (VBF) with eventdisplay
 
 # set observatory environmental variables
-source $EVNDISPSYS/setObservatory.sh VTS
+source "$EVNDISPSYS"/setObservatory.sh VTS
 
 # parameters replaced by parent script using sed
 RUN=RUNFILE
@@ -13,6 +13,7 @@ ANAMETHOD=ANALYSISMETHOD
 CALIBFILE=USECALIBLIST
 TELTOANA=TELTOANACOMB
 LOGDIR="$ODIR"
+CALDIR="$ODIR"
 ACUTS="RECONSTRUCTIONRUNPARAMETERFILE"
 
 # temporary (scratch) directory
@@ -22,27 +23,23 @@ else
     TEMPDIR="$VERITAS_USER_DATA_DIR/TMPDIR"
 fi
 echo "Scratch dir: $TEMPDIR"
-mkdir -p $TEMPDIR
+mkdir -p "$TEMPDIR"
 
 #################################
 echo "Using run parameter file $ACUTS"
-
-CALDIR="-calibrationdirectory $ODIR"
 
 #########################################
 # pedestal calculation
 if [[ $CALIB == "1" || ( $CALIB == "2" || $CALIB == "4" ) ]]; then
     rm -f $LOGDIR/$RUN.ped.log
-    $EVNDISPSYS/bin/evndisp -runmode=1 -runnumber=$RUN -reconstructionparameter $ACUTS $CALDIR &> $LOGDIR/$RUN.ped.log 
+    $EVNDISPSYS/bin/evndisp -runmode=1 -runnumber="$RUN" -reconstructionparameter "$ACUTS" -calibrationdirectory "$CALDIR" &> "$LOGDIR/$RUN.ped.log"
     echo "RUN$RUN PEDLOG $LOGDIR/$RUN.ped.log"
 fi
 
 #########################################
 
 ## use text file for calibration information
-if [[ "$SCIPIPE_MANUALLASER" == "yes" ]] ; then
-	OPT+=( -calibrationfile "$SCIPIPE_MANUALLASERFILE" )
-elif [[ $CALIB == "4" ]]; then
+if [[ $CALIB == "4" ]]; then
 ## use text file for calibration information
 	OPT+=( -calibrationfile $CALIBFILE )
 else
@@ -72,7 +69,7 @@ fi
 # average tzero calculation
 if [[ $CALIB == "1" || ( $CALIB == "3" || $CALIB == "4" ) ]]; then
     rm -f $LOGDIR/$RUN.tzero.log
-    $EVNDISPSYS/bin/evndisp -runnumber=$RUN -runmode=7 -sumwindowaveragetime=6 -calibrationsummin=50 -reconstructionparameter $ACUTS ${OPT[@]} $CALDIR &> $LOGDIR/$RUN.tzero.log 
+    $EVNDISPSYS/bin/evndisp -runnumber=$RUN -runmode=7 -sumwindowaveragetime=6 -calibrationsummin=50 -reconstructionparameter "$ACUTS" "${OPT[@]}" -calibrationdirectory "$CALDIR" &> "$LOGDIR/$RUN.tzero.log" 
 	echo "RUN$RUN TZEROLOG $LOGDIR/$RUN.tzero.log"
 fi
 
@@ -89,35 +86,23 @@ fi
 #
 ## OFF data run
 # OPT+=( -raoffset=6.25 )
-#
 
-#
 ## double pass correction
 # OPT+=( -nodp2005 )
-
-# Command line options for Model3D
-if [[ $ANAMETHOD == "MODEL3D" ]]; then
-    OPT+=( -model3d -lnlfile "$VERITAS_EVNDISP_AUX_DIR/Model3D/table_Model3D_Likelihood.root" )
-fi
-
-if [[ "$SCIPIPE_NEVENTS" =~ ^[0-9]+$ ]] ; then
-	OPT+=( -nevents=$SCIPIPE_NEVENTS ) 
-fi
-
 
 #########################################
 # run eventdisplay
 LOGFILE="$LOGDIR/$RUN.log"
-rm -f $LOGDIR/$RUN.log
-$EVNDISPSYS/bin/evndisp -runnumber=$RUN -reconstructionparameter $ACUTS -outputfile $TEMPDIR/$RUN.root ${OPT[@]} $CALDIR &> "$LOGFILE"
+rm -f "$LOGDIR/$RUN.log"
+$EVNDISPSYS/bin/evndisp -runnumber="$RUN" -reconstructionparameter "$ACUTS" -outputfile "$TEMPDIR/$RUN.root" "${OPT[@]}" -calibrationdirectory "$CALDIR" &> "$LOGFILE"
 # DST $EVNDISPSYS/bin/evndisp -runnumber=$RUN -nevents=250000 -runmode=4 -readcalibdb -dstfile $TEMPDIR/$RUN.dst.root -reconstructionparameter $ACUTS -outputfile $TEMPDIR/$RUN.root ${OPT[@]} &> "$LOGFILE"
 echo "RUN$RUN EVNDISPLOG $LOGFILE"
 
 # move data file from tmp dir to data dir
 DATAFILE="$ODIR/$RUN.root"
-cp -f -v $TEMPDIR/$RUN.root $DATAFILE
+cp -f -v "$TEMPDIR/$RUN.root" "$DATAFILE"
 echo "RUN$RUN VERITAS_USER_DATA_DIR $DATAFILE"
-rm -f $TEMPDIR/$RUN.root
+rm -f "$TEMPDIR/$RUN.root"
 # DST cp -f -v $TEMPDIR/$RUN.dst.root $DATAFILE
 
 exit

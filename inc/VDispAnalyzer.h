@@ -62,6 +62,7 @@ class VDispAnalyzer
         float fdisp_energy_medianAbsoluteError;
         vector< float > fdisp_energy_T;
         unsigned int   fdisp_energy_NT;
+        int  fdisp_energyQL;
         
         // disp core reconstruction
         vector< float > fdisp_core_T;
@@ -158,6 +159,10 @@ class VDispAnalyzer
         float getEnergydES();
         float getEnergyMedian();
         float getEnergyMedianAbsoluteError();
+        int   getEnergyQualityLabel()
+        {
+             return fdisp_energyQL;
+        }
         float getEnergyT( unsigned int iTelescopeNumber );
         unsigned int   getEnergyNT()
         {

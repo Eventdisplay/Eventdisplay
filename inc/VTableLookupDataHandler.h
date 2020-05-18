@@ -8,6 +8,7 @@
 #include "VEffectiveAreaCalculatorMCHistograms.h"
 #include "VMonteCarloRunHeader.h"
 #include "VDispAnalyzer.h"
+#include "VPointingCorrectionsTreeReader.h"
 #include "VSimpleStereoReconstructor.h"
 #include "VTableLookupRunParameter.h"
 #include "VUtilities.h"
@@ -100,6 +101,7 @@ class VTableLookupDataHandler
         Ctelconfig* ftelconfig;
         vector< TChain* > fTtpars;
         vector< Ctpars* > ftpars;
+        vector< VPointingCorrectionsTreeReader* > fpointingCorrections;
         TChain* fFrogspars;
         TChain* fDeepLearnerpars;
         
@@ -136,6 +138,7 @@ class VTableLookupDataHandler
         double fWobbleE;
         float  fArrayPointing_Elevation;
         float  fArrayPointing_Azimuth;
+        float  fArrayPointing_RotationAngle;
         
         // output trees
         TTree* fOTree;
@@ -297,6 +300,7 @@ class VTableLookupDataHandler
         
         int    fnmscw;                            //!< number of images used for mscw/mscl calculation
         int    fnenergyT;                         //!< number of images used for the energy calculation
+        int    fenergyQL;                         //!< quality label for energy calculation
         // MSCW
         double fmscw;                             //!< mean scaled width
         double ftmscw    [VDST_MAXTELESCOPES];    //!< mscw assigned to each telescope
@@ -611,7 +615,7 @@ class VTableLookupDataHandler
             }
             return sqrt( fXoff * fXoff + fYoff * fYoff );
         }
-        bool isReconstructed();
+        bool isReconstructed( bool isReconstructed = false );
         bool readRunParameter();
         void reset();                             //!< reset a few output variables
         void resetAll();
@@ -656,6 +660,10 @@ class VTableLookupDataHandler
         void setNEnergyT( int in )
         {
             fnenergyT = in;
+        }
+        void setNEnergyQuality( int in )
+        {
+            fenergyQL = in;
         }
         void setNMSCW( int in )
         {

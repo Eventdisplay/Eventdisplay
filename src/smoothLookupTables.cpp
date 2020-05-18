@@ -53,7 +53,7 @@ TH2F* smooth2DHistogram( TH2F* h, TH2F* hNevents )
         return  i_inter.doLogLinearExtrapolation( h,
                 "fitexpo",
                 hNevents,
-                20 );
+                20 ); 
     }
     else
     {
@@ -61,7 +61,7 @@ TH2F* smooth2DHistogram( TH2F* h, TH2F* hNevents )
                 "fitpol2",
                 hNevents,
                 20 );
-    }
+    } 
     return 0;
 }
 
@@ -326,28 +326,30 @@ void copyDirectory( TDirectory* source, const char* hx )
             {
                 cout << gDirectory->GetPath() << endl;
             }
+            adir->cd();
+            string iDirName = gDirectory->GetName();
+            ///////////////////////////////////
+            // smooth histograms
+            // get histogram for event counting histogram
+            // smooth median, mean, and mpv histograms
             // copy only median and mpv histogram
             if( iName.find( "median" ) != string::npos
                     || iName.find( "Median" ) != string::npos
                     || iName.find( "mpv" ) != string::npos
+                    || iName.find( "mean" ) != string::npos
               )
             {
-                adir->cd();
-                string iDirName = gDirectory->GetName();
-                ///////////////////////////////////
-                // smooth histograms
-                // get histogram for event counting histogram
                 string iNeventsHistoName = getNeventsHistoName( iName );
                 TH2F* iHEvents = ( TH2F* )source->Get( iNeventsHistoName.c_str() );
                 if( iHEvents )
                 {
                     obj = ( TObject* )smooth2DHistogram( ( TH2F* )obj, iHEvents );
                 }
-                ///////////////////////////////////
-                cout << "\t writing " << iName << " to ";
-                cout << adir->GetPath() << endl;
-                obj->Write( iName.c_str() );
             }
+            ///////////////////////////////////
+            cout << "\t writing " << iName << " to ";
+            cout << adir->GetPath() << endl;
+            obj->Write( iName.c_str() );
             delete obj;
         }
     }

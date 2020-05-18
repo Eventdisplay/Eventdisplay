@@ -5,7 +5,7 @@
 # Autor: Gernot Maier
 #
 
-if [ ! -n "$1" ] || [ $1 = "-h" ] || [ $1 = "-help" ]
+if [ ! -n "$1" ] || [ "$1" = "-h" ] || [ "$1" = "-help" ]
 then
    echo 
    echo "set the environmental variables for EVNDISP"
@@ -59,7 +59,7 @@ LD_LIBRARY_PATH=$EVNDISPSYS/lib/:$EVNDISPSYS/obj/:$LD_LIBRARY_PATH; export LD_LI
 ######################################################
 ## environmental variables
 ######################################################
-if [ $OBSERVATORY = "VERITAS" ] || [ $OBSERVATORY = "VTS" ]
+if [ "$OBSERVATORY" = "VERITAS" ] || [ "$OBSERVATORY" = "VTS" ]
 then
   if [[ $2 != "-q" ]]; then
 	echo "setting observatory to VERITAS"
@@ -70,7 +70,7 @@ then
   export OBS_USER_LOG_DIR=$VERITAS_USER_LOG_DIR
 fi
 
-if [ $OBSERVATORY = "CTA" ]
+if [ "$OBSERVATORY" = "CTA" ]
 then
   if [[ $2 != "-q" ]]; then
   	echo "setting observatory to CTA"

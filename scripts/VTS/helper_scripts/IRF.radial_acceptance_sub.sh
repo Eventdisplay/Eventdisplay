@@ -2,7 +2,7 @@
 # generate a radial acceptance file
 
 # set observatory environmental variables
-source $EVNDISPSYS/setObservatory.sh VTS
+source "$EVNDISPSYS"/setObservatory.sh VTS
 
 # parameters replaced by parent script using sed
 RLIST=RUNLIST
@@ -14,7 +14,7 @@ EPOCH=IEPO
 TTA=TELTOANA
 
 # create radial acceptance
-rm -f $ODIR/$OFILE.log
-$EVNDISPSYS/bin/makeRadialAcceptance -s $RLIST -c $CUTS -d $DDIR -i $EPOCH -o $ODIR/$OFILE.root -t $TTA &> $ODIR/$OFILE.log
+rm -f "$ODIR/$OFILE.log"
+"$EVNDISPSYS"/bin/makeRadialAcceptance -s "$RLIST" -c $CUTS -d "$DDIR" -i $EPOCH -o "$ODIR/$OFILE.root" -t $TTA &> "$ODIR/$OFILE.log"
 
 exit

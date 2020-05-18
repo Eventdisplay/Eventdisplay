@@ -227,7 +227,7 @@ unsigned int VUtilities::count_number_of_textblocks( string str )
     unsigned int z = 0;
     string iTemp;
     istringstream is_stream( str );
-    while( !is_stream.eof() )
+    while( !(is_stream>>std::ws).eof() )
     {
         is_stream >> iTemp;
         z++;

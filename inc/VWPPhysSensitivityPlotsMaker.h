@@ -38,10 +38,16 @@ class VWPPhysSensitivityPlotsMaker
         
         string fPrintingOptions;
         bool bPlotNoLegend;
+        bool bPlotCrabLines;
         
         string fPlotCTARequirementsString;
         float  fRequirementsScalingFactor;
         int    fRequirementsLineWidth;
+        bool   fRequirementsSystematics;
+
+        vector< string > fCurrentInstrumentVector;
+
+        float  fMaximumAllowedEnergyBias;
  
         // projected off-axis sensitivity
         TCanvas* fPlotProjectedSensitivity;
@@ -77,10 +83,18 @@ class VWPPhysSensitivityPlotsMaker
         void resetVectors();
         void setAxisUnits( string iObservationTime );   // set the correct y-axis scale for 50h, 5h, and 0.5h
         void setAxisUnits( double iMinSensitivity = 4.e-14, double iMaxSensitivity = 1.5e-10, string iUnit = "ENERGY" );
+        void setCurrentInstrumentPlotVector( vector< string > iV )
+        {
+            fCurrentInstrumentVector = iV;
+        }
         void setEffectiveAreaLimits( double iEffArea_min = 5.e2, double iEffArea_max = 7.e6 )
         {
             fEffArea_min = iEffArea_min;
             fEffArea_max = iEffArea_max;
+        }
+        void setPlotCrabLines( bool iPlot = true )
+        {
+            bPlotCrabLines = iPlot;
         }
         void setResolutionLimits( double iAngularResolutionMax = 1.10, double iEnergyResolutionMax = 0.3,
                                   bool iAngresLogY = true,
@@ -103,6 +117,10 @@ class VWPPhysSensitivityPlotsMaker
             fMaxEnergy_TeV = iMaxEnergy_TeV;
         }
         void setLSTSettings();
+        void setMaximumAllowedEnergyBias( float emax_bias = -1. )
+        {
+            fMaximumAllowedEnergyBias = emax_bias;
+        }
         void setObservingTime( double i_s = 180000. )
         {
             fObservingTime_s = i_s;
@@ -111,7 +129,13 @@ class VWPPhysSensitivityPlotsMaker
         {
             fPrintingOptions = iPrint;
         }
-        void setPlotRequirements( string iRequirement = "", float iRequirementsScalingFactor = 1., double iLineWidth = 1.  );
+        void setPlotRequirements( string iRequirement = "", 
+                float iRequirementsScalingFactor = 1., 
+                double iLineWidth = 1.  );
+        void setPlotRequirementsSystematics( bool iPlotSystematics = false )
+        {
+            fRequirementsSystematics = iPlotSystematics;
+        }
         void setOffAxisAngle( vector< double > iA )
         {
             fOffAxisAngle = iA;

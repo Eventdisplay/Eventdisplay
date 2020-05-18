@@ -41,6 +41,9 @@ VWPPhysSensitivityPlotsMaker::VWPPhysSensitivityPlotsMaker()
     setResolutionLimits();
     setPrintingOptions();
     setPlotRequirements();
+    setPlotCrabLines();
+    setPlotRequirementsSystematics();
+    setMaximumAllowedEnergyBias();
     
     fPlotAllInOneCanvas = 0;
     fPlotProjectedSensitivity = 0;
@@ -135,6 +138,11 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
 {
     VPlotWPPhysSensitivity a;
     a.setPlotNoLegend( bPlotNoLegend );
+    a.setPlotCrabLines( bPlotCrabLines );
+    if( fCurrentInstrumentVector.size() > 0 )
+    {
+        a.setCurrentInstrumentPlotVector( fCurrentInstrumentVector );
+    }
     if( iRatioCounter == 9999 )
     {
         a.setNorthSouthComparision( true );
@@ -146,7 +154,10 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
         setSensitivityRatioLimits( 0. , 3.7 );
     }
     //	a.setUseIntegratedSensitivityForOffAxisPlots( iUseIntegratedSensitivityForOffAxisPlots );
-    a.setPlotCTARequirements( fPlotCTARequirementsString, fRequirementsScalingFactor, fRequirementsLineWidth );
+    a.setPlotCTARequirements( fPlotCTARequirementsString, 
+            fRequirementsScalingFactor, 
+            fRequirementsLineWidth,
+            fRequirementsSystematics );
     // (outdated, orginal requirements plotting)
     a.setEnergyRange_Lin_TeV( fMinEnergy_TeV, fMaxEnergy_TeV );
     if( !a.addDataSets( iDataSetFile, iDirectionString ) )

@@ -475,7 +475,7 @@ bool VWPPhysSensitivityFile::fillHistograms2D( vector< double > iWobble_min, vec
     
     // wobble offset might be variable binning
     int nbins_woff = ( int ) iWobble_min.size();
-    if( nbins_woff > 2000 )
+    if( nbins_woff >= 2000 )
     {
         cout << "VWPPhysSensitivityFile::fillHistograms2D: cannot handle more than 2000 offset bins" << endl;
         return false;

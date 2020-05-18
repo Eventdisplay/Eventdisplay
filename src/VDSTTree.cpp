@@ -935,20 +935,20 @@ map< unsigned int, VDSTTelescopeConfiguration> VDSTTree::readArrayConfig( string
             is_stream >> iT1;
             // FOV
             fDST_list_of_telescopes[atoi( iT1.c_str() )].FOV = 20.5;
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> fDST_list_of_telescopes[atoi( iT1.c_str() )].FOV;
             }
             // Dynamic range (in cfg file in BIT)
             fDST_list_of_telescopes[atoi( iT1.c_str() )].DynamicRange = -1.;
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iT2;
                 fDST_list_of_telescopes[atoi( iT1.c_str() )].DynamicRange = TMath::Power( 2., atof( iT2.c_str() ) );
             }
             // use RAW sum or calibrated sum (default)
             fDST_list_of_telescopes[atoi( iT1.c_str() )].RAWsum = false;
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iT2;
                 fDST_list_of_telescopes[atoi( iT1.c_str() )].RAWsum = ( bool )atoi( iT2.c_str() );
@@ -960,7 +960,7 @@ map< unsigned int, VDSTTelescopeConfiguration> VDSTTree::readArrayConfig( string
     
     map< unsigned int, VDSTTelescopeConfiguration >::iterator iter;
     unsigned int z = 0;
-    for( iter = fDST_list_of_telescopes.begin(); iter != fDST_list_of_telescopes.end(); iter++ )
+    for( iter = fDST_list_of_telescopes.begin(); iter != fDST_list_of_telescopes.end(); ++iter )
     {
         cout << "\t Telescope ID " << iter->first << "  FOV " << iter->second.FOV;
         cout << "  Dyn " << iter->second.DynamicRange << " RAW " << iter->second.RAWsum;

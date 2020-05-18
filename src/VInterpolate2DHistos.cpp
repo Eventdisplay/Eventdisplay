@@ -228,7 +228,6 @@ TH2F* VInterpolate2DHistos::doGaussianInterpolation( TH2F* h, string iname, TH2F
     double xc = 0.;
     double yc = 0.;
     double z = 0.;
-    int n = 0;
     
     double xWidth = hs->GetXaxis()->GetBinWidth( 1 );
     double yWidth = hs->GetYaxis()->GetBinWidth( 1 );
@@ -240,8 +239,7 @@ TH2F* VInterpolate2DHistos::doGaussianInterpolation( TH2F* h, string iname, TH2F
         {
             yc = hs->GetYaxis()->GetBinCenter( j );
             z  = hs->GetBinContent( i, j );
-            n  = ( int )( hNevents->GetBinContent( i, j ) * nGausN );
-            n = nGausN;
+            int n  = ( int )( hNevents->GetBinContent( i, j ) * nGausN );
             
             // loop over all bin entries
             for( int k = 0; k < n; k++ )

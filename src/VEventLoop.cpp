@@ -376,7 +376,7 @@ bool VEventLoop::initEventLoop( string iFileName )
         }
     }
     // something went wrong, probably wrong filename
-    catch( VFileException ex )
+    catch( VFileException& ex )
     {
         cout << ex.what() << endl;
         //      cout << "data file not found, exiting: " << fRunPar->fsourcefile << endl;
@@ -564,12 +564,15 @@ bool VEventLoop::initEventLoop( string iFileName )
             }
             // add any offsets to the pointing [J2000]
             fPointing.back()->setPointingOffset( fRunPar->fTargetRAOffset, fRunPar->fTargetDecOffset );
-            // set pointing error
+            // set pointing error as provided by the DB
+            // (calculated with pointing monitor)
             if( fRunPar->fDBTracking )
             {
                 fPointing.back()->getPointingFromDB( fRunPar->frunnumber, fRunPar->fDBTrackingCorrections, fRunPar->fPMTextFileDirectory,
                                                      fRunPar->fDBVPM, fRunPar->fDBUncalibratedVPM );
             }
+            // no DB pointing corrections
+            // (optional : can be set by hand through command line parameter)
             else
             {
                 fPointing.back()->setPointingError( fRunPar->fPointingErrorX[i], fRunPar->fPointingErrorY[i] );
@@ -957,12 +960,12 @@ void VEventLoop::gotoEvent( int gEv )
             i_res = nextEvent();
             if( fReader->getEventStatus() > 998 || !fTimeCutsfNextEventStatus )
             {
-                i_res = -1;
+                i_res = false;
                 break;
             }
         }
         // event number larger than number of events in file
-        if( i_res <= 0 )
+        if( !i_res )
         {
             cout <<  "VEventLoop::gotoEvent( int gEv ): event not found: " << gEv << endl;
             return;
@@ -1569,11 +1572,9 @@ int VEventLoop::checkCuts()
         return 1;    // no cuts are applied
     }
     
-    int i_cut;
     // number of triggered channels
     int i_numtrig = 0;
     i_numtrig = getImageParameters()->ntubes;
-    // (GM) was 3
     if( i_numtrig < 0 || i_numtrig < fNCutNTrigger[getTelID()] )
     {
         return 0;
@@ -1689,8 +1690,7 @@ int VEventLoop::checkCuts()
         houghContained = fAnalyzer->getImageParameters()->houghContained;
         
         i_tree.Fill();
-        i_cut = int( i_tree.Draw( "cen_x", fStringCut[getTelID()].c_str(), "goff" ) );
-        return i_cut;
+        return int( i_tree.Draw( "cen_x", fStringCut[getTelID()].c_str(), "goff" ) );
     }
     // end off ugly stuff
     return 1;

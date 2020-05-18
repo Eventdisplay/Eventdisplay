@@ -126,6 +126,7 @@ void VSensitivityCalculator::reset()
     setBackgroundMissingParticleFraction();
     setRequireCutsToBeOptimized();
     setMaximumEnergyBias();
+    setPlotCrabLines();
     
     fGraphObsvsTime.clear();
     fData.clear();
@@ -688,7 +689,8 @@ bool VSensitivityCalculator::calculateParticleNumberGraphs_MC( double dE_Log10 )
     bNewCanvas:   plot histograms and Crab lines
 
 */
-TCanvas* VSensitivityCalculator::plotSensitivityvsEnergyFromCrabSpectrum( TCanvas* cSensitivity, string bUnit, double dE_Log10, bool bNewCanvas )
+TCanvas* VSensitivityCalculator::plotSensitivityvsEnergyFromCrabSpectrum( 
+        TCanvas* cSensitivity, string bUnit, double dE_Log10, bool bNewCanvas )
 {
 
     // get canvas
@@ -1165,9 +1167,10 @@ TCanvas* VSensitivityCalculator::plotCanvas_SensitivityvsEnergy( string bUnit, b
     {
         if( i < i_fFunCrabFlux.size() && i_fFunCrabFlux[i] )
         {
-            //TMPTMP
-            // continue;
-            //TMTMTP
+            if( !bPlotCrabLines )
+            {
+                continue;
+            }
             i_fFunCrabFlux[i]->SetLineColor( 16 );
             i_fFunCrabFlux[i]->Draw( "l" );
             
@@ -1394,7 +1397,7 @@ TCanvas* VSensitivityCalculator::plotObservationTimevsFlux( unsigned int iD, TCa
 }
 
 
-void VSensitivityCalculator::list_sensitivity( unsigned int iD )
+void VSensitivityCalculator::list_sensitivity( unsigned int iD, ostream& terminal )
 {
     if( !checkDataSet( iD, "plotObservationTimevsFlux" ) )
     {
@@ -1403,20 +1406,20 @@ void VSensitivityCalculator::list_sensitivity( unsigned int iD )
     
     calculateObservationTimevsFlux( iD );
     
-    cout << " Flux               time           time" << endl;
-    cout << " [Crab Units]       [min]           [h]" << endl;
-    cout << " ========================================" << endl;
+    terminal << " Flux               time           time" << endl;
+    terminal << " [Crab Units]       [min]           [h]" << endl;
+    terminal << " ========================================" << endl;
     
     for( unsigned int i = 0; i < fSourceStrength.size(); i++ )
     {
-        cout << " " << fSourceStrength[i] << "\t\t" << setw( 8 ) << setprecision( 3 );
-        cout << fGraphObsvsTime[iD]->Eval( fSourceStrength[i] ) * 60. << "\t" << setw( 8 ) << setprecision( 3 );
-        cout << fGraphObsvsTime[iD]->Eval( fSourceStrength[i] );
-        cout << endl;
+        terminal << " " << fSourceStrength[i] << "\t\t" << setw( 8 ) << setprecision( 3 );
+        terminal << fGraphObsvsTime[iD]->Eval( fSourceStrength[i] ) * 60. << "\t" << setw( 8 ) << setprecision( 3 );
+        terminal << fGraphObsvsTime[iD]->Eval( fSourceStrength[i] );
+        terminal << endl;
     }
     
-    cout << "(requiring a significance of at least " << fSignificance_min << " sigma or " << fEvents_min;
-    cout << " events, and using Li & Ma formula " << fLiAndMaEqu << ")" << endl;
+    terminal << "(requiring a significance of at least " << fSignificance_min << " sigma or " << fEvents_min;
+    terminal << " events, and using Li & Ma formula " << fLiAndMaEqu << ")" << endl;
 }
 
 /*
@@ -1706,7 +1709,7 @@ TGraphAsymmErrors* VSensitivityCalculator::getSensitivityGraphFromWPPhysFile( st
  */
 void VSensitivityCalculator::applyEnergyBiasCut( TH1F* h, TGraphAsymmErrors* g, double iMaxEBias )
 {
-    if( !h || !h )
+    if( !h || !g )
     {
         return;
     }
@@ -1962,7 +1965,7 @@ vector< VDifferentialFluxData > VSensitivityCalculator::getDifferentialFluxVecto
                 cout << "\t" << i_flux.dE << "\t" << i_flux.ExposureTime << "\t" << fObservationTime_h << "  Off: ";
                 map< unsigned int, int >::iterator iEnergyScaleOffset_iter;
                 for( iEnergyScaleOffset_iter = iEnergyScaleOffset.begin();
-                        iEnergyScaleOffset_iter != iEnergyScaleOffset.end(); iEnergyScaleOffset_iter++ )
+                        iEnergyScaleOffset_iter != iEnergyScaleOffset.end(); ++iEnergyScaleOffset_iter )
                 {
                     cout << ( *iEnergyScaleOffset_iter ).second << "\t";
                 }
@@ -2045,7 +2048,7 @@ vector< VDifferentialFluxData > VSensitivityCalculator::getDifferentialFluxVecto
                         cout << ", Offset: ";
                         map< unsigned int, int >::iterator iEnergyScaleOffset_iter;
                         for( iEnergyScaleOffset_iter = iEnergyScaleOffset.begin(); iEnergyScaleOffset_iter != iEnergyScaleOffset.end();
-                                iEnergyScaleOffset_iter++ )
+                                ++iEnergyScaleOffset_iter )
                         {
                             cout << ( *iEnergyScaleOffset_iter ).second << "\t";
                         }
@@ -2161,7 +2164,7 @@ vector< VDifferentialFluxData > VSensitivityCalculator::getDifferentialFluxVecto
     for( unsigned int i = 0; i < v_flux.size(); i++ )
     {
         v_flux[i].NOff = 0.;
-        for( v_flux_NOff_iter = v_flux_NOff.begin(); v_flux_NOff_iter != v_flux_NOff.end(); v_flux_NOff_iter++ )
+        for( v_flux_NOff_iter = v_flux_NOff.begin(); v_flux_NOff_iter != v_flux_NOff.end(); ++v_flux_NOff_iter )
         {
             if( i < ( *v_flux_NOff_iter ).second.size() )
             {
@@ -2179,7 +2182,7 @@ vector< VDifferentialFluxData > VSensitivityCalculator::getDifferentialFluxVecto
     {
         v_flux[i].NOn_error = v_flux[i].NOn_error * v_flux[i].NOn_error;
         v_flux[i].NOff_error = 0.;
-        for( v_flux_NOff_iter = v_flux_NOff_error.begin(); v_flux_NOff_iter != v_flux_NOff_error.end(); v_flux_NOff_iter++ )
+        for( v_flux_NOff_iter = v_flux_NOff_error.begin(); v_flux_NOff_iter != v_flux_NOff_error.end(); ++v_flux_NOff_iter )
         {
             if( i < ( *v_flux_NOff_iter ).second.size() )
             {
@@ -2557,7 +2560,7 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
                     if( c->e0[n] > iMCPara->energy_lowEdge[i] && c->e0[n] < iMCPara->energy_upEdge[i] )
                     {
                         iMCPara->effArea.back() += c->eff[n];
-                        iMCPara->effArea_error.back() += ( 0.5 * ( c->seff_L[n] + c->seff_U[n] ) * 0.5 * ( c->seff_L[n] + c->seff_U[n] ) );
+                        iMCPara->effArea_error.back() += (c->eff_error[n]*c->eff_error[n] );
                         z++;
                     }
                 }
@@ -2764,7 +2767,7 @@ void VSensitivityCalculator::prepareDebugPlots()
     char hname[800];
     for( unsigned int i = 0; i < iCanvasTitle.size(); i++ )
     {
-        sprintf( hname, "%s_%d", fPlotDebugName.c_str(), i );
+        sprintf( hname, "%s_%u", fPlotDebugName.c_str(), i );
         cPlotDebug.push_back( new TCanvas( hname, iCanvasTitle[i].c_str(), 20 + i * 350, 650, 900, 600 ) );
         
         cPlotDebug.back()->SetGridx( 0 );
@@ -2792,7 +2795,7 @@ void VSensitivityCalculator::plotEffectiveArea()
     
     int z = 0;
     map< unsigned int, VSensitivityCalculatorDataResponseFunctions* >::iterator i_MCData_iterator;
-    for( i_MCData_iterator = fMC_Data.begin(); i_MCData_iterator != fMC_Data.end(); i_MCData_iterator++ )
+    for( i_MCData_iterator = fMC_Data.begin(); i_MCData_iterator != fMC_Data.end(); ++i_MCData_iterator )
     {
         g.push_back( new TGraphErrors( 1 ) );
         g.back()->SetMinimum( 0.1 );
@@ -2933,7 +2936,7 @@ void VSensitivityCalculator::plotDebugPlotsBackgroundParticleNumbers( vector< VD
     for( unsigned int i = 0; i < iDifferentialFlux.size(); i++ )
     {
         z = 0;
-        for( i_flux_NOff_iter = i_flux_NOff.begin(); i_flux_NOff_iter != i_flux_NOff.end(); i_flux_NOff_iter++ )
+        for( i_flux_NOff_iter = i_flux_NOff.begin(); i_flux_NOff_iter != i_flux_NOff.end(); ++i_flux_NOff_iter )
         {
             if( i < ( *i_flux_NOff_iter ).second.size() )
             {
@@ -2942,7 +2945,7 @@ void VSensitivityCalculator::plotDebugPlotsBackgroundParticleNumbers( vector< VD
             z++;
         }
         z = 0;
-        for( i_flux_NOffError_iter = i_flux_NOffError.begin(); i_flux_NOffError_iter != i_flux_NOffError.end(); i_flux_NOffError_iter++ )
+        for( i_flux_NOffError_iter = i_flux_NOffError.begin(); i_flux_NOffError_iter != i_flux_NOffError.end(); ++i_flux_NOffError_iter )
         {
             if( i < ( *i_flux_NOffError_iter ).second.size() )
             {
@@ -3118,7 +3121,7 @@ void VSensitivityCalculator::plotSensitivityLimitations( TCanvas* c, double iYVa
     {
         cout << "Background rate ratio limited: green" << endl;
         map< int, double >::const_iterator itx;
-        for( itx = fMinBackgroundEventsLimited.begin(); itx != fMinBackgroundEventsLimited.end(); itx++ )
+        for( itx = fMinBackgroundEventsLimited.begin(); itx != fMinBackgroundEventsLimited.end(); ++itx )
         {
             TGraphErrors* g = new TGraphErrors( 1 );
             double energy = ( double( ( *itx ).first ) ) / 1.e3;
@@ -3137,7 +3140,7 @@ void VSensitivityCalculator::plotSensitivityLimitations( TCanvas* c, double iYVa
     {
         cout << "Significance limited: blue" << endl;
         map< int, double >::const_iterator itx;
-        for( itx = fSignificanceLimited.begin(); itx != fSignificanceLimited.end(); itx++ )
+        for( itx = fSignificanceLimited.begin(); itx != fSignificanceLimited.end(); ++itx )
         {
             TGraphErrors* g = new TGraphErrors( 1 );
             double energy = ( double( ( *itx ).first ) ) / 1.e3;
@@ -3156,7 +3159,7 @@ void VSensitivityCalculator::plotSensitivityLimitations( TCanvas* c, double iYVa
     {
         cout << "No background events limited: purple" << endl;
         map< int, double >::const_iterator itx;
-        for( itx = fMinNoBackground.begin(); itx != fMinNoBackground.end(); itx++ )
+        for( itx = fMinNoBackground.begin(); itx != fMinNoBackground.end(); ++itx )
         {
             TGraphErrors* g = new TGraphErrors( 1 );
             double energy = ( double( ( *itx ).first ) ) / 1.e3;
@@ -3282,7 +3285,7 @@ bool VSensitivityCalculator::fillSensitivityHistograms( TH1F* iSensitivity, TH1F
         int i_x = 0;
         bool iFillBins = false;
         map< int, double >::const_iterator itx;
-        for( itx = fMinEventsLimited.begin(); itx != fMinEventsLimited.end(); itx++ )
+        for( itx = fMinEventsLimited.begin(); itx != fMinEventsLimited.end(); ++itx )
         {
             x = ( double( ( *itx ).first ) ) / 1.e3;
             y = ( ( *itx ).second );
@@ -3422,7 +3425,7 @@ bool VSensitivityCalculator::fillSensitivityHistogramfromMap( map< int, double >
     double x = 0.;
     double y = 0.;
     map< int, double >::const_iterator itx;
-    for( itx = m.begin(); itx != m.end(); itx++ )
+    for( itx = m.begin(); itx != m.end(); ++itx )
     {
         x = ( double( ( *itx ).first ) ) / 1.e3;
         y = ( ( *itx ).second );

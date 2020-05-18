@@ -32,10 +32,12 @@ VCTARequirements::VCTARequirements()
     setRequirementsDirectory();
     setPlotSubSystemRequirement();
     setPlotRequirementsScaling();
+    setRequirementsPlotSystematics();
 }
 
 
-TGraph* VCTARequirements::plotRequirement_DifferentialSensitivity( TCanvas* c)
+TGraph* VCTARequirements::plotRequirement_DifferentialSensitivity( 
+        TCanvas* c )
 {
     if( !c )
     {
@@ -49,31 +51,31 @@ TGraph* VCTARequirements::plotRequirement_DifferentialSensitivity( TCanvas* c)
     }
     
     c->cd();
-    plotRequirements( fReqDifferentialSensitivity, true, true, true );
+    plotRequirements( fReqDifferentialSensitivity, true, true, fRequirementsSystematics );
     if( fPlotSubSystemRequirement == "LST" && fReqDifferentialSensitivityLST )
     {
-        plotRequirements( fReqDifferentialSensitivityLST, true, true );
+        plotRequirements( fReqDifferentialSensitivityLST, true, true, fRequirementsSystematics );
     }
     else if( fPlotSubSystemRequirement == "MST" && fReqDifferentialSensitivityMST )
     {
-        plotRequirements( fReqDifferentialSensitivityMST, true, true );
+        plotRequirements( fReqDifferentialSensitivityMST, true, true, fRequirementsSystematics );
     }
     else if( fPlotSubSystemRequirement == "SST" && fReqDifferentialSensitivitySST )
     {
-        plotRequirements( fReqDifferentialSensitivitySST, true, true );
+        plotRequirements( fReqDifferentialSensitivitySST, true, true, fRequirementsSystematics );
     }
     if( fPlotSubSystemRequirement.size() > 0
             && fReqDifferentialSensitivityxF
             && fReqDifferentialSensitivityx2 && fReqDifferentialSensitivityx3 && fReqDifferentialSensitivityx4 )
     {
-        plotRequirements( fReqDifferentialSensitivityxF, true, true );
-        plotRequirements( fReqDifferentialSensitivityx2, true, true );
-        plotRequirements( fReqDifferentialSensitivityx3, true, true );
-        plotRequirements( fReqDifferentialSensitivityx4, true, true );
+        plotRequirements( fReqDifferentialSensitivityxF, true, true, fRequirementsSystematics );
+        plotRequirements( fReqDifferentialSensitivityx2, true, true, fRequirementsSystematics );
+        plotRequirements( fReqDifferentialSensitivityx3, true, true, fRequirementsSystematics );
+        plotRequirements( fReqDifferentialSensitivityx4, true, true, fRequirementsSystematics );
     }
     if( fRequirementsScaling && fReqDifferentialSensitivity2014 )
     {
-        plotRequirements( fReqDifferentialSensitivity2014, true, true );
+        plotRequirements( fReqDifferentialSensitivity2014, true, true, fRequirementsSystematics );
     }
     
     return fReqDifferentialSensitivity;
@@ -151,7 +153,9 @@ TGraph* VCTARequirements::plotRequirement_EffectiveArea( TCanvas* c )
 }
 
 /*
- * plot requirements systematic (temporary plot)
+ * plot requirements systematic
+ *
+ * hardwired CTA systematics, check code for details
  *
  */
 void VCTARequirements::plotRequirementsSystematic( TGraph *g )

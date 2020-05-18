@@ -17,6 +17,7 @@
 #include <VGammaHadronCuts.h>
 #include <VGlobalRunParameter.h>
 #include <VInstrumentResponseFunctionRunParameter.h>
+#include <VEnergyThreshold.h>
 
 using namespace std;
 
@@ -68,8 +69,6 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         f.SetBranchStatus( "eff", 1 );
         f.SetBranchStatus( "eff_error", 1 );
         f.SetBranchStatus( "esys_rel", 1 );
-        f.SetBranchStatus( "Rec_nbins", 1 );
-        f.SetBranchStatus( "Rec_e0", 1 );
         f.SetBranchStatus( "Rec_eff", 1 );
         f.SetBranchStatus( "Rec_eff_error", 1 );
         f.SetBranchStatus( "Rec_angRes_p68", 1 );
@@ -79,6 +78,7 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         // full histograms - mostly needed for DL3 step
         // f.SetBranchStatus( "hResponseMatrixFine", 1 );
         // f.SetBranchStatus( "hResponseMatrixFineNoDirectionCuts", 1 );
+        f.SetBranchStatus( "hEsysMCRelative", 1 );
         f.SetBranchStatus( "hEsysMCRelative2D", 1 );
         f.SetBranchStatus( "hEsysMCRelative2DNoDirectionCut", 1 );
         // Response Matrix Approximation
@@ -86,7 +86,9 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         f.SetBranchStatus( "e_MC_Res", 1 );
         f.SetBranchStatus( "e_Rec_Res", 1 );
         f.SetBranchStatus( "e_Rec_Res_Err", 1 );
-        f.SetBranchStatus( "hAngularDiff_2D", 1 );
+        // f.SetBranchStatus( "hAngularDiff_2D", 1 );
+        f.SetBranchStatus( "hAngularLogDiffEmc_2D", 1 );
+        f.SetBranchStatus( "gEffAreaRec", 1 );
         f.SetBranchStatus( "gEffAreaNoTh2MC", 1 );
         f.SetBranchStatus( "gEffAreaNoTh2Rec", 1 );
     }
@@ -228,6 +230,16 @@ int main( int argc, char* argv[] )
     cout << endl << endl;
     cout << "new combined effective area file: " << endl;
     cout << argv[2] << endl;
+
+    // calculate energy thresholds
+    // - will be written to effective area file
+    string iEnergyTresholdFile = string(argv[2]) + ".root";
+    VEnergyThreshold iEnergyThreshold( iEnergyTresholdFile, "UPDATE" );
+    iEnergyThreshold.openEffectiveAreaFile( string(argv[2]) + ".root" );
+    iEnergyThreshold.calculateEnergyThreshold();
+    iEnergyThreshold.writeResults();
+    
+    // (all done)
     cout << endl << "end combineEffectiveAreas" << endl;
     
 }

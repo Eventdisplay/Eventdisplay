@@ -298,7 +298,7 @@ vector< string > fillInputFile_fromList( string iList )
 
     (a previous training session produced these files
 */
-bool readTrainingFile( string iTargetBDT, ULong64_t iTelType, string iDataDirectory )
+bool readTrainingFile( string iTargetBDT, ULong64_t iTelType, const string iDataDirectory )
 {
     fMapOfTrainingTree.clear();
     
@@ -384,7 +384,7 @@ vector< bool > readArrayList( unsigned int i_ntel, string iArrayList, vector< un
    output as a root file (might be temporary, steer with scripts)
 
 */
-bool writeTrainingFile( string iInputFile, ULong64_t iTelType,
+bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                         unsigned int iRecID, string iArrayList )
 {
     ////////////////////////////
@@ -958,7 +958,7 @@ int main( int argc, char* argv[] )
     // write training tree to output file
     iO.cd();
     map< ULong64_t, TTree* >::iterator fMapOfTrainingTree_iter;
-    for( fMapOfTrainingTree_iter = fMapOfTrainingTree.begin(); fMapOfTrainingTree_iter != fMapOfTrainingTree.end(); fMapOfTrainingTree_iter++ )
+    for( fMapOfTrainingTree_iter = fMapOfTrainingTree.begin(); fMapOfTrainingTree_iter != fMapOfTrainingTree.end(); ++fMapOfTrainingTree_iter )
     {
         if( fMapOfTrainingTree_iter->second )
         {

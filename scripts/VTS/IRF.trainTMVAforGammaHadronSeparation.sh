@@ -78,6 +78,9 @@ PARTICLE_TYPE="gamma"
 [[ "$9" ]] && ANAMETHOD=$9 || ANAMETHOD="TL"
 [[ "${10}" ]] && SDIR=${10} || SDIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/$SIMTYPE/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}_${ANAMETHOD}/MSCW_RECID${RECID}"
 echo "Signal input directory: $SDIR"
+echo "Atmosphere $ATM"
+echo "Rec ID $RECID"
+echo "Ana method $ANAMETHOD"
 # Input directory of MC simulations
 if [[ ! -d $SDIR ]]; then
 	echo -e "Error, could not locate directory of simulation files (input). Locations searched:\n $SDIR"
@@ -110,9 +113,8 @@ mkdir -p $ODIR
 count1=1
 #####################################
 # energy bins
-ENBINSBEGIN=$( cat "$RUNPAR" | grep "^* ENERGYBINSBEGIN 1" | sed -e 's/* ENERGYBINSBEGIN 1//' | sed -e 's/ /\n/g')
-ENBINSEND=$( cat "$RUNPAR" | grep "^* ENERGYBINSEND 1" | sed -e 's/* ENERGYBINSEND 1//' | sed -e 's/ /\n/g')
-
+ENBINSBEGIN=$( cat "$RUNPAR" | grep "^* ENERGYBINSBEGIN" | sed -e 's/* ENERGYBINSBEGIN//' | sed -e 's/ /\n/g')
+ENBINSEND=$( cat "$RUNPAR" | grep "^* ENERGYBINSEND" | sed -e 's/* ENERGYBINSEND//' | sed -e 's/ /\n/g')
 declare -a EBINARRAYBEGIN=( $ENBINSBEGIN ) #convert to array
 declare -a EBINARRAYEND=( $ENBINSEND ) #convert to array
 NENE=$((${#EBINARRAYBEGIN[@]})) #get number of bins
@@ -129,6 +131,7 @@ NZEW=$((${#ZEBINARRAYBEGIN[@]})) #get number of bins
 #####################################
 # zenith angle bins of MC simulation files
 ZENITH_ANGLES=( 20 30 35 40 45 50 55 )
+ZENITH_ANGLES=( 20 30 35 40 )
 
 #####################################
 # directory for run scripts
@@ -155,11 +158,11 @@ do
       echo "ZeBin: $(($j+$count1)) of $NZEW: ${ZEBINARRAYBEGIN[$j]} to ${ZEBINARRAYEND[$j]}"
       
       # copy run parameter file with basic options to output directory
-      cp -f $RUNPAR $ODIR
+      # cp -f $RUNPAR $ODIR
 
       # updating the run parameter file for each point in the parameter space
       # (one parameter file per energy and zenith bin)
-      RFIL=$ODIR/$RXPAR"_$i""_$j"
+      RFIL=$ODIR/$RXPAR"_Ebin${i}""_Zebin${j}"
       echo "TMVA Runparameter file: $RFIL.runparameter"
       rm -f $RFIL
       
@@ -171,11 +174,12 @@ do
       # Number of events used. If set too high, no bin will meet the requirements, if set too low, statistics will be poor.
       # set to 0 for using all events. It will use automatically EqualNumEvents to set the same signal and background.
       nTrain="200000"
+      # TMPTMP
       nTrain="50000"
  
       echo "* PREPARE_TRAINING_OPTIONS SplitMode=Random:SplitSeed=0:V:VerboseLevel=Verbose:nTrain_Signal=$nTrain:nTrain_Background=$nTrain::nTest_Signal=$nTrain:nTest_Background=$nTrain" >> $RFIL.runparameter
 
-      echo "* OUTPUTFILE $ODIR $ONAME"_$i""_$j" " >> $RFIL.runparameter
+      echo "* OUTPUTFILE $ODIR $ONAME"_Ebin${i}""_Zebin${j}" " >> "$RFIL.runparameter"
 
       echo "#######################################################################################" >> $RFIL.runparameter
       # signal and background files (NSB levels are simtype dependent)
@@ -187,23 +191,33 @@ do
                      SIGNALLIST=`ls -1 $SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE{100,150,200,250,325,425,550}.mscw.root`
                  else
                      #SIGNALLIST=`ls -1 $SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE{150,300,450,600,750,900}.mscw.root`
-                     SIGNALLIST=`ls -1 $SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE{50,75,100,130,160,200,250,300,350,400,450}.mscw.root`
+                     #SIGNALLIST=`ls -1 $SDIR/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE{50,75,100,130,160,200,250,300,350,400,450}.mscw.root`
+                     SIGNALLIST=`ls -1 "$SDIR"/${ZENITH_ANGLES[$l]}deg_0.5wob_NOISE*.mscw.root`
                  fi
                  for arg in $SIGNALLIST
                  do
-                     echo "* SIGNALFILE $arg" >> $RFIL.runparameter
+                     echo "* SIGNALFILE $(echo "$arg" | sed s#//*#/#g)" >> $RFIL.runparameter
                  done
              fi
          fi
       done
+      # cross check if simulation files have been found
+      NSIGNALFILES=`grep SIGNALFILE $RFIL.runparameter | wc -l | awk '{print $1}'`
+      if [ "$NSIGNALFILES" -eq "0" ]
+      then
+         echo "No signal files found for $RFIL.runparameter"
+         continue
+      else
+         echo "Find $NSIGNALFILES signal files"
+      fi
          
       echo "#######################################################################################" >> $RFIL.runparameter
       for arg in $(cat $BLIST)
       do
-          echo "* BACKGROUNDFILE $arg" >> $RFIL.runparameter
+          echo "* BACKGROUNDFILE $(echo "$arg" | sed s#//*#/#g)" >> $RFIL.runparameter
       done
          
-      FSCRIPT=$LOGDIR/TMVA.$ONAME"_$i""_$j_$(date +%s)"
+      FSCRIPT=$LOGDIR/TMVA.$ONAME"_Ebin${i}""_Zebin${j}_$(date +%s)"
       sed -e "s|RUNPARAM|$RFIL|"  \
           -e "s|NUMTRAIN|$nTrain|"  \
           -e "s|OUTNAME|$ODIR/$ONAME_${i}_${j}|" $SUBSCRIPT.sh > $FSCRIPT.sh
@@ -218,7 +232,7 @@ do
             echo $SUBC
             exit
       fi
-      if [[ $SUBC == *qsxb* ]]; then
+      if [[ $SUBC == *qsub* ]]; then
          JOBID=`$SUBC $FSCRIPT.sh`
          # account for -terse changing the job number format
          if [[ $SUBC != *-terse* ]] ; then

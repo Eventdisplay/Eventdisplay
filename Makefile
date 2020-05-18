@@ -222,10 +222,10 @@ endif
 ifneq ($(VBFFLAG),-DNOVBF)
 VBFCFLAGS     = -I$(VBFSYS)/include/VBF/
 	ifeq ($(ROOT6FLAG),-DROOT6)
-		VBFPP 	      = $(shell vbfConfig --prefix)
+		VBFPP 	      = $(shell $(VBFSYS)/bin/vbfConfig --prefix)
   		VBFLIBS       = -L${VBFPP}/lib -lVBF -L${BZ2_PATH}/ -lbz2
 	else
-		VBFLIBS       = $(shell vbfConfig --ldflags --libs)
+		VBFLIBS       = $(shell $(VBFSYS)/bin/vbfConfig --ldflags --libs)
 	endif
 CXXFLAGS     += $(VBFCFLAGS)
 #GLIBS        += $(VBFLIBS)
@@ -310,6 +310,7 @@ VPATH = src:inc
 all VTS:	evndisp \
         printRunParameter \
 	mscw_energy \
+	smoothLookupTables \
 	anasum \
 	combineLookupTables \
 	makeEffectiveArea \
@@ -319,7 +320,6 @@ all VTS:	evndisp \
 	compareDatawithMC \
 	VTS.getRunListFromDB \
 	VTS.getLaserRunFromDB \
-	optimiseBDTCuts \
 	writeParticleRateFilesForTMVA \
 	trainTMVAforGammaHadronSeparation \
 	extrasMessage doneMessage
@@ -579,6 +579,7 @@ MSCOBJECTS=	./obj/Cshowerpars.o ./obj/Cmodel3Dpars.o ./obj/Ctpars.o \
 		./obj/VMedianCalculator.o \
                 ./obj/VSkyCoordinatesUtilities.o \
                 ./obj/VDB_Connection.o \
+		./obj/VPointingCorrectionsTreeReader.o \
 		./obj/mscw_energy.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
@@ -1546,30 +1547,6 @@ smoothLookupTables:	./obj/smoothLookupTables.o ./obj/VGlobalRunParameter.o ./obj
 	@echo "$@ done"
 
 ########################################################
-
-OPTCUTOBJECT = 	./obj/VTMVAEvaluator.o ./obj/VTMVAEvaluator_Dict.o \
-		./obj/VPlotUtilities.o ./obj/VPlotUtilities_Dict.o \
-		./obj/VTMVARunDataEnergyCut.o ./obj/VTMVARunDataEnergyCut_Dict.o \
-		./obj/VTMVARunDataZenithCut.o ./obj/VTMVARunDataZenithCut_Dict.o \
-		./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
-		./obj/VSkyCoordinatesUtilities.o ./obj/VUtilities.o \
-		./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-		./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o \
-		./obj/VHistogramUtilities.o ./obj/VHistogramUtilities_Dict.o \
-		./obj/VAnalysisUtilities.o ./obj/VAnalysisUtilities_Dict.o \
-		./obj/VRunList.o ./obj/VRunList_Dict.o ./obj/CRunSummary.o ./obj/CRunSummary_Dict.o \
-		./obj/optimiseBDTCuts.o
-
-./obj/optimiseBDTCuts.o:	./src/optimiseBDTCuts.cpp \
-				
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-optimiseBDTCuts:	$(OPTCUTOBJECT)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
-
-########################################################
 # checkAnalysisResultFile
 ########################################################
 
@@ -1666,6 +1643,8 @@ COMBINEEFFOBJ=	 ./obj/combineEffectiveAreas.o  \
 			 ./obj/VInstrumentResponseFunctionRunParameter.o ./obj/VInstrumentResponseFunctionRunParameter_Dict.o \
 			 ./obj/VTMVAEvaluator.o ./obj/VTMVAEvaluator_Dict.o \
 			 ./obj/VTMVARunDataEnergyCut.o ./obj/VTMVARunDataEnergyCut_Dict.o \
+			 ./obj/VEnergyThreshold.o ./obj/VEnergyThreshold_Dict.o \
+			 ./obj/CEffArea.o ./obj/CEffArea_Dict.o \
 			 ./obj/VTMVARunDataZenithCut.o ./obj/VTMVARunDataZenithCut_Dict.o \
 			 ./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
 			 ./obj/VSkyCoordinatesUtilities.o ./obj/VUtilities.o \

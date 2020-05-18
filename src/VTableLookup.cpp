@@ -244,7 +244,9 @@ void VTableLookup::setMCTableFiles_forTableWriting( string itablefile, double iz
         
         //////////////////
         // TELESCOPE TYPES
-        for( iter_i_list_of_Tel_type = i_list_of_Tel_type.begin(); iter_i_list_of_Tel_type != i_list_of_Tel_type.end(); iter_i_list_of_Tel_type++ )
+        for( iter_i_list_of_Tel_type = i_list_of_Tel_type.begin(); 
+                iter_i_list_of_Tel_type != i_list_of_Tel_type.end();
+                ++iter_i_list_of_Tel_type )
         {
             // get telescope type
             ULong64_t t = iter_i_list_of_Tel_type->first;
@@ -331,7 +333,7 @@ void VTableLookup::setMCTableFiles_forTableWriting( string itablefile, double iz
                     for( unsigned int i = 0; i < fTableAzLowEdge.size(); i++ )
                     {
                         i_curDir->cd();
-                        sprintf( hname, "az_%d", i );
+                        sprintf( hname, "az_%u", i );
                         sprintf( htitle, "%.1f < az < %.1f", fTableAzLowEdge[i], fTableAzUpEdge[i] );
                         if( gDirectory->Get( hname ) )
                         {
@@ -781,7 +783,7 @@ void VTableLookup::fillLookupTable()
             unsigned int i_Tel_type_counter = 0;
             for( iter_i_list_of_Tel_type = i_list_of_Tel_type.begin();
                     iter_i_list_of_Tel_type != i_list_of_Tel_type.end();
-                    iter_i_list_of_Tel_type++ )
+                    ++iter_i_list_of_Tel_type )
             {
                 // get telescope type
                 ULong64_t t = iter_i_list_of_Tel_type->first;
@@ -942,8 +944,10 @@ void VTableLookup::readLookupTable()
         }
         
         // get zenith angle for first valid MC event from MC files
-        if( bFirst && fData->getMCEnergy() > 0.001 )
+        if( bFirst && fData->getMCEnergy() > 0.001
+          && fTLRunParameter->ze < 0. )
         {
+            cout << "\t\t setting IRF ze from first event" << endl;
             if( fNTel > 0 )
             {
                 fTLRunParameter->ze = TMath::Floor( ( 90. - fData->getTelElevation() ) + 0.5 );
@@ -1384,6 +1388,31 @@ void VTableLookup::readLookupTable()
                 }
             }
             fData->setNEnergyT( iNERS );
+            // energy quality
+            if( iNERS > 0 )
+            {
+                // good energy from 1 or more images
+                if( s_N->value_Chi2[E_EREC] >= 0. )
+                {
+                    if( iNERS > 1 )
+                    {
+                        fData->setNEnergyQuality( 0 );
+                    }
+                    else
+                    {
+                        fData->setNEnergyQuality( 1 );
+                    }
+                }
+                // no reconstructed total energy, 
+                else
+                {
+                    fData->setNEnergyQuality( -2 );
+                }
+            }
+            else
+            {
+                fData->setNEnergyQuality( -1 );
+            }
             // set mean reduced scaled widths and energies per telescope
             for( unsigned int j = 0; j < s_N->fNTel; j++ )
             {
@@ -1449,10 +1478,10 @@ void VTableLookup::interpolate( VTablesToRead* s1, double w1, VTablesToRead* s2,
         {
             s->value_Chi2[t] = VStatistics::interpolate( s1->value_Chi2[t], w1,
                                s2->value_Chi2[t], w2,
-                               w, iCos, 0.1 );
+                               w, iCos, 0. );
             s->value_dE[t] = VStatistics::interpolate( s1->value_dE[t], w1,
                              s2->value_dE[t], w2,
-                             w, iCos, 0.1 );
+                             w, iCos, 0. );
         }
         
         for( unsigned int i = 0; i < s1->fNTel; i++ )
@@ -1816,7 +1845,7 @@ void VTableLookup::getTables( unsigned int inoise, unsigned int ize,
     map< unsigned int, VTableCalculatorData* >::iterator iter_iLT_Data;
     
     unsigned int t = 0;
-    for( iter_iLT_Data = fTableData.begin(); iter_iLT_Data != fTableData.end(); iter_iLT_Data++ )
+    for( iter_iLT_Data = fTableData.begin(); iter_iLT_Data != fTableData.end(); ++iter_iLT_Data )
     {
         // lookup table data pointer
         VTableCalculatorData* iTableData = ( *iter_iLT_Data ).second;
@@ -1974,7 +2003,7 @@ bool VTableLookup::initialize()
         map< ULong64_t, double > i_pedvarlevel =  fData->getNoiseLevel_per_TelescopeType();
         map<ULong64_t, double >::iterator iList_of_Tel_type_iterator;
         for( iList_of_Tel_type_iterator = i_pedvarlevel.begin(); iList_of_Tel_type_iterator != i_pedvarlevel.end();
-                iList_of_Tel_type_iterator++ )
+                ++iList_of_Tel_type_iterator )
         {
             cout << " type " << iList_of_Tel_type_iterator->first << ": " << iList_of_Tel_type_iterator->second;
         }
@@ -2083,7 +2112,7 @@ void VTableCalculatorData::terminate( TFile* iFile )
                 {
                     for( unsigned w = 0; w < fTable[i][t][u][v].size(); w++ )
                     {
-                        sprintf( hname, "TEL %d NOISE %d ZE %d WOFF %d AZ %d", i + 1, t, u, v, w );
+                        sprintf( hname, "TEL %u NOISE %u ZE %u WOFF %u AZ %u", i + 1, t, u, v, w );
                         cout << "writing " << fDirectoryName << " tables for ";
                         cout << fTable[i][t][u][v][w]->getOutputDirectory()->GetMotherDir()->GetPath();
                         cout << " : " << hname << endl;

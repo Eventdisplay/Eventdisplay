@@ -3,12 +3,12 @@
 ## Prerequisites
 
 - ROOT must be installed 
-      version >= 6.14
-      To compile root, use '-Dbuiltin_cfitsio=ON -Dbuiltin_gsl=ON'
+  version >= 6.14
+  To compile root, use '-Dbuiltin_cfitsio=ON -Dbuiltin_gsl=ON'
 
-- SOFA library (http://www.iausofa.org/current_C.html) must be installed. Use the script in the $EVNDISPSYS directory:
+- SOFA library [http://www.iausofa.org/current_C.html] must be installed. Use the script in the $EVNDISPSYS directory:
 ```
- ./install_sofa.sh
+./install_sofa.sh
 ```
 Set the following environmental variable:  SOFASYS=$EVNDISPSYS/sofa
 
@@ -19,16 +19,16 @@ Set the following environmental variable:  SOFASYS=$EVNDISPSYS/sofa
 ### CTA analysis
 
 (2.0) HESSIO libraries needed for the analysis of CTA Monte Carlo can be found here:
-   http://www.mpi-hd.mpg.de/hfm/CTA/internal/MC/Software/
+   [http://www.mpi-hd.mpg.de/hfm/CTA/internal/MC/Software/]
 
    (note: this side is password protected, usual CTA details)
 
 ### Optional
 
-(3.0) for all FITS related output, cfitsio is needed (see http://heasarc.gsfc.nasa.gov/fitsio/)
+(3.0) for all FITS related output, cfitsio is needed (see [http://heasarc.gsfc.nasa.gov/fitsio/])
 
 (3.1) GSL libraries (needed for FROGS image template method; ROOT included gsl is fine)
-      http://www.gnu.org/software/gsl/
+      [http://www.gnu.org/software/gsl/]
 
 ## Environmental Variables
 
@@ -75,39 +75,44 @@ For VERITAS analysis, the following directories are needed:
 VERITAS_EVNDISP_AUX_DIR:  directory with all auxiliary data like calibration files, lookup tables, effective areas, etc
 VERITAS_DATA_DIR :        directory containing the raw telescope data or input simulation files 
 VERITAS_USER_DATA_DIR :   user data directory: containing output files from this analysis package (most of them in root format)
-VERITAS_IRFPRODUCTION_DIR : directory used in IRF production (not needed for 'normal' data analysis; ignore it if you don't know it)
+VERITAS_IRFPRODUCTION_DIR : directory used in IRF production (not needed for normal data analysis; ignore it if you do not know it)
 
 To switch settings for the different observatory (in the $EVNDISPSYS directory): 
-
-    ./setObservatory.sh CTA
+```
+./setObservatory.sh CTA
+```
 
 or
-
-    ./setObservatory.sh VERITAS
+```
+./setObservatory.sh VERITAS
+```
 
 # Compiling
 
 Check your system's configuration:
-
-    make config
-
+```
+make config
+```
 Compiling and installing:
 
 in $EVNDISPSYS:
 
 for VERITAS analysis type:
-
-    make VTS
+```
+make VTS
+```
 
 or, for CTA analysis type:
-
-    make CTA
+```
+make CTA
+```
 
 or, for CTA and VERITAS analysis type:
+```
+make all
+```
 
-    make all
-
-# Makefile targets
+## Makefile targets
 
 - all	make all executables and libraries
 - clean

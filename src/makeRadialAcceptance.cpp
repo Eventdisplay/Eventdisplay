@@ -42,6 +42,8 @@ bool   production_shortIO = false;
 // calculations (must be given in an anasum-style
 // runparameter file
 string exclusionregionfile = "";
+// target region excluded
+bool fRemoveTargetRegionFromAcceptanceFilling = true;
 
 
 ////////////////////////////////////////////////////////////////////
@@ -69,7 +71,7 @@ int main( int argc, char* argv[] )
     ///////////////////////////////////////////
     // print general stuff and version numbers
     cout << endl;
-    cout << "makeRadialAcceptance " << fRunPara->getEVNDISP_VERSION() << endl << endl;
+    cout << "makeRadialAcceptance (" << fRunPara->getEVNDISP_VERSION() << ")" << endl << endl;
     cout << "determine radial acceptance from off events (after cuts)" << endl;
     cout << endl;
     
@@ -82,8 +84,16 @@ int main( int argc, char* argv[] )
     // (note that exclusion regions per run are added later)
     if( exclusionregionfile.size() > 0 )
     {
-        cout << "reading exclusion regions from " << exclusionregionfile << endl;
+        cout << "Reading exclusion regions from " << exclusionregionfile << endl;
         fRunPara->readRunParameter( exclusionregionfile, true );
+    }
+    else
+    {
+       cout << "No exclusion regions defined" << endl;
+    }
+    if( fRemoveTargetRegionFromAcceptanceFilling )
+    {
+       cout << "Removing target region from radial acceptance filling" << endl;
     }
     
     ///////////////////////////////////////////
@@ -163,7 +173,17 @@ int main( int argc, char* argv[] )
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    
+    cout << "Max distance of events to camera centre: " << fMaxDistanceAllowed << " [deg]" << endl;
+    cout << "Instrument epoch is " << fInstrumentEpoch << endl;
+    cout << "Telescopes to analyse: " << teltoanastring << endl;
+    if( production_shortIO )
+    {
+        cout << "Write histograms required for production only" << endl;
+    }
+    else
+    {
+        cout << "Write long list of histograms" << endl;
+    }
     cout << "total number of files to read: " << fRunPara->fRunList.size() << endl;
     
     char ifile[1800];
@@ -174,7 +194,7 @@ int main( int argc, char* argv[] )
     if( fo->IsZombie() )
     {
         cout << "makeRadialAcceptances: error opening output file " << outfile << endl;
-        return 0;
+        exit( EXIT_FAILURE );
     }
     cout << endl << "open output file for acceptance curves: " << fo->GetName() << endl;
     TDirectory* facc_dir = ( TDirectory* )fo;
@@ -193,8 +213,9 @@ int main( int argc, char* argv[] )
         }
         else
         {
-            cout << "Error, directory specified by makeRadialAcceptance -w option '" << histdir << "' does not exist, exiting..." << endl;
-            return 0;
+            cout << "Error, directory specified by makeRadialAcceptance -w option '";
+            cout << histdir << "' does not exist, exiting..." << endl;
+            exit( EXIT_FAILURE );
         }
     }
     
@@ -222,7 +243,7 @@ int main( int argc, char* argv[] )
         {
             facc_dir->cd();
         }
-        sprintf( ifile, "az_%d", i );
+        sprintf( ifile, "az_%u", i );
         fDirName.push_back( ifile );
         sprintf( ifile, "AZ dependend radial acceptance, %.2f < az < %.2f", iAz_min[i], iAz_max[i] );
         fDirTitle.push_back( ifile );
@@ -232,7 +253,7 @@ int main( int argc, char* argv[] )
             facc_az_dir.back()->cd();
             facc_az.push_back( new VRadialAcceptance( fCuts, fRunPara ) );
             facc_az.back()->setAzCut( iAz_min[i], iAz_max[i] );
-            cout << "initializing AZ dependend radial acceptance class for ";
+            cout << "initializing azimuth dependend radial acceptance class for ";
             cout << iAz_min[i] << " < az <= " <<   iAz_max[i] << endl;
         }
     }
@@ -261,9 +282,9 @@ int main( int argc, char* argv[] )
         if( !d )
         {
             cout << "makeRadialAcceptance: no data tree defined: run " << fRunPara->fRunList[i].fRunOff << endl;
-            return 0;
+            exit( EXIT_FAILURE );
         }
-        // set reconstruction type (e.g. GEO, DISP, FROGS, ...
+        // set reconstruction type (e.g. GEO, DISP, ...)
         d->setReconstructionType( fCuts->fReconstructionType );
         
         /////////////////////////////////////
@@ -328,11 +349,20 @@ int main( int argc, char* argv[] )
                 -1.*fRunPara->fRunList[i].fWobbleWest,    // require wobble EAST
                 raJ2000_deg, decJ2000_deg );
                 
-        cout << "\tcamera centre at (ra,dec) J2000 : ( " << raJ2000_deg << ", " << decJ2000_deg << ")" << endl;
+        cout << "Camera centre at (ra,dec) J2000 : ( " << raJ2000_deg << ", " << decJ2000_deg << ")" << endl;
         ////////////////////////////////////////////
         // initialize exclusion regions
+
+        // exclude source direction
+        if( fRunPara->getExclusionRegions() )
+        {
+              fRunPara->getExclusionRegions()->addExclusionRegion( -1., -1.,
+                                       fRunPara->fRunList[i].fTargetRAJ2000, fRunPara->fRunList[i].fTargetDecJ2000,
+                                       0.25, 0.25, 0., "on source" );
+        }
         if( exclusionregionfile.size() > 0 )
         {
+            cout << "Exclusion regions: " << endl;
             double iMax = fMaxDistanceAllowed * 1.3;
             VStarCatalogue iStarCatalogue;
             iStarCatalogue.init( iMJD, fRunPara->getStarCatalogue() );
@@ -342,6 +372,13 @@ int main( int argc, char* argv[] )
                                                   raJ2000_deg, decJ2000_deg,
                                                   raJ2000_deg, decJ2000_deg );
             facc->setRegionToExcludeAcceptance( fRunPara->getExclusionRegions( i ) );
+            for( unsigned int a = 0; a < facc_az.size(); a++ )
+            {
+                 if( facc_az[a] )
+                 {
+                      facc_az[a]->setRegionToExcludeAcceptance( fRunPara->getExclusionRegions( i ) );
+                 }
+            }
         }
         
         if( fCuts )
@@ -382,7 +419,6 @@ int main( int argc, char* argv[] )
                 continue;
             }
             
-            
             ////////////////////////////////
             // fill acceptances
             
@@ -407,6 +443,17 @@ int main( int argc, char* argv[] )
         
         fDataFile.Close();
         facc->correctRadialAcceptancesForExclusionRegions( facc_dir, fRunPara->fRunList[i].fRunOff );
+        for( unsigned int a = 0; a < facc_az.size(); a++ )
+        {
+             if( facc_az[a] )
+             {
+                  if( facc_az[a] )
+                  {
+                      facc_az[a]->correctRadialAcceptancesForExclusionRegions( facc_az_dir[a],
+                                                                               fRunPara->fRunList[i].fRunOff );
+                  }
+             }
+        }
     }
     
     /////////////////////////////////////////
@@ -418,6 +465,7 @@ int main( int argc, char* argv[] )
     {
         if( facc_az[a] )
         {
+            facc_az[a]->calculateAverageRadialAcceptanceCurveFromRuns( facc_az_dir[a] );
             facc_az[a]->terminate( facc_az_dir[a] );
         }
     }
@@ -452,10 +500,11 @@ int parseOptions( int argc, char* argv[] )
             {"writehists", optional_argument, 0, 'w'},
             {"teltoana", required_argument, 0, 't'},
             {"productionIO", required_argument, 0, 'p'},
+            {"--remove_target", required_argument, 0, 'r'},
             {0, 0, 0, 0}
         };
         int option_index = 0;
-        int c = getopt_long( argc, argv, "ht:s:f:p:l:e:m:o:i:d:n:c:w:t:", long_options, &option_index );
+        int c = getopt_long( argc, argv, "ht:s:f:p:l:e:m:r:o:i:d:n:c:w:t:", long_options, &option_index );
         if( optopt != 0 )
         {
             cout << "error: unknown option" << endl;
@@ -496,6 +545,7 @@ int parseOptions( int argc, char* argv[] )
                 cout << "-e --entries [number of entries]" << endl;
                 cout << "-m --maxdist [max distance from camera centre (deg)]" << endl;
                 cout << "-w --writehists [directory]" << endl ;
+                cout << "-r --remove_target region from acceptance filling [default=true]" << endl;
                 cout << "-t --teltoana <telescopes>" << endl;
                 cout << "-p --productionIO [0/1] " << endl;
                 cout << "-f --exclusionregionfile [file with exclusion regions]" << endl;
@@ -520,21 +570,19 @@ int parseOptions( int argc, char* argv[] )
                 break;
             case 'c':
                 cutfilename = optarg;
-                cout << "Cut File Name is " << cutfilename << endl;
+                cout << "Cuts are taken from " << cutfilename << endl;
                 if( cutfilename == "IGNOREEFFECTIVEAREA" )
                 {
                      cout << "error: cannot read cuts (IGNOREEFFECTIVEAREA given)" << endl;
                      cout << "exiting..." << endl;
-                     exit( 0 );
+                     exit( EXIT_FAILURE );
                 }  
                 break;
             case 'm':
                 fMaxDistanceAllowed = atof( optarg );
-                cout << "Maximum allowed distance from camera centre: " << fMaxDistanceAllowed << endl;
                 break;
             case 'i':
                 fInstrumentEpoch = optarg;
-                cout << "Instrument epoch is " << fInstrumentEpoch << endl;
                 break;
             case 'e':
                 entries = ( int )atoi( optarg );
@@ -545,14 +593,14 @@ int parseOptions( int argc, char* argv[] )
                 break;
             case 't':
                 teltoanastring = optarg;
-                cout << "Telescopes to analyse: " << teltoanastring << endl;
                 break;
             case 'p':
                 production_shortIO = ( int )atoi( optarg );
-                cout << "Telescopes to analyse: " << teltoanastring << endl;
             case 'f':
                 exclusionregionfile = optarg;
-                cout << "File with exclusion regions: " << exclusionregionfile << endl;
+                break;
+            case 'r':
+                fRemoveTargetRegionFromAcceptanceFilling = (bool)atoi(optarg);
                 break;
             case '?':
                 break;

@@ -65,6 +65,8 @@ class VTMVAEvaluatorData : public TNamed
         double            fSourceStrengthAtOptimum_CU;
         double            fAngularContainmentRadius;
         double            fAngularContainmentFraction;
+        TH1D*             hSignalEfficiency;
+        TH1D*             hBackgroundEfficiency;
         
         TMVA::Reader*     fTMVAReader;                       //!
         
@@ -72,7 +74,7 @@ class VTMVAEvaluatorData : public TNamed
         ~VTMVAEvaluatorData() {}
         void print();
         
-        ClassDef( VTMVAEvaluatorData, 2 );
+        ClassDef( VTMVAEvaluatorData, 4 );
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -111,12 +113,15 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         double                      fTMVACutValueNoVec;
         TFile*                      fTMVACutValueFile;
         vector< TGraphAsymmErrors* > fTMVACutValueGraph;
+        vector< TGraphAsymmErrors* > fTMVASignalEfficencyGraph;
+        vector< TGraphAsymmErrors* > fTMVABackgroundEfficencyGraph;
         
         string                  fParticleNumberFileName;          // particle numbers are read from this file
         double                  fParticleNumberFile_Conversion_Rate_to_seconds;
         double                  fOptimizationSourceSignificance;
         double                  fOptimizationFixedSignalEfficiency;
         double                  fOptimizationMinSourceStrength;
+        double                  fOptimizationMaxSourceStrength;
         double                  fOptimizationMinSignalEvents;
         double                  fOptimizationMinBackGroundEvents;
         double                  fOptimizationBackgroundAlpha;
@@ -156,14 +161,6 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         float    fTheta2;
         float    fCoreDist;
         float    fImages_Ttype[VDST_MAXTELESCOPES];
-        //model3D below
-        float    fsigmaT3D;
-        float    fErrorsigmaT3D_log10;
-        float    fSmax3D;
-        float    fOmega3D;
-        float    fRWidth3D;
-        float    fErrRWidth3D;
-        float    fDepth3D;
         //disp below
         float    fDispDiff_log10;
         float    fDispDiff_gt0;
@@ -178,10 +175,11 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         unsigned int      fWeightFileIndex_Zmax;
         
         
-        TH1F*            getEfficiencyHistogram( string iName, TFile* iF, string iMethodTag_2 );
+        double           evaluateInterPolateMVA( double iErec_log10TeV, double iZe, unsigned int evaluateInterPolateMVA );
+        TH1D*            getEfficiencyHistogram( string iName, TFile* iF, string iMethodTag_2 );
         double           getMeanEnergyAfterCut( TFile* f, double iCut, unsigned int iDataBin );
         bool             optimizeSensitivity( unsigned int iDataBin, string iOptimizationType, string iEpoch = "noepoch" );
-        bool             optimizeSensitivity_using_qfactor( TH1F* effS, TH1F* effB,
+        bool             optimizeSensitivity_using_qfactor( TH1D* effS, TH1D* effB,
                 double& i_SignalEfficiency_AtMaximum,
                 double& i_BackgroundEfficiency_AtMaximum,
                 double& i_TMVACutValue_AtMaximum );
@@ -189,6 +187,9 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         double           getAverageDifferentialRateFromGraph2D( TObject* i_G, double i_e_min, double i_e_max, double i_ze_min, double i_ze_max );
         void             fillTMVAEvaluatorResults();
         unsigned int     getDataBin( double iErec_log10TeV, double iZe );
+        unsigned int     getDataBin( double iErec_log10TeV, unsigned int iZeBin );
+        vector< double > getDataBinWeights( double iErec_log10TeV, unsigned int iZeBin );
+        vector< double > getDataBinWeights( double iErec_log10TeV, double iZeBin );
         double           getSignalEfficiency( unsigned int iEbin, double iE_min, double iE_max,
                                               unsigned int iZbin, double iZ_min, double iZ_max, unsigned int iNCut, double iEnergyStepSize );
         double           getTMVACutValue( unsigned int iEnergyBin, double iE_min_log10, double iE_max_log10,
@@ -204,15 +205,33 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
                 double& i_AngularContainmentFraction );
         void             plotEfficiencyPlotsPerBin( unsigned int iBin,
                 TGraph* iGSignal_to_sqrtNoise, TGraph* iGSignal_to_sqrtNoise_Smooth,
-                TH1F* hEffS, TH1F* hEffB,
+                TH1D* hEffS, TH1D* hEffB,
                 TGraph* iGSignalEvents, TGraph* iGBackgroundEvents,
                 TGraph* iGOpt_AngularContainmentRadius, TGraph* iGOpt_AngularContainmentFraction,
                 bool bPlotContainmentFraction = false );
         TGraph*          readInterpolatedCountsFromFile( TFile* iF, double i_secant_min, double i_secant_max, bool bIsOn = true );
         double           readAverageCountsFromFile( TFile* iF, double i_e_min, double i_e_max, double i_ze_min, double i_ze_max, bool bIsOn = true );
         void             reset();
-        void             smoothAndInterpolateMVAValue( TH1F*, TH1F*, unsigned int iE_min, unsigned int iE_max,
+        string           setFullMVAFileName( string iWeightFileName,
+                                     unsigned intiWeightFileIndex_Emin, unsigned int i,
+                                     unsigned int iWeightFileIndex_Zmin, unsigned int j,
+                                     string fTMVAMethodName, int fTMVAMethodCounter,
+                                     string iInstrumentEpoch,
+                                     string iFileSuffix );
+        void             smoothAndInterpolateMVAValue( TH1D*, TH1D*, unsigned int iE_min, unsigned int iE_max,
                 unsigned int iZ_min, unsigned int iZ_max, double iEnergyStepSize );
+        TGraphAsymmErrors* fillSmoothedEfficencyGraph( TGraphAsymmErrors* g, unsigned int iZe, bool iSignalEff = true );
+        TGraphAsymmErrors* fillSmoothedMVACutGraph( TGraphAsymmErrors* g, unsigned int iZe );
+        TGraphAsymmErrors* smoothMVAGraph( TGraphAsymmErrors* g, 
+                                           double iCutGraphSmoothing = 0.25,
+                                           double iCutGraphSmoothingMax = 1.e5,
+                                           double iCutGraphConstantCutEnergy_TeV = 1.e5,
+                                           string iName = "", unsigned int iZe = 0 );
+        vector< TGraphAsymmErrors* > smoothSignalEfficiencyMVAGraph( TGraphAsymmErrors* g, 
+                                           double iCutGraphSmoothing = 0.25,
+                                           double iCutGraphSmoothingMax = 1.e5,
+                                           double iCutGraphConstantCutEnergy_TeV = 1.e5,
+                                           string iName = "", unsigned int iZe = 0 );
                 
     public:
     
@@ -226,6 +245,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         vector< double > getSignalEfficiency();
         double  getOptimalTheta2Cut( double iEnergy_log10TeV, double iZe = -9999 );
         vector< double > getTMVACutValue();
+        vector< TGraphAsymmErrors* > getTMVACutValueGraphs();
         VTMVAEvaluatorResults* getTMVAEvaluatorResults()
         {
             return fTMVAEvaluatorResults;
@@ -275,7 +295,9 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         }
         
         void   setSensitivityOptimizationFixedSignalEfficiency( double iOptimizationFixedSignalEfficiency = 1. );
-        void   setSensitivityOptimizationMinSourceStrength( double iOptimizationMinSourceStrength = 0.001 );
+        void   setSensitivityOptimizationSourceStrength( 
+                             double iOptimizationMinSourceStrength = 0.001,
+                             double iOptimizationMaxSourceStrength = 30. );
         void   setOptimizeAngularContainment( bool iO = false )
         {
             fTMVA_OptimizeAngularContainment = iO;
@@ -315,7 +337,9 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         void   setTMVACutValue( map< unsigned int, double > iMVA );
         vector< TGraphAsymmErrors* > setTMVACutValueFromGraph( string iFileName, 
                                                                double iCutGraphSmoothing = 0.25,
-                                                               double iCutGraphSmoothingMax = 1.e5 );
+                                                               double iCutGraphSmoothingMax = 1.e5,
+                                                               double iCutGraphConstantCutEnergy_TeV = 1.e5,
+                                                               bool iSmoothTMVAGraph = true );
         void   setTMVAErrorFraction( double iTMVAErrorFraction_min = 0.2 )
         {
             fTMVAErrorFraction_min = iTMVAErrorFraction_min;
@@ -327,7 +351,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         void   setTMVAMethod( string iMethodName = "BDT", int iMethodCounter = 0 );
         bool   writeOptimizedMVACutValues( string iRootFile );
         
-        ClassDef( VTMVAEvaluator, 44 );
+        ClassDef( VTMVAEvaluator, 50 );
 };
 
 #endif

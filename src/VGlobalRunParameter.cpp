@@ -73,7 +73,7 @@ bool VGlobalRunParameter::readRunparameterFile( string i_filename )
                 continue;
             }
             // print runparameter to stdout
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> temp;
                 if( temp == "OBSERVATORY" )
@@ -82,15 +82,15 @@ bool VGlobalRunParameter::readRunparameterFile( string i_filename )
                 }
                 else if( temp == "OBSERVATORY_COORDINATES" )
                 {
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> fObservatory_Latitude_deg;
                     }
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> fObservatory_Longitude_deg;
                     }
-                    if( !is_stream.eof() )
+                    if( !(is_stream>>std::ws).eof() )
                     {
                         is_stream >> fObservatory_Height_m;
                     }
@@ -271,6 +271,10 @@ bool VGlobalRunParameter::getEVNDISP_TREE_isShort( TTree* t )
     {
         return true;
     }
+    else if( !t->GetBranchStatus( "dataFormat" ) )
+    {
+        return true;
+    }
     
     return false;
 }
@@ -302,6 +306,7 @@ void VGlobalRunParameter::printGlobalRunParameter()
     cout << "EVNDISP.global.runparameter" << endl;
     cout << endl;
     cout << "VERSION " << fEVNDISP_VERSION << " (tree version " << fEVNDISP_TREE_VERSION << ")";
+    cout << endl;
     cout << "Observatory: " << fObservatory;
     if( TMath::Abs( fObservatory_Longitude_deg ) > 1.e-5
             && TMath::Abs( fObservatory_Latitude_deg ) > 1.e-5

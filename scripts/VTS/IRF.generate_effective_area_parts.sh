@@ -41,7 +41,7 @@ required parameters:
     optional parameters:
 
     [Analysis-Method]       select analysis method
-                            (TL, NN, FROGS, MODEL3D, see IRF.evndisp_MC.sh)
+                            (TL, NN, see IRF.evndisp_MC.sh)
 
 --------------------------------------------------------------------------------
 "
@@ -54,10 +54,10 @@ bash $(dirname "$0")"/helper_scripts/UTILITY.script_init.sh"
 [[ $? != "0" ]] && exit 1
 
 # EventDisplay version
-$EVNDISPSYS/bin/makeEffectiveArea --version  >/dev/null 2>/dev/null
+"$EVNDISPSYS"/bin/makeEffectiveArea --version  >/dev/null 2>/dev/null
 if (($? == 0))
 then
-    EDVERSION=`$EVNDISPSYS/bin/makeEffectiveArea --version | tr -d .`
+    EDVERSION=`"$EVNDISPSYS"/bin/makeEffectiveArea --version | tr -d .`
 else
     EDVERSION="g500"
 fi
@@ -89,14 +89,14 @@ if [[ -n "$VERITAS_IRFPRODUCTION_DIR" ]]; then
     ODIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/$SIMTYPE/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}_${ANAMETHOD}/"
 fi
 echo -e "Output files will be written to:\n $ODIR"
-mkdir -p $ODIR
-chmod g+w $ODIR
+mkdir -p "$ODIR"
+chmod g+w "$ODIR"
 
 # run scripts and output are written into this directory
 DATE=`date +"%y%m%d"`
 LOGDIR="$VERITAS_USER_LOG_DIR/$DATE/EFFAREA/${ZA}deg_${WOBBLE}wob_NOISE${NOISE}_${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}_${ANAMETHOD}_${RECID}/"
 echo -e "Log files will be written to:\n $LOGDIR"
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 #################################
 # template string containing the name of processed simulation root file
@@ -114,30 +114,32 @@ SUBSCRIPT="$EVNDISPSYS/scripts/VTS/helper_scripts/IRF.effective_area_parallel_su
 
 echo "Processing Zenith = $ZA, Noise = $NOISE, Wobble = $WOBBLE"
             
-echo $CUTSFILE
+echo "CUTSFILE: $CUTSFILE"
+echo "ODIR: $ODIR"
+echo "DATAFILE $MCFILE"
+echo "EFFFILE $EFFAREAFILE"
 # set parameters in run script
 FSCRIPT="$LOGDIR/EA.ID${RECID}.$DATE.MC-$(date +%s)"
 sed -e "s|OUTPUTDIR|$ODIR|" \
     -e "s|EFFFILE|$EFFAREAFILE|" \
     -e "s|DATAFILE|$MCFILE|" \
-    -e "s|ANALYSISMETHOD|$ANAMETHOD|" \
-    -e "s|GAMMACUTS|${CUTSFILE}|" $SUBSCRIPT.sh > $FSCRIPT.sh
+    -e "s|GAMMACUTS|$CUTSFILE|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
-chmod u+x $FSCRIPT.sh
-echo $FSCRIPT.sh
+chmod u+x "$FSCRIPT.sh"
+echo "$FSCRIPT.sh"
 
 # run locally or on cluster
-SUBC=`$EVNDISPSYS/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
+SUBC=`"$EVNDISPSYS"/scripts/VTS/helper_scripts/UTILITY.readSubmissionCommand.sh`
 SUBC=`eval "echo \"$SUBC\""`
 if [[ $SUBC == *"ERROR"* ]]; then
-    echo $SUBC
+    echo "$SUBC"
     exit
 fi
 if [[ $SUBC == *qsub* ]]; then
-    JOBID=`$SUBC $FSCRIPT.sh`
+    JOBID=`$SUBC "$FSCRIPT.sh"`
     echo "JOBID: $JOBID"
 elif [[ $SUBC == *parallel* ]]; then
-    echo "$FSCRIPT.sh &> $FSCRIPT.log" >> $LOGDIR/runscripts.dat
+    echo "$FSCRIPT.sh &> $FSCRIPT.log" >> "$LOGDIR/runscripts.dat"
 elif [[ "$SUBC" == *simple* ]]; then
     "$FSCRIPT.sh" | tee "$FSCRIPT.log"
 fi

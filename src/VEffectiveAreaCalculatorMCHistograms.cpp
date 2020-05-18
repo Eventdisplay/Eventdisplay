@@ -311,7 +311,7 @@ void VEffectiveAreaCalculatorMCHistograms::initializeHistograms( vector< double 
         iT_TH1D.clear();
         for( unsigned int j = 0; j < fVMinAz.size(); j++ )
         {
-            sprintf( hname, "hVVEmc_%d_%d", i, j );
+            sprintf( hname, "hVVEmc_%u_%u", i, j );
             iT_TH1D.push_back( new TH1D( hname, "", nbins, xmin, xmax ) );
             iT_TH1D.back()->SetXTitle( "energy_{MC} [TeV]" );
             iT_TH1D.back()->SetYTitle( "entries (weighted)" );
@@ -321,7 +321,7 @@ void VEffectiveAreaCalculatorMCHistograms::initializeHistograms( vector< double 
         
         for( unsigned int j = 0; j < fVMinAz.size(); j++ )
         {
-            sprintf( hname, "hVVEmcSWeight_%d_%d", i, j );
+            sprintf( hname, "hVVEmcSWeight_%u_%u", i, j );
             iT_TProfile.push_back( new TProfile( hname, "", nbins, xmin, xmax, 0., 1.e12 ) );
             iT_TProfile.back()->SetXTitle( "energy_{MC} [TeV]" );
             iT_TProfile.back()->SetYTitle( "spectral weight" );
@@ -332,7 +332,7 @@ void VEffectiveAreaCalculatorMCHistograms::initializeHistograms( vector< double 
     // unweighted histogram (for debugging purposes)
     for( unsigned int j = 0; j < fVMinAz.size(); j++ )
     {
-        sprintf( hname, "hVVEmc_%d", j );
+        sprintf( hname, "hVVEmc_%u", j );
         hVEmcUnWeighted.push_back( new TH1D( hname, "", nbins, xmin, xmax ) );
         hVEmcUnWeighted.back()->SetXTitle( "energy_{MC} [TeV]" );
         hVEmcUnWeighted.back()->SetYTitle( "entries (not weighted)" );

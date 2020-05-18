@@ -307,12 +307,11 @@ void VPointingDB::getDBMJDTime( string itemp, int& MJD, double& Time, bool bStri
         itemp.replace( itemp.find( ":" ), 1, "" );
         itemp.replace( itemp.find( ":" ), 1, "" );
     }
-    int y, m, d, h, min, s, ms, l;
-    double gMJD;
-    // get y, m, d
     
     try
     {
+        int y, m, d, h, min, s, ms, l;
+        double gMJD;
         y = atoi( itemp.substr( 0, 4 ).c_str() );
         m = atoi( itemp.substr( 4, 2 ).c_str() );
         d = atoi( itemp.substr( 6, 2 ).c_str() );
@@ -452,7 +451,7 @@ bool VPointingDB::readPointingFromVPMTextFile( string iDirectory )
         // test line for completeness (expect 11 columns)
         int nC = 0;
         istringstream is_streamT( is_line );
-        while( !is_streamT.eof() )
+        while( !(is_streamT>>std::ws).eof() )
         {
             is_streamT >> iTemp;
             nC++;
@@ -500,7 +499,7 @@ bool VPointingDB::readPointingFromVPMTextFile( string iDirectory )
 }
 
 /*
-    read calibrated (default) pointing monitor data from DB  (JG)
+    read calibrated (default) pointing monitor data from DB
 */
 bool VPointingDB::readPointingCalibratedVPMFromDB()
 {
@@ -714,15 +713,9 @@ bool VPointingDB::readPointingUncalibratedVPMFromDB()
     
     // hard-wired time bin (in sec) to check for VPM data //
     int tbinwidth = 10;
-    
     // hard-wired minimum fraction of run missing VPM data //
     double vpmrunfrac = 0.10;
-    
-    double timebin = 0;
-    if( tbinwidth != 0 )
-    {
-        timebin = ( fTimeRunStopp - fTimeRunStart ) / tbinwidth;
-    }
+    double timebin = ( fTimeRunStopp - fTimeRunStart ) / tbinwidth;
     
     double timelimit = timebin * vpmrunfrac;
     timebin = ( int )timebin;
@@ -730,11 +723,10 @@ bool VPointingDB::readPointingUncalibratedVPMFromDB()
     
     double starttime = startMJD * 86400.;
     int nbad = 0;
-    bool timegood;
     
     for( int k = 0; k < timebin; k++ )
     {
-        timegood = false;
+        bool timegood = false;
         
         for( uint32_t i = 0; i < VPMcalibratedPointing.size(); i++ )
         {

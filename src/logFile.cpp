@@ -28,8 +28,11 @@ void printHelp()
      cout << "\t ./logFile <log name> <root file>" << endl;
      cout << endl;
      cout << "\t examples are: " << endl;
+     cout << "\t\t convLog, evndispLog" << endl;
      cout << "\t\t makeTableLog, makeTableFileList" << endl;
+     cout << "\t\t smoothTableLog, mscwTableLog, mscwTableList" << endl;
      cout << "\t\t tmvaLog, tmvaRunparameter" << endl;
+     cout << "\t\t effAreaLog, effAreaCuts, effAreaParameters" << endl;
      cout << endl;
 }
 

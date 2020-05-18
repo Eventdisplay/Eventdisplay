@@ -159,11 +159,11 @@ map< ULong64_t, float > readCameraScalingMap( string iFile )
         {
             istringstream is_stream( iLine );
             is_stream >> iT1;
-            if( !is_stream.eof() )
+            if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iT1;
                 teltype = atoi( iT1.c_str() );
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iT1;
                     scaling = atof( iT1.c_str() );

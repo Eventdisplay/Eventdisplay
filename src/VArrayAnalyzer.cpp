@@ -106,6 +106,17 @@ void VArrayAnalyzer::doAnalysis()
     {
         getShowerParameters()->fArrayPointing_Elevation = getArrayPointing()->getTelElevation();
         getShowerParameters()->fArrayPointing_Azimuth   = getArrayPointing()->getTelAzimuth();
+        if( isMC() )
+        {
+            getShowerParameters()->fArrayPointing_deRotationAngle_deg = 0.;
+        }
+        else
+        {
+            getShowerParameters()->fArrayPointing_deRotationAngle_deg = 
+                         getArrayPointing()->getDerotationAngle( getShowerParameters()->MJD, getShowerParameters()->time )
+                         *  TMath::RadToDeg();
+
+        }
         getShowerParameters()->fWobbleNorth             = getArrayPointing()->getWobbleNorth();
         getShowerParameters()->fWobbleEast              = getArrayPointing()->getWobbleEast();
     }
@@ -113,6 +124,7 @@ void VArrayAnalyzer::doAnalysis()
     {
         getShowerParameters()->fArrayPointing_Elevation = 0.;
         getShowerParameters()->fArrayPointing_Azimuth   = 0.;
+        getShowerParameters()->fArrayPointing_deRotationAngle_deg = 0.;
         getShowerParameters()->fWobbleNorth = 0.;
         getShowerParameters()->fWobbleEast = 0.;
     }
@@ -296,7 +308,7 @@ void VArrayAnalyzer::calcTelescopePointing()
     // get the telescope pointing
     //////////////////////////////////////////////////////////////////////////////////////////////
     // MC readers
-    // source file is Grisu MC, MC DST, or MC Pe
+    // source file is Monte Carlo
     if( fReader->isMC() )
     {
         getArrayPointing()->setMC();
@@ -369,7 +381,6 @@ void VArrayAnalyzer::generateReducedPointingTreeData()
     
     int    iMJD  = TMath::Nint( MJDStart );
     double iTime = TimeStart ;
-    int    timeDur = 0 ;
     while( iMJD <= TMath::Nint( MJDStopp )  &&  iTime < TimeStopp )
     {
         // loop over run duration, 1 loop per second
@@ -395,7 +406,6 @@ void VArrayAnalyzer::generateReducedPointingTreeData()
         
         // fill pointing to tree in VArrayPointing
         getArrayPointing()->fillPntReduced() ;
-        timeDur += 1 ;
     }
 }
 
@@ -778,7 +788,6 @@ void VArrayAnalyzer::selectShowerImages( unsigned int iMeth )
         {
             cout << "VArrayAnalyzer::selectShowerImages error: invalid telescope counter: " << t << "\t" << iTelType << endl;
             exit( EXIT_FAILURE );
-            continue;
         }
         
         // apply array analysis cuts
@@ -1038,7 +1047,7 @@ int VArrayAnalyzer::rcs_method_0( unsigned int iMethod )
 bool VArrayAnalyzer::fillShowerCore( unsigned int iMeth, float ximp, float yimp )
 {
     // check validity
-    if( !isnormal( ximp ) || !isnormal( ximp ) )
+    if( !isnormal( ximp ) || !isnormal( yimp ) )
     {
         ximp = -99999.;
         yimp = -99999.;
@@ -1107,8 +1116,6 @@ bool VArrayAnalyzer::fillShowerCore( unsigned int iMeth, float ximp, float yimp 
 
 void VArrayAnalyzer::checkPointing()
 {
-    float iPointingDiff = 0.;
-    
     // there is no pointing available
     if( getNoPointing() )
     {
@@ -1140,7 +1147,7 @@ void VArrayAnalyzer::checkPointing()
             getShowerParameters()->fTelAzimuthVBF[i]   = getReader()->getArrayTrigger()->getAzimuth( ivbf );
             if( i < getPointing().size() && getPointing()[i] )
             {
-                iPointingDiff = ( float )VSkyCoordinatesUtilities::angularDistance( getPointing()[i]->getTelAzimuth() / TMath::RadToDeg(),
+                float iPointingDiff = ( float )VSkyCoordinatesUtilities::angularDistance( getPointing()[i]->getTelAzimuth() / TMath::RadToDeg(),
                                 ( 90. - getPointing()[i]->getTelElevation() ) / TMath::RadToDeg(),
                                 getReader()->getArrayTrigger()->getAzimuth( ivbf ) / TMath::RadToDeg(),
                                 ( 90. - getReader()->getArrayTrigger()->getAltitude( ivbf ) ) / TMath::RadToDeg() );
@@ -1155,7 +1162,8 @@ void VArrayAnalyzer::checkPointing()
                 // check pointing difference, abort if too large
                 if( getRunParameter()->fCheckPointing < 900. && iPointingDiff > getRunParameter()->fCheckPointing )
                 {
-                    cout << "VArrayAnalyzer::checkPointing() large mismatch between calculated telescope pointing direction and VBF pointing: " << iPointingDiff << " deg" << endl;
+                    cout << "VArrayAnalyzer::checkPointing() large mismatch between calculated telescope pointing direction and VBF pointing: ";
+                    cout << iPointingDiff << " deg" << endl;
                     cout << "\t calculated telescope pointing direction: ";
                     cout << getPointing()[i]->getTelAzimuth() << "\t" << getPointing()[i]->getTelElevation() << endl;
                     cout << "\t VBF telescope pointing direction:        ";
@@ -1216,15 +1224,8 @@ float VArrayAnalyzer::recalculateImagePhi( double iDeltaX, double iDeltaY )
     {
         i_phi = getImageParameters( getRunParameter()->fImageLL )->phi;
     }
-    // GEO and good LL fits
     else
     {
-        /*		float i_cen_x = getImageParameters( getRunParameter()->fImageLL )->cen_x + iDeltaX;
-        		float i_cen_y = getImageParameters( getRunParameter()->fImageLL )->cen_y + iDeltaY;
-        		float i_d = getImageParameters( getRunParameter()->fImageLL )->f_d;
-        		float i_s = getImageParameters( getRunParameter()->fImageLL )->f_s;
-        		float i_sdevxy  = getImageParameters( getRunParameter()->fImageLL )->f_sdevxy;
-        		i_phi = atan2( ( i_d + i_s ) * i_cen_y + 2.*i_sdevxy * i_cen_x, 2.*i_sdevxy * i_cen_y - ( i_d - i_s ) * i_cen_x ); */
         double xmean = getImageParameters( getRunParameter()->fImageLL )->cen_x + iDeltaX;
         double ymean = getImageParameters( getRunParameter()->fImageLL )->cen_y + iDeltaY;
         double d = getImageParameters( getRunParameter()->fImageLL )->f_d;
@@ -1629,12 +1630,11 @@ bool VArrayAnalyzer::fillShowerDirection( unsigned int iMethod, float xs, float 
     // (current epoch values)
     if( !fReader->isMC() )
     {
-        double iUTC = 0.;
         double xrot = 0.;
         double yrot = 0.;
         if( getArrayPointing() )
         {
-            iUTC = VSkyCoordinatesUtilities::getUTC( getShowerParameters()->MJD, getShowerParameters()->time );
+            double iUTC = VSkyCoordinatesUtilities::getUTC( getShowerParameters()->MJD, getShowerParameters()->time );
             getArrayPointing()->derotateCoords( iUTC, getShowerParameters()->fShower_Xoffset[iMethod],
                                                 -1.*getShowerParameters()->fShower_Yoffset[iMethod], xrot, yrot );
         }
@@ -1897,8 +1897,6 @@ int VArrayAnalyzer::rcs_method_5( unsigned int iMethod, unsigned int iDisp )
     ////////////////////////////////////////////////////
     prepareforDirectionReconstruction( iMethod, 5 );
     
-    float disp = 0.;
-    
     vector< float > v_disp;
     vector< float > v_weight;
     
@@ -1906,7 +1904,7 @@ int VArrayAnalyzer::rcs_method_5( unsigned int iMethod, unsigned int iDisp )
     for( unsigned int ii = 0; ii < m.size(); ii++ )
     {
         // calculate displacement from image values
-        disp = fDispAnalyzer[iMethod]->evaluate( width[ii], length[ii], asym[ii], dist[ii], w[ii], pedvar[ii], tgrad[ii],
+        float disp = fDispAnalyzer[iMethod]->evaluate( width[ii], length[ii], asym[ii], dist[ii], w[ii], pedvar[ii], tgrad[ii],
                 loss[ii], cen_x[ii], cen_y[ii], xoff_4, yoff_4,
                 teltype[ii], ze[ii], az[ii], true );
         v_disp.push_back( disp );

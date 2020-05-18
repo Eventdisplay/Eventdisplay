@@ -204,7 +204,7 @@ int main( int argc, char* argv[] )
     if( argc < 2 )
     {
         cout << "combine several tables from different files into one single table file" << endl << endl;
-        cout << "combineLookupTables <file with list of tables> <output file name> [do not copy woff_0500 directory (default = 0/1)] " << endl;
+        cout << "combineLookupTables <file with list of tables> <output file name> [do not copy woff_0500 directory (default = 0 = false)] " << endl;
         cout << endl;
         exit( EXIT_SUCCESS );
     }
@@ -385,6 +385,7 @@ void copyDirectory( TDirectory* source, const char* hx, unsigned int noise_from_
                     || iName.find( "Median" ) != string::npos
                     || iName.find( "mpv" ) != string::npos
                     || iName.find( "mean" ) != string::npos
+                    || iName.find( "nevents" ) != string::npos
               )
             {
                 adir->cd();

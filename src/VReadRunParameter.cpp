@@ -1427,7 +1427,7 @@ void VReadRunParameter::test_and_adjustParams()
     }
     
     // fRunPara->fImageLL: values between 0-2
-    if( fRunPara->fImageLL < 0 && fRunPara->fImageLL > 2 )
+    if( fRunPara->fImageLL < 0 || fRunPara->fImageLL > 2 )
     {
         cout << "warning: logl parameter out of range, setting it to 1" << endl;
         fRunPara->fImageLL = 1;
@@ -1999,7 +1999,7 @@ bool VReadRunParameter::readEpochsAndAtmospheres()
             {
                 continue;
             }
-            if( is_stream.eof() )
+            if( (is_stream>>std::ws).eof() )
             {
                 continue;
             }
@@ -2009,15 +2009,15 @@ bool VReadRunParameter::readEpochsAndAtmospheres()
             if( temp == "EPOCH" && fRunPara->fInstrumentEpoch == "noepoch" )
             {
                 string iTemp = "";
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> run_min;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> run_max;
                 }
@@ -2039,15 +2039,15 @@ bool VReadRunParameter::readEpochsAndAtmospheres()
                 double isec_min = 0.;
                 double imjd_max = 0.;
                 double isec_max = 0.;
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTemp;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> date_min;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> date_max;
                 }
@@ -2075,15 +2075,15 @@ bool VReadRunParameter::readEpochsAndAtmospheres()
                 string iEpoch = "";
                 string iTel = "";
                 string iGain = "";
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iEpoch;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iTel;
                 }
-                if( !is_stream.eof() )
+                if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iGain;
                 }
@@ -2109,7 +2109,7 @@ bool VReadRunParameter::readEpochsAndAtmospheres()
     if( fRunPara->fAtmosphereID <= 0 )
     {
         cout << "Error file reading epoch for summer/winter atmosphere from " << fRunPara->fEpochFile << endl;
-        cout << "\t no corresponding epoch fine. Exiting..." << endl;
+        cout << "\t no corresponding epoch found. Exiting..." << endl;
         exit( EXIT_FAILURE );
     }
     
