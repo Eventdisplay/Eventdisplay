@@ -678,6 +678,13 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     {
         calcEmissionHeights();
     }
+    else
+    {
+        fEmissionHeightMean = 0.;
+        fEmissionHeightChi2 = 0.;
+        fNTelPairs = 0;
+    }
+        
     
     //////////////////////////////////////////////////////////
     // !!! SPECIAL AND EXPERT USAGE ONLY !!!
