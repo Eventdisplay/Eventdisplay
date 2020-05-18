@@ -175,7 +175,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     dataloader->AddVariable( "fui"  , 'F' );
     if( iTargetBDT == "BDTDispEnergy" )
     {
-        dataloader->AddVariable( "EHeight", 'F' );
+//        dataloader->AddVariable( "EHeight", 'F' );
         dataloader->AddVariable( "Rcore", 'F' );
     }
     // spectators
@@ -872,7 +872,8 @@ int main( int argc, char* argv[] )
     string       iDataDirectory = "";
     string       iLayoutFile = "";
     string       iQualityCut = "size>1.&&ntubes>4.&&width>0.&&width<2.&&length>0.&&length<10.";
-    iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&EHeight<100.&&Rcore<2000.";
+    //iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&EHeight<100.&&Rcore<2000.";
+    iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&Rcore<2000.";
     if( argc >=  7 )
     {
         iTargetBDT =       argv[6]   ;
