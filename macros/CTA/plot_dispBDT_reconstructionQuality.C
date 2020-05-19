@@ -766,11 +766,12 @@ void plot_dispBDT_reconstructionQuality( string iDispType = "BDTDispEnergy",
      else
      {
          iFileName.str( "" );
-         iFileName << "BDTdisp.Nb.3AL4-BN15.T" << iPlotSingleHistograms << "/" << iDispType << "/0deg/";
+         // iFileName << "BDTdisp.Nb.3AL4-BN15.T" << iPlotSingleHistograms << "/" << iDispType << "/0deg/";
+         iFileName << "BDTdisp.S.3HB9-FG.T" << iPlotSingleHistograms << "/" << iDispType << "/0deg/";
          fDataDir.push_back( iFileName.str() );
 
          iFileName.str( "" );
-         iFileName << "BDTdisp.Nb.3AL4-BN15.T" << iPlotSingleHistograms;
+         iFileName << "BDTdisp.S.3HB9-FG.T" << iPlotSingleHistograms;
          fDataName.push_back( iFileName.str() );
      }
 
