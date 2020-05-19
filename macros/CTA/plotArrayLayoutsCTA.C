@@ -40,6 +40,7 @@ class VPlotCTAArrayLayout_TelescopeList
         int       fTelID_hyperArray;
         float     fTel_x;
         float     fTel_y;
+        float     fTel_z;
         int       fMarkerColor;
         float     fMarkerSize;
         int       fMarkerType;
@@ -116,11 +117,11 @@ class VPlotCTAArrayLayout
                                 string drawTelescopeNumbers = "prodID", string iMCProduction = "prod3b" );
         bool     readArrayFromRootFile( string iFile, bool iprod3 = true, double iEasting = 0., double iNorthing = 0. );
         bool     readArrayFromShortTXTFile( string iFile, double iEasting = 0., double iNorthing = 0. );
-        bool     readArrayFromTXTFile( string iFile, bool KBStyle = true );
+        bool     readArrayFromTXTFile( string iFile );
         void     printArrayCosts( bool iNorth = false, bool iShort = false );
         void     plotFixedCostMSTSST( float iTotalSum );
         void     plotFixedNorth( float iTotalSum, int iNLSTs_north, int iNMSTs_north );
-        void     printListOfTelescopes( bool iShort = false );
+        void     printListOfTelescopes( int iShort = 0, double dx = 0., double dy = 0. );
         void     printTelescopeDistances( int iTelID, float iDistanceMax = 1.e99 );
         void     plotTelescopeDistances( string iname = "A", double i_max = 300. );
         bool     printTelescopeIDs_for_differentHyperArray( string iFile );
@@ -142,8 +143,16 @@ VPlotCTAArrayLayout::VPlotCTAArrayLayout()
  * print list of available telescope
  *
  * (either full list for subarray list (if filled))
+ *
+ * iMode = 0: full printout of all values
+ * iMode = 1: short list
+ * iMode = 3: ecsv type printout (only data, no header)
+ * iMode = 4: ecsv file list (CORSIKA coordinates)
+ * iMode = 5: list of telescopes in yaml format
+ *
+ * dx and dy are shifts of the telescope positions
 */
-void VPlotCTAArrayLayout::printListOfTelescopes( bool bShort )
+void VPlotCTAArrayLayout::printListOfTelescopes( int iMode, double dx, double dy )
 {
     vector< VPlotCTAArrayLayout_TelescopeList* > iPrintList;
     if( fTelescopeList_subArray.size() == 0 )
@@ -154,57 +163,66 @@ void VPlotCTAArrayLayout::printListOfTelescopes( bool bShort )
     {
         iPrintList = fTelescopeList_subArray;
     }
-    if( !bShort )
+    if( iMode == 0 )
     {
         for( unsigned int i = 0; i < iPrintList.size(); i++ )
         {
-            cout << "Telescope " << i << " ID: " << iPrintList[i]->fTelID;
+            cout << "Telescope " << i << " (ID: " << iPrintList[i]->fTelID;
             // print hyper-array ID only if different from nominal ID
             if( iPrintList[i]->fTelID_hyperArray != iPrintList[i]->fTelID )
             {
                 cout << " (HA " << iPrintList[i]->fTelID_hyperArray << ")";
             }
-            cout << " (" << iPrintList[i]->fTelIDName << ")";
-            cout << ", type " << iPrintList[i]->fTelType << " (" << iPrintList[i]->fTelTypeName << ")";
-            cout << ", [" << iPrintList[i]->fTel_x << "," << iPrintList[i]->fTel_y << "]";
-            cout << " " << iPrintList[i]->fTelIDName;
+            cout << "\t" << iPrintList[i]->fTelIDName;
+            cout << "\t type " << iPrintList[i]->fTelType << " (" << iPrintList[i]->fTelTypeName << ")";
+            cout << "\t" << iPrintList[i]->fTel_x - dx << "\t" << iPrintList[i]->fTel_y + dy;
+            cout << "\t" << iPrintList[i]->fTelIDName;
             cout << endl;
         }
     }
-    else
+    else if( iMode == 1 )
     {
         for( unsigned int i = 0; i < iPrintList.size(); i++ )
         {
             cout << "Telescope " << i + 1;
-            if( iPrintList[i]->fTelTypeName.find( "SST" ) != string::npos )
-            {
-                cout << " (SST): ";
-            }
-            else if( iPrintList[i]->fTelTypeName.find( "MST" ) != string::npos )
-            {
-                cout << " (MST): ";
-            }
-            else
-            {
-                cout << " (LST): ";
-            }
-            if( TMath::Abs( iPrintList[i]->fTel_x ) < 0.01 )
-            {
-                cout <<  " x = 0 m, ";
-            }
-            else
-            {
-                cout << " x = " << iPrintList[i]->fTel_x << " m, ";
-            }
-            if( TMath::Abs( iPrintList[i]->fTel_y ) < 0.01 )
-            {
-                cout <<  " y = 0 m" << endl;
-            }
-            else
-            {
-                cout << "y = " << iPrintList[i]->fTel_y << " m" << endl;
-            }
+            cout << "\t" << iPrintList[i]->fTelIDName;
+            cout << "\t" << setprecision(2) << fixed << setw(8);
+            cout << iPrintList[i]->fTel_x - dx;
+            cout << "\t" << iPrintList[i]->fTel_y + dy;
+            cout << "\t" << iPrintList[i]->fTel_z << endl;
         }
+    }
+    else if( iMode == 4 )
+    {
+        // note! corsika coordinates
+        string separator = "    ";
+        // header
+        cout << "telescope_name" << separator;
+        cout << "pos_x" << separator;
+        cout << "pos_y" << separator;
+        cout << "pos_z" << separator;
+        cout << "prod3b_mst_N";
+        cout << endl;
+        // data
+        for( unsigned int i = 0; i < iPrintList.size(); i++ )
+        {
+            cout << iPrintList[i]->fTelIDName << separator << setw(8);
+            cout << iPrintList[i]->fTel_y + dy << separator << setw(8);
+            cout << -1.*iPrintList[i]->fTel_x + dx << separator << setw(8);
+            cout << iPrintList[i]->fTel_z << separator << setw(8);
+            cout << iPrintList[i]->fTelID << separator;
+            cout << endl;
+        }
+    }
+    else if( iMode == 5 )
+    {
+        cout << "[";
+        for( unsigned int i = 0; i < iPrintList.size(); i++ )
+        {
+            cout << iPrintList[i]->fTelIDName;
+            if( i != iPrintList.size()-1 ) cout << ", ";
+        }
+        cout << "]" << endl;
     }
 }
 
@@ -490,9 +508,9 @@ bool VPlotCTAArrayLayout::readArrayFromShortTXTFile( string iFile, double iEasti
 
 /*
  * read list of telescope from an ASCII file
- * (KB style)
+ *
  */
-bool VPlotCTAArrayLayout::readArrayFromTXTFile( string iFile, bool KBStyle )
+bool VPlotCTAArrayLayout::readArrayFromTXTFile( string iFile )
 {
     fTelescopeList.clear();
     fTelescopeList_subArray.clear();
@@ -527,27 +545,15 @@ bool VPlotCTAArrayLayout::readArrayFromTXTFile( string iFile, bool KBStyle )
         
         istringstream is_stream( i_line );
         
-        if( KBStyle )
-        {
-            for( unsigned int t = 0; t < 5; t++ )
-            {
-                is_stream >> itemp;
-            }
-        }
         fTelescopeList.back()->fTelID = z + 1;
         fTelescopeList.back()->fTelID_hyperArray = fTelescopeList.back()->fTelID;
         z++;
         // from north is right
+        is_stream >> fTelescopeList.back()->fTelIDName;
         is_stream >> fTelescopeList.back()->fTel_y;
         is_stream >> fTelescopeList.back()->fTel_x;
         fTelescopeList.back()->fTel_x *= -1.;
-        if( KBStyle )
-        {
-            is_stream >> itemp;
-            is_stream >> itemp;
-        }
-        is_stream >> itemp;
-        if( itemp.find( "LST" ) != string::npos )
+        if( fTelescopeList.back()->fTelIDName.find( "L" ) != string::npos )
         {
             fTelescopeList.back()->fTelTypeName = "23m-LST";
             fTelescopeList.back()->fMarkerColor = 2;
@@ -555,7 +561,7 @@ bool VPlotCTAArrayLayout::readArrayFromTXTFile( string iFile, bool KBStyle )
             fTelescopeList.back()->fMarkerType = 24;
             continue;
         }
-        else if( itemp.find( "MST" ) != string::npos )
+        else if( fTelescopeList.back()->fTelIDName.find( "M" ) != string::npos )
         {
             fTelescopeList.back()->fTelTypeName = "12m-MST";
             fTelescopeList.back()->fMarkerColor = 1;
@@ -563,7 +569,7 @@ bool VPlotCTAArrayLayout::readArrayFromTXTFile( string iFile, bool KBStyle )
             fTelescopeList.back()->fMarkerType = 21;
             continue;
         }
-        else if( itemp.find( "SST" ) != string::npos )
+        else if( fTelescopeList.back()->fTelIDName.find( "S" ) != string::npos )
         {
             fTelescopeList.back()->fTelTypeName = "SST";
             fTelescopeList.back()->fMarkerColor = 4;
@@ -604,6 +610,7 @@ bool VPlotCTAArrayLayout::readArrayFromRootFile( string iFile, bool iprod3, doub
     
     float iTelX = 0.;
     float iTelY = 0.;
+    float iTelZ = 0.;
     ULong64_t iTelType = 0;
     int iTelID = 0;
     unsigned int iTelIDHA = 0;
@@ -622,6 +629,7 @@ bool VPlotCTAArrayLayout::readArrayFromRootFile( string iFile, bool iprod3, doub
     
     t->SetBranchAddress( "TelX", &iTelX );
     t->SetBranchAddress( "TelY", &iTelY );
+    t->SetBranchAddress( "TelZ", &iTelZ );
     
     for( int i = 0; i < t->GetEntries(); i++ )
     {
@@ -638,6 +646,7 @@ bool VPlotCTAArrayLayout::readArrayFromRootFile( string iFile, bool iprod3, doub
         }
         fTelescopeList.back()->fTel_x = iTelX;
         fTelescopeList.back()->fTel_y = iTelY;
+        fTelescopeList.back()->fTel_z = iTelZ;
         
         fTelescopeList.back()->fTel_x -= iEasting;
         fTelescopeList.back()->fTel_y -= iNorthing;
@@ -963,12 +972,18 @@ TCanvas* VPlotCTAArrayLayout::plot_array( string iname, double xmax, double ymax
                  getTelTypeNumber( "MSCT" ) );
                  
     }
-    else
+    else if( getTelTypeNumber( "SST" ) > 0 )
     {
         sprintf( hname, "#LSTs: %u #MSTs: %u #SSTs: %u",
                  getTelTypeNumber( "LST" ),
                  getTelTypeNumber( "MST" ),
                  getTelTypeNumber( "SST" ) );
+    }
+    else
+    {
+        sprintf( hname, "#LSTs: %u #MSTs: %u",
+                 getTelTypeNumber( "LST" ),
+                 getTelTypeNumber( "MST" ) );
     }
     TText* iTT = new TText( -1.*0.9 * xmax, -0.9 * ymax, hname );
     iTT->SetTextSize( 0.020 );
