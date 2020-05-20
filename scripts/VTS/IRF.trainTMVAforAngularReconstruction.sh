@@ -2,7 +2,7 @@
 # submit TMVA training for angular reconstruction
 
 # qsub parameters
-h_cpu=11:29:00; h_vmem=8000M; tmpdir_size=10G
+h_cpu=03:59:00; h_vmem=8000M; tmpdir_size=10G
 
 if [[ $# != 5 ]]; then
 # begin help message

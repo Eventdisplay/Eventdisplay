@@ -12,10 +12,14 @@ BDTTARGET=BDTMETHOD
 # train
 rm -f "$ODIR/$ONAME*"
 
+ls "$INDIR"/*[0-9].root > INPUTLIST.txt
+
 # fraction of events to use for training,
 # remaining events will be used for testing
 TRAINTESTFRACTION=0.5
 
-"$EVNDISPSYS"/bin/trainTMVAforAngularReconstruction "$INDIR/*[0-9].root" "$ODIR" "$TRAINTESTFRACTION" 0 1 "$BDTTARGET" > "$ODIR/$ONAME.log"
+"$EVNDISPSYS"/bin/trainTMVAforAngularReconstruction INPUTLIST.txt "$ODIR" "$TRAINTESTFRACTION" 0 1 "$BDTTARGET" > "$ODIR/$ONAME.log"
+
+rm INPUTLIST.txt
 
 exit
