@@ -27,6 +27,8 @@ required parameters:
     
     <sim type>              simulation type (e.g. GRISU, CARE)
     
+    <BDT target>			train for BDTDisp (angular reconstruction) or BDTDispEnergy (energy reconstruction)  (default BDTDisp)
+    
 --------------------------------------------------------------------------------
 "
 #end help message
@@ -45,14 +47,15 @@ EPOCH=$1
 ATM=$2
 ZA=$3
 NOISE=$4
-WOBBLE="0.5"
+WOBBLE="0.0"
 RECID="0"
 SIMTYPE=$5
 PARTICLE_TYPE="gamma"
+[[ "${6}" ]] && BDTTARGET=${6}  || BDTTARGET="BDTDisp"
 
 # input directory containing evndisp products
 if [[ -n "$VERITAS_IRFPRODUCTION_DIR" ]]; then
-    INDIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/$SIMTYPE/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}_TL5035MA20/ze${ZA}deg_offset${WOBBLE}deg_NSB${NOISE}MHz"
+    INDIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/$SIMTYPE/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}_TL/fullcamera/ze${ZA}deg_offset${WOBBLE}deg_NSB${NOISE}MHz"
 fi
 if [[ ! -d $INDIR ]]; then
     echo -e "Error, could not locate input directory. Locations searched:\n $INDIR"
@@ -62,7 +65,7 @@ echo "Input file directory: $INDIR"
 
 # Output file directory
 if [[ -n "$VERITAS_IRFPRODUCTION_DIR" ]]; then
-    ODIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/$SIMTYPE/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}/TMVA_AngularReconstruction/ze${ZA}deg_offset${WOBBLE}deg/"
+    ODIR="$VERITAS_IRFPRODUCTION_DIR/$EDVERSION/$SIMTYPE/${EPOCH}_ATM${ATM}_${PARTICLE_TYPE}_TL/TMVA_AngularReconstruction/ze${ZA}deg_offset${WOBBLE}deg/"
 fi
 echo -e "Output files will be written to:\n $ODIR"
 mkdir -p "$ODIR"
@@ -86,6 +89,7 @@ echo "Processing Zenith = $ZA, Noise = $NOISE, Wobble = $WOBBLE"
 FSCRIPT="$LOGDIR/TA.ID${RECID}.${EPOCH}.$DATE.MC"
 sed -e "s|OUTPUTDIR|$ODIR|" \
     -e "s|EVNDISPFILE|$INDIR|" \
+    -e "s|BDTMETHOD|$BDTTARGET|" \
     -e "s|BDTFILE|$BDTFILE|" "$SUBSCRIPT.sh" > "$FSCRIPT.sh"
 
 chmod u+x "$FSCRIPT.sh"

@@ -8,7 +8,7 @@ source "$EVNDISPSYS"/setObservatory.sh VTS
 INDIR=EVNDISPFILE
 ODIR=OUTPUTDIR
 ONAME=BDTFILE
-
+BDTTARGET=BDTMETHOD
 # train
 rm -f "$ODIR/$ONAME*"
 
@@ -16,6 +16,6 @@ rm -f "$ODIR/$ONAME*"
 # remaining events will be used for testing
 TRAINTESTFRACTION=0.5
 
-"$EVNDISPSYS"/bin/trainTMVAforAngularReconstruction "$INDIR/*[0-9].root" "$ODIR" "$ONAME" "$TRAINTESTFRACTION" > "$ODIR/$ONAME.log"
+"$EVNDISPSYS"/bin/trainTMVAforAngularReconstruction "$INDIR/*[0-9].root" "$ODIR" "$TRAINTESTFRACTION" 0 1 "$BDTTARGET" > "$ODIR/$ONAME.log"
 
 exit
