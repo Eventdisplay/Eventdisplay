@@ -12,6 +12,7 @@ BDTTARGET=BDTMETHOD
 # train
 rm -f "$ODIR/$ONAME*"
 
+# generate list for input files
 ls "$INDIR"/*[0-9].root > INPUTLIST.txt
 
 # fraction of events to use for training,

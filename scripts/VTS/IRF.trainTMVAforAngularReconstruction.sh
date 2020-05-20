@@ -4,7 +4,7 @@
 # qsub parameters
 h_cpu=03:59:00; h_vmem=8000M; tmpdir_size=10G
 
-if [[ $# != 5 ]]; then
+if [[ $# -lt 5 ]]; then
 # begin help message
 echo "
 TMVA (BDT) training for angular resolution from MC ROOT files for different zenith angle bins
@@ -27,7 +27,7 @@ required parameters:
     
     <sim type>              simulation type (e.g. GRISU, CARE)
     
-    <BDT target>			train for BDTDisp (angular reconstruction) or BDTDispEnergy (energy reconstruction)  (default BDTDisp)
+    <BDT target>            train for BDTDisp (angular reconstruction) or BDTDispEnergy (energy reconstruction)  (default BDTDisp)
     
 --------------------------------------------------------------------------------
 "
