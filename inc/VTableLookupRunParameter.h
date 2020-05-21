@@ -130,6 +130,7 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         // NSB (pedvars) level
         int fNoiseLevel;
         // cuts applied for table filling
+        bool         fTableFilling_useStereoMCParameter;
         unsigned int fTableFillingCut_NImages_min;
         double       fTableFillingCut_WobbleCut_max;
         double       fMC_distance_to_cameracenter_min;
@@ -187,6 +188,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         void print( int iB = 0 );
         void printHelp();
         
-        ClassDef( VTableLookupRunParameter, 46 ); //for any changes to this file: increase this number
+        ClassDef( VTableLookupRunParameter, 47 ); //for any changes to this file: increase this number
 };
 #endif

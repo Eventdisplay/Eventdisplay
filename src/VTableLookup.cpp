@@ -481,6 +481,11 @@ void VTableLookup::setMCTableFiles_forTableReading( string itablefile, string is
         vector< string > iDNameTel = getSortedListOfDirectories( fLookupTableFile );
         for( unsigned int t = 0; t < iDNameTel.size(); t++ )
         {
+            // skip debug directories
+            if( iDNameTel[t].find( "makeTable" ) != string::npos )
+            {
+                continue;
+            }
             fLookupTableFile->cd( iDNameTel[t].c_str() );
             fTableTelTypes.push_back( ( ULong64_t )( atoi )( iDNameTel[t].substr( 4, iDNameTel[t].size() ).c_str() ) );
             
@@ -790,12 +795,12 @@ void VTableLookup::fillLookupTable()
                 
                 // arrays for size and distance
                 double* i_s2        = fData->getSize2( 1., t, fTLRunParameter->fUseSelectedImagesOnly );
-                double* i_r         = fData->getDistanceToCore( t );
+                double* i_r         = fData->getDistanceToCore( t, fTLRunParameter->fTableFilling_useStereoMCParameter );
                 double* i_l         = fData->getLoss( t );
                 double* i_d         = fData->getDistance( t );
                 // number of telescope of this particular type
                 unsigned int iN_type = fData->getNTel_type( t );
-                
+
                 ////////////////////////////////////////////////
                 // for zenith-angle == 0 deg fill all az bins
                 if( fabs( fData->getMCZe() ) < 3. )

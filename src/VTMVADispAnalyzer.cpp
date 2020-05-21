@@ -101,7 +101,7 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         //		fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "cross", &fcross );
         if( fDispType == "BDTDispEnergy" )
         {
-            fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "EHeight", &fEHeight );
+//            fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "EHeight", &fEHeight );
             fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "Rcore", &fRcore );
         }
         // spectators
@@ -116,6 +116,13 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         ostringstream iFileName;
         iFileName << iFile << fTelescopeTypeList[i] << ".weights.xml";
         cout << "initializing TMVA disp analyzer: " <<  iFileName.str() << endl;
+        // check that TMVA file exists
+        ifstream i_temp_TMVAFILE( iFileName.str().c_str() );
+        if( !i_temp_TMVAFILE.good() )
+        {
+            bZombie = true;
+            return;
+        }
         if( !fTMVAReader[fTelescopeTypeList[i]]->BookMVA( "BDTDisp", iFileName.str().c_str() ) )
         {
             cout << "VTMVADispAnalyzer initializion error: xml weight file not found:" << endl;
@@ -158,7 +165,14 @@ float VTMVADispAnalyzer::evaluate( float iWidth, float iLength, float iSize, flo
     fAz = iAz;
     // %%@^#%!@(#
     // fcross = sqrt( ( icen_y - yoff_4 ) * ( icen_y - yoff_4 ) + ( icen_x - xoff_4 ) * ( icen_x - xoff_4 ) );
-    fcross = sqrt( ( icen_y + yoff_4 ) * ( icen_y + yoff_4 ) + ( icen_x - xoff_4 ) * ( icen_x - xoff_4 ) );
+    if( yoff_4 > -999. && xoff_4 > -999. )
+    {
+        fcross = sqrt( ( icen_y + yoff_4 ) * ( icen_y + yoff_4 ) + ( icen_x - xoff_4 ) * ( icen_x - xoff_4 ) );
+    }
+    else
+    {
+        fcross = 0.;
+    }
     
     fLoss = iLoss;
     fAsymm = iAsymm;

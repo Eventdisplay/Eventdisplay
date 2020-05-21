@@ -239,8 +239,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "migration matrix, fine binning",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
+                        500, -2.3, 2.7,
                         500, -2.3, 2.7, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrixQC,
                         "migration matrix, after quality cuts",
@@ -254,8 +253,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "migration matrix, fine binning",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
+                        500, -2., 2.7,
                         500, -2.3, 2.7, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrixNoDirectionCut,
                         "migration matrix",
@@ -269,8 +267,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "migration matrix, fine binning",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
+                        500, -2., 2.7,
                         500, -2.3, 2.7, "" );
     
     // log angular difference histogram (vs true energy)

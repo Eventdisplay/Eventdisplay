@@ -10,6 +10,8 @@
 VSimpleStereoReconstructor::VSimpleStereoReconstructor()
 {
     initialize();
+    fTelElevation = 0.;
+    fTelAzimuth   = 0.;
     reset();
 }
 
@@ -28,8 +30,6 @@ void VSimpleStereoReconstructor::initialize( unsigned int iNImages_min,
 
 void VSimpleStereoReconstructor::reset()
 {
-    fTelElevation = 0.;
-    fTelAzimuth   = 0.;
     
     fiangdiff = 0.;
     fShower_Xoffset = -9999.;
@@ -76,6 +76,10 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
         double* img_length,
         double* img_weight )
 {
+    // telescope pointings
+    fTelElevation = iArrayElevation;
+    fTelAzimuth   = iArrayAzimuth;
+
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
@@ -85,10 +89,6 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
         reset();
         return false;
     }
-    
-    // telescope pointings
-    fTelElevation = iArrayElevation;
-    fTelAzimuth   = iArrayAzimuth;
     
     float xs = 0.;
     float ys = 0.;
@@ -373,7 +373,7 @@ bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
     }
     fShower_Ze = ze;
     fShower_Az = VSkyCoordinatesUtilities::adjustAzimuthToRange( az );
-    
+
     return true;
 }
 

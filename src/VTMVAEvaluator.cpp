@@ -3802,25 +3802,39 @@ string VTMVAEvaluator::setFullMVAFileName( string iWeightFileName,
                                      string iFileSuffix )
 {
       ostringstream iFileName;
+      ostringstream iFileNamev2;
 
       iFileName << iWeightFileName << "_Ebin" << iWeightFileIndex_Emin + i;
+      iFileNamev2 << iWeightFileName << "_" << iWeightFileIndex_Emin + i;
       // backwards compatibility with pre-2018 CTA training
       if( iInstrumentEpoch != "noepoch" && iInstrumentEpoch != "CTA" )
       {
           iFileName << "_Zebin" << iWeightFileIndex_Zmin + j;
+          iFileNamev2 << "_Zebin" << iWeightFileIndex_Zmin + j;
       }
       if( iFileSuffix.find( "xml" ) != string::npos )
       {
           iFileName << "_" << fTMVAMethodName << "_" << fTMVAMethodCounter;
+          iFileNamev2 << "_" << fTMVAMethodName << "_" << fTMVAMethodCounter;
       }
       iFileName << iFileSuffix;
+      iFileNamev2 << iFileSuffix;
       // check if file exists or if this is an old-style file
       ifstream f(iFileName.str().c_str());
       if( !f.good() )
       {
-          cout << "VTMVAEvaluator::setFullMVAFileName warning: file not found: ";
-          cout << iFileName.str() << endl;
-          return "";
+          ifstream f2(iFileNamev2.str().c_str());
+          if( !f2.good() )
+          {
+              cout << "VTMVAEvaluator::setFullMVAFileName warning: file not found: " << endl;
+              cout << iFileName.str() << endl;
+              cout << iFileNamev2.str() << endl;
+              return "";
+          }
+          else
+          {
+              return iFileNamev2.str();
+          }
       }
 
       return iFileName.str();
