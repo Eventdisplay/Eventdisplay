@@ -52,6 +52,14 @@ int main( int argc, char* argv[] )
          exit( EXIT_SUCCESS );
      } 
 
+     // list of prefered logs to print
+     vector< string > logObjectNames;
+     logObjectNames.push_back( "evndispLog" );
+     logObjectNames.push_back( "makeTableLog" );
+     logObjectNames.push_back( "mscwTableLog" );
+     logObjectNames.push_back( "tmvaLog" );
+     logObjectNames.push_back( "effAreaLog" );
+
      fLogFileName = argv[1];
      fRootFile = argv[2];
 
@@ -69,13 +77,24 @@ int main( int argc, char* argv[] )
                 exit( EXIT_FAILURE );
            }
            TMacro *iM = (TMacro*)fF.Get( fLogFileName.c_str() );
+           if( !iM )
+           {
+               for( unsigned int i = 0; i < logObjectNames.size(); i++ )
+               {
+                    iM = (TMacro*)fF.Get( logObjectNames[i].c_str() );
+                    if( iM )
+                    {
+                        break;
+                    }
+               }
+           }
            if( iM )
            {
                 iM->Print();
            }
            else
            {
-               cout << "Error: log file object with name " << fLogFileName << " not found" << endl;
+                cout << "Error: log file object with name " << fLogFileName << " not found" << endl;
                 exit( EXIT_FAILURE );
            }
      }
