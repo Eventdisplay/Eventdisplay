@@ -909,6 +909,11 @@ TGraphErrors* VInstrumentResponseFunctionReader::getEnergyResolutionMPropInterva
         nbins = migmatrix->GetNbinsX();
         cout << "\t Migration matrix: number of bins in reconstructed energy: " << nbins << endl;
     }
+    // MigMatrix is not fine binned: reduce averaging to 2
+    if( nbins < 100 )
+    {
+        i_zoffset_bins = 2;
+    }
     
     ///////////////////////////////////////////////////////////////////////
     // loop over axis in true energy of migration matrix
@@ -927,7 +932,7 @@ TGraphErrors* VInstrumentResponseFunctionReader::getEnergyResolutionMPropInterva
             hDist = ( TH1F* )migmatrix->ProjectionY( "hy", i, i );
             energy = migmatrix->GetXaxis()->GetBinCenter( i );
         }
-        
+
         // require at least a few entries
         if( hDist->GetEntries() < fMProp_minEvents )
         {
