@@ -321,6 +321,7 @@ all VTS:	evndisp \
 	VTS.getRunListFromDB \
 	VTS.getLaserRunFromDB \
 	writeParticleRateFilesForTMVA \
+	trainTMVAforAngularReconstruction \
 	trainTMVAforGammaHadronSeparation \
 	extrasMessage doneMessage
 
