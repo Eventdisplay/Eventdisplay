@@ -663,9 +663,13 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     }
     fmeanPedvar_Image = calculateMeanNoiseLevel( true );
     
-    if( SizeSecondMax_temp > 0 )
+    if( SizeSecondMax_temp > 0. )
     {
         fSizeSecondMax = SizeSecondMax_temp;
+    }
+    if( fNImages == 1 )
+    {
+        fSizeSecondMax =  SizeFirstMax_temp;
     }
     
     ///////////////////////////////////////////////////////////
@@ -680,8 +684,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     }
     else
     {
-        fEmissionHeightMean = 0.;
-        fEmissionHeightChi2 = 0.;
+        fEmissionHeightMean = 1.e-10;
+        fEmissionHeightChi2 = 1.e-10;
         fNTelPairs = 0;
     }
         
@@ -2398,7 +2402,7 @@ void VTableLookupDataHandler::reset()
     fmwr  = -99.;
     fmlr  = -99.;
     fenergyS = -99.;
-    fechi2S = -99.;
+    fechi2S = 1.e-10;
     feAbsError = -99.;
     fdES = -99.;
     fmsct = -99.;
@@ -2757,7 +2761,7 @@ void VTableLookupDataHandler::resetAll()
     fmwr  = 0.;
     fmlr  = 0.;
     fenergyS = 0.;
-    fechi2S = 0.;
+    fechi2S = 1.e-10;
     feAbsError = 0.;
     fdES = 0.;
     fEmissionHeightMean = 0.;

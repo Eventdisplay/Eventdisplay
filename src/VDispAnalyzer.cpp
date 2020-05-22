@@ -859,8 +859,8 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
                                        double* img_fui )
 {
     fdisp_energy = -99.;
-    fdisp_energy_chi = -99.;
-    fdisp_energy_dEs = -99.;
+    fdisp_energy_chi = 1.e-10;
+    fdisp_energy_dEs = 1.e-10;
     fdisp_energy_T.clear();
     fdisp_energy_T.assign( i_ntel, -99. );
     fdisp_energy_NT = 0;
@@ -1034,8 +1034,8 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     }
     else
     {
-        fdisp_energy_chi = -99.;
-        fdisp_energy_dEs = -99.;
+        fdisp_energy_chi = 1.e-10;
+        fdisp_energy_dEs = 1.e-10;
     }
 }
 
