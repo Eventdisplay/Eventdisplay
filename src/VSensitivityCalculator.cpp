@@ -2451,7 +2451,7 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
     {
         cout << "VSensitivityCalculator::getMonteCarlo_EffectiveArea: error, cannot find effective area tree in ";
         cout << iMCPara->fEffectiveAreaFile.c_str() << endl;
-        exit( EXIT_FAILURE );
+        return false;
     }
     CEffArea* c = new CEffArea( t );
     if( !c )
