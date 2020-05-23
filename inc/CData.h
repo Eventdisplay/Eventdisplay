@@ -693,9 +693,12 @@ class CData
         }
         float getDirectionReconstructionDifference()
         {
-               if( (Xoff-Xoff_intersect)*(Xoff-Xoff_intersect)+(Yoff-Yoff_intersect)*(Yoff-Yoff_intersect) > 0. )
+               if( Xoff > -998. && Yoff > -998. && Xoff_intersect > -998. && Yoff_intersect > -998. )
                {
-                     return log10(sqrt((Xoff-Xoff_intersect)*(Xoff-Xoff_intersect)+(Yoff-Yoff_intersect)*(Yoff-Yoff_intersect)));
+                   if( (Xoff-Xoff_intersect)*(Xoff-Xoff_intersect)+(Yoff-Yoff_intersect)*(Yoff-Yoff_intersect) > 0. )
+                   {
+                         return log10(sqrt((Xoff-Xoff_intersect)*(Xoff-Xoff_intersect)+(Yoff-Yoff_intersect)*(Yoff-Yoff_intersect)));
+                   }
                }
                return -999.;
         }

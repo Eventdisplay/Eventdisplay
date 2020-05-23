@@ -882,6 +882,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
         // dispersion of disp values
         fDispDiff = fDispAnalyzerDirection->getDispDiff();
         fimg2_ang = fDispAnalyzerDirection->getAngDiff();
+        fchi2 = fDispDiff;
         // for az / ze calculation
         i_SR.fillShowerDirection( fXoff, fYoff );
         fnxyoff = fDispAnalyzerDirection->getXYWeight_disp().size();
