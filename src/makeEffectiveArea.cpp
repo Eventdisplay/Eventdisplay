@@ -210,37 +210,6 @@ int main( int argc, char* argv[] )
         exit( EXIT_FAILURE );
     }
     
-    
-    // load FROGS data chain
-    if( fCuts->useFrogsCuts() )
-    {
-        TChain* fchain = new TChain( "frogspars" );
-        if( !fchain->Add( fRunPara->fdatafile.c_str(), -1 ) )
-        {
-            if( fRunPara->fGammaHadronCutSelector / 10 == 5 )
-            {
-                cout << "Error while trying to add mscw frogs tree from file " << fRunPara->fdatafile  << endl;
-                cout << "exiting..." << endl;
-                exit( EXIT_FAILURE );
-            }
-        }
-        else
-        {
-            //check that frogs tree and data tree have same number of events.
-            if( c->GetEntries() == fchain->GetEntries() )
-            {
-                c->AddFriend( fchain );
-            }
-            else
-            {
-                cout << "makeEffectiveArea Error: data tree has " << c->GetEntries() << " entries;";
-                cout << " frogs tree has " << fchain->GetEntries() << " entries; that's not good.";
-                cout << "Exiting..." << endl;
-                exit( EXIT_FAILURE );
-            }
-        }
-    }
-    
     CData d( c, true, true );
     fCuts->setDataTree( &d );
     d.setReconstructionType( fCuts->fReconstructionType );
@@ -254,6 +223,7 @@ int main( int argc, char* argv[] )
             f_IRF[i]->setDataTree( &d );
             f_IRF[i]->setCuts( fCuts );
             f_IRF[i]->setOutputFile( fOutputfile );
+            cout << "A" << endl;
             if( f_IRF[i]->doNotDuplicateIRFs() )
             {
                 f_IRF[i]->fill();
@@ -263,11 +233,14 @@ int main( int argc, char* argv[] )
             {
                 f_IRF[i]->fillResolutionGraphs( f_IRF[f_IRF[i]->getDuplicationID()]->getIRFData() );
             }
+            cout << "B " << fCuts_AngularResolutionName.size() << "\t" << fCuts_AngularResolutionName << endl;
             if( fCuts_AngularResolutionName.size() > 0 && f_IRF_Name[i] == fCuts_AngularResolutionName )
             {
                 if( fCuts->getDirectionCutSelector() == 2 )
                 {
                     fCuts->setIRFGraph( f_IRF[i]->getAngularResolutionGraph( 0, 0 ) );
+                    cout << "XXX " << endl;
+                    f_IRF[i]->getAngularResolutionGraph( 0, 0 )->Print();
                 }
             }
         }

@@ -110,6 +110,13 @@ class VInstrumentResponseFunction
         }
         bool   initialize( string iName, string iType, unsigned int iNTel, double iMCMaxCoreRadius,
                            double iZe, int iNoise, double iPedvars, double iXoff, double iYoff );
+        void   printCutStatistics()
+        {
+               if( fAnaCuts ) 
+               {
+                   fAnaCuts->printCutStatistics();
+               }
+        }
         void   setDuplicationID( unsigned int iDuplicationID = 9999 );
         void   setEnergyReconstructionMethod( unsigned int iMethod );
         void   setCuts( VGammaHadronCuts* iCuts );
