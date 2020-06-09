@@ -223,7 +223,6 @@ int main( int argc, char* argv[] )
             f_IRF[i]->setDataTree( &d );
             f_IRF[i]->setCuts( fCuts );
             f_IRF[i]->setOutputFile( fOutputfile );
-            cout << "A" << endl;
             if( f_IRF[i]->doNotDuplicateIRFs() )
             {
                 f_IRF[i]->fill();
@@ -233,13 +232,11 @@ int main( int argc, char* argv[] )
             {
                 f_IRF[i]->fillResolutionGraphs( f_IRF[f_IRF[i]->getDuplicationID()]->getIRFData() );
             }
-            cout << "B " << fCuts_AngularResolutionName.size() << "\t" << fCuts_AngularResolutionName << endl;
             if( fCuts_AngularResolutionName.size() > 0 && f_IRF_Name[i] == fCuts_AngularResolutionName )
             {
                 if( fCuts->getDirectionCutSelector() == 2 )
                 {
                     fCuts->setIRFGraph( f_IRF[i]->getAngularResolutionGraph( 0, 0 ) );
-                    cout << "XXX " << endl;
                     f_IRF[i]->getAngularResolutionGraph( 0, 0 )->Print();
                 }
             }
