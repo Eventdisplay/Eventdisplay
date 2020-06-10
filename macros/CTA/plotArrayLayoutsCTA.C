@@ -167,7 +167,7 @@ void VPlotCTAArrayLayout::printListOfTelescopes( int iMode, double dx, double dy
     {
         for( unsigned int i = 0; i < iPrintList.size(); i++ )
         {
-            cout << "Telescope " << i << " (ID: " << iPrintList[i]->fTelID;
+            cout << "Telescope " << i << " (ID: " << iPrintList[i]->fTelID << ")";
             // print hyper-array ID only if different from nominal ID
             if( iPrintList[i]->fTelID_hyperArray != iPrintList[i]->fTelID )
             {
@@ -500,6 +500,7 @@ bool VPlotCTAArrayLayout::readArrayFromShortTXTFile( string iFile, double iEasti
         
         z++;
     }
+
     
     is.close();
     
@@ -578,6 +579,8 @@ bool VPlotCTAArrayLayout::readArrayFromTXTFile( string iFile )
     }
     
     is.close();
+
+    fTelescopeList.erase(fTelescopeList.begin());
     
     return true;
 }
