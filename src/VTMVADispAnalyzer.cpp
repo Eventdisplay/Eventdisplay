@@ -87,6 +87,8 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         ifstream i_temp_TMVAFILE( iFileName.str().c_str() );
         if( !i_temp_TMVAFILE.good() )
         {
+            cout << "VTMVADispAnalyzer error: cannot find: " << endl;
+            cout << iFileName.str() << endl;
             bZombie = true;
             return;
         }

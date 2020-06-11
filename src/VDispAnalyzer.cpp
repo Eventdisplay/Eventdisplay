@@ -669,8 +669,8 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
             {
                 continue;
             }
-            // use asymmetry to get right directory for image
-            if( img_asym[i] < 0. )
+            // use time gradient to get right directory for image
+            if( img_tgrad[i] < 0. )
             {
                 disp *= -1.;
             }
