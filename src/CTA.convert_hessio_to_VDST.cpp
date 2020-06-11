@@ -35,8 +35,7 @@
 #include "VEvndispRunParameter.h"
 #include "VDSTTree.h"
 #include "VMonteCarloRunHeader.h"
-#include "VSkyCoordinatesUtilities.h"
-
+#include "VAstronometry.h"
 ///////////////////////////////////////////////////////
 // global variables
 ///////////////////////////////////////////////////////
@@ -494,13 +493,13 @@ bool DST_fillMCEvent( VDSTTree* fData, AllHessData* hsdata )
     // (Note: assume that all telescope point into the same direction)
     double i_tel_el = hsdata->run_header.direction[1] * TMath::RadToDeg();
     double i_tel_az = hsdata->run_header.direction[0] * TMath::RadToDeg();
-    float i_x = 0.;
-    float i_y = 0.;
-    float i_z = 0.;
-    VSkyCoordinatesUtilities::getDifferenceInCameraCoordinates( 90. - i_tel_el, i_tel_az, fData->fDSTze, fData->fDSTaz, i_x, i_y, i_z );
-    fData->fDSTTel_xoff = i_x;
-    fData->fDSTTel_yoff = i_y;
-    /////////////////////////////////////////////////////////////////////////////
+    double j_x, j_y = 0.;
+    int j_j = 0;
+    VAstronometry::vlaDs2tp( fData->fDSTaz *TMath::DegToRad(), (90.-fData->fDSTze)*TMath::DegToRad(),
+                             i_tel_az * TMath::DegToRad(), i_tel_el * TMath::DegToRad(), 
+                             &j_x, &j_y, &j_j );
+    fData->fDSTTel_xoff = j_x;
+    fData->fDSTTel_yoff = -1.*j_y;
     
     if( fData->fMCtree )
     {
@@ -973,13 +972,13 @@ bool DST_fillEvent( VDSTTree* fData, AllHessData* hsdata, map< unsigned int, VDS
             break;
         }
     }
-    
-    float i_x = 0.;
-    float i_y = 0.;
-    float i_z = 0.;
-    VSkyCoordinatesUtilities::getDifferenceInCameraCoordinates( 90. - i_tel_el, i_tel_az, fData->fDSTze, fData->fDSTaz, i_x, i_y, i_z );
-    fData->fDSTTel_xoff = i_x;
-    fData->fDSTTel_yoff = i_y;
+    double j_x, j_y = 0.;
+    int j_j = 0;
+    VAstronometry::vlaDs2tp( fData->fDSTaz *TMath::DegToRad(), (90.-fData->fDSTze)*TMath::DegToRad(),
+                             i_tel_az * TMath::DegToRad(), i_tel_el * TMath::DegToRad(), 
+                             &j_x, &j_y, &j_j );
+    fData->fDSTTel_xoff = j_x;
+    fData->fDSTTel_yoff = -1.*j_y;
     /////////////////////////////////////////////////////////////////////////////
     
     if( fData->fDST_tree )
