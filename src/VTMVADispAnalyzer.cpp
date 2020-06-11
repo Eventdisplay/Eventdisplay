@@ -80,6 +80,39 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
     // (one per telescope type)
     for( unsigned int i = 0; i < fTelescopeTypeList.size(); i++ )
     {
+        ostringstream iFileName;
+        iFileName << iFile << fTelescopeTypeList[i] << ".weights.xml";
+        cout << "initializing TMVA disp analyzer: " <<  iFileName.str() << endl;
+        // check that TMVA file exists
+        ifstream i_temp_TMVAFILE( iFileName.str().c_str() );
+        if( !i_temp_TMVAFILE.good() )
+        {
+            bZombie = true;
+            return;
+        }
+        bool iSingleTelescopeAnalysis = true;
+        // try to detect if this is a single telescope analysis
+        string iLine;
+        if( i_temp_TMVAFILE.is_open() )
+        {
+            while( getline(i_temp_TMVAFILE,iLine) )
+            {
+                if( iLine.find("cross") != string::npos )
+                { 
+                   iSingleTelescopeAnalysis = false;
+                   break;
+                }
+            }
+        }
+        if( iSingleTelescopeAnalysis )
+        {
+            cout << "\t single-telescope disp analysis" << endl;
+        }
+        else
+        {
+            cout << "\t multi-telescope disp analysis" << endl;
+        }
+
         fTMVAReader[fTelescopeTypeList[i]] = new TMVA::Reader( "!Color:!Silent" );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "width", &fWidth );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "length", &fLength );
@@ -92,16 +125,17 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
             fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "tgrad_x*tgrad_x", &fTGrad );
         }
         // cross variable should be on this spot
-        fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "cross", &fcross );
+        if( !iSingleTelescopeAnalysis )
+        {
+            fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "cross", &fcross );
+        }
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "asym", &fAsymm );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "loss", &fLoss );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "dist", &fDist );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "fui", &fFui );
-        // TEMPTEMP for La Palma test runs cross was moved
-        //		fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "cross", &fcross );
-        if( fDispType == "BDTDispEnergy" )
+        if( fDispType == "BDTDispEnergy" && !iSingleTelescopeAnalysis )
         {
-//            fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "EHeight", &fEHeight );
+            fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "EHeight", &fEHeight );
             fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "Rcore", &fRcore );
         }
         // spectators
@@ -113,16 +147,6 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "MCrcore", &iMCrcore );
         fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "NImages", &iNImages );
         
-        ostringstream iFileName;
-        iFileName << iFile << fTelescopeTypeList[i] << ".weights.xml";
-        cout << "initializing TMVA disp analyzer: " <<  iFileName.str() << endl;
-        // check that TMVA file exists
-        ifstream i_temp_TMVAFILE( iFileName.str().c_str() );
-        if( !i_temp_TMVAFILE.good() )
-        {
-            bZombie = true;
-            return;
-        }
         if( !fTMVAReader[fTelescopeTypeList[i]]->BookMVA( "BDTDisp", iFileName.str().c_str() ) )
         {
             cout << "VTMVADispAnalyzer initializion error: xml weight file not found:" << endl;
