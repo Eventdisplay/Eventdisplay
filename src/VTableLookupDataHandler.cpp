@@ -711,7 +711,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
         fDispAnalyzerCore->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
                                            fTLRunParameter->fmaxdist, 
                                            fTLRunParameter->fmaxloss,
-                                           fTLRunParameter->fminfui );
+                                           fTLRunParameter->fminfui,
+                                           fmaxdist_qc );
         fDispAnalyzerCore->calculateCore(
             getNTel(),
             fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -750,7 +751,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
         fDispAnalyzerEnergy->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
                                              fTLRunParameter->fmaxdist, 
                                              fTLRunParameter->fmaxloss,
-                                             fTLRunParameter->fminfui );
+                                             fTLRunParameter->fminfui,
+                                             fmaxdist_qc );
         fDispAnalyzerEnergy->calculateEnergies(
             getNTel(),
             fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -861,7 +863,8 @@ void VTableLookupDataHandler::doStereoReconstruction()
         fDispAnalyzerDirection->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
                                                 fTLRunParameter->fmaxdist, 
                                                 fTLRunParameter->fmaxloss,
-                                                fTLRunParameter->fminfui );
+                                                fTLRunParameter->fminfui,
+                                                fmaxdist_qc );
         fDispAnalyzerDirection->calculateMeanDirection(
             getNTel(),
             fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -1037,7 +1040,9 @@ void VTableLookupDataHandler::printTelescopesList( unsigned int iPrintParameter 
             cout << ", used in analysis";
             if( fTLRunParameter->fRerunStereoReconstruction )
             {
-                cout << " (stereo weight: " << fTLRunParameter->fTelToAnalyzeData[i]->fWeight << ")";
+                cout << " (stereo weight: " << fTLRunParameter->fTelToAnalyzeData[i]->fWeight;
+                cout << ", dist cut: " << fmaxdist_qc[i];
+                cout << ")";
             }
         }
         else
@@ -1144,6 +1149,15 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
                 {
                     fList_of_Tel_type[ftelconfig->TelType] = 1;
                 }
+            }
+            // quality cut on maximal distance to camera centre
+            if( fTLRunParameter->fmaxdistfraction > 0. )
+            {
+                fmaxdist_qc[i] = fTLRunParameter->fmaxdistfraction * 0.5 * fTelFOV[i];
+            }
+            else
+            {
+                fmaxdist_qc[i] = fTLRunParameter->fmaxdist;
             }
         }
         // special case: no telescope given in teltoanalyze vector
@@ -1719,8 +1733,6 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
         fOTree->Branch( "alpha", falpha, iTT );
         sprintf( iTT, "los[%d]/D", fNTel );
         fOTree->Branch( "los", flos, iTT );
-        sprintf( iTT, "asym[%d]/D", fNTel );
-        fOTree->Branch( "asym", fasym, iTT );
         sprintf( iTT, "cen_x[%d]/D", fNTel );
         fOTree->Branch( "cen_x", fcen_x, iTT );
         sprintf( iTT, "cen_y[%d]/D", fNTel );

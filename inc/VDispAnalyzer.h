@@ -39,6 +39,7 @@ class VDispAnalyzer
         float fFui_min;
         bool  fDispErrorWeighting;
         float fDispErrorExponential;
+        double *fdistanceQC_max;
         
         // disp direction reconstruction
         float f_disp;
@@ -207,13 +208,14 @@ class VDispAnalyzer
         }
         void  setQualityCuts( unsigned int iNImages_min = 0, float iAxesAngles_min = 0., 
                               float imaxdist = 1.e5, float imaxloss = 1.,
-                              float iminfui = 0. )
+                              float iminfui = 0., double* imaxdist_qc = 0 )
         {
             fAxesAngles_min = iAxesAngles_min;
             fNImages_min    = iNImages_min;
             fdistance_max   = imaxdist;
             floss_max       = imaxloss;
             fFui_min        = iminfui;
+            fdistanceQC_max = imaxdist_qc;
         }
         void  setTelescopeTypeList( vector<ULong64_t> iTelescopeTypeList );
         void  setZombie( bool iB = true )

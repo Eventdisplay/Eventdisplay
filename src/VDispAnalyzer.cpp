@@ -655,7 +655,8 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
         if( img_size[i] > 0. && img_length[i] > 0.
                 && sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistance_max
                 && img_loss[i] < floss_max
-                && img_fui[i] > fFui_min )
+                && img_fui[i] > fFui_min
+                && (fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] ) )
         {
             disp = evaluate( ( float )img_width[i], ( float )img_length[i], ( float )img_asym[i],
                              ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
@@ -772,7 +773,8 @@ void VDispAnalyzer::calculateExpectedDirectionError( unsigned int i_ntel,
         if( img_size[i] > 0. && img_length[i] > 0.
                 && sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistance_max
                 && img_loss[i] < floss_max
-                && img_fui[i] > fFui_min )
+                && img_fui[i] > fFui_min
+                && (fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] ) )
         {
             fdisp_error_T[i] = evaluate( ( float )img_width[i], ( float )img_length[i], ( float )img_asym[i],
                                          ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
@@ -888,7 +890,8 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
         if( img_size[i] > 0. && iRcore[i] > 0. && iArrayElevation > 0.
                 && sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistance_max
                 && img_loss[i] < floss_max 
-                && img_fui[i] > fFui_min )
+                && img_fui[i] > fFui_min
+                && (fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] ) )
         {
             fdisp_energy_T[i] = fTMVADispAnalyzer->evaluate(
                                     ( float )img_width[i], ( float )img_length[i],

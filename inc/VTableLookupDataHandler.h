@@ -354,6 +354,9 @@ class VTableLookupDataHandler
         unsigned int fnxyoff;                   //! number of images used for disp direction reconstruction
         // difference in disp event direction between telescopes
         double fDispDiff;
+
+        // dispBDT cut parameter
+        double fmaxdist_qc[VDST_MAXTELESCOPES];
         
         // deep learner parameters
         bool fIsDeepLearner;
