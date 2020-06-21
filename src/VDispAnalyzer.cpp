@@ -141,7 +141,7 @@ void VDispAnalyzer::terminate()
 float VDispAnalyzer::evaluate( float iWidth, float iLength, float iAsymm, float iDist, float iSize,
                                float iPedvar, float iTGrad, float iLoss, float icen_x, float icen_y,
                                float xoff_4, float yoff_4, ULong64_t iTelType,
-                               float iZe, float iAz, float iRcore, float iFui, bool b2D )
+                               float iZe, float iAz, float iRcore, float iFui, float iNtubes, bool b2D )
 {
     f_disp = -99.;
     
@@ -157,7 +157,7 @@ float VDispAnalyzer::evaluate( float iWidth, float iLength, float iAsymm, float 
     {
         f_disp = fTMVADispAnalyzer->evaluate( iWidth, iLength, iSize, iAsymm, iLoss, iTGrad,
                                               icen_x, icen_y, xoff_4, yoff_4, iTelType,
-                                              iZe, iAz, iRcore, -1., iDist, iFui );
+                                              iZe, iAz, iRcore, -1., iDist, iFui, iNtubes );
     }
     return f_disp;
     
@@ -664,17 +664,17 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
                              ( float )img_cen_x[i], ( float )img_cen_y[i],
                              ( float )xoff_4, ( float )yoff_4, iTelType[i],
                              ( float )( 90. - iArrayElevation ), ( float )iArrayAzimuth,
-                             -99., ( float )img_fui[i] );
+                             -99., ( float )img_fui[i], ( float )img_ntubes[i] );
             // unsuccessful disp estimation - ignore image
             if( disp < -98. )
             {
                 continue;
             }
             // use time gradient to get right directory for image
-            if( img_tgrad[i] < 0. )
+/* TMPTMP            if( img_tgrad[i] < 0. )
             {
                 disp *= -1.;
-            }
+            } */
             v_disp.push_back( disp );
             
             // use estimated uncertainty on disp direction reconstruction as
@@ -782,7 +782,8 @@ void VDispAnalyzer::calculateExpectedDirectionError( unsigned int i_ntel,
                                          ( float )img_cen_x[i], ( float )img_cen_y[i],
                                          ( float )xoff_4, ( float )yoff_4, iTelType[i],
                                          ( float )( 90. - iArrayElevation ), ( float )iArrayAzimuth,
-                                         -99., ( float )img_fui[i] );
+                                         -99., ( float )img_fui[i], ( float )img_ntubes[i] );
+            fdisp_error_T[i] = TMath::Power( 10., fdisp_error_T[i] );
         }
     }
 }
@@ -902,7 +903,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
                                     ( float )( 90. - iArrayElevation ), ( float )iArrayAzimuth,
                                     ( float )iRcore[i], ( float )iEHeight,
                                     ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
-                                    ( float )img_fui[i] );
+                                    ( float )img_fui[i], ( float )img_ntubes[i] );
                                     
             // dispEnergy is trained as log10(MCe0) in GeV
             if( fdisp_energy_T[i] > -98. )
@@ -1141,7 +1142,7 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
                                   ( float )xoff_4, ( float )yoff_4, ( ULong64_t )iTelType[i],
                                   ( float )( 90. - iArrayElevation ), ( float )iArrayAzimuth,
                                   ( float )iRcore[i], -1., ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
-                                  ( float )img_fui[i] );
+                                  ( float )img_fui[i], ( float )img_ntubes[i] );
         }
         else
         {
