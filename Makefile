@@ -309,9 +309,6 @@ endif
 ifeq ($(strip $(CTAPROD)),CTAMAX)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_MAX
 endif
-	
-else
-CXXFLAGS        += $(HESSIOINCLUDEFLAGS) $(HESSIOCFLAGS)
 endif
 endif
 ########################################################
