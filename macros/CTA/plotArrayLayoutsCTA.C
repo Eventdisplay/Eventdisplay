@@ -560,7 +560,6 @@ bool VPlotCTAArrayLayout::readArrayFromTXTFile( string iFile )
             fTelescopeList.back()->fMarkerColor = 2;
             fTelescopeList.back()->fMarkerSize = 2.0;
             fTelescopeList.back()->fMarkerType = 24;
-            continue;
         }
         else if( fTelescopeList.back()->fTelIDName.find( "M" ) != string::npos )
         {
@@ -568,7 +567,6 @@ bool VPlotCTAArrayLayout::readArrayFromTXTFile( string iFile )
             fTelescopeList.back()->fMarkerColor = 1;
             fTelescopeList.back()->fMarkerSize = 1.5;
             fTelescopeList.back()->fMarkerType = 21;
-            continue;
         }
         else if( fTelescopeList.back()->fTelIDName.find( "S" ) != string::npos )
         {
@@ -576,6 +574,10 @@ bool VPlotCTAArrayLayout::readArrayFromTXTFile( string iFile )
             fTelescopeList.back()->fMarkerColor = 4;
             fTelescopeList.back()->fMarkerSize = 1;
         }
+        // TMPTMPTMP
+        if( fTelescopeList.size() > 100 ) fTelescopeList.back()->fMarkerColor = 416;
+        if( fTelescopeList.size() > 109 ) fTelescopeList.back()->fMarkerColor = 900;
+        if( fTelescopeList.size() > 127 ) fTelescopeList.back()->fMarkerColor = 800;
     }
     
     is.close();
@@ -615,6 +617,8 @@ bool VPlotCTAArrayLayout::readArrayFromRootFile( string iFile, bool iprod3, doub
     float iTelY = 0.;
     float iTelZ = 0.;
     ULong64_t iTelType = 0;
+    Char_t iTelescopeName[300];
+    bool iTelescopeNameExists = false;
     int iTelID = 0;
     unsigned int iTelIDHA = 0;
     bool iTelIDEqTelIDHA = false;
@@ -628,6 +632,11 @@ bool VPlotCTAArrayLayout::readArrayFromRootFile( string iFile, bool iprod3, doub
     else
     {
         iTelIDEqTelIDHA = true;
+    }
+    if( t->GetBranchStatus( "TelescopeName" ) )
+    {
+        t->SetBranchAddress( "TelescopeName", &iTelescopeName );
+        iTelescopeNameExists = true;
     }
     
     t->SetBranchAddress( "TelX", &iTelX );
@@ -646,6 +655,14 @@ bool VPlotCTAArrayLayout::readArrayFromRootFile( string iFile, bool iprod3, doub
         if( iTelIDEqTelIDHA )
         {
             fTelescopeList.back()->fTelID_hyperArray = fTelescopeList.back()->fTelID;
+        }
+        if( iTelescopeNameExists )
+        {
+            fTelescopeList.back()->fTelIDName = iTelescopeName;
+        }
+        else
+        {
+            fTelescopeList.back()->fTelIDName = "";
         }
         fTelescopeList.back()->fTel_x = iTelX;
         fTelescopeList.back()->fTel_y = iTelY;
@@ -903,14 +920,29 @@ TCanvas* VPlotCTAArrayLayout::plot_array( string iname, double xmax, double ymax
     if( !cUserCanvas )
     {
         c = new TCanvas( hname, htitle, 10, 10, 800, 800 );
+        c->SetFillStyle(0);
+        c->SetFillColor(0);
         c->SetGridx( 0 );
         c->SetGridy( 0 );
-        c->SetRightMargin( 0.13 );
-        c->SetLeftMargin( 0.13 );
-        c->SetTopMargin( 0.13 );
-        c->SetBottomMargin( 0.13 );
+        c->SetRightMargin( 0.08 );
+        c->SetLeftMargin( 0.08 );
+        c->SetTopMargin( 0.08 );
+        c->SetBottomMargin( 0.08 );
         c->Draw();
-        
+        TPad *p = new TPad("p","",0.1,0.,1,1);
+        p->SetFillColor(0);
+        p->SetFillStyle(0);
+        p->SetFrameFillColor(0);
+        p->SetFrameFillStyle(0);
+        p->SetRightMargin( 0.08 );
+        p->SetLeftMargin( 0.08 );
+        p->SetTopMargin( 0.08 );
+        p->SetBottomMargin( 0.08 );
+        p->SetGridx( 0 );
+        p->SetGridy( 0 );
+        p->Draw();
+        p->cd();
+                
         sprintf( hname, "hnull_%s", iname.c_str() );
         TH2D* hnull = new TH2D( hname, "", 100, -1.*xmax, xmax, 100, -1.*ymax, ymax );
         hnull->SetStats( 0 );
@@ -926,7 +958,7 @@ TCanvas* VPlotCTAArrayLayout::plot_array( string iname, double xmax, double ymax
             i_c200->SetLineStyle( 2 );
             i_c200->SetLineColor( kGray );
             i_c200->SetFillStyle( 4000 );
-            i_c200->Draw();
+            //i_c200->Draw();
         }
         
     }
