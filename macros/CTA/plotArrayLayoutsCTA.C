@@ -734,6 +734,12 @@ bool VPlotCTAArrayLayout::readArrayFromRootFile( string iFile, bool iprod3, doub
                 fTelescopeList.back()->fMarkerColor = 8;
                 fTelescopeList.back()->fMarkerSize = 1;
             }
+            else if( iTelType == 201409917 )
+            {
+                fTelescopeList.back()->fTelTypeName = "SST";
+                fTelescopeList.back()->fMarkerColor = 4;
+                fTelescopeList.back()->fMarkerSize = 1;
+            }
             else
             {
                 cout << "unknown telescope type: " << iTelType << endl;
