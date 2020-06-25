@@ -71,7 +71,7 @@ float fPedestalShift = 0.;
 // Minimum energy cut
 float fMinEnergy = 0.;
 // use this for writing of telconfig tree only
-bool fWriteTelConfigTreeOnly = true;
+bool fWriteTelConfigTreeOnly = false;
 ///////////////////////////////////////////////////////
 
 /*!
