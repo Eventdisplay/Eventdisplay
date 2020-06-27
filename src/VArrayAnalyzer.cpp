@@ -1611,8 +1611,13 @@ bool VArrayAnalyzer::fillShowerDirection( unsigned int iMethod, float xs, float 
     double az = 0.;
     if( getArrayPointing() )
     {
-        getArrayPointing()->getRotatedShowerDirection( -1.*getShowerParameters()->fShower_Yoffset[iMethod],
-                -1.*getShowerParameters()->fShower_Xoffset[iMethod], ze, az );
+        VAstronometry::vlaDtp2s( -1.*getShowerParameters()->fShower_Xoffset[iMethod] * TMath::DegToRad(),
+                                     getShowerParameters()->fShower_Yoffset[iMethod] * TMath::DegToRad(),
+                                     getArrayPointing()->getTelAzimuth() * TMath::DegToRad(),
+                                     getArrayPointing()->getTelElevation() * TMath::DegToRad(),
+                                     &az, &ze );
+        az *= TMath::RadToDeg();
+        ze = 90. - ze*TMath::RadToDeg();
     }
     if( TMath::IsNaN( ze ) )
     {

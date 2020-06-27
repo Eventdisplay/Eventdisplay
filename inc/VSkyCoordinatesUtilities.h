@@ -36,7 +36,6 @@ namespace VSkyCoordinatesUtilities
     void   getHorizontalCoordinates( int MJD, double time, double dec_deg, double ra_deg, double& az_deg, double& ze_deg );
     double getMJD( int i_year, int i_month, int i_day );
     int    getMJD_from_SQLstring( string iSQLData, double& mjd, double& sec_of_day );
-    void   getRotatedShowerDirection( double ze, double az, double y, double x, double& rze, double& raz );
     double getTargetShiftWest( double iTargetRA_deg, double iTargetDec_deg, double ira_deg, double idec_deg );
     double getTargetShiftNorth( double iTargetRA_deg, double iTargetDec_deg, double ira_deg, double idec_deg );
     double getUTC( int i_mjd, double i_seconds );

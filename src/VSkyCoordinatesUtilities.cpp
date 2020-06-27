@@ -232,22 +232,6 @@ void VSkyCoordinatesUtilities::getDifferenceInCameraCoordinates( double tel_ze, 
     }
 }
 
-/*
-    calculate shower direction from telescope pointing and reconstruction shower direction
-
-*/
-void VSkyCoordinatesUtilities::getRotatedShowerDirection( double ze, double az, double y, double x, double& rze, double& raz )
-{
-
-    VAstronometry::vlaDtp2s( x*TMath::DegToRad(), -1.*y*TMath::DegToRad(),
-                             az*TMath::DegToRad(), (90.-ze)*TMath::DegToRad(), 
-                             &raz, &rze );
-    raz *= TMath::RadToDeg();
-    rze = 90. - rze * TMath::RadToDeg();
-    return;
-}
-
-
 double VSkyCoordinatesUtilities::adjustAzimuthToRange( double az_deg )
 {
     return VAstronometry::vlaDranrm( az_deg * TMath::DegToRad() ) * TMath::RadToDeg();

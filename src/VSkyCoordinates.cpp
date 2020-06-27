@@ -200,16 +200,6 @@ bool VSkyCoordinates::setPointingOffset( double i_raOff_deg, double i_decOff_deg
 }
 
 
-/*!
-     input and output in [deg]
-*/
-
-void VSkyCoordinates::getRotatedShowerDirection( double y, double x, double& rze, double& raz )
-{
-    VSkyCoordinatesUtilities::getRotatedShowerDirection( 90. - fTelElevation, fTelAzimuth, y, x, rze, raz );
-}
-
-
 void VSkyCoordinates::getDerotatedShowerDirection( double ze, double az, float& y, float& x, double rze, double raz )
 {
     float z = 0.;

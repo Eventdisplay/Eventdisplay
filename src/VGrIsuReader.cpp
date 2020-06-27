@@ -844,9 +844,13 @@ bool VGrIsuReader::getNextShowerEvent()
             // add wobble offset
             double az = 0.;
             double ze = 0.;
-            VSkyCoordinatesUtilities::getRotatedShowerDirection( fMC_Ze * degrad, fMC_Az * degrad, fMC_Yoffset, -1.*fMC_Xoffset, ze, az );
-            fMC_Ze = ze / degrad;
-            fMC_Az = VSkyCoordinatesUtilities::adjustAzimuthToRange( az ) / degrad;
+            VAstronometry::vlaDtp2s( -1.*fMC_Xoffset * TMath::DegToRad(),
+                                     -1.*fMC_Yoffset * TMath::DegToRad(),
+                                     fMC_Az, TMath::Pi()/2.-fMC_Ze,
+                                     &az, &ze );
+
+            fMC_Ze = TMath::Pi()/2.-ze;
+            fMC_Az = az;
             resetEvent();
             i_eventFound = true;
             if( fDebug )
