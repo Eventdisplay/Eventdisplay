@@ -1155,7 +1155,7 @@ void VFrogs::transformResults()
         }
         else
         {
-            az = VAstronometry::vlaDranrm( az_deg * TMath::DegToRad() ) * TMath::RadToDeg();
+            az = VAstronometry::vlaDranrm( az * TMath::DegToRad() ) * TMath::RadToDeg();
         }
         frogsZe = ze;
         frogsAz = az;
