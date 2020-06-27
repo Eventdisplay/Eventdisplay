@@ -20,7 +20,6 @@ namespace VSkyCoordinatesUtilities
 {
     double addToMeanAzimuth( double iMean, double iAz );                   // mean azimuth calculation
     double adjustAzimuthToRange( double );
-    double angularDistance( double Az1_rad, double Ze1_rad, double Az2_rad, double Ze2_rad );
     void   convert_derotatedCoordinates_to_J2000( double iMJD, double i_RA_J2000_deg, double i_DEC_J2000_deg, double& x, double& y );
     void   convert_derotatedCoordinates_to_J2000( int iMJD, double iTime, double i_TelAz, double iTelElevation, double& x, double& y );
     void   getCameraCentreCoordinates_J2000( double iMJD, double i_Target_RA_J200_deg, double i_Target_Dec_J2000_deg,

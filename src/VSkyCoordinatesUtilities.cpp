@@ -452,31 +452,6 @@ void VSkyCoordinatesUtilities::getCameraCentreCoordinates_J2000( double iMJD, do
 }
 
 
-
-/*!
-  calculate angular distance between two directions
-
-  input: all angles in radiant
-  output: angular distance in degree
-
-*/
-double VSkyCoordinatesUtilities::angularDistance( double Az, double Ze, double Traz, double Trze )
-{
-    double value;
-    
-    value  = sin( Ze ) * sin( Trze ) * cos( ( Az - Traz ) );
-    value += cos( Ze ) * cos( Trze );
-    // limited accuracy results sometimes in values slightly larger than 1
-    if( value > 1. )
-    {
-        value = 1.;
-    }
-    value = acos( value );
-    value *= TMath::RadToDeg();
-    
-    return value;
-}
-
 /*
  *
  *  get equatorial from horizontal coordinates
