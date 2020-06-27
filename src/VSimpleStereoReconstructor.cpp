@@ -374,7 +374,7 @@ bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
         fShower_Ze = -99999.;
     }
     fShower_Ze = ze;
-    fShower_Az = VSkyCoordinatesUtilities::adjustAzimuthToRange( az );
+    fShower_Az = VAstronometry::vlaDranrm( az * TMath::DegToRad() ) * TMath::RadToDeg();
 
     return true;
 }

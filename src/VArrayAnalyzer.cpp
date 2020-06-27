@@ -1628,7 +1628,7 @@ bool VArrayAnalyzer::fillShowerDirection( unsigned int iMethod, float xs, float 
         az = -99999.;
     }
     getShowerParameters()->fShowerZe[iMethod] = ze;
-    getShowerParameters()->fShowerAz[iMethod] = VSkyCoordinatesUtilities::adjustAzimuthToRange( az );
+    getShowerParameters()->fShowerAz[iMethod] = VAstronometry::vlaDranrm( az * TMath::DegToRad() ) * TMath::RadToDeg();
     getShowerParameters()->fShower_stdS[iMethod] = stds;
     
     // calculate derotated shower directions in camera coordinates

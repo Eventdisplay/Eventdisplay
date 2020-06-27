@@ -65,7 +65,6 @@ class VSkyCoordinates
             return fTargetName;
         }
         double getDerotationAngle( int MJD, double time );
-        void   getDerotatedShowerDirection( double ze, double az, float& y, float& x, double rze, double raz );
         double getTargetDec()
         {
             return fTargetDec * TMath::RadToDeg();

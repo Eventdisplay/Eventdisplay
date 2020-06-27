@@ -1155,7 +1155,7 @@ void VFrogs::transformResults()
         }
         else
         {
-            az = VSkyCoordinatesUtilities::adjustAzimuthToRange( az );
+            az = VAstronometry::vlaDranrm( az_deg * TMath::DegToRad() ) * TMath::RadToDeg();
         }
         frogsZe = ze;
         frogsAz = az;

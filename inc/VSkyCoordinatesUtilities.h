@@ -19,13 +19,11 @@
 namespace VSkyCoordinatesUtilities
 {
     double addToMeanAzimuth( double iMean, double iAz );                   // mean azimuth calculation
-    double adjustAzimuthToRange( double );
     void   convert_derotatedCoordinates_to_J2000( double iMJD, double i_RA_J2000_deg, double i_DEC_J2000_deg, double& x, double& y );
     void   convert_derotatedCoordinates_to_J2000( int iMJD, double iTime, double i_TelAz, double iTelElevation, double& x, double& y );
     void   getCameraCentreCoordinates_J2000( double iMJD, double i_Target_RA_J200_deg, double i_Target_Dec_J2000_deg,
             double iNorth_deg, double i_East_deg,
             double& i_C_RA_J2000_deg, double& i_C_Dec_J2000_deg );
-    void   getDifferenceInCameraCoordinates( double tel_ze, double tel_az, double shower_ze,  double shower_az, float& x, float& y, float& z );
     void   getEquatorialCoordinates( int MJD, double time, double az, double ze, double& dec, double& ra );
     double getDerotationAngle( double MJD, double time, double iTelRA, double iTelDec, double iObservatoryLongitude, double iObservatoryLatitude );
     double getDerotationAngle( double i_UTC, double iTelRA, double iTelDec, double iObservatoryLongitude, double iObservatoryLatitude );

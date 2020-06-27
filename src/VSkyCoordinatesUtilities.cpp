@@ -191,52 +191,6 @@ double VSkyCoordinatesUtilities::addToMeanAzimuth( double iMean, double iAz )
     return iMean;
 }
 
-
-/*
-     difference between to pointing directions in camera coordinates
-
-     input coordinates in [deg]
-*/
-void VSkyCoordinatesUtilities::getDifferenceInCameraCoordinates( double tel_ze, double tel_az,
-        double shower_ze,  double shower_az,
-        float& x, float& y, float& z )
-{
-    // convert coordinates from [deg] to [rad]
-    tel_az    *= TMath::DegToRad();
-    shower_az *= TMath::DegToRad();
-    double tel_el    = ( 90. - tel_ze ) * TMath::DegToRad();
-    double shower_el = ( 90. - shower_ze ) * TMath::DegToRad();
-    
-    double cx = cos( shower_el ) * sin( shower_az );
-    double cy = cos( shower_el ) * cos( shower_az );
-    double cz = sin( shower_el );
-    
-    double i_temp = sin( tel_az ) * cx + cos( tel_az ) * cy;
-    
-    x = ( cos( tel_az ) * cx - sin( tel_az ) * cy ) * TMath::RadToDeg();
-    z = ( cos( tel_el ) * i_temp + sin( tel_el ) * cz );
-    y = ( -1.*sin( tel_el ) * i_temp + cos( tel_el ) * cz ) * TMath::RadToDeg();
-    y *= -1.;
-    
-    if( fabs( x ) < 1.e-4 )
-    {
-        x = 0.;
-    }
-    if( fabs( y ) < 1.e-4 )
-    {
-        y = 0.;
-    }
-    if( fabs( z ) < 1.e-4 )
-    {
-        z = 0.;
-    }
-}
-
-double VSkyCoordinatesUtilities::adjustAzimuthToRange( double az_deg )
-{
-    return VAstronometry::vlaDranrm( az_deg * TMath::DegToRad() ) * TMath::RadToDeg();
-}
-
 /*
 
    return values in [deg]

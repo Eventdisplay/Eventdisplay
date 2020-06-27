@@ -200,13 +200,6 @@ bool VSkyCoordinates::setPointingOffset( double i_raOff_deg, double i_decOff_deg
 }
 
 
-void VSkyCoordinates::getDerotatedShowerDirection( double ze, double az, float& y, float& x, double rze, double raz )
-{
-    float z = 0.;
-    VSkyCoordinatesUtilities::getDifferenceInCameraCoordinates( ze, az, rze, raz, y, x, z );
-}
-
-
 double VSkyCoordinates::derotateCoords( double i_UTC, double i_xin, double i_yin, double& i_xout, double& i_yout )
 {
     double i_theta = VSkyCoordinatesUtilities::getDerotationAngle( i_UTC, fTelRA, fTelDec, fObsLongitude, fObsLatitude );
