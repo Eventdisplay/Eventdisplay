@@ -1147,11 +1147,11 @@ void VArrayAnalyzer::checkPointing()
             getShowerParameters()->fTelAzimuthVBF[i]   = getReader()->getArrayTrigger()->getAzimuth( ivbf );
             if( i < getPointing().size() && getPointing()[i] )
             {
-                float iPointingDiff = ( float )VSkyCoordinatesUtilities::angularDistance( getPointing()[i]->getTelAzimuth() / TMath::RadToDeg(),
-                                ( 90. - getPointing()[i]->getTelElevation() ) / TMath::RadToDeg(),
-                                getReader()->getArrayTrigger()->getAzimuth( ivbf ) / TMath::RadToDeg(),
-                                ( 90. - getReader()->getArrayTrigger()->getAltitude( ivbf ) ) / TMath::RadToDeg() );
-                                
+                float iPointingDiff = VAstronometry::vlaDsep( getPointing()[i]->getTelAzimuth() * TMath::DegToRad(),
+                                                             ( 90. - getPointing()[i]->getTelElevation() ) * TMath::DegToRad(),
+                                                             getReader()->getArrayTrigger()->getAzimuth( ivbf )* TMath::DegToRad() ,
+                                                             ( 90. - getReader()->getArrayTrigger()->getAltitude( ivbf ) ) * TMath::DegToRad() )
+                                                             * TMath::RadToDeg();
                 getShowerParameters()->fTelPointingMismatch[i] = iPointingDiff;
                 getShowerParameters()->fTelPointingErrorX[i] = getPointing()[i]->getPointingErrorX();
                 getShowerParameters()->fTelPointingErrorY[i] = getPointing()[i]->getPointingErrorY();
