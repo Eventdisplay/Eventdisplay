@@ -235,77 +235,16 @@ void VSkyCoordinatesUtilities::getDifferenceInCameraCoordinates( double tel_ze, 
 /*
     calculate shower direction from telescope pointing and reconstruction shower direction
 
-     small angle approximation, assume small x,y (neglect z)
 */
-
 void VSkyCoordinatesUtilities::getRotatedShowerDirection( double ze, double az, double y, double x, double& rze, double& raz )
 {
-    // get all directions in [rad]
-    x /= TMath::RadToDeg();
-    y /= ( -1.*TMath::RadToDeg() );
-    // assume all telescopes point in same directions
-    double el = ( 90. - ze ) / TMath::RadToDeg();
-    az = az / TMath::RadToDeg();
-    // these are the resulting directions
-    
-    double r = sqrt( 1. + x * x + y * y );
-    double cx = x / r;
-    double cy = 1. / r;
-    double cz = y / r;
-    
-    // rotate telescope around elevation axis
-    double ex = cx;
-    double ey = cy * cos( el ) - cz * sin( el );
-    double ez = cy * sin( el ) + cz * cos( el );
-    // rotate around azimuth
-    double rx, ry, rz;
-    rx =     ex * cos( az ) + ey * sin( az );
-    ry = -1.*ex * sin( az ) + ey * cos( az );
-    rz = ez;
-    // calculate new azimuth, zenith
-    r = sqrt( rx * rx + ry * ry );
-    // small value check
-    if( fabs( r ) < 1.e-10 )
-    {
-        r = 0.;
-    }
-    if( fabs( rx ) < 1.e-10 )
-    {
-        rx = 0.;
-    }
-    if( fabs( ry ) < 1.e-10 )
-    {
-        ry = 0.;
-    }
-    if( fabs( rz ) < 1.e-10 )
-    {
-        rz = 0.;
-    }
-    
-    if( r == 0. )
-    {
-        raz = az * TMath::RadToDeg();
-    }
-    else
-    {
-        raz = ( TMath::Pi() / 2. - atan2( ry, rx ) ) * TMath::RadToDeg();
-        if( raz > 180. )
-        {
-            raz = -1.*( 360. - raz );
-        }
-        if( raz < -180. )
-        {
-            raz *= -1.;
-        }
-    }
-    if( rz == 0. )
-    {
-        rze = 90. - el * TMath::RadToDeg();
-    }
-    else
-    {
-        rze = 90. - atan2( rz, r ) * TMath::RadToDeg();
-    }
+
+    VAstronometry::vlaDtp2s( x*TMath::DegToRad(), -1.*y*TMath::DegToRad(),
+                             az*TMath::DegToRad(), (90.-ze)*TMath::DegToRad(), 
+                             &raz, &rze );
+    raz *= TMath::RadToDeg();
+    rze = 90. - rze * TMath::RadToDeg();
+    return;
 }
 
 
