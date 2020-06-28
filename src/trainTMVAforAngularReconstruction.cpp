@@ -841,7 +841,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             }
             else
             {
-                disp *= -1.;
+                // disp *= -1.;
                 dispError = sqrt( ( x2 - MCxoff ) * ( x2 - MCxoff ) + ( y2 + MCyoff ) * ( y2 + MCyoff ) );
             }
             if( dispError > 0. )

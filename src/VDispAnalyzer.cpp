@@ -665,16 +665,15 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
                              ( float )xoff_4, ( float )yoff_4, iTelType[i],
                              ( float )( 90. - iArrayElevation ), ( float )iArrayAzimuth,
                              -99., ( float )img_fui[i], ( float )img_ntubes[i] );
-            // unsuccessful disp estimation - ignore image
             if( disp < -98. )
             {
                 continue;
             }
             // use time gradient to get right directory for image
-/* TMPTMP            if( img_tgrad[i] < 0. )
+            if( img_tgrad[i] < 0. )
             {
                 disp *= -1.;
-            } */
+            }
             v_disp.push_back( disp );
             
             // use estimated uncertainty on disp direction reconstruction as
