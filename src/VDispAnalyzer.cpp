@@ -782,7 +782,6 @@ void VDispAnalyzer::calculateExpectedDirectionError( unsigned int i_ntel,
                                          ( float )xoff_4, ( float )yoff_4, iTelType[i],
                                          ( float )( 90. - iArrayElevation ), ( float )iArrayAzimuth,
                                          -99., ( float )img_fui[i], ( float )img_ntubes[i] );
-            fdisp_error_T[i] = TMath::Power( 10., fdisp_error_T[i] );
         }
     }
 }

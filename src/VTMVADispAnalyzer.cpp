@@ -127,12 +127,11 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "length", &fLength );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "wol", &fWoL );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "size", &fSize );
-        fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "ntubes", &fNtubes);
         // ASTRI telescopes are without timing information
         // tgrad_x is therefore ignored
         if( fTelescopeTypeList[i] != 201511619 )
         {
-            fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "tgrad_x", &fTGrad );
+            fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "tgrad_x*tgrad_x", &fTGrad );
         }
         // cross variable should be on this spot
         if( !iSingleTelescopeAnalysis )
@@ -209,7 +208,7 @@ float VTMVADispAnalyzer::evaluate( float iWidth, float iLength, float iSize, flo
         return -99.;
     }
     fNtubes = iNtubes;
-    fTGrad = iTGrad;
+    fTGrad = iTGrad * iTGrad;
     fZe = iZe;
     fAz = iAz;
     // %%@^#%!@(#

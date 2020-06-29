@@ -163,12 +163,11 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     dataloader->AddVariable( "length", 'F' );
     dataloader->AddVariable( "wol",    'F' );
     dataloader->AddVariable( "size"  , 'F' );
-    dataloader->AddVariable( "ntubes"  , 'F' );
     // hard coded ASTRI telescope type
     // (no time gradient is available)
     if( iTelType != 201511619 )
     {
-        dataloader->AddVariable( "tgrad_x", 'F' );
+        dataloader->AddVariable( "tgrad_x*tgrad_x", 'F' );
     }
     if( !iSingleTelescopeAnalysis )
     {
@@ -841,12 +840,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             }
             else
             {
-                // disp *= -1.;
                 dispError = sqrt( ( x2 - MCxoff ) * ( x2 - MCxoff ) + ( y2 + MCyoff ) * ( y2 + MCyoff ) );
-            }
-            if( dispError > 0. )
-            {
-                dispError = log10( dispError );
             }
             
             // training target in ratio to size
@@ -920,7 +914,7 @@ int main( int argc, char* argv[] )
     string       iDataDirectory = "";
     string       iLayoutFile = "";
     string       iQualityCut = "size>1.&&ntubes>4.&&width>0.&&width<2.&&length>0.&&length<10.";
-    iQualityCut = iQualityCut + "&&tgrad_x<100.&&tgrad_x>-100.&&loss<0.20&&cross<20.0&&Rcore<2000.";
+    iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&Rcore<2000.";
     if( argc >=  7 )
     {
         iTargetBDT =       argv[6]   ;
