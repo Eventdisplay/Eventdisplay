@@ -97,11 +97,9 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "loss", &fLoss );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "dist", &fDist );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "fui", &fFui );
-        // TEMPTEMP for La Palma test runs cross was moved
-        //		fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "cross", &fcross );
         if( fDispType == "BDTDispEnergy" )
         {
-//            fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "EHeight", &fEHeight );
+            fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "EHeight", &fEHeight );
             fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "Rcore", &fRcore );
         }
         // spectators
