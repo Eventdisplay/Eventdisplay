@@ -183,6 +183,10 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
         dataloader->AddVariable( "Rcore", 'F' );
     }
     // spectators
+    dataloader->AddSpectator( "cen_x", 'F' );
+    dataloader->AddSpectator( "cen_y", 'F' );
+    dataloader->AddSpectator( "cosphi", 'F' );
+    dataloader->AddSpectator( "sinphi", 'F' );
     dataloader->AddSpectator( "MCe0", 'F' );
     dataloader->AddSpectator( "MCxoff", 'F' );
     dataloader->AddSpectator( "MCyoff", 'F' );
@@ -199,11 +203,22 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     // train for direction reconstruction
     else if( iTargetBDT == "BDTDisp" )
     {
+        dataloader->AddSpectator( "dispError", 'F' );
+        dataloader->AddSpectator( "dispPhi", 'F' );
         dataloader->AddTarget( "disp"  , 'F' );
+    }
+    // rotation angle
+    else if( iTargetBDT == "BDTDispPhi" )
+    {
+        dataloader->AddSpectator( "disp", 'F' );
+        dataloader->AddSpectator( "dispError", 'F' );
+        dataloader->AddTarget( "dispPhi"  , 'F' );
     }
     // train for error on disp reconstruction
     else if( iTargetBDT == "BDTDispError" )
     {
+        dataloader->AddSpectator( "disp", 'F' );
+        dataloader->AddSpectator( "dispPhi", 'F' );
         dataloader->AddTarget( "dispError", 'F', "dispError", 0., 10. );
     }
     // train for core reconstruction
@@ -506,6 +521,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     float ze = -1.;
     float az = -1.;
     float EmissionHeight = -1.;
+    int   Fitstat = -1;
     
     fMapOfTrainingTree.clear();
     cout << "total number of telescopes: " << i_ntel;
@@ -551,6 +567,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             fMapOfTrainingTree[i_tel.TelType]->Branch( "fui"        , &fui        , "fui/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "tgrad_x"    , &tgrad_x    , "tgrad_x/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "meanPedvar_Image"         , &meanPedvar_Image, "meanPedvar_Image/F" );
+            fMapOfTrainingTree[i_tel.TelType]->Branch( "Fitstat"    , &Fitstat    , "Fitstat/I" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "MCe0"       , &MCe0       , "MCe0/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "MCxoff"     , &MCxoff     , "MCxoff/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "MCyoff"     , &MCyoff     , "MCyoff/F" );
@@ -774,6 +791,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             fui         = i_tpars[i]->fui;
             tgrad_x     = i_tpars[i]->tgrad_x;
             meanPedvar_Image = i_tpars[i]->meanPedvar_Image;
+            Fitstat     = i_tpars[i]->Fitstat;
             ze          = 90. - i_showerpars.TelElevation[i];
             az          = i_showerpars.TelAzimuth[i];
             MCe0        = i_showerpars.MCe0;

@@ -186,6 +186,8 @@ void VTableLookupDataHandler::fill()
             fsize_short[ii]   = fsize[i];
             fntubes_short[ii] = fntubes[i];
             ftgrad_x_short[ii] = ftgrad_x[i];
+            fasym_short[ii]  = fasym[i];
+            fFitstat_short[ii] = fFitstat[i];
             
             ii++;
         }
@@ -1703,6 +1705,8 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     fOTree->Branch( "width", fwidth_short, "width[NImages]/F" );
     fOTree->Branch( "length", flength_short, "length[NImages]/F" );
     fOTree->Branch( "tgrad_x", ftgrad_x_short, "tgrad_x[NImages]/F" );
+    fOTree->Branch( "asym", fasym_short, "asym[NImages]/F" );
+    fOTree->Branch( "Fitstat", fFitstat_short, "Fitstat[NImages]/I" );
     
     // image parameters (for all telescopes)
     if( !fShortTree )
@@ -1743,8 +1747,6 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
         fOTree->Branch( "sinphi", fsinphi, iTT );
         sprintf( iTT, "tchisq_x[%d]/D", fNTel );
         fOTree->Branch( "tchisq_x", ftchisq_x, iTT );
-        sprintf( iTT, "Fitstat[%d]/I", fNTel );
-        fOTree->Branch( "Fitstat", fFitstat, iTT );
     }
     fOTree->Branch( "DispNImages", &fnxyoff, "DispNImages/i" );
     fOTree->Branch( "DispXoff_T", fXoff_T, "DispXoff_T[NImages]/F" );
@@ -2389,6 +2391,8 @@ void VTableLookupDataHandler::reset()
         fwidth_short[i] = -99.;
         flength_short[i] = -99.;
         ftgrad_x_short[i] = -99.;
+        fasym_short[i] = -99.;
+        fFitstat_short[i] = -99;
         fR_MC[i] = -99.;
         fR_short_MC[i] = -99.;
         fES[i] = -99.;
@@ -2739,6 +2743,8 @@ void VTableLookupDataHandler::resetAll()
         fwidth_short[i] = -99.;
         flength_short[i] = -99.;
         ftgrad_x_short[i] = -99.;
+        fasym_short[i] = -99.;
+        fFitstat_short[i] = -99;
         fR_telType[i] = 0.;
         fLoss_telType[i] = 0.;
         fDistance_telType[i] = 0.;

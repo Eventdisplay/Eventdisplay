@@ -136,7 +136,8 @@ class VDispAnalyzer
         float evaluate( float iWidth, float iLength, float iAsymm, float iDist,
                         float iSize, float iPedvar, float itgrad, float iLoss,
                         float icen_x, float icen_y, float xoff_4, float yoff_4, ULong64_t iTelType,
-                        float iZe, float iAz, float iRcore = -99., float iFui = -1., bool b2D = true );
+                        float iZe, float iAz, float iRcore = -99., float iFui = -1., float iNtubes = -1.,
+                        bool b2D = true );
         float getAngDiff()
         {
             return f_angdiff;
