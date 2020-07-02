@@ -4007,8 +4007,9 @@ bool VCalibrator::readCalibrationDatafromDSTFiles( string iDSTfile, bool iPedOnl
     
     if( getNTel() != ( unsigned int )t->GetEntries() )
     {
-        cout << "VCalibrator::readCalibrationDatafromDSTFiles error: mismatch in number of telescopes: " ;
-        cout << getNTel() << "\t" << t->GetEntries() << endl;
+        cout << "VCalibrator::readCalibrationDatafromDSTFiles error: mismatch in number of telescopes: " << endl;
+        cout << "\t expected: " << getNTel() << endl;
+        cout << "\t found: " << t->GetEntries() << endl;
         exit( EXIT_FAILURE );
     }
     // loop over all telescopes

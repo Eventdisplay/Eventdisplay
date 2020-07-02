@@ -1109,6 +1109,10 @@ TList* DST_fillCalibrationTree( VDSTTree* fData, AllHessData* hsdata,
         if( telescope_list.size() == 0 || telescope_list.find( fTelID ) != telescope_list.end() )
         {
             cout << "\t filling calibration values for Telescope: " << itel << "\t" << fTelID;
+            if( telescope_list[fTelID].TelescopeName.size() > 0 )
+            {
+                 cout << "\t" << telescope_list[fTelID].TelescopeName;
+            }
             cout << " (FOV " << telescope_list[fTelID].FOV << " deg,";
             cout << " dynamic range: " << telescope_list[fTelID].DynamicRange;
             cout << ", RAWsum: " << telescope_list[fTelID].RAWsum;
@@ -1338,6 +1342,7 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
     // define tree
     int fTelID = 0;
     unsigned int fNTel = 0;
+    Char_t fTelescopeName[300];
     float fTelxpos = 0.;
     float fTelypos = 0.;
     float fTelzpos = 0.;
@@ -1387,6 +1392,7 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
     
     fTreeDet->Branch( "NTel", &fNTel, "NTel/i" );
     fTreeDet->Branch( "TelID", &fTelID, "TelID/I" );
+    fTreeDet->Branch( "TelescopeName", &fTelescopeName, "TelescopeName/C" );
     fTreeDet->Branch( "TelType", &fTelescope_type, "TelType/l" );
     fTreeDet->Branch( "TelX", &fTelxpos, "TelX/F" );
     fTreeDet->Branch( "TelY", &fTelypos, "TelY/F" );
@@ -1575,6 +1581,15 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
             else
             {
                 fFOV = telescope_list[fTelID].FOV;
+            }
+            // telescope name
+            if( telescope_list.size() == 0 || telescope_list[fTelID].TelescopeName.size() == 0 )
+            {
+                sprintf( fTelescopeName, "Tel-%d", fTelID+1 );
+            }
+            else
+            {
+                sprintf( fTelescopeName, "%s", telescope_list[fTelID].TelescopeName.c_str() );
             }
             
             // telescope types

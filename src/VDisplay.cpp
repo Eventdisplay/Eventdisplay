@@ -3371,6 +3371,10 @@ void VDisplay::dumpDeadChannels()
     }
 }
 
+/*
+ * dump all image/border channels to the screen
+ *
+ */
 void VDisplay::dumpImageBorderPixels()
 {
     if( fDebug )
@@ -3386,11 +3390,17 @@ void VDisplay::dumpImageBorderPixels()
             
             multimap< double, unsigned int > i_ImagePixel;
             multimap< double, unsigned int >::iterator it_ImagePixel;
+            multimap< double, unsigned int > i_ImagePixelTzero;
+            multimap< double, unsigned int >::iterator it_ImagePixelTzero;
             multimap< double, unsigned int > i_BorderPixel;
             multimap< double, unsigned int >::iterator it_BorderPixel;
             for( unsigned int j = 0; j < fEventLoop->getImage().size(); j++ )
             {
                 if( j >= fEventLoop->getSums().size() )
+                {
+                    continue;
+                }
+                if( j >= fEventLoop->getTZeros().size() )
                 {
                     continue;
                 }
@@ -3401,6 +3411,7 @@ void VDisplay::dumpImageBorderPixels()
                 if( fEventLoop->getImage()[j] )
                 {
                     i_ImagePixel.insert( make_pair( fEventLoop->getSums()[j], j ) );
+                    i_ImagePixelTzero.insert( make_pair( fEventLoop->getTZeros()[j], j ) );
                 }
                 if( fEventLoop->getBorder()[j] )
                 {
@@ -3409,10 +3420,19 @@ void VDisplay::dumpImageBorderPixels()
             }
             if( i_ImagePixel.size() > 0 )
             {
-                cout << "Tel " << i + 1 << ": image pixels ";
+                cout << "Tel " << i + 1 << ": image pixels (brightness) ";
                 for( it_ImagePixel = i_ImagePixel.begin(); it_ImagePixel != i_ImagePixel.end(); it_ImagePixel++ )
                 {
                     cout << it_ImagePixel->second << ",";
+                }
+                cout << endl;
+            }
+            if( i_ImagePixelTzero.size() > 0 )
+            {
+                cout << "Tel " << i + 1 << ": image pixels (pulse time) ";
+                for( it_ImagePixelTzero = i_ImagePixelTzero.begin(); it_ImagePixelTzero != i_ImagePixelTzero.end(); it_ImagePixelTzero++ )
+                {
+                    cout << it_ImagePixelTzero->second << ",";
                 }
                 cout << endl;
             }
