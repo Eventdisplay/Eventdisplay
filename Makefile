@@ -110,7 +110,7 @@ endif
 # CTA Production
 # (for hessio preprocessor flag)
 ##############################
-CTAPROD="PROD5"
+CTAPROD=PROD5
 # GSL libraries
 #####################
 ifeq ($(origin GSLSYS), undefined)
