@@ -160,6 +160,15 @@ ifeq ($(strip $(SOFASYS)),)
 ASTRONMETRY = -DASTROSLALIB
 endif
 
+######################
+# minimum dependencies for
+# GRID production
+ifeq ($(strip $(GRIDPROD)),CTAGRID)
+GSLFLAG=-DNOGSL
+FITS=FALSE
+VBFFLAG=-DNOVBF
+endif
+
 ########################################################################################################################
 # compile and linker flags
 ########################################################################################################################
