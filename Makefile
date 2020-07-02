@@ -5,6 +5,11 @@
 #  for VERITAS: make VTS
 #
 #  for CTA:     make CTA
+#  
+#  different productions:
+#  make CTA CTAPROD=PROD3b_North
+#  for grid binaries
+#  make CTA GRIDPROD=CTAGRID
 #
 #  shell variables needed:
 #    ROOTSYS (pointing to your root installation)
@@ -1988,8 +1993,8 @@ endif
 
 ./obj/%_Dict.o:	./inc/%.h ./inc/%LinkDef.h
 	@echo "Generating dictionary $@.."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp -c -p $(ROOT6FLAG) $?
-	${ROOT_CntCln} -f $(basename $@).cpp -c -p $(ROOT6FLAG) $?
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) $?
+	${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) $?
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
@@ -2008,24 +2013,24 @@ endif
 ########################################################
 ./obj/VFITS_Dict.o:
 	@echo "A Generating dictionary $@.."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp  -c -p $(ROOT6FLAG) -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
-	${ROOT_CntCln} -f $(basename $@).cpp  -c -p $(ROOT6FLAG) -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
+	${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
 ./obj/VDisplay_Dict.o:	
 	@echo "A Generating dictionary $@.."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp  -c -p $(ROOT6FLAG) -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) $(ROOT6FLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
-	${ROOT_CntCln} -f $(basename $@).cpp  -c -p $(ROOT6FLAG) -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) $(ROOT6FLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) $(ROOT6FLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
+	${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) $(ROOT6FLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
 ./obj/VZDCF_Dict.o:	
 	@echo "Generating dictionary $@..."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp -c -p $(ROOT6FLAG) ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
-	${ROOT_CntCln} -f $(basename $@).cpp -c -p $(ROOT6FLAG) ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
+	${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
