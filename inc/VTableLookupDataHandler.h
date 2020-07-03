@@ -283,6 +283,7 @@ class VTableLookupDataHandler
         int    fntubes_short[VDST_MAXTELESCOPES];
         float  fdist_short[VDST_MAXTELESCOPES];
         float  fwidth_short[VDST_MAXTELESCOPES];
+        float  fasym_short[VDST_MAXTELESCOPES];
         float  flength_short[VDST_MAXTELESCOPES];
         float  floss_short[VDST_MAXTELESCOPES];
         float  ffui_short[VDST_MAXTELESCOPES];
@@ -290,6 +291,7 @@ class VTableLookupDataHandler
         float  fcross_short[VDST_MAXTELESCOPES];
         float  fcrossO_short[VDST_MAXTELESCOPES];
         float  ftgrad_x_short[VDST_MAXTELESCOPES];
+        int    fFitstat_short[VDST_MAXTELESCOPES];
         double ffrogs_goodness_telType[VDST_MAXTELESCOPES];
         vector<float>* ffrogs_goodness_vector;
         
@@ -354,6 +356,9 @@ class VTableLookupDataHandler
         unsigned int fnxyoff;                   //! number of images used for disp direction reconstruction
         // difference in disp event direction between telescopes
         double fDispDiff;
+
+        // dispBDT cut parameter
+        double fmaxdist_qc[VDST_MAXTELESCOPES];
         
         // deep learner parameters
         bool fIsDeepLearner;

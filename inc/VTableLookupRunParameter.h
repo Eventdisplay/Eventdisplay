@@ -136,6 +136,7 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         double       fMC_distance_to_cameracenter_min;
         double       fMC_distance_to_cameracenter_max;
         double       fmaxdist;   // note: same for all telescope types
+        double       fmaxdistfraction; // note: same for all telescope types
         double       fmaxloss;   // note: same for all telescope types
         double       fminfui ;   // note: same for all telescope types
         double       fminsize;   // note: same for all telescope times
@@ -188,6 +189,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         void print( int iB = 0 );
         void printHelp();
         
-        ClassDef( VTableLookupRunParameter, 47 ); //for any changes to this file: increase this number
+        ClassDef( VTableLookupRunParameter, 48 ); //for any changes to this file: increase this number
 };
 #endif

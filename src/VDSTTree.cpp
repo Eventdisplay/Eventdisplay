@@ -953,6 +953,13 @@ map< unsigned int, VDSTTelescopeConfiguration> VDSTTree::readArrayConfig( string
                 is_stream >> iT2;
                 fDST_list_of_telescopes[atoi( iT1.c_str() )].RAWsum = ( bool )atoi( iT2.c_str() );
             }
+            // read telescope name
+            fDST_list_of_telescopes[atoi( iT1.c_str() )].TelescopeName = "";
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iT2;
+                fDST_list_of_telescopes[atoi( iT1.c_str() )].TelescopeName = iT2;
+            }
             fDST_vlist_of_telescopes.push_back( atoi( iT1.c_str() ) );
         }
     }
@@ -964,6 +971,10 @@ map< unsigned int, VDSTTelescopeConfiguration> VDSTTree::readArrayConfig( string
     {
         cout << "\t Telescope ID " << iter->first << "  FOV " << iter->second.FOV;
         cout << "  Dyn " << iter->second.DynamicRange << " RAW " << iter->second.RAWsum;
+        if(  iter->second.TelescopeName.size() > 0 )
+        {
+            cout << " Name " << iter->second.TelescopeName;
+        }
         cout << " (#" << z << ")" << endl;
         z++;
     }

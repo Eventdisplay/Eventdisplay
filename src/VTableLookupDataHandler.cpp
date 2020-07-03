@@ -186,6 +186,8 @@ void VTableLookupDataHandler::fill()
             fsize_short[ii]   = fsize[i];
             fntubes_short[ii] = fntubes[i];
             ftgrad_x_short[ii] = ftgrad_x[i];
+            fasym_short[ii]  = fasym[i];
+            fFitstat_short[ii] = fFitstat[i];
             
             ii++;
         }
@@ -711,7 +713,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
         fDispAnalyzerCore->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
                                            fTLRunParameter->fmaxdist, 
                                            fTLRunParameter->fmaxloss,
-                                           fTLRunParameter->fminfui );
+                                           fTLRunParameter->fminfui,
+                                           fmaxdist_qc );
         fDispAnalyzerCore->calculateCore(
             getNTel(),
             fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -750,7 +753,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
         fDispAnalyzerEnergy->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
                                              fTLRunParameter->fmaxdist, 
                                              fTLRunParameter->fmaxloss,
-                                             fTLRunParameter->fminfui );
+                                             fTLRunParameter->fminfui,
+                                             fmaxdist_qc );
         fDispAnalyzerEnergy->calculateEnergies(
             getNTel(),
             fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -861,7 +865,8 @@ void VTableLookupDataHandler::doStereoReconstruction()
         fDispAnalyzerDirection->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
                                                 fTLRunParameter->fmaxdist, 
                                                 fTLRunParameter->fmaxloss,
-                                                fTLRunParameter->fminfui );
+                                                fTLRunParameter->fminfui,
+                                                fmaxdist_qc );
         fDispAnalyzerDirection->calculateMeanDirection(
             getNTel(),
             fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -1037,7 +1042,9 @@ void VTableLookupDataHandler::printTelescopesList( unsigned int iPrintParameter 
             cout << ", used in analysis";
             if( fTLRunParameter->fRerunStereoReconstruction )
             {
-                cout << " (stereo weight: " << fTLRunParameter->fTelToAnalyzeData[i]->fWeight << ")";
+                cout << " (stereo weight: " << fTLRunParameter->fTelToAnalyzeData[i]->fWeight;
+                cout << ", dist cut: " << fmaxdist_qc[i];
+                cout << ")";
             }
         }
         else
@@ -1144,6 +1151,15 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
                 {
                     fList_of_Tel_type[ftelconfig->TelType] = 1;
                 }
+            }
+            // quality cut on maximal distance to camera centre
+            if( fTLRunParameter->fmaxdistfraction > 0. )
+            {
+                fmaxdist_qc[i] = fTLRunParameter->fmaxdistfraction * 0.5 * fTelFOV[i];
+            }
+            else
+            {
+                fmaxdist_qc[i] = fTLRunParameter->fmaxdist;
             }
         }
         // special case: no telescope given in teltoanalyze vector
@@ -1689,6 +1705,8 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     fOTree->Branch( "width", fwidth_short, "width[NImages]/F" );
     fOTree->Branch( "length", flength_short, "length[NImages]/F" );
     fOTree->Branch( "tgrad_x", ftgrad_x_short, "tgrad_x[NImages]/F" );
+    fOTree->Branch( "asym", fasym_short, "asym[NImages]/F" );
+    fOTree->Branch( "Fitstat", fFitstat_short, "Fitstat[NImages]/I" );
     
     // image parameters (for all telescopes)
     if( !fShortTree )
@@ -1719,8 +1737,6 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
         fOTree->Branch( "alpha", falpha, iTT );
         sprintf( iTT, "los[%d]/D", fNTel );
         fOTree->Branch( "los", flos, iTT );
-        sprintf( iTT, "asym[%d]/D", fNTel );
-        fOTree->Branch( "asym", fasym, iTT );
         sprintf( iTT, "cen_x[%d]/D", fNTel );
         fOTree->Branch( "cen_x", fcen_x, iTT );
         sprintf( iTT, "cen_y[%d]/D", fNTel );
@@ -1731,8 +1747,6 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
         fOTree->Branch( "sinphi", fsinphi, iTT );
         sprintf( iTT, "tchisq_x[%d]/D", fNTel );
         fOTree->Branch( "tchisq_x", ftchisq_x, iTT );
-        sprintf( iTT, "Fitstat[%d]/I", fNTel );
-        fOTree->Branch( "Fitstat", fFitstat, iTT );
     }
     fOTree->Branch( "DispNImages", &fnxyoff, "DispNImages/i" );
     fOTree->Branch( "DispXoff_T", fXoff_T, "DispXoff_T[NImages]/F" );
@@ -2377,6 +2391,8 @@ void VTableLookupDataHandler::reset()
         fwidth_short[i] = -99.;
         flength_short[i] = -99.;
         ftgrad_x_short[i] = -99.;
+        fasym_short[i] = -99.;
+        fFitstat_short[i] = -99;
         fR_MC[i] = -99.;
         fR_short_MC[i] = -99.;
         fES[i] = -99.;
@@ -2727,6 +2743,8 @@ void VTableLookupDataHandler::resetAll()
         fwidth_short[i] = -99.;
         flength_short[i] = -99.;
         ftgrad_x_short[i] = -99.;
+        fasym_short[i] = -99.;
+        fFitstat_short[i] = -99;
         fR_telType[i] = 0.;
         fLoss_telType[i] = 0.;
         fDistance_telType[i] = 0.;

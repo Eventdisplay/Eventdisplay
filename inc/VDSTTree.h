@@ -31,6 +31,7 @@ struct VDSTTelescopeConfiguration
     float FOV;
     float DynamicRange;
     bool  RAWsum;
+    string TelescopeName;
 };
 
 class VDSTTree
