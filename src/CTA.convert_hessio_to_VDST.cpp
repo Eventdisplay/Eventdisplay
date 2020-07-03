@@ -977,8 +977,8 @@ bool DST_fillEvent( VDSTTree* fData, AllHessData* hsdata, map< unsigned int, VDS
     VAstronometry::vlaDs2tp( fData->fDSTaz *TMath::DegToRad(), (90.-fData->fDSTze)*TMath::DegToRad(),
                              i_tel_az * TMath::DegToRad(), i_tel_el * TMath::DegToRad(), 
                              &j_x, &j_y, &j_j );
-    fData->fDSTTel_xoff = j_x;
-    fData->fDSTTel_yoff = -1.*j_y;
+    fData->fDSTTel_xoff = j_x * TMath::RadToDeg();;
+    fData->fDSTTel_yoff = -1.*j_y * TMath::RadToDeg();;
     /////////////////////////////////////////////////////////////////////////////
     
     if( fData->fDST_tree )
