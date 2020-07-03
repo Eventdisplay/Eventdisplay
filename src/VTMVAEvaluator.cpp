@@ -984,15 +984,25 @@ double VTMVAEvaluator::evaluateInterPolateMVA( double iErec_log10TeV, double iZe
         return fTMVAData[iDataBin]->fTMVAReader->EvaluateMVA( fTMVAData[iDataBin]->fTMVAMethodTag_2 );
     }
 
+    double t = 0;
+    unsigned iZe_mva_bin = 999;
+    unsigned iEn_mva_bin = 999;
+
     for( unsigned int w = 0; w < iW.size(); w++ )
     {
         // ignore very small weights
         if( w < fTMVAData.size() && iW[w] > 0.001
         && fTMVAData[w]->fTMVAReader )
         {
-             double t = fTMVAData[w]->fTMVAReader->EvaluateMVA( fTMVAData[w]->fTMVAMethodTag_2 );
+             if( fTMVAData[w]->fEnergyCut_bin != iEn_mva_bin || fTMVAData[w]->fZenithCut_bin != iZe_mva_bin )
+             {
+                  t = fTMVAData[w]->fTMVAReader->EvaluateMVA( fTMVAData[w]->fTMVAMethodTag_2 );
+             }
              iMVA += iW[w] * t;
              iMVA_tot += iW[w];
+
+             iZe_mva_bin = fTMVAData[w]->fZenithCut_bin;
+             iEn_mva_bin = fTMVAData[w]->fEnergyCut_bin;
         }
     }
     if( iMVA_tot > 0. )
@@ -1014,7 +1024,6 @@ double VTMVAEvaluator::evaluateInterPolateMVA( double iErec_log10TeV, double iZe
  */
 vector< double > VTMVAEvaluator::getDataBinWeights( double iErec_log10TeV, unsigned int iZeBin )
 {
-    vector< double > iW( fTMVAData.size(), 0. );
     for( unsigned int i = 0; i < fTMVAData.size(); i++ )
     {
            if( fTMVAData[i]->fZenithCut_bin == iZeBin )
@@ -1024,6 +1033,7 @@ vector< double > VTMVAEvaluator::getDataBinWeights( double iErec_log10TeV, unsig
                            + fTMVAData[i]->fZenithCut_max ) );
            }
     }
+    vector< double > iW( fTMVAData.size(), 0. );
     return iW;
 }
 
@@ -1040,7 +1050,6 @@ vector< double > VTMVAEvaluator::getDataBinWeights( double iErec_log10TeV, doubl
 {
     vector< double > iW( fTMVAData.size(), 0. );
 
-    double iMeanEnergy = 1.e10;
     double i_tot = 0.;
 
     for( unsigned int i = 0; i < fTMVAData.size(); i++ )
@@ -1049,14 +1058,12 @@ vector< double > VTMVAEvaluator::getDataBinWeights( double iErec_log10TeV, doubl
         if( ( iZe > fTMVAData[i]->fZenithCut_min && iZe <= fTMVAData[i]->fZenithCut_max ) || iZe < -998. )
         {
             // mean energy of this energy bin (possibly spectral weighted)
-            iMeanEnergy = VMathsandFunctions::getMeanEnergyInBin( 2, fTMVAData[i]->fEnergyCut_Log10TeV_min,
-                          fTMVAData[i]->fEnergyCut_Log10TeV_max,
-                          fSpectralIndexForEnergyWeighting );
-            if( iErec_log10TeV < iMeanEnergy )
+            if( iErec_log10TeV < fTMVAData[i]->fSpectralWeightedMeanEnergy_Log10TeV )
             {
-                if( TMath::Abs(iMeanEnergy-fTMVAData[i]->fEnergyCut_Log10TeV_min) > 0. )
+                if( TMath::Abs(fTMVAData[i]->fSpectralWeightedMeanEnergy_Log10TeV-fTMVAData[i]->fEnergyCut_Log10TeV_min) > 0. )
                 {
-                    iW[i] = 1. - tanh( 2.* TMath::Abs( iMeanEnergy - iErec_log10TeV ) / TMath::Abs(iMeanEnergy-fTMVAData[i]->fEnergyCut_Log10TeV_min)  );
+                    iW[i] = 1. - tanh( 2.* TMath::Abs( fTMVAData[i]->fSpectralWeightedMeanEnergy_Log10TeV - iErec_log10TeV )
+                         / TMath::Abs(fTMVAData[i]->fSpectralWeightedMeanEnergy_Log10TeV-fTMVAData[i]->fEnergyCut_Log10TeV_min)  );
                 }
                 else
                 {
@@ -1065,9 +1072,10 @@ vector< double > VTMVAEvaluator::getDataBinWeights( double iErec_log10TeV, doubl
             }
             else
             {
-                if( TMath::Abs(iMeanEnergy+fTMVAData[i]->fEnergyCut_Log10TeV_max) > 0. )
+                if( TMath::Abs(fTMVAData[i]->fSpectralWeightedMeanEnergy_Log10TeV+fTMVAData[i]->fEnergyCut_Log10TeV_max) > 0. )
                 {
-                    iW[i] = 1. - tanh( 2. * TMath::Abs( iMeanEnergy - iErec_log10TeV ) / TMath::Abs(iMeanEnergy+fTMVAData[i]->fEnergyCut_Log10TeV_max) );
+                    iW[i] = 1. - tanh( 2. * TMath::Abs( fTMVAData[i]->fSpectralWeightedMeanEnergy_Log10TeV - iErec_log10TeV )
+                          / TMath::Abs(fTMVAData[i]->fSpectralWeightedMeanEnergy_Log10TeV+fTMVAData[i]->fEnergyCut_Log10TeV_max) );
                 }
                 else
                 {
