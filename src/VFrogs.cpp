@@ -1140,7 +1140,13 @@ void VFrogs::transformResults()
         double az = 0.;
         if( fData->getArrayPointing() )
         {
-            fData->getArrayPointing()->getRotatedShowerDirection( 1.*frogsYS, -1.*frogsXS, ze, az );
+            VAstronometry::vlaDtp2s( -1.*frogsXS * TMath::DegToRad(),
+                                         frogsYS * TMath::DegToRad(),
+                                         getArrayPointing()->getTelAzimuth() * TMath::DegToRad(),
+                                         getArrayPointing()->getTelElevation() * TMath::DegToRad(),
+                                         &az, &ze );
+            az *= TMath::RadToDeg();
+            ze = 90. - ze*TMath::RadToDeg();
         }
         if( TMath::IsNaN( ze ) ||  TMath::IsNaN( az ) )
         {
@@ -1149,7 +1155,7 @@ void VFrogs::transformResults()
         }
         else
         {
-            az = VSkyCoordinatesUtilities::adjustAzimuthToRange( az );
+            az = VAstronometry::vlaDranrm( az * TMath::DegToRad() ) * TMath::RadToDeg();
         }
         frogsZe = ze;
         frogsAz = az;

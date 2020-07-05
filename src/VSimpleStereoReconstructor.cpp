@@ -361,18 +361,20 @@ bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
     // ze / az
     double ze = 0.;
     double az = 0.;
-    VSkyCoordinatesUtilities::getRotatedShowerDirection( 90. - fTelElevation,
-            fTelAzimuth,
-            -1. * fShower_Yoffset,
-            -1. * fShower_Xoffset,
-            ze, az );
+    VAstronometry::vlaDtp2s( -1.* fShower_Xoffset*TMath::DegToRad(), 
+                                  fShower_Yoffset*TMath::DegToRad(),
+                                  fTelAzimuth * TMath::DegToRad(),
+                                  fTelElevation * TMath::DegToRad(),
+                                   &az, &ze );
+    az *= TMath::RadToDeg();
+    ze = 90. - ze * TMath::RadToDeg();
             
     if( TMath::IsNaN( ze ) )
     {
         fShower_Ze = -99999.;
     }
     fShower_Ze = ze;
-    fShower_Az = VSkyCoordinatesUtilities::adjustAzimuthToRange( az );
+    fShower_Az = VAstronometry::vlaDranrm( az * TMath::DegToRad() ) * TMath::RadToDeg();
 
     return true;
 }
