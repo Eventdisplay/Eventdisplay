@@ -1981,7 +1981,7 @@ bool VGammaHadronCuts::initTMVAEvaluator( string iTMVAFile,
     {
         fTMVAEvaluator->setTMVACutValue( fTMVA_MVACut );
     }
-    else if( !fTMVA_MVACutGraphFileName.size() > 0 )
+    else if( fTMVA_MVACutGraphFileName.size() == 0 )
     {
         cout << "VGammaHadronCuts::initTMVAEvaluator error: unclear TMVA cut settings" << endl;
         cout << "\t fTMVASignalEfficiency: " << fTMVASignalEfficiency.size() << endl;
