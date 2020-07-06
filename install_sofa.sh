@@ -22,17 +22,17 @@ mkdir sofa
 cd sofa
 
 # get sofa package from the web page and install
-wget http://www.iausofa.org/2018_0130_C/sofa_c-20180130.tar.gz
-if [ ! -e sofa_c-20180130.tar.gz ]
+wget http://www.iausofa.org/2019_0722_C/sofa_c-20190722.tar.gz
+if [ ! -e sofa_c-20190722.tar.gz ]
 then
     echo "error in downloading sofa package"
     exit
 fi
-tar -xvzf sofa_c-20180130.tar.gz
+tar -xvzf sofa_c-20190722.tar.gz
 
 ##########################
 # prepare make file
-cd sofa/20180130/c/src/
+cd sofa/20190722/c/src/
 sed -i -- "s/\$(HOME)/\$(EVNDISPSYS)\/sofa/" makefile
 # use clang on OSX
 OS=`uname -s`
@@ -47,6 +47,7 @@ fi
 # make and install
 make
 make install
+make clean
 
 echo "Installation completed"
 echo "Please set the following environmental variable: "
