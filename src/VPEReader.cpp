@@ -238,9 +238,14 @@ bool VPEReader::getNextEvent()
             // add wobble offset
             double az = 0.;
             double ze = 0.;
-            VSkyCoordinatesUtilities::getRotatedShowerDirection( fPE_ze * degrad, fPE_az * degrad, fPE_Tel_yoff, -1.*fPE_Tel_xoff, ze, az );
-            fPE_ze = ze;
-            fPE_az = VSkyCoordinatesUtilities::adjustAzimuthToRange( az );
+            VAstronometry::vlaDtp2s(  -1.*fPE_Tel_xoff * TMath::DegToRad(),
+                                      -1.*fPE_Tel_yoff * TMath::DegToRad(),
+                                      fPE_az,
+                                      0.5*TMath::Pi()-ze,
+                                      &az, &ze );
+
+            fPE_ze = 0.5*TMath::Pi()-ze;
+            fPE_az = az;
         }
         
         if( fPE_Tree[i]->v_f_time && fPE_Tree[i]->v_f_ID )

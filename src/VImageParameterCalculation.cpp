@@ -969,7 +969,7 @@ void VImageParameterCalculation::calcParameters()
     if( !getDetectorGeo() )
     {
         cout << "VImageParameterCalculation::calcParameters error: detector geometry not defined" << endl;
-        exit( 0 );
+        exit( EXIT_FAILURE );
     }
     
     double sumsig = 0;
@@ -1281,18 +1281,12 @@ void VImageParameterCalculation::calcParameters()
         double length2 = ( sdevx2 + sdevy2 + z ) / 2.0;
         if( length2 < ZeroTolerence )
         {
-            //if ( length2 < -(ZeroTolerence) )
-            //	throw Error("Length squared is less than -ZeroTolerence");
-            
             length2 = 0;
         }
         
         double width2  = ( sdevx2 + sdevy2 - z ) / 2.0;
         if( width2 < ZeroTolerence )
         {
-            //if ( width2 < -(ZeroTolerence) )
-            //throw Error("Width squared is less than -ZeroTolerence");
-            
             width2 = 0;
         }
         
@@ -1345,7 +1339,6 @@ void VImageParameterCalculation::calcParameters()
         ////////////////////////////////////////////////////////////////////////////
         
         const double sinalpha = ( dist > ZeroTolerence ) ? miss / dist : 0;
-        //  if(sinalpha>1.0)sinalpha=1.0; // Floating point sanity check
         
         const double alpha = fabs( TMath::RadToDeg() * asin( sinalpha ) );
         

@@ -5,6 +5,11 @@
 #  for VERITAS: make VTS
 #
 #  for CTA:     make CTA
+#  
+#  different productions:
+#  make CTA CTAPROD=PROD3b_North
+#  for grid binaries
+#  make CTA GRIDPROD=CTAGRID
 #
 #  shell variables needed:
 #    ROOTSYS (pointing to your root installation)
@@ -40,7 +45,7 @@ ARCH = $(shell uname)
 # basic numbers 
 #############################
 package = EVNDISP
-version = 502
+version = 505
 # version of auxiliary files
 auxversion = $(version)-auxv01
 distdir = $(package)-$(version)
@@ -106,7 +111,11 @@ ifeq ($(DBTEST),yes)
   DBFLAG=-DRUNWITHDB
 endif
 # DBFLAG=""
-#####################
+###############################
+# CTA Production
+# (for hessio preprocessor flag)
+##############################
+CTAPROD=PROD5
 # GSL libraries
 #####################
 ifeq ($(origin GSLSYS), undefined)
@@ -149,6 +158,15 @@ endif
 ASTRONMETRY = -DASTROSOFA
 ifeq ($(strip $(SOFASYS)),)
 ASTRONMETRY = -DASTROSLALIB
+endif
+
+######################
+# minimum dependencies for
+# GRID production
+ifeq ($(strip $(GRIDPROD)),CTAGRID)
+GSLFLAG=-DNOGSL
+FITS=FALSE
+VBFFLAG=-DNOVBF
 endif
 
 ########################################################################################################################
@@ -255,38 +273,56 @@ CXXFLAGS	+= -I$(SOFASYS)/include/
 endif
 ########################################################
 # HESSIO 
+# (long history of productions)
 ########################################################
 ifneq ($(HESSIO),FALSE)
 HESSIOINCLUDEFLAGS = -I $(HESSIOSYS)/include/
 ifeq ($(strip $(HESSIOCFLAGS)),)
-#CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_MAX
+### prod1
 # 2010 PROD1 production
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_ULTRA
+ifeq ($(strip $(CTAPROD)),PROD1)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_ULTRA
+endif
 # 2011 PROD1 production for Leeds
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_ULTRA
+ifeq ($(strip $(CTAPROD)),PROD1Leeds)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_ULTRA
+endif
 # 2011 PROD1 SC 
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_SC=2
+ifeq ($(strip $(CTAPROD)),PROD1SCT)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_SC=2
+endif
+### prod2
 # 2013 PROD2
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD2 -DCTA_PROD2_TRGMASK
-# SC MST FLAGS (needs 201312 hessio version)
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_SC=3
-# 2015 PROD3
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3 -mcmodel=large 
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS)  -DCTA -DCTA_MAX_SC -mcmodel=large 
-# Grid produced files (prod3)
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS)  -DCTA -DCTA_PROD3_MERGE
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS)  -DCTA -DCTA_PROD3_MERGE -mcmodel=large
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS)  -DCTA_MAX -DH_SAVE_MEMORY
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS)    -DCTA -DCTA_MAX_SC
-# CTA Demo mode (used for Prod3b La Palmab and Paranal SCT files)
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS)    -DCTA -DCTA_PROD3_DEMO
-# CTA prod3b (noSCT)
-CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3_MERGE
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_MAX
+ifeq ($(strip $(CTAPROD)),PROD2)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD2 -DCTA_PROD2_TRGMASK
+endif
+### prod3
 # HD produced files (prod3)
-# CXXFLAGS        += $(HESSIOINCLUDEFLAGS)  -DCTA -DCTA_MAX_SC -mcmodel=large 
-else
-CXXFLAGS        += $(HESSIOINCLUDEFLAGS) $(HESSIOCFLAGS)
+ifeq ($(strip $(CTAPROD)),PROD3_HD)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS)  -DCTA -DCTA_MAX_SC -mcmodel=large 
+endif 
+# 2015 PROD3
+ifeq ($(strip $(CTAPROD)),PROD3_2015)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3 -mcmodel=large 
+endif
+### prod3b
+# CTA prod3b North (used for Prod3b La Palmab and Paranal SCT files)
+ifeq ($(strip $(CTAPROD)),PROD3b_North)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3_DEMO
+endif
+# CTA prod3b South (noSCT)
+ifeq ($(strip $(CTAPROD)),PROD3b_South)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3_MERGE
+endif
+### prod5
+# CTA prod5
+ifeq ($(strip $(CTAPROD)),PROD5)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_PROD4 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG
+endif
+# MAX values
+ifeq ($(strip $(CTAPROD)),CTAMAX)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_MAX
+endif
 endif
 endif
 ########################################################
@@ -1966,8 +2002,8 @@ endif
 
 ./obj/%_Dict.o:	./inc/%.h ./inc/%LinkDef.h
 	@echo "Generating dictionary $@.."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp -c -p $(ROOT6FLAG) $?
-	${ROOT_CntCln} -f $(basename $@).cpp -c -p $(ROOT6FLAG) $?
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) $?
+	${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) $?
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
@@ -1986,24 +2022,24 @@ endif
 ########################################################
 ./obj/VFITS_Dict.o:
 	@echo "A Generating dictionary $@.."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp  -c -p $(ROOT6FLAG) -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
-	${ROOT_CntCln} -f $(basename $@).cpp  -c -p $(ROOT6FLAG) -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
+	${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
 ./obj/VDisplay_Dict.o:	
 	@echo "A Generating dictionary $@.."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp  -c -p $(ROOT6FLAG) -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) $(ROOT6FLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
-	${ROOT_CntCln} -f $(basename $@).cpp  -c -p $(ROOT6FLAG) -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) $(ROOT6FLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) $(ROOT6FLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
+	${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) $(ROOT6FLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
 ./obj/VZDCF_Dict.o:	
 	@echo "Generating dictionary $@..."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp -c -p $(ROOT6FLAG) ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
-	${ROOT_CntCln} -f $(basename $@).cpp -c -p $(ROOT6FLAG) ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
+	${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/

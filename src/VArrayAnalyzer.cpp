@@ -1147,11 +1147,11 @@ void VArrayAnalyzer::checkPointing()
             getShowerParameters()->fTelAzimuthVBF[i]   = getReader()->getArrayTrigger()->getAzimuth( ivbf );
             if( i < getPointing().size() && getPointing()[i] )
             {
-                float iPointingDiff = ( float )VSkyCoordinatesUtilities::angularDistance( getPointing()[i]->getTelAzimuth() / TMath::RadToDeg(),
-                                ( 90. - getPointing()[i]->getTelElevation() ) / TMath::RadToDeg(),
-                                getReader()->getArrayTrigger()->getAzimuth( ivbf ) / TMath::RadToDeg(),
-                                ( 90. - getReader()->getArrayTrigger()->getAltitude( ivbf ) ) / TMath::RadToDeg() );
-                                
+                float iPointingDiff = VAstronometry::vlaDsep( getPointing()[i]->getTelAzimuth() * TMath::DegToRad(),
+                                                             ( 90. - getPointing()[i]->getTelElevation() ) * TMath::DegToRad(),
+                                                             getReader()->getArrayTrigger()->getAzimuth( ivbf )* TMath::DegToRad() ,
+                                                             ( 90. - getReader()->getArrayTrigger()->getAltitude( ivbf ) ) * TMath::DegToRad() )
+                                                             * TMath::RadToDeg();
                 getShowerParameters()->fTelPointingMismatch[i] = iPointingDiff;
                 getShowerParameters()->fTelPointingErrorX[i] = getPointing()[i]->getPointingErrorX();
                 getShowerParameters()->fTelPointingErrorY[i] = getPointing()[i]->getPointingErrorY();
@@ -1611,8 +1611,13 @@ bool VArrayAnalyzer::fillShowerDirection( unsigned int iMethod, float xs, float 
     double az = 0.;
     if( getArrayPointing() )
     {
-        getArrayPointing()->getRotatedShowerDirection( -1.*getShowerParameters()->fShower_Yoffset[iMethod],
-                -1.*getShowerParameters()->fShower_Xoffset[iMethod], ze, az );
+        VAstronometry::vlaDtp2s( -1.*getShowerParameters()->fShower_Xoffset[iMethod] * TMath::DegToRad(),
+                                     getShowerParameters()->fShower_Yoffset[iMethod] * TMath::DegToRad(),
+                                     getArrayPointing()->getTelAzimuth() * TMath::DegToRad(),
+                                     getArrayPointing()->getTelElevation() * TMath::DegToRad(),
+                                     &az, &ze );
+        az *= TMath::RadToDeg();
+        ze = 90. - ze*TMath::RadToDeg();
     }
     if( TMath::IsNaN( ze ) )
     {
@@ -1623,7 +1628,7 @@ bool VArrayAnalyzer::fillShowerDirection( unsigned int iMethod, float xs, float 
         az = -99999.;
     }
     getShowerParameters()->fShowerZe[iMethod] = ze;
-    getShowerParameters()->fShowerAz[iMethod] = VSkyCoordinatesUtilities::adjustAzimuthToRange( az );
+    getShowerParameters()->fShowerAz[iMethod] = VAstronometry::vlaDranrm( az * TMath::DegToRad() ) * TMath::RadToDeg();
     getShowerParameters()->fShower_stdS[iMethod] = stds;
     
     // calculate derotated shower directions in camera coordinates

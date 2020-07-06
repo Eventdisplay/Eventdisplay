@@ -539,13 +539,16 @@ bool VSimulationDataReader::setSimulationData( VPacket* packet )
         fTel_Elevation = 90. - fSimulationData->fObservationZenithDeg;
         fTel_Azimuth = fSimulationData->fObservationAzimuthDeg;
         
-        float x = 0.;
-        float y = 0.;
-        float z = 0.;
-        VSkyCoordinatesUtilities::getDifferenceInCameraCoordinates( fSimulationData->fObservationZenithDeg, fSimulationData->fObservationAzimuthDeg,
-                fSimulationData->fPrimaryZenithDeg, fSimulationData->fPrimaryAzimuthDeg, x, y, z );
-        fMCXoff = x;
-        fMCYoff = y;
+        double x = 0.;
+        double y = 0.;
+        int j = 0;
+        VAstronometry::vlaDs2tp( fSimulationData->fPrimaryAzimuthDeg * TMath::DegToRad(),
+                                 (90. - fSimulationData->fPrimaryZenithDeg ) * TMath::DegToRad(),
+                                 fSimulationData->fObservationAzimuthDeg * TMath::DegToRad(),
+                                 (90. - fSimulationData->fObservationZenithDeg ) * TMath::DegToRad(),
+                                 &x, &y, &j );
+        fMCXoff = x * TMath::RadToDeg();
+        fMCYoff = -1. * y * TMath::RadToDeg();
 #endif
         // calculate direction cosinii
         // (this might be different to what VGrisuReader reads from the MC file

@@ -35,8 +35,7 @@
 #include "VEvndispRunParameter.h"
 #include "VDSTTree.h"
 #include "VMonteCarloRunHeader.h"
-#include "VSkyCoordinatesUtilities.h"
-
+#include "VAstronometry.h"
 ///////////////////////////////////////////////////////
 // global variables
 ///////////////////////////////////////////////////////
@@ -494,13 +493,13 @@ bool DST_fillMCEvent( VDSTTree* fData, AllHessData* hsdata )
     // (Note: assume that all telescope point into the same direction)
     double i_tel_el = hsdata->run_header.direction[1] * TMath::RadToDeg();
     double i_tel_az = hsdata->run_header.direction[0] * TMath::RadToDeg();
-    float i_x = 0.;
-    float i_y = 0.;
-    float i_z = 0.;
-    VSkyCoordinatesUtilities::getDifferenceInCameraCoordinates( 90. - i_tel_el, i_tel_az, fData->fDSTze, fData->fDSTaz, i_x, i_y, i_z );
-    fData->fDSTTel_xoff = i_x;
-    fData->fDSTTel_yoff = i_y;
-    /////////////////////////////////////////////////////////////////////////////
+    double j_x, j_y = 0.;
+    int j_j = 0;
+    VAstronometry::vlaDs2tp( fData->fDSTaz *TMath::DegToRad(), (90.-fData->fDSTze)*TMath::DegToRad(),
+                             i_tel_az * TMath::DegToRad(), i_tel_el * TMath::DegToRad(), 
+                             &j_x, &j_y, &j_j );
+    fData->fDSTTel_xoff = j_x * TMath::RadToDeg();
+    fData->fDSTTel_yoff = -1.*j_y * TMath::RadToDeg();
     
     if( fData->fMCtree )
     {
@@ -973,13 +972,13 @@ bool DST_fillEvent( VDSTTree* fData, AllHessData* hsdata, map< unsigned int, VDS
             break;
         }
     }
-    
-    float i_x = 0.;
-    float i_y = 0.;
-    float i_z = 0.;
-    VSkyCoordinatesUtilities::getDifferenceInCameraCoordinates( 90. - i_tel_el, i_tel_az, fData->fDSTze, fData->fDSTaz, i_x, i_y, i_z );
-    fData->fDSTTel_xoff = i_x;
-    fData->fDSTTel_yoff = i_y;
+    double j_x, j_y = 0.;
+    int j_j = 0;
+    VAstronometry::vlaDs2tp( fData->fDSTaz *TMath::DegToRad(), (90.-fData->fDSTze)*TMath::DegToRad(),
+                             i_tel_az * TMath::DegToRad(), i_tel_el * TMath::DegToRad(), 
+                             &j_x, &j_y, &j_j );
+    fData->fDSTTel_xoff = j_x * TMath::RadToDeg();;
+    fData->fDSTTel_yoff = -1.*j_y * TMath::RadToDeg();;
     /////////////////////////////////////////////////////////////////////////////
     
     if( fData->fDST_tree )
@@ -1109,6 +1108,10 @@ TList* DST_fillCalibrationTree( VDSTTree* fData, AllHessData* hsdata,
         if( telescope_list.size() == 0 || telescope_list.find( fTelID ) != telescope_list.end() )
         {
             cout << "\t filling calibration values for Telescope: " << itel << "\t" << fTelID;
+            if( telescope_list[fTelID].TelescopeName.size() > 0 )
+            {
+                 cout << "\t" << telescope_list[fTelID].TelescopeName;
+            }
             cout << " (FOV " << telescope_list[fTelID].FOV << " deg,";
             cout << " dynamic range: " << telescope_list[fTelID].DynamicRange;
             cout << ", RAWsum: " << telescope_list[fTelID].RAWsum;
@@ -1338,6 +1341,7 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
     // define tree
     int fTelID = 0;
     unsigned int fNTel = 0;
+    Char_t fTelescopeName[300];
     float fTelxpos = 0.;
     float fTelypos = 0.;
     float fTelzpos = 0.;
@@ -1387,6 +1391,7 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
     
     fTreeDet->Branch( "NTel", &fNTel, "NTel/i" );
     fTreeDet->Branch( "TelID", &fTelID, "TelID/I" );
+    fTreeDet->Branch( "TelescopeName", &fTelescopeName, "TelescopeName/C" );
     fTreeDet->Branch( "TelType", &fTelescope_type, "TelType/l" );
     fTreeDet->Branch( "TelX", &fTelxpos, "TelX/F" );
     fTreeDet->Branch( "TelY", &fTelypos, "TelY/F" );
@@ -1575,6 +1580,15 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
             else
             {
                 fFOV = telescope_list[fTelID].FOV;
+            }
+            // telescope name
+            if( telescope_list.size() == 0 || telescope_list[fTelID].TelescopeName.size() == 0 )
+            {
+                sprintf( fTelescopeName, "Tel-%d", fTelID+1 );
+            }
+            else
+            {
+                sprintf( fTelescopeName, "%s", telescope_list[fTelID].TelescopeName.c_str() );
             }
             
             // telescope types
