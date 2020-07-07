@@ -120,8 +120,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         // spectral index used to re-weight events while filling the
         // lookup tables
         double fSpectralIndex;
-        // use core position and direction from model3D analysis
-        bool bUseModel3DStereoParameters;
         // parameters set to fix lookup table file directory structure
         // zenith angle
         double ze;

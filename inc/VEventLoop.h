@@ -27,7 +27,6 @@
 #ifndef NOGSL
 #include <VFrogs.h>
 #endif
-#include <VModel3D.h>
 
 #include <VDeadPixelOrganizer.h>
 
@@ -53,8 +52,6 @@ class VEventLoop : public VEvndispData
 #ifndef NOGSL
         VFrogs* fFrogs;                           //!< Frogs Analyzer
 #endif
-        VModel3D* fModel3D;                     //!< Model3D
-        
         VDeadPixelOrganizer* fDeadPixelOrganizer ;
         
         VDeadTime* fDeadTime;                     //!< dead time calculator
