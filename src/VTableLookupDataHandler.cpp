@@ -27,11 +27,8 @@ VTableLookupDataHandler::VTableLookupDataHandler( bool iwrite, VTableLookupRunPa
     fTshowerpars = 0;
     fTshowerpars_QCCut = 0;
     fshowerpars = 0;
-    fTmodel3Dpars = 0;
-    fmodel3Dpars = 0;
     fFrogspars = 0;
     fDeepLearnerpars = 0;
-    fUseModel3DStereoParameters = fTLRunParameter->bUseModel3DStereoParameters;
     fOTree = 0;
     fShortTree = fTLRunParameter->bShortTree;
     bWriteMCPars = fTLRunParameter->bWriteMCPars;
@@ -59,7 +56,6 @@ VTableLookupDataHandler::VTableLookupDataHandler( bool iwrite, VTableLookupRunPa
     fEventCounter = 0;
     
     fEventWeight = 1.;
-    fIsModel3D = false;
     // (hardwired DL parameters)
     // --> set true to read DL parameters
     // and fill them into the output tree
@@ -345,10 +341,6 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     {
         return -1;
     }
-    if( fIsModel3D )
-    {
-        fmodel3Dpars->GetEntry( fEventCounter );
-    }
     if( fFrogspars )
     {
         fFrogspars->GetEntry( fEventCounter );
@@ -440,24 +432,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     
     fZe = fshowerpars->Ze[fMethod];
     fAz = fshowerpars->Az[fMethod];
-    if( fIsModel3D && fUseModel3DStereoParameters )
-    {
-        if( ! TMath::IsNaN( fmodel3Dpars->Xcore3D ) && ! TMath::IsNaN( fmodel3Dpars->Ycore3D ) )
-        {
-            fXcore = fmodel3Dpars->Xcore3D;
-            fYcore = fmodel3Dpars->Ycore3D;
-        }
-        else
-        {
-            fXcore = fshowerpars->Xcore[fMethod];
-            fYcore = fshowerpars->Ycore[fMethod];
-        }
-    }
-    else
-    {
-        fXcore = fshowerpars->Xcore[fMethod];
-        fYcore = fshowerpars->Ycore[fMethod];
-    }
+    fXcore = fshowerpars->Xcore[fMethod];
+    fYcore = fshowerpars->Ycore[fMethod];
     // return if stereo reconstruction was not successful
     // (don't do this if stereo reconstruction is
     //  repeated)
@@ -974,13 +950,6 @@ bool VTableLookupDataHandler::checkIfFilesInChainAreRecovered( TChain* c )
             cout << "\t " << chEl->GetTitle() << endl;
             return true;
         }
-        // check if input data includes Model3D parameters
-        fKeyModel3D = ifInput->FindKey( "model3Dpars" );
-        if( fKeyModel3D != 0 )
-        {
-            fIsModel3D = true;
-        }
-        
         ifInput->Close();
     }
     
@@ -1234,11 +1203,6 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
     // get shower parameter tree
     fTshowerpars = new TChain( "showerpars" );
     fTshowerpars_QCCut = new TChain( "showerpars" );
-    // get model3Dpars tree
-    if( fIsModel3D )
-    {
-        fTmodel3Dpars = new TChain( "model3Dpars" );
-    }
     if( fTLRunParameter->fUsefrogsGoodnessTables )
     {
         fFrogspars = new TChain( "frogspars" );
@@ -1252,10 +1216,6 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
     {
         fTshowerpars->Add( finputfile[i].c_str() );
         fTshowerpars_QCCut->Add( finputfile[i].c_str() );
-        if( fIsModel3D )
-        {
-            fTmodel3Dpars->Add( finputfile[i].c_str() );
-        }
         if( fFrogspars )
         {
             fFrogspars->Add( finputfile[i].c_str() );
@@ -1317,7 +1277,6 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
             cout << "input data is of eventdisplay short tree output format (" << bShort << ")" << endl;
         }
         fshowerpars = new Cshowerpars( fTshowerpars, fIsMC, bShort );
-        fmodel3Dpars = new Cmodel3Dpars( fTmodel3Dpars );
         fIsMC = fshowerpars->isMC();
     }
     else
@@ -1761,27 +1720,6 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     {
         fOTree->Branch( "dl_gammaness", &dl_gammaness, "dl_gammaness/D" );
         fOTree->Branch( "dl_isGamma", &dl_isGamma, "dl_isGamma/O" );
-    }
-    // Model3D parameters
-    if( fIsModel3D )
-    {
-        fOTree->Branch( "Smax3D", &fSmax3D, "Smax3D/D" );
-        fOTree->Branch( "sigmaL3D", &fsigmaL3D, "sigmaL3D/D" );
-        fOTree->Branch( "sigmaT3D", &fsigmaT3D, "sigmaT3D/D" );
-        fOTree->Branch( "Nc3D", &fNc3D, "Nc3D/D" );
-        fOTree->Branch( "Xcore3D", &fXcore3D, "Xcore3D/D" );
-        fOTree->Branch( "Ycore3D", &fYcore3D, "Ycore3D/D" );
-        fOTree->Branch( "Xoff3D", &fXoff3D, "Xoff3D/D" );
-        fOTree->Branch( "Yoff3D", &fYoff3D, "Yoff3D/D" );
-        fOTree->Branch( "XoffDeRot3D", &fXoffDeRot3D, "fXoffDeRot3D/D" );
-        fOTree->Branch( "YoffDeRot3D", &fYoffDeRot3D, "fYoffDeRot3D/D" );
-        fOTree->Branch( "Goodness3D", &fGoodness3D, "Goodness3D/D" );
-        fOTree->Branch( "Omega3D", &fOmega3D, "Omega3D/D" );
-        fOTree->Branch( "Depth3D", &fDepth3D, "Depth3D/D" );
-        fOTree->Branch( "RWidth3D", &fRWidth3D, "RWidth3D/D" );
-        fOTree->Branch( "ErrRWidth3D", &fErrRWidth3D, "ErrRWidth3D/D" );
-        fOTree->Branch( "ErrorsigmaT3D", &fErrorsigmaT3D, "ErrorsigmaT3D/D" );
-        fOTree->Branch( "Converged3D", &fConverged3D, "Converged3D/O" );
     }
     
     fOTree->Branch( "R", fR_short, "R[NImages]/D" );
@@ -2801,28 +2739,10 @@ void VTableLookupDataHandler::resetAll()
     // deep learner parameters
     dl_gammaness = 0.;
     dl_isGamma = false;
-    // Model3D parameters
-    fSmax3D = 0;
-    fsigmaL3D = 0;
-    fsigmaT3D = 0;
-    fNc3D = 0;
-    fXcore3D = 0;
-    fYcore3D = 0;
-    fXoff3D = 0;
-    fYoff3D = 0;
-    fXoffDeRot3D = 0;
-    fYoffDeRot3D = 0;
     fXoff_intersect = 0.;
     fYoff_intersect = 0.;
     fXoff_edisp = 0.;
     fYoff_edisp = 0.;
-    fGoodness3D = 0;
-    fOmega3D = 0;
-    fDepth3D = 0;
-    fRWidth3D = 0;
-    fErrRWidth3D = 0;
-    fErrorsigmaT3D = 0;
-    fConverged3D = false;
     
     // cut efficiency counter
     fNStats_All = 0;
