@@ -297,11 +297,7 @@ bool VTableCalculator::create1DHistogram( int i, int j, double w_first_event )
         Oh[i][j] = new TH1F( hisname, histitle, fBinning1DxbinsN, fBinning1Dxbins );
         Oh[i][j]->SetXTitle( fName.c_str() );
         // allow automatic rebinning
-#ifdef ROOT6
         Oh[i][j]->GetXaxis()->SetCanExtend( true );
-#else
-        Oh[i][j]->SetBit( TH1::kCanRebin );
-#endif
     }
     else
     {

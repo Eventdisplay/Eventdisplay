@@ -1339,12 +1339,6 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
                 readKeyWord_GraphsFile( iTemp, t_temp );
                 continue;
             }
-            // Model3D: reconstruction ID for starting values
-            else if( iTemp[0] == "MODEL3DSTARTID" && fRunPara && iTemp[1].size() > 0 )
-            {
-                fRunPara->fIDstartDirectionModel3D = atoi( iTemp[1].c_str() );
-                continue;
-            }
             else if( iTemp[0] == "CreateIPRdatabase" && fRunPara )
             {
                 readKeyWord_FORCELL( iTemp, t_temp );

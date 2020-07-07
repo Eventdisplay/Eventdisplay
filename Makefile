@@ -52,29 +52,34 @@ distdir = $(package)-$(version)
 ctapara = $(distdir).CTA.runparameter
 vtspara = $(package)-$(auxversion).VTS.aux
 #############################
-#############################
-# check root version number
-#############################
-ROOTVERSION=$(shell root-config --version)
-# check if this is root 6 (or later)
-ROOT6=$(shell expr 5.99 \>= `root-config --version | cut -f1 -d \/`)
-ifeq ($(ROOT6),0)
-  ROOT6FLAG=-DROOT6
-endif
-ifeq ($(ROOT6),0)
-  ROOT_CntCln = rootcling
-  ROOT6_message = "Using ROOT6 - make sure to add `pwd`/obj to LD_LIBRARY_PATH"
+# root installation
+ifeq (, $(shell which root-config))
+  ERROR_MESSAGE=$(error "cern root not found; require root installation from https://root.cern.ch/")
+  ROOTFLAG=-DNOROOT
 else
-  ROOT6_message = ""
-  ROOT_CntCln = rootcint
-endif
+# check root version number
+  ROOTVERSION=$(shell root-config --version)
+  ROOT_CntCln = rootcling
 #############################
 # check for root libraries
 #############################
-ROOT_MLP=$(shell root-config --has-xml)
-ROOT_MINUIT2=$(shell root-config --has-minuit2)
-ROOT_MYSQL=$(shell root-config --has-mysql)
-ROOT_DCACHE=$(shell root-config --has-dcache)
+  ROOT_MLP=$(shell root-config --has-xml)
+  ROOT_MINUIT2=$(shell root-config --has-minuit2)
+# mysql support
+# (necessary for VERITAS data analysis)
+  ROOT_MYSQL=$(shell root-config --has-mysql)
+  ifeq ($(ROOT_MYSQL),yes)
+    DBFLAG=-DRUNWITHDB
+  endif
+# gsl/mathmore
+  ROOT_MATHMORE=$(shell root-config --has-mathmore)
+# DCACHE support
+# (check that root is compiled with dcache)
+  ROOT_DCACHE=$(shell root-config --has-dcache)
+  ifeq ($(ROOT_DCACHE),yes)
+    DCACHEFLAG=-DRUNWITHDCACHE
+  endif
+endif
 #############################
 # VERITAS BANK FORMAT (VBF)
 #############################
@@ -92,44 +97,11 @@ ifneq ($(VBFFLAG),-DNOVBF)
 		VBFFLAG=-DVBF_034
 	endif
 endif
-#############################
-# DCACHE
-# (necessary for CTA data analysis)
-#############################
-# check that root is compiled with dcache
-DCTEST=$(shell root-config --has-dcache)
-ifeq ($(DCTEST),yes)
-  DCACHEFLAG=-DRUNWITHDCACHE
-endif
-#############################
-# VERITAS DATABASE 
-# (necessary for VERITAS data analysis)
-#############################
-# check that root is compiled with mysql
-DBTEST=$(shell root-config --has-mysql)
-ifeq ($(DBTEST),yes)
-  DBFLAG=-DRUNWITHDB
-endif
-# DBFLAG=""
-###############################
-# CTA Production
-# (for hessio preprocessor flag)
-##############################
-CTAPROD=PROD5
 # GSL libraries
 #####################
-ifeq ($(origin GSLSYS), undefined)
-# test if gsl-config exists
-  GSLTEST=$(shell which gsl-config)
-  ifeq ($(strip $(GSLTEST)),)
+ifeq (, $(shell which gsl-config))
     GSLFLAG=-DNOGSL
-  endif
-  ifeq ($(strip $(GSLTEST)),"")
-    GSLFLAG=-DNOGSL
-  endif
-endif
-
-ifneq ($(GSLFLAG),-DNOGSL)
+else
 # check GSL version
   GSLV2=$(shell expr 2.0 \>= `gsl-config --version`)
   ifeq ($(GSLV2),0)
@@ -138,12 +110,12 @@ ifneq ($(GSLFLAG),-DNOGSL)
 endif
 #####################
 # CTA HESSIO INPUT
-#####################
-# USE HESSIO LIBRARY
-# (necessary for CTA hessio to VDST converter)
+# (for hessio preprocessor flag)
+##############################
 ifeq ($(strip $(HESSIOSYS)),)
 HESSIO = FALSE
 endif
+CTAPROD=PROD5
 #####################
 # FITS ROUTINES
 # (optional, necessary for root to FITS converter)
@@ -176,7 +148,7 @@ endif
 CXX           = g++
 CXXFLAGS      = -O3 -g -Wall -fPIC -fno-strict-aliasing  -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
 CXXFLAGS     += -I. -I./inc/
-CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(ROOT6FLAG) $(GSLFLAG) $(GSL2FLAG) $(DCACHEFLAG) $(ASTRONMETRY)
+CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(GSLFLAG) $(GSL2FLAG) $(DCACHEFLAG) $(ASTRONMETRY)
 LD            = g++ 
 OutPutOpt     = -o
 INCLUDEFLAGS  = -I. -I./inc/
@@ -185,11 +157,6 @@ INCLUDEFLAGS  = -I. -I./inc/
 ifeq ($(ARCH),Linux)
 	LDFLAGS       = -O
 	SOFLAGS       = -shared
-	ifeq ($(ROOT6FLAG),-DROOT6)
-		ifeq ($(GCC_GT_4_8),true)
-		  $(error PAY ATTENTION. YOU USE THE WRONG GCC COMPILER $(GCCVERSION) FOR THIS ROOT VERSION $(ROOTVERSION)!)
-		endif
-	endif
 endif
 # Apple OS X flags
 ifeq ($(ARCH),Darwin)
@@ -204,34 +171,31 @@ endif
 # check compiler
 GCCVERSION=$(shell $(CXX) -dumpversion)
 GCCMACHINE=$(shell $(CXX) -dumpmachine)
-# ROOT 6 and check correct compiler version
-ifeq ($(ROOT6FLAG),-DROOT6)
-      # get major version of gcc, e.g. '4' in '4.6.'
-      GCC_VER_MAJOR := $(shell echo $(GCCVERSION) | cut -f1 -d.)
-      # get minor version of gcc, e.g. '6' in '4.6' 
-      GCC_VER_MINOR := $(shell echo $(GCCVERSION) | cut -f2 -d.)
-      # check if gcc version is smaller than 4.8.
-      GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $(GCC_VER_MINOR) -lt 8 \) ] && echo true)
+# get major version of gcc, e.g. '4' in '4.6.'
+GCC_VER_MAJOR := $(shell echo $(GCCVERSION) | cut -f1 -d.)
+# get minor version of gcc, e.g. '6' in '4.6' 
+GCC_VER_MINOR := $(shell echo $(GCCVERSION) | cut -f2 -d.)
+# check if gcc version is smaller than 4.8.
+GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $(GCC_VER_MINOR) -lt 8 \) ] && echo true)
 CXXFLAGS    += -Wdeprecated-declarations -std=c++11
-endif
 ########################################################
 # CXX FLAGS (taken from root)
-########################################################
-ROOTCFLAGS   = $(shell root-config --auxcflags)
-ROOTCFLAGS   = -pthread -m64
-CXXFLAGS     += $(ROOTCFLAGS)
-CXXFLAGS     += -I$(shell root-config --incdir) -I$(shell root-config --incdir)/TMVA 
-########################################################
 # root libs
 ########################################################
-ROOTGLIBS     = $(shell root-config --glibs)
-GLIBS         = $(ROOTGLIBS)
-GLIBS        += -lMLP -lTreePlayer -lTMVA -lMinuit -lXMLIO -lSpectrum
-ifeq ($(ROOT_MINUIT2),yes)
-   GLIBS     += -lMinuit2
+ifneq ($(ROOTFLAG),-DNOROOT)
+  ROOTCFLAGS   = $(shell root-config --auxcflags)
+  ROOTCFLAGS   = -pthread -m64
+  CXXFLAGS     += $(ROOTCFLAGS)
+  CXXFLAGS     += -I$(shell root-config --incdir) -I$(shell root-config --incdir)/TMVA 
+  ROOTGLIBS     = $(shell root-config --glibs)
+  GLIBS         = $(ROOTGLIBS)
+  GLIBS        += -lMLP -lTreePlayer -lTMVA -lMinuit -lXMLIO -lSpectrum
+  ifeq ($(ROOT_MINUIT2),yes)
+     GLIBS     += -lMinuit2
+  endif
 endif
 
-#ifeq ($(DCTEST),yes)
+#ifeq ($(ROOT_DCACHE),yes)
 #   GLIBS     += -lDCache
 #endif
 ########################################################
@@ -239,12 +203,8 @@ endif
 ########################################################
 ifneq ($(VBFFLAG),-DNOVBF)
 VBFCFLAGS     = -I$(VBFSYS)/include/VBF/
-	ifeq ($(ROOT6FLAG),-DROOT6)
-		VBFPP 	      = $(shell $(VBFSYS)/bin/vbfConfig --prefix)
-  		VBFLIBS       = -L${VBFPP}/lib -lVBF -L${BZ2_PATH}/ -lbz2
-	else
-		VBFLIBS       = $(shell $(VBFSYS)/bin/vbfConfig --ldflags --libs)
-	endif
+VBFPP 	      = $(shell $(VBFSYS)/bin/vbfConfig --prefix)
+VBFLIBS       = -L${VBFPP}/lib -lVBF -L${BZ2_PATH}/ -lbz2
 CXXFLAGS     += $(VBFCFLAGS)
 #GLIBS        += $(VBFLIBS)
 endif
@@ -326,12 +286,6 @@ endif
 endif
 endif
 ########################################################
-# profiler (gperftools)
-########################################################
-#GLIBS        += -L/afs/ifh.de/group/cta/scratch/maierg/software/lib/lib/ -ltcmalloc
-#CXXFLAGS     += -fno-omit-frame-pointer
-
-########################################################
 # paths
 ########################################################
 VPATH = src:inc
@@ -386,20 +340,9 @@ CTAsens:	mscw_energy \
 	writeParticleRateFilesFromEffectiveAreas \
 	printRunParameter
 
-CTAsens:	mscw_energy \
-	makeEffectiveArea \
-	smoothLookupTables \
-	trainTMVAforGammaHadronSeparation \
-	trainTMVAforAngularReconstruction \
-	writeCTAWPPhysSensitivityFiles \
-	writeCTAWPPhysSensitivityTree \
-	writeParticleRateFilesFromEffectiveAreas \
-	printRunParameter
-
 extrasMessage:
 	@echo "Not going to compile VTS.next_day, VTS.analyzeMuonRings ... Can try to do '$ make extras'"
 doneMessage:
-	@echo ${ROOT6_message}
 	@echo "Compilation successful !!!"
 
 extras:	VTS.next_day \
@@ -487,20 +430,6 @@ EVNOBJECTS =    ./obj/VVirtualDataReader.o \
 		./obj/VDisplay.o \
 		./obj/VDeadPixelOrganizer.o 
 
-FROGSOBJECTS =	./obj/VFrogs.o \
-                ./obj/frogs.o \
-                ./obj/VFrogsParameters.o
-
-MODELOBJECTS =  ./obj/VMinimizer.o \
-		./obj/VModel3DFn.o \
-		./obj/VModel3DData.o \
-		./obj/VModel3DParameters.o \
-		./obj/VModelLnL.o \
-		./obj/VModel3D.o \
-		./obj/VEmissionHeightCalculator.o
-
-EVNOBJECTS += $(MODELOBJECTS) 
-
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     EVNOBJECTS += ./obj/VASlalib.o
 endif
@@ -509,10 +438,6 @@ ifneq ($(ARCH),Darwin)
 EVNOBJECTS += ./obj/VDisplay_Dict.o
 endif
 
-# add frogs objects
-ifneq ($(GSLFLAG),-DNOGSL)
-   EVNOBJECTS += $(FROGSOBJECTS)
-endif
 # add VBF objects
 ifneq ($(VBFFLAG),-DNOVBF)
    EVNOBJECTS +=    ./obj/VRawDataReader.o \
@@ -520,6 +445,16 @@ ifneq ($(VBFFLAG),-DNOVBF)
 		    ./obj/VBFDataReader.o \
 	 	    ./obj/VSimulationDataReader.o 
 endif
+
+FROGSOBJECTS = ./obj/VFrogs.o \
+            ./obj/frogs.o \
+            ./obj/VFrogsParameters.o
+
+ifneq ($(GSLFLAG),-DNOGSL)
+   EVNOBJECTS += $(FROGSOBJECTS)
+endif
+
+
 # finalize
 EVNOBJECTS += ./obj/evndisp.o
 
@@ -529,9 +464,9 @@ EVNOBJECTS += ./obj/evndisp.o
 
 evndisp:	$(EVNOBJECTS)
 ifeq ($(GSLFLAG),-DNOGSL)
-	@echo "LINKING evndisp without GSL libraries (frogs)"
+	@echo "LINKING evndisp without GSL libraries"
 else
-	@echo "LINKING evndisp with GSL libraries (frogs)"
+	@echo "LINKING evndisp with GSL libraries"
 endif
 ifeq ($(VBFFLAG),-DNOVBF)
 	@echo "LINKING evndisp without VBF support"
@@ -587,7 +522,7 @@ mergeVBF: $(VBFMERGE)
 ########################################################
 # lookup table code (mscw_energy)
 ########################################################
-MSCOBJECTS=	./obj/Cshowerpars.o ./obj/Cmodel3Dpars.o ./obj/Ctpars.o \
+MSCOBJECTS=	./obj/Cshowerpars.o ./obj/Ctpars.o \
                 ./obj/Ctelconfig.o ./obj/VTableLookupDataHandler.o ./obj/VTableCalculator.o \
 		./obj/VTableLookup.o ./obj/VTablesToRead.o \
 		./obj/VEmissionHeightCalculator.o \
@@ -872,39 +807,6 @@ anasum:	$(ANASUMOBJECTS)
 	@echo "$@ done"
 
 ########################################################
-# energy3d (alternative for mscw_energy (better?))
-########################################################
-ENERGY3DOBJECTS = ./obj/energy3d.o
-
-./obj/energy3d.o: ./src/energy3d.cpp 
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-energy3d: $(ENERGY3DOBJECTS)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-
-########################################################
-# create_energy3d_referencetables 
-########################################################
-ENERGY3DREFOBJECTS = ./obj/create_energy3d_referencetables.o
-
-./obj/create_energy3d_referencetables.o: ./src/create_energy3d_referencetables.cpp 
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-create_energy3d_referencetables: $(ENERGY3DREFOBJECTS)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-
-########################################################
-# create_energy3d_biascorrectionfile 
-########################################################
-ENERGY3DBIASCORROBJECTS = ./obj/create_energy3d_biascorrectionfile.o
-
-./obj/create_energy3d_biascorrectionfile.o: ./src/create_energy3d_biascorrectionfile.cpp 
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-create_energy3d_biascorrectionfile: $(ENERGY3DBIASCORROBJECTS)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-
-########################################################
 # shared library for root analysis
 ########################################################
 
@@ -982,7 +884,7 @@ SHAREDOBJS= 	./obj/VRunList.o ./obj/VRunList_Dict.o \
 		./obj/VUtilities.o \
 		./obj/VPlotRadialAcceptance.o ./obj/VPlotRadialAcceptance_Dict.o \
 		./obj/VEvndispReconstructionParameter.o ./obj/VEvndispReconstructionParameter_Dict.o \
-		./obj/Cshowerpars.o ./obj/Cmodel3Dpars.o \
+		./obj/Cshowerpars.o \
 		./obj/Ctpars.o \
 		./obj/VImageParameter.o  \
 		./obj/VPlotWPPhysSensitivity.o ./obj/VPlotWPPhysSensitivity_Dict.o \
@@ -1290,53 +1192,6 @@ endif
 writeCTAEventListFromAnasum:   $(writeCTAEventListFromAnasumOBJ)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
-
-###############
-# frogs stuff #
-###############
-
-./obj/frogsGetNEvents.o:   ./src/frogsGetNEvents.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-frogsGetNEvents:   ./obj/frogsGetNEvents.o
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
-FROGSMERGEOBJ  = ./obj/VGlobalRunParameter.o
-FROGSMERGEOBJ += ./obj/VGlobalRunParameter_Dict.o
-FROGSMERGEOBJ += ./obj/VImageCleaningRunParameter.o
-FROGSMERGEOBJ += ./obj/VImageCleaningRunParameter_Dict.o
-FROGSMERGEOBJ += ./obj/VEvndispRunParameter.o
-FROGSMERGEOBJ += ./obj/VEvndispRunParameter_Dict.o
-FROGSMERGEOBJ += ./obj/VTableLookupRunParameter.o
-FROGSMERGEOBJ += ./obj/VTableLookupRunParameter_Dict.o
-FROGSMERGEOBJ += ./obj/frogsMergeDatafile.o
-
-./obj/frogsMergeDatafile.o:   ./src/frogsMergeDatafile.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-frogsMergeDatafile:   $(FROGSMERGEOBJ)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
-#FROGSEXTRACTOBJ  = $(SHAREDOBJS)
-FROGSEXTRACTOBJ  = ./obj/VGlobalRunParameter.o
-FROGSEXTRACTOBJ += ./obj/VGlobalRunParameter_Dict.o
-FROGSEXTRACTOBJ += ./obj/VImageCleaningRunParameter.o
-FROGSEXTRACTOBJ += ./obj/VImageCleaningRunParameter_Dict.o
-FROGSEXTRACTOBJ += ./obj/VEvndispRunParameter.o
-FROGSEXTRACTOBJ += ./obj/VEvndispRunParameter_Dict.o
-FROGSEXTRACTOBJ += ./obj/VTableLookupRunParameter.o
-FROGSEXTRACTOBJ += ./obj/VTableLookupRunParameter_Dict.o
-FROGSEXTRACTOBJ += ./obj/frogsExtractDatafile.o
-
-./obj/frogsExtractDatafile.o: ./src/frogsExtractDatafile.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-frogsExtractDatafile:   $(FROGSEXTRACTOBJ)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
 
 ########################################################
 # writeCTAWPPhysSensitivityFiles 
@@ -1761,33 +1616,6 @@ trainTMVAforGammaHadronSeparation_TrainingFile:	$(MAKEOPTCUTTMVATRAININGOBJ)
 	@echo "Done"
 
 ########################################################
-# makeOptimizeBoxCutsbyParameterSpaceSearch
-########################################################
-./obj/makeOptimizeBoxCutsbyParameterSpaceSearch.o:	./src/makeOptimizeBoxCutsbyParameterSpaceSearch.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-makeOptimizeBoxCutsbyParameterSpaceSearch:	./obj/CData.o \
-						./obj/VTMVAEvaluator.o ./obj/VTMVAEvaluator_Dict.o \
-						./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
-						./obj/VEvndispRunParameter.o ./obj/VEvndispRunParameter_Dict.o \
-						./obj/CRunSummary.o ./obj/CRunSummary_Dict.o \
-						./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o  \
-						./obj/VPlotUtilities.o ./obj/VPlotUtilities_Dict.o \
-						./obj/VHistogramUtilities.o ./obj/VHistogramUtilities_Dict.o \
-						./obj/VRunList_Dict.o ./obj/VRunList.o \
-					        ./obj/VSkyCoordinatesUtilities.o \
-						./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-			                        ./obj/VUtilities.o  \
-						./obj/VAnalysisUtilities.o ./obj/VAnalysisUtilities_Dict.o \
-						./obj/VTimeMask.o ./obj/VTimeMask_Dict.o \
-						./obj/VImageCleaningRunParameter.o ./obj/VImageCleaningRunParameter_Dict.o \
-						./obj/VGammaHadronCutsStatistics.o ./obj/VGammaHadronCutsStatistics_Dict.o \
-						./obj/VGammaHadronCuts.o ./obj/VGammaHadronCuts_Dict.o ./obj/CData.o \
-						./obj/makeOptimizeBoxCutsbyParameterSpaceSearch.o 
-	$(LD) $(LDFLAGS) $^ $(GLIBS) -L./lib $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
-########################################################
 # VTS.calculateCrabRateFromMC
 ########################################################
 ./obj/VTS.calculateCrabRateFromMC.o:	./src/VTS.calculateCrabRateFromMC.cpp 
@@ -2002,8 +1830,8 @@ endif
 
 ./obj/%_Dict.o:	./inc/%.h ./inc/%LinkDef.h
 	@echo "Generating dictionary $@.."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) $?
-	${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) $?
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp  $?
+	${ROOT_CntCln} -f $(basename $@).cpp  $?
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
@@ -2022,24 +1850,24 @@ endif
 ########################################################
 ./obj/VFITS_Dict.o:
 	@echo "A Generating dictionary $@.."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
-	${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
+	${ROOT_CntCln} -f $(basename $@).cpp  -I$(FITSSYS)/include inc/VFITS.h inc/VFITSLinkDef.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
 ./obj/VDisplay_Dict.o:	
 	@echo "A Generating dictionary $@.."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) $(ROOT6FLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
-	${ROOT_CntCln} -f $(basename $@).cpp   $(ROOT6FLAG) -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) $(ROOT6FLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
+	${ROOT_CntCln} -f $(basename $@).cpp -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
 ./obj/VZDCF_Dict.o:	
 	@echo "Generating dictionary $@..."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
-	${ROOT_CntCln} -f $(basename $@).cpp  $(ROOT6FLAG) ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
+	${ROOT_CntCln} -f $(basename $@).cpp ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
@@ -2242,11 +2070,8 @@ $(ctapara):
 # VTS.radialacceptances (required)
 # VTS.GammaHadronBDTs (optional)
 # VTS.dispBDTs (optional)
-# VTS.Model3D (optional)
-# VTS.Frogs (optional) : Frogs related templates and parameter files
-#
 
-VTS.auxfiles:	$(vtspara).runfiles.tar.gz $(vtspara).calibration.tar.gz $(vtspara).lookuptables.tar.gz $(vtspara).effectiveareas.tar.gz $(vtspara).radialacceptances.tar.gz $(vtspara).VTS.GammaHadron_BDTs $(vtspara).dispBDTs.tar.gz $(vtspara).Model3D.tar.gz $(vtspara).Frogs.tar.gz
+VTS.auxfiles:	$(vtspara).runfiles.tar.gz $(vtspara).calibration.tar.gz $(vtspara).lookuptables.tar.gz $(vtspara).effectiveareas.tar.gz $(vtspara).radialacceptances.tar.gz $(vtspara).VTS.GammaHadron_BDTs $(vtspara).dispBDTs.tar.gz
 
 VTS.runfiles:	$(vtspara).runfiles.tar.gz
 VTS.calibration:	$(vtspara).calibration.tar.gz
@@ -2255,8 +2080,6 @@ VTS.effectiveareas:	$(vtspara).effectiveareas.tar.gz
 VTS.radialacceptances:	$(vtspara).radialacceptances.tar.gz
 VTS.GammaHadronBDTs:	$(vtspara).GammaHadron_BDTs.tar.gz
 VTS.dispBDTs:	$(vtspara).dispBDTs.tar.gz
-VTS.Model3D:	$(vtspara).Model3D.tar.gz
-VTS.Frogs:	$(vtspara).Frogs.tar.gz
 
 ######
 # VTS runparameter files
@@ -2278,7 +2101,6 @@ $(vtspara).runfiles.tar.gz:
 # gamma hadron files
 	mkdir -p $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/GammaHadronCutFiles
 	cp -L $(VERITAS_EVNDISP_AUX_DIR)/GammaHadronCutFiles/ANASUM.GammaHadron-Cut* $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/GammaHadronCutFiles
-	cp -L $(VERITAS_EVNDISP_AUX_DIR)/GammaHadronCutFiles/FROGS* $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/GammaHadronCutFiles
 # run parameter files
 	mkdir -p $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/ParameterFiles
 	cp -L $(VERITAS_EVNDISP_AUX_DIR)/ParameterFiles/ANASUM.runparameter $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/ParameterFiles
@@ -2398,39 +2220,6 @@ $(vtspara).GammaHadron_BDTs.tar.gz:
 	cd $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara) && tar -zcvf ../$(vtspara).GammaHadron_BDTs.tar.gz . && cd ..
 	rm -rf $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)
 
-######
-# VTS Model3D files
-
-$(vtspara).Model3D.tar.gz:
-	rm -rf $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara).Model3D.tar.gz  >/dev/null 2>&1
-	rm -rf $(distdir) >/dev/null 2>&1
-	mkdir -p $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/Model3D
-	cp -f -r $(VERITAS_EVNDISP_AUX_DIR)/Model3D/*.root $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/Model3D/
-#	make tar file
-	cd $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara) && tar -zcvf ../$(vtspara).Model3D.tar.gz . && cd ..
-	rm -rf $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)
-
-######
-# VTS Frogs template and parameter files
-
-$(vtspara).Frogs.tar.gz:
-	rm -rf $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara).Frogs.tar.gz  >/dev/null 2>&1
-	rm -rf $(distdir) >/dev/null 2>&1
-	mkdir -p $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/Frogs
-	cp -f -r $(VERITAS_EVNDISP_AUX_DIR)/Frogs/*.txt $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/Frogs/
-	cp -f -r $(VERITAS_EVNDISP_AUX_DIR)/Frogs/*.runparameter $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/Frogs/
-	mkdir -p $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/Frogs/Templates/V6
-	mkdir -p $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/Frogs/Templates/V5
-	mkdir -p $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/Frogs/Templates/V4
-	cp -f -r $(VERITAS_EVNDISP_AUX_DIR)/Frogs/Templates/V6/frogs* $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/Frogs/Templates/V6/
-	cp -f -r $(VERITAS_EVNDISP_AUX_DIR)/Frogs/Templates/V5/frogs* $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)/Frogs/Templates/V5/
-#	make tar file
-	cd $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara) && tar -zcvf ../$(vtspara).Frogs.tar.gz . && cd ..
-	rm -rf $(VERITAS_USER_DATA_DIR)/tmpIRF/$(vtspara)
-
-######
-# VTS Frogs template and parameter files
-
 ###############################################################################################################################
 # print environment and compilation parameters
 ###############################################################################################################################
@@ -2443,17 +2232,18 @@ printconfig configuration config:
 	@echo "    $(CXXFLAGS)"
 	@echo "    $(GLIBS)"
 	@echo ""
+ifneq ($(ROOTFLAG),-DNOROOT)
 	@echo "using root version $(ROOTVERSION)"
 	@echo "    compiled with MLP: $(ROOT_MLP), MINUIT2: $(ROOT_MINUIT2), MYSQL: $(ROOT_MYSQL), DCACHE: $(ROOT_DCACHE), MATHMORE: $(ROOT_MATHMORE)"
 	@echo "    $(ROOTSYS)"
-ifeq ($(ROOT6FLAG),-DROOT6)
-	@echo "    evndisp with root6 support"
+else
+	@echo "no root support - you probably cannot do a lot"
 endif
 	@echo ""
 ifeq ($(GSLFLAG),-DNOGSL)
-	@echo "evndisp without GSL libraries (no frogs, no Hough muon calibration)"
+	@echo "evndisp without GSL libraries"
 else
-	@echo "evndisp with GSL libraries (used in frogs, Hough muon calibration)"
+	@echo "evndisp with GSL libraries"
 	@echo "   GSL  $(GSLFLAG)" 
 	@echo "   GSL2 $(GSL2FLAG)" 
 	@echo "   $(GSLCFLAGS) $(GSLLIBS)"

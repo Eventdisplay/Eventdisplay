@@ -504,16 +504,6 @@ void VCamera::draw( double i_max, int iEventNumber, bool iAllinOne )
 				  setPMTColorScheme( fData->getTemplateMu(), getDrawingMask( 1, i_va_temp ), false,  minSum, maxSum, "FROGS signal [d.c.]", false );
 				}
 				break;
-			case C_MODEL3D:
-				if( fData->getRunParameter()->fUseDisplayModel3D )
-				{
-					double minSum = 0;
-					double maxSum = 0;
-					getMinMax( fData->getSums(), minSum, maxSum, getDrawingMask( 1, i_va_temp ) );
-					setPMTColorScheme( fData->getModel3DMu(), getDrawingMask( 1, i_va_temp ), false,  minSum, maxSum, "Model3D signal [d.c.]", false );
-					setPMTColorOff( fData->getModel3DClean() );
-				}
-				break;
 			case C_CLUSTERID:
 				setPMTColorScheme( fData->getClusterID(), getDrawingMask( 1, i_va_temp ), false, 100, 0, "Cluster ID", true, false );	
 				break;
@@ -1859,14 +1849,6 @@ void VCamera::drawAnaResults()
 				fMCShowerDir->SetMarkerColor( 1 );
 				fMCShowerDir->SetMarkerSize( 2. );
 				fMCShowerDir->Draw();
-			}
-			// draw Model3D shower
-			if( fData->getRunParameter()->fUseDisplayModel3D )
-			{
-				fModel3DShowerDir = new TMarker( convertX( fData->getModel3DParameters()->fXoffModel3D ), convertY( -1.*fData->getModel3DParameters()->fYoffModel3D ), 29 );
-				fModel3DShowerDir->SetMarkerColor( 3 );
-				fModel3DShowerDir->SetMarkerSize( 2. );
-				fModel3DShowerDir->Draw();
 			}
 			//Draw FROGS reconstruction
 			if( fData->getRunParameter()->ffrogsmode && fData->getFrogsParameters() )

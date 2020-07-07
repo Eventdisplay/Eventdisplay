@@ -14,9 +14,7 @@
 #include "TTree.h"
 
 #include "TMVA/Config.h"
-#ifdef ROOT6
 #include "TMVA/DataLoader.h"
-#endif
 #include "TMVA/Factory.h"
 #include "TMVA/Reader.h"
 #include "TMVA/Tools.h"
@@ -315,11 +313,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
             iRun->fOutputFile[iEnergyBin][iZenithBin],
             "V:!DrawProgressBar" );
-#ifdef ROOT6
     TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
-#else
-    TMVA::Factory* dataloader = factory;
-#endif
     ////////////////////////////
     // train gamma/hadron separation
     if( iTrainGammaHadronSeparation )
@@ -510,20 +504,12 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
             }
             if( i < iRun->fMVAMethod_Options.size() )
             {
-#ifdef ROOT6
                 cout << "Booking method " << htitle << endl;
                 factory->BookMethod( dataloader, i_tmva_type, htitle, iRun->fMVAMethod_Options[i].c_str() );
-#else
-                factory->BookMethod( i_tmva_type, htitle, iRun->fMVAMethod_Options[i].c_str() );
-#endif
             }
             else
             {
-#ifdef ROOT6
                 factory->BookMethod( dataloader, i_tmva_type, htitle );
-#else
-                factory->BookMethod( i_tmva_type, htitle );
-#endif
             }
         }
         //////////////////////////
@@ -546,11 +532,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
                 i_opt << ":VarProp[" << i << "]=" << iRun->fTrainingVariable_VarProp[i];
             }
             sprintf( htitle, "BOXCUTS_%u_%u", iEnergyBin, iZenithBin );
-#ifdef ROOT6
             factory->BookMethod( dataloader, TMVA::Types::kCuts, htitle, i_opt.str().c_str() );
-#else
-            factory->BookMethod( TMVA::Types::kCuts, htitle,  i_opt.str().c_str() );
-#endif
         }
     }
     
