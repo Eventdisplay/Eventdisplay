@@ -97,8 +97,8 @@ ifneq ($(VBFFLAG),-DNOVBF)
 		VBFFLAG=-DVBF_034
 	endif
 endif
-# GSL libraries
 #####################
+# GSL libraries
 ifeq (, $(shell which gsl-config))
     GSLFLAG=-DNOGSL
 else
@@ -146,7 +146,7 @@ endif
 ########################################################################################################################
 # compiler and linker general values
 CXX           = g++
-CXXFLAGS      = -O3 -g -Wall -fPIC -fno-strict-aliasing  -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
+CXXFLAGS      = -O3 -g -Wall -fPIC -fno-strict-aliasing -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
 CXXFLAGS     += -I. -I./inc/
 CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(GSLFLAG) $(GSL2FLAG) $(DCACHEFLAG) $(ASTRONMETRY)
 LD            = g++ 
@@ -162,7 +162,7 @@ endif
 ifeq ($(ARCH),Darwin)
 CXX           = clang++
 LD            = clang++
-CXXFLAGS    += -Wdeprecated-declarations -stdlib=libc++ -std=c++11
+CXXFLAGS    += -stdlib=libc++
 LDFLAGS       = -bind_at_load
 DllSuf        = dylib
 UNDEFOPT      = dynamic_lookup
@@ -202,20 +202,20 @@ endif
 # VBF
 ########################################################
 ifneq ($(VBFFLAG),-DNOVBF)
-VBFCFLAGS     = -I$(VBFSYS)/include/VBF/
 VBFPP 	      = $(shell $(VBFSYS)/bin/vbfConfig --prefix)
 VBFLIBS       = -L${VBFPP}/lib -lVBF -L${BZ2_PATH}/ -lbz2
-CXXFLAGS     += $(VBFCFLAGS)
-#GLIBS        += $(VBFLIBS)
+CXXFLAGS     += -I${VBFPP}/include/VBF/
 endif
 ########################################################
 # GSL FLAGS
 ########################################################
 ifneq ($(GSLFLAG),-DNOGSL)
-GSLCFLAGS    = $(shell gsl-config --cflags)
-GSLLIBS      = $(shell gsl-config --libs)
-GLIBS        += $(GSLLIBS)
-CXXFLAGS     += $(GSLCFLAGS) $(GSL2FLAG)
+  ifeq ($(ROOT_MATHMORE),no)
+    GSLCFLAGS    = $(shell gsl-config --cflags)
+    GSLLIBS      = $(shell gsl-config --libs)
+    GLIBS        += $(GSLLIBS)
+    CXXFLAGS     += $(GSLCFLAGS) $(GSL2FLAG)
+  endif
 endif
 ########################################################
 # FITS
