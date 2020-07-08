@@ -174,7 +174,7 @@ endif
 ########################################################################################################################
 # compiler and linker general values
 CXX           = g++
-CXXFLAGS      = -O3 -g -Wall -fPIC -fno-strict-aliasing  -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
+CXXFLAGS      = -O3 -g -Wall -Wno-deprecated -fPIC -fno-strict-aliasing  -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
 CXXFLAGS     += -I. -I./inc/
 CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(ROOT6FLAG) $(GSLFLAG) $(GSL2FLAG) $(DCACHEFLAG) $(ASTRONMETRY)
 LD            = g++ 
@@ -212,13 +212,13 @@ ifeq ($(ROOT6FLAG),-DROOT6)
       GCC_VER_MINOR := $(shell echo $(GCCVERSION) | cut -f2 -d.)
       # check if gcc version is smaller than 4.8.
       GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $(GCC_VER_MINOR) -lt 8 \) ] && echo true)
-CXXFLAGS    += -Wdeprecated-declarations -std=c++11
+#CXXFLAGS    += -Wdeprecated-declarations -std=c++11
 endif
 ########################################################
 # CXX FLAGS (taken from root)
 ########################################################
 ROOTCFLAGS   = $(shell root-config --auxcflags)
-ROOTCFLAGS   = -pthread -m64
+# ROOTCFLAGS   = -pthread -m64
 CXXFLAGS     += $(ROOTCFLAGS)
 CXXFLAGS     += -I$(shell root-config --incdir) -I$(shell root-config --incdir)/TMVA 
 ########################################################
@@ -484,8 +484,7 @@ EVNOBJECTS =    ./obj/VVirtualDataReader.o \
 		./obj/VSkyCoordinatesUtilities.o \
 		./obj/VHoughTransform.o \
 		./obj/VDB_PixelDataReader.o \
-		./obj/VDisplay.o \
-		./obj/VDeadPixelOrganizer.o 
+		./obj/VDisplay.o
 
 FROGSOBJECTS =	./obj/VFrogs.o \
                 ./obj/frogs.o \
