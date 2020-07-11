@@ -149,9 +149,6 @@ map< ULong64_t, float > readCameraScalingMap( string iFile )
     string iT1;
     cout << "reading camera scaling configuration from " << iFile << endl;
     
-    ULong64_t teltype = 0;
-    float scaling = 0.;
-    
     while( getline( is, iLine ) )
     {
         if( iLine.size() > 0 && iLine.substr( 0, 1 ) == "*" )
@@ -161,12 +158,11 @@ map< ULong64_t, float > readCameraScalingMap( string iFile )
             if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iT1;
-                teltype = atoi( iT1.c_str() );
+                ULong64_t teltype = atoi( iT1.c_str() );
                 if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iT1;
-                    scaling = atof( iT1.c_str() );
-                    iCameraScalingMap[teltype] = scaling;
+                    iCameraScalingMap[teltype] = atof( iT1.c_str() );
                     cout << "\t camera scaling for telescope type " << teltype << " :\t";
                     cout << 1. + iCameraScalingMap[teltype] << endl;
                 }
@@ -2017,8 +2013,8 @@ int main( int argc, char** argv )
         if( input_fname )
         {
             f_inputfilename = input_fname;
+            printf( "\nInput file '%s' has been opened.\n", input_fname );
         }
-        printf( "\nInput file '%s' has been opened.\n", input_fname );
         input_fname = NULL;
         
         fRunPara_InputFileName += f_inputfilename;
