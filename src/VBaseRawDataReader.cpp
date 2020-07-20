@@ -132,7 +132,9 @@ uint16_t VBaseRawDataReader::getMaxChannels()
 {
     if( !fEvent[fTelID] )
     {
-        return 499;
+        //return 499;
+    	return 11328; // fullcamera channels
+    	//return 1536; //smallcamera channels
     }
     if( fTelID < fEvent.size() )
     {
