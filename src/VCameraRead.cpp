@@ -513,14 +513,25 @@ bool VCameraRead::readGrisucfg( string iFile, unsigned int iNTel )
                 i_stream >> fCNChannels[i_telID];
                 fTelID = i_telID;
             }
+            // read max number of neighbours
+            i_stream >> i_char;
+            i_stream >> i_char;
+            if( !i_stream.eof() )
+            {
+                i_stream >> fMaxNeighbour[i_telID];
+            }
+
             if( fDebug )
             {
                 cout << "VCameraRead: total number of channels: " << fCNChannels[i_telID] << " (" << i_telID + 1 << ")" << endl;
             }
-            if( fCFGtype == 1 ) for( unsigned int t = 1; t < fCNChannels.size(); t++ )
+            if( fCFGtype == 1 )
+            {
+                for( unsigned int t = 1; t < fCNChannels.size(); t++ )
                 {
                     fCNChannels[t] = fCNChannels[0];
                 }
+            }
         }
         // camera rotation (not a original grisu line)
         else if( iline.find( "CAROT" ) < iline.size() )
