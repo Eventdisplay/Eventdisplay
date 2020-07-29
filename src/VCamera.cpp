@@ -1960,23 +1960,23 @@ void VCamera::showSelectedChannel( int i_channel, bool i_delete )
 		fgraphTubes[i_channel]->SetLineColor( 1 );
 		fgraphTubes[i_channel]->Draw();
 		fTubeSelected = fgraphTubes[i_channel]->GetUniqueID() - 200000;
-                fTubeSelectedV.push_back( fTubeSelected );
-                if( fData && fData->getDetectorGeometry() && fData->getDetectorGeometry()->setTelID( fTelescope ) )
+        fTubeSelectedV.push_back( fTubeSelected );
+        if( fData && fData->getDetectorGeometry() && fData->getDetectorGeometry()->setTelID( fTelescope ) )
+        {
+            if( i_channel < (int)fData->getDetectorGeometry()->getNNeighbours().size() )
+            {
+                for( unsigned int n = 0; n < fData->getDetectorGeometry()->getNNeighbours()[i_channel]; n++ )
                 {
-                    if( i_channel < (int)fData->getDetectorGeometry()->getNNeighbours().size() )
-                    {
-                        for( unsigned int n = 0; n < fData->getDetectorGeometry()->getNNeighbours()[i_channel]; n++ )
-                        {
-                                 int iN = fData->getDetectorGeometry()->getNeighbours()[i_channel][n];
-                                 if( iN < (int)fgraphTubes.size() )
-                                 {
-                                     fgraphTubes[iN]->SetLineColor( 8 );
-                                     fgraphTubes[iN]->Draw();
-                                     fTubeSelectedV.push_back( iN );
-                                 }
-                         }
-                     }
+                            int iN = fData->getDetectorGeometry()->getNeighbours()[i_channel][n];
+                            if( iN >=0 && iN < (int)fgraphTubes.size() )
+                            {
+                                fgraphTubes[iN]->SetLineColor( 8 );
+                                fgraphTubes[iN]->Draw();
+                                fTubeSelectedV.push_back( iN );
+                            }
+                    }
                 }
+        }
 		fCanvas->Update();
 	 }
 	fCanvas->SetEditable( false );
