@@ -1117,7 +1117,7 @@ void VCameraRead::rotateCamera()
     for( unsigned int i = 0; i < fNTel; i++ )
     {
         // print only rotations significantly different to zero
-        if( TMath::Abs( fCameraRotation[i] ) > 1.e-3 )
+        if( TMath::Abs( fCameraRotation[i] ) > 1.e-3 || fNTel < 5 )
         {
             cout << " T" << i + 1 << ": "  << fCameraRotation[i];
         }
