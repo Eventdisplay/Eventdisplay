@@ -1117,82 +1117,6 @@ logFile:	$(LOGFILE)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
-
-
-########################################################
-# writeCTAEventListFromAnasum
-# for converting post-cuts event lists to CTA's format
-########################################################
-
-# writeCTAEventListFromAnasumOBJ  = $(SHAREDOBJS)
-
-writeCTAEventListFromAnasumOBJ  = ./obj/VGlobalRunParameter.o
-writeCTAEventListFromAnasumOBJ += ./obj/VGlobalRunParameter_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VEvndispRunParameter.o
-writeCTAEventListFromAnasumOBJ += ./obj/VEvndispRunParameter_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VImageCleaningRunParameter.o
-writeCTAEventListFromAnasumOBJ += ./obj/VImageCleaningRunParameter_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VInstrumentResponseFunctionReader.o
-writeCTAEventListFromAnasumOBJ += ./obj/VInstrumentResponseFunctionReader_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VInstrumentResponseFunctionData.o
-writeCTAEventListFromAnasumOBJ += ./obj/VInstrumentResponseFunctionData_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VAnaSumRunParameter.o
-writeCTAEventListFromAnasumOBJ += ./obj/VAnaSumRunParameter_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VExclusionRegions.o
-writeCTAEventListFromAnasumOBJ += ./obj/VExclusionRegions_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VStarCatalogue.o
-writeCTAEventListFromAnasumOBJ += ./obj/VStarCatalogue_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VStar.o
-writeCTAEventListFromAnasumOBJ += ./obj/VStar_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VPlotUtilities.o
-writeCTAEventListFromAnasumOBJ += ./obj/VPlotUtilities_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VAnalysisUtilities.o
-writeCTAEventListFromAnasumOBJ += ./obj/VAnalysisUtilities_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VHistogramUtilities.o
-writeCTAEventListFromAnasumOBJ += ./obj/VHistogramUtilities_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VRunList.o
-writeCTAEventListFromAnasumOBJ += ./obj/VRunList_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/CRunSummary.o
-writeCTAEventListFromAnasumOBJ += ./obj/CRunSummary_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/CEffArea.o
-writeCTAEventListFromAnasumOBJ += ./obj/CEffArea_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VGammaHadronCuts.o
-writeCTAEventListFromAnasumOBJ += ./obj/VGammaHadronCuts_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VGammaHadronCutsStatistics.o
-writeCTAEventListFromAnasumOBJ += ./obj/VGammaHadronCutsStatistics_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VTMVAEvaluator.o
-writeCTAEventListFromAnasumOBJ += ./obj/VTMVAEvaluator_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VMathsandFunctions.o
-writeCTAEventListFromAnasumOBJ += ./obj/VMathsandFunctions_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VUtilities.o
-writeCTAEventListFromAnasumOBJ += ./obj/PointingMonitor.o
-writeCTAEventListFromAnasumOBJ += ./obj/VDB_Connection.o
-writeCTAEventListFromAnasumOBJ += ./obj/VSkyCoordinatesUtilities.o
-writeCTAEventListFromAnasumOBJ += ./obj/Angle.o
-writeCTAEventListFromAnasumOBJ += ./obj/CorrectionParameters.o
-writeCTAEventListFromAnasumOBJ += ./obj/FITSRecord.o 
-writeCTAEventListFromAnasumOBJ += ./obj/PointingMonitor.o
-writeCTAEventListFromAnasumOBJ += ./obj/VDBRunInfo.o
-writeCTAEventListFromAnasumOBJ += ./obj/VPointingDB.o
-writeCTAEventListFromAnasumOBJ += ./obj/VTimeMask.o
-writeCTAEventListFromAnasumOBJ += ./obj/VTimeMask_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VDeadTime.o
-writeCTAEventListFromAnasumOBJ += ./obj/VDeadTime_Dict.o
-writeCTAEventListFromAnasumOBJ += ./obj/VAstronometry.o
-writeCTAEventListFromAnasumOBJ += ./obj/VTrackingCorrections.o
-writeCTAEventListFromAnasumOBJ += ./obj/writeCTAEventListFromAnasum.o
-
-ifeq ($(ASTRONMETRY),-DASTROSLALIB)
-writeCTAEventListFromAnasumOBJ += ./obj/VASlalib.o
-endif
-
-./obj/writeCTAEventListFromAnasum.o:   ./src/writeCTAEventListFromAnasum.cpp ./inc/writeCTAEventListFromAnasum.h
-	$(CXX) $(CXXFLAGS) -Wno-write-strings -Wno-unused-function -c -o $@ $<
-
-writeCTAEventListFromAnasum:   $(writeCTAEventListFromAnasumOBJ)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
 ########################################################
 # writeCTAWPPhysSensitivityFiles 
 ########################################################
@@ -1932,31 +1856,6 @@ endif
 
 writeEventListTMVA:	$(writeEventListTMVAOBJ)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
-########################################################
-# writeFITS_eventlist 
-########################################################
-writeFITS_eventlistOBJ	= ./obj/writeFITS_eventlist.o \
-			  ./obj/CData.o \
-			  ./obj/VSkyCoordinates.o \
-			  ./obj/VSkyCoordinatesUtilities.o \
-			  ./obj/VDB_Connection.o \
-			  ./obj/VStarCatalogue.o  ./obj/VStarCatalogue_Dict.o \
-			  ./obj/VStar.o ./obj/VStar_Dict.o \
-			  ./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-			  ./obj/VUtilities.o  \
-			  ./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o
-
-ifeq ($(ASTRONMETRY),-DASTROSLALIB)
-    writeFITS_eventlistOBJ += ./obj/VASlalib.o
-endif
-
-./obj/writeFITS_eventlist.o:	./src/writeFITS_eventlist.cpp
-	$(CXX) $(CXXFLAGS) -I $(EVLIOSYS)/records/ -I $(EVLIOSYS)/include/ -c -o $@ $<
-
-writeFITS_eventlist:	$(writeFITS_eventlistOBJ)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) -L $(EVLIOSYS)/lib -lfitsrecord $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
 ###############################################################################################################################
