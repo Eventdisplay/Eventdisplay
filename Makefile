@@ -277,7 +277,6 @@ endif
 ########################################################
 ifneq ($(HESSIO),FALSE)
 HESSIOINCLUDEFLAGS = -I $(HESSIOSYS)/include/
-ifeq ($(strip $(HESSIOCFLAGS)),)
 ### prod1
 # 2010 PROD1 production
 ifeq ($(strip $(CTAPROD)),PROD1)
@@ -322,7 +321,6 @@ endif
 # MAX values
 ifeq ($(strip $(CTAPROD)),CTAMAX)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_MAX
-endif
 endif
 endif
 ########################################################
