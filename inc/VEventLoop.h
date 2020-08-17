@@ -29,8 +29,6 @@
 #endif
 #include <VModel3D.h>
 
-#include <VDeadPixelOrganizer.h>
-
 #include <iostream>
 #include <map>
 #include <string>
@@ -54,8 +52,6 @@ class VEventLoop : public VEvndispData
         VFrogs* fFrogs;                           //!< Frogs Analyzer
 #endif
         VModel3D* fModel3D;                     //!< Model3D
-        
-        VDeadPixelOrganizer* fDeadPixelOrganizer ;
         
         VDeadTime* fDeadTime;                     //!< dead time calculator
         string fFileGains;                        //!< file with gains
