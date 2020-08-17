@@ -553,6 +553,8 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
 #endif
         }
     }
+
+//    factory->OptimizeAllMethods();
     
     
     //////////////////////////////////////////
