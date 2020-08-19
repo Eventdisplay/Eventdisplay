@@ -198,7 +198,6 @@ void VTableLookupDataHandler::fill()
     {
         if( isReconstructed() )
         {
-            cout << "BBBB " << fenergyQL << endl;
             fOTree->Fill();
         }
     }
