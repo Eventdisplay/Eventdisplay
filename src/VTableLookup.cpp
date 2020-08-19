@@ -1393,7 +1393,7 @@ void VTableLookup::readLookupTable()
                 }
             }
             fData->setNEnergyT( iNERS );
-            // energy quality
+            // energy quality (for non-DISP methods)
             if( iNERS > 0 )
             {
                 // good energy from 1 or more images
@@ -1414,7 +1414,7 @@ void VTableLookup::readLookupTable()
                     fData->setNEnergyQuality( -2 );
                 }
             }
-            else
+            else if( !fData->useDispEnergy() )
             {
                 fData->setNEnergyQuality( -1 );
             }

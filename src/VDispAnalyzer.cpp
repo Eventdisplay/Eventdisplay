@@ -881,7 +881,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     
     ////////////////////////////////////////////
     // calculate for each image an energy
-    
+
     // counter for good energy values
     float z = 0.;
     for( unsigned int i = 0; i < i_ntel; i++ )
