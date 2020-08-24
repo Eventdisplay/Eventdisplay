@@ -301,50 +301,6 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
         cout << "error in train: zenith bin out of range " << iZenithBin;
         return false;
     }
-    
-    TMVA::Tools::Instance();
-    
-    // set output directory
-    gSystem->mkdir( iRun->fOutputDirectoryName.c_str() );
-    TString iOutputDirectory( iRun->fOutputDirectoryName.c_str() );
-    gSystem->ExpandPathName( iOutputDirectory );
-    ( TMVA::gConfig().GetIONames() ).fWeightFileDir = iOutputDirectory;
-    
-    //////////////////////////////////////////
-    // defining training class
-    TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
-            iRun->fOutputFile[iEnergyBin][iZenithBin],
-            "V:!DrawProgressBar" );
-#ifdef ROOT6
-    TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
-#else
-    TMVA::Factory* dataloader = factory;
-#endif
-    ////////////////////////////
-    // train gamma/hadron separation
-    if( iTrainGammaHadronSeparation )
-    {
-        // adding signal and background trees
-        for( unsigned int i = 0; i < iRun->fSignalTree.size(); i++ )
-        {
-            dataloader->AddSignalTree( iRun->fSignalTree[i], iRun->fSignalWeight );
-        }
-        for( unsigned int i = 0; i < iRun->fBackgroundTree.size(); i++ )
-        {
-            dataloader->AddBackgroundTree( iRun->fBackgroundTree[i], iRun->fBackgroundWeight );
-        }
-    }
-    ////////////////////////////
-    // train reconstruction quality
-    else
-    {
-        for( unsigned int i = 0; i < iRun->fSignalTree.size(); i++ )
-        {
-            dataloader->AddRegressionTree( iRun->fSignalTree[i], iRun->fSignalWeight );
-        }
-        dataloader->AddRegressionTarget( iRun->fReconstructionQualityTarget.c_str(), iRun->fReconstructionQualityTargetName.c_str() );
-    }
-    
     // quality cuts before training
     TCut iCutSignal = iRun->fQualityCuts && iRun->fQualityCutsSignal 
                    && iRun->fMCxyoffCut && iRun->fAzimuthCut &&
@@ -400,6 +356,50 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
           iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions, nEventsBck, false );
           cout << "Updated training options: " <<  iRun->fPrepareTrainingOptions << endl;
      }
+    
+    TMVA::Tools::Instance();
+    
+    // set output directory
+    gSystem->mkdir( iRun->fOutputDirectoryName.c_str() );
+    TString iOutputDirectory( iRun->fOutputDirectoryName.c_str() );
+    gSystem->ExpandPathName( iOutputDirectory );
+    ( TMVA::gConfig().GetIONames() ).fWeightFileDir = iOutputDirectory;
+    
+    //////////////////////////////////////////
+    // defining training class
+    TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
+            iRun->fOutputFile[iEnergyBin][iZenithBin],
+            "V:!DrawProgressBar" );
+#ifdef ROOT6
+    TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
+#else
+    TMVA::Factory* dataloader = factory;
+#endif
+    ////////////////////////////
+    // train gamma/hadron separation
+    if( iTrainGammaHadronSeparation )
+    {
+        // adding signal and background trees
+        for( unsigned int i = 0; i < iRun->fSignalTree.size(); i++ )
+        {
+            dataloader->AddSignalTree( iRun->fSignalTree[i], iRun->fSignalWeight );
+        }
+        for( unsigned int i = 0; i < iRun->fBackgroundTree.size(); i++ )
+        {
+            dataloader->AddBackgroundTree( iRun->fBackgroundTree[i], iRun->fBackgroundWeight );
+        }
+    }
+    ////////////////////////////
+    // train reconstruction quality
+    else
+    {
+        for( unsigned int i = 0; i < iRun->fSignalTree.size(); i++ )
+        {
+            dataloader->AddRegressionTree( iRun->fSignalTree[i], iRun->fSignalWeight );
+        }
+        dataloader->AddRegressionTarget( iRun->fReconstructionQualityTarget.c_str(), iRun->fReconstructionQualityTargetName.c_str() );
+    }
+    
     
     // loop over all trainingvariables and add them to TMVA
     // (test first if variable is constant, TMVA will stop when a variable
