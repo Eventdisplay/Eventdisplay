@@ -70,7 +70,7 @@ int main( int argc, char* argv[] )
      ////////////////////////////////////////////////
      if( argc == 3 )
      {
-           TFile fF( fRootFile.c_str() );
+           TFile fF( fRootFile.c_str(), "UPDATE" );
            if( fF.IsZombie() )
            {
                 cout << "Error: root file not found" << endl;

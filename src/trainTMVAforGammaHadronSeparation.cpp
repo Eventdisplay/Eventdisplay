@@ -724,7 +724,7 @@ int main( int argc, char* argv[] )
                     
                     if( fDataEnergyCut )
                     {
-                    fDataEnergyCut->Write();
+                        fDataEnergyCut->Write();
                     }
                     if( fDataZenithCut )
                     {
