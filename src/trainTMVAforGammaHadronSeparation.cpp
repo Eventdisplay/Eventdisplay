@@ -58,10 +58,14 @@ Long64_t getNumberOfRequestedTrainingEvents( string a, bool iSignal )
  *
  * note! assume name number of training and testing events
  */
-string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal )
+string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal, unsigned int iRequiredEvents )
 {
    Long64_t n_fix = (Long64_t)(n*0.5-1);
    stringstream r_a;
+   if( n_fix > iRequiredEvents )
+   {
+      n_fix = iRequiredEvents;
+   }
    if( iSignal ) 
    {
        r_a << a << ":nTrain_Signal=" << n_fix << ":nTest_Signal=" << n_fix;
@@ -78,13 +82,12 @@ string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal )
  * get number of signal or background events after cuts
  *
  */
-Long64_t getNumberOfEventsAfterCuts( VTMVARunData* iRun, TCut iCut, bool iSignal, bool iResetEventNumbers )
+Long64_t getNumberOfEventsAfterCuts( VTMVARunData* iRun, TCut iCut, bool iSignal, Long64_t iResetEventNumbers )
 {
     if( !iRun )
     {
         return 0;
     }
-    Long64_t nS = getNumberOfRequestedTrainingEvents( iRun->fPrepareTrainingOptions, iSignal );
     vector< TChain* > iTreeVector;
     Long64_t n = 0;
     if( iSignal )
@@ -95,6 +98,7 @@ Long64_t getNumberOfEventsAfterCuts( VTMVARunData* iRun, TCut iCut, bool iSignal
     {
         iTreeVector = iRun->fBackgroundTree;
     }
+    unsigned int iMaxTreeIndex = 0;
     
     for( unsigned  int i = 0; i < iTreeVector.size(); i++ )
     {
@@ -109,7 +113,8 @@ Long64_t getNumberOfEventsAfterCuts( VTMVARunData* iRun, TCut iCut, bool iSignal
                  delete elist;
              }
              delete t;
-             if( !iResetEventNumbers && n > nS )
+             // factor of 2: here for training and testing events
+             if( iResetEventNumbers > 0 && n > iResetEventNumbers * 2 )
              {
                  cout << "\t reached required ";
                  if( iSignal )
@@ -121,11 +126,39 @@ Long64_t getNumberOfEventsAfterCuts( VTMVARunData* iRun, TCut iCut, bool iSignal
                      cout << "background";
                  }
                  cout << " event numbers ";
-                 cout << "(" << nS << ")";
+                 cout << "(" << iResetEventNumbers << ")";
                  cout << " after " << i+1 << " tree(s)" << endl;
                  cout << "\t applied cut: " << iCut << endl;
-                 return n;
+                 iMaxTreeIndex = i+1;
+                 break;
              }
+        }
+    }
+    if( iMaxTreeIndex > 0 )
+    {
+        if( iSignal )
+        {
+            cout << "Removing " << iTreeVector.size()-iMaxTreeIndex << " signal tree(s)" << endl;
+        }
+        else
+        {
+            cout << "Removing " << iTreeVector.size()-iMaxTreeIndex << " background tree(s)" << endl;
+        }
+        for( unsigned int i = iMaxTreeIndex; i < iTreeVector.size(); i++ )
+        {
+            if( iTreeVector[i] )
+            {
+                if( iSignal )
+                {
+                    iRun->fSignalTree[i]->Delete();
+                    iRun->fSignalTree[i] = 0;
+                }
+                else
+                {
+                    iRun->fBackgroundTree[i]->Delete();
+                    iRun->fBackgroundTree[i] = 0;
+                }
+            }
         }
     }
     return n;
@@ -340,11 +373,13 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
      }
      // check if this number if consistent with requested number of training events
      // required at least 10 events
-     if( iRun->fResetNumberOfTrainingEvents )
+     if( iRun->fResetNumberOfTrainingEvents > 0 )
      {
           cout << "Checking number of training events: " << endl;
-          iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions, nEventsSignal, true );
-          iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions, nEventsBck, false );
+          iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions, 
+                                           nEventsSignal, true, iRun->fResetNumberOfTrainingEvents );
+          iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions,
+                                           nEventsBck, false, iRun->fResetNumberOfTrainingEvents );
           cout << "Updated training options: " <<  iRun->fPrepareTrainingOptions << endl;
      }
     
@@ -373,11 +408,17 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
         // adding signal and background trees
         for( unsigned int i = 0; i < iRun->fSignalTree.size(); i++ )
         {
-            dataloader->AddSignalTree( iRun->fSignalTree[i], iRun->fSignalWeight );
+            if( iRun->fSignalTree[i] > 0 )
+            {
+                dataloader->AddSignalTree( iRun->fSignalTree[i], iRun->fSignalWeight );
+            }
         }
         for( unsigned int i = 0; i < iRun->fBackgroundTree.size(); i++ )
         {
-            dataloader->AddBackgroundTree( iRun->fBackgroundTree[i], iRun->fBackgroundWeight );
+            if( iRun->fBackgroundTree[i] > 0 )
+            {
+                dataloader->AddBackgroundTree( iRun->fBackgroundTree[i], iRun->fBackgroundWeight );
+            }
         }
     }
     ////////////////////////////
@@ -386,7 +427,10 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     {
         for( unsigned int i = 0; i < iRun->fSignalTree.size(); i++ )
         {
-            dataloader->AddRegressionTree( iRun->fSignalTree[i], iRun->fSignalWeight );
+            if( iRun->fSignalTree[i] > 0 )
+            {
+                dataloader->AddRegressionTree( iRun->fSignalTree[i], iRun->fSignalWeight );
+            }
         }
         dataloader->AddRegressionTarget( iRun->fReconstructionQualityTarget.c_str(), iRun->fReconstructionQualityTargetName.c_str() );
     }
@@ -608,6 +652,8 @@ int main( int argc, char* argv[] )
         cout << ")" << endl;
         exit( EXIT_FAILURE );
     }
+    // randomize list of input files
+    fData->shuffleFileVectors();
     fData->print();
     
     //////////////////////////////////////

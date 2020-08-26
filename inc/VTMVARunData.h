@@ -49,7 +49,7 @@ class VTMVARunData : public TNamed
         
         // training options
         bool              fCheckValidityOfInputVariables;
-        bool              fResetNumberOfTrainingEvents;
+        unsigned int      fResetNumberOfTrainingEvents;
         
         // training data
         double            fSignalWeight;
@@ -106,8 +106,9 @@ class VTMVARunData : public TNamed
         {
             fName = iN;
         }
+        void shuffleFileVectors();
         
-        ClassDef( VTMVARunData, 10 );
+        ClassDef( VTMVARunData, 11 );
 };
 
 #endif

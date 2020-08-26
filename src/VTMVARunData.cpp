@@ -15,7 +15,7 @@ VTMVARunData::VTMVARunData()
     fTrainReconstructionQuality = false;  // in development: please ignore
     
     fCheckValidityOfInputVariables = true;
-    fResetNumberOfTrainingEvents = false;
+    fResetNumberOfTrainingEvents = 0;
     
     fOutputDirectoryName = "";
     fOutputFileName = "";
@@ -575,9 +575,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             {
                 if( !(is_stream>>std::ws).eof() )
                 {
-                    int iT = 0;
-                    is_stream >> iT;
-                    fResetNumberOfTrainingEvents = ( bool )iT;
+                    is_stream >> fResetNumberOfTrainingEvents;
                 }
             }
             // signal weight
@@ -781,3 +779,8 @@ bool VTMVARunData::readConfigurationFile( char* iC )
     return true;
 }
 
+void VTMVARunData::shuffleFileVectors()
+{
+    std::random_shuffle( fSignalFileName.begin(), fSignalFileName.end() );
+    std::random_shuffle( fBackgroundFileName.begin(), fBackgroundFileName.end() );
+}
