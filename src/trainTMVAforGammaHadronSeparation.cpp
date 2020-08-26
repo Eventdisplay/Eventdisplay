@@ -60,26 +60,17 @@ Long64_t getNumberOfRequestedTrainingEvents( string a, bool iSignal )
  */
 string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal )
 {
-   Long64_t nS = getNumberOfRequestedTrainingEvents( a, iSignal );
-   if( nS == 0 )
+   Long64_t n_fix = (Long64_t)(n*0.5-1);
+   stringstream r_a;
+   if( iSignal ) 
    {
-       return a;
+       r_a << a << ":nTrain_Signal=" << n_fix << ":nTest_Signal=" << n_fix;
    }
-   cout << "\t requested are " << nS;
-   cout << ", found are " << n << endl;
-   if( n > nS )
+   else
    {
-      cout << "\t (resetting to zero)" << endl;;
-      stringstream r;
-      r << nS;
-      size_t pos = a.find( r.str() );
-      while( pos != string::npos)
-      {
-           a.replace( pos, r.str().size(), "0" );
-           pos = a.find( r.str() );
-      }
+       r_a << a << ":nTrain_Background=" << n_fix << ":nTest_Background=" << n_fix;
    }
-   return a;
+   return r_a.str();
 }
    
 
