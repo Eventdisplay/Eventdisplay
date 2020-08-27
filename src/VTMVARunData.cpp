@@ -44,7 +44,7 @@ VTMVARunData::VTMVARunData()
     open data files and make data trees available
 
 */
-bool VTMVARunData::openDataFiles()
+bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
 {
     if( fDebug )
     {
@@ -98,12 +98,11 @@ bool VTMVARunData::openDataFiles()
     ///////////////////////////////////////////////////////////////////
     // check how many events there are in signal and background trees (after cuts)
     // (note that no cuts are applied here)
-    if( fMinSignalEvents > 0 && fMinBackgroundEvents > 0 )
+    if( iCheckMinEvents && fMinSignalEvents > 0 && fMinBackgroundEvents > 0 )
     {
         TEntryList* i_j_SignalList = 0;
         TEntryList* i_j_BackgroundList = 0;
         bool iEnoughEvents = true;
-        
         
         // loop over all energy and zenith bins
         for( unsigned int i = 0; i < fEnergyCutData.size(); i++ )

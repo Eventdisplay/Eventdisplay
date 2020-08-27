@@ -97,7 +97,7 @@ class VTMVARunData : public TNamed
         ~VTMVARunData() {}
         void print();
         bool readConfigurationFile( char* );
-        bool openDataFiles();
+        bool openDataFiles( bool iCheckMinEvents = true );
         void setDebug( bool iB = true )
         {
             fDebug = iB;
@@ -108,7 +108,7 @@ class VTMVARunData : public TNamed
         }
         void shuffleFileVectors();
         
-        ClassDef( VTMVARunData, 11 );
+        ClassDef( VTMVARunData, 13 );
 };
 
 #endif
