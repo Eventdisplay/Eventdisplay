@@ -1376,7 +1376,7 @@ void VTableLookup::readLookupTable()
             //
             // for dispEnergy: fill
             // energy in the data handler
-            int iNERS = 0;
+            int iNERS = fData->fnenergyT;
             if( !fData->useDispEnergy() )
             {
                 fData->setEnergy( s_N->value[E_EREC],
@@ -1391,8 +1391,8 @@ void VTableLookup::readLookupTable()
                         iNERS++;
                     }
                 }
+                fData->setNEnergyT( iNERS );
             }
-            fData->setNEnergyT( iNERS );
             // energy quality (for non-DISP methods)
             if( iNERS > 0 )
             {
