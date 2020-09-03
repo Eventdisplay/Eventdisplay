@@ -780,6 +780,8 @@ bool VTMVARunData::readConfigurationFile( char* iC )
 
 void VTMVARunData::shuffleFileVectors()
 {
-    std::random_shuffle( fSignalFileName.begin(), fSignalFileName.end() );
-    std::random_shuffle( fBackgroundFileName.begin(), fBackgroundFileName.end() );
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle( fSignalFileName.begin(), fSignalFileName.end(), g );
+    std::shuffle( fBackgroundFileName.begin(), fBackgroundFileName.end(), g );
 }
