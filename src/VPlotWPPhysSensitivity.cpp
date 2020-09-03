@@ -970,7 +970,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
     }
     if( cBck )
     {
-        plotLegend( cBck, false );
+        //plotLegend( cBck, false );
         if( iPrint.size() > 0 )
         {
             char hname[2000];
