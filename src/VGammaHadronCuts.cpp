@@ -206,6 +206,8 @@ void VGammaHadronCuts::resetCutValues()
     fCut_Emmission_max = 1.e12;
     fCut_NImages_min = 0;
     fCut_NImages_max = 100000;
+    fCut_DispNImages_min = 0;
+    fCut_DispNImages_max = 100000;
     
     fCut_AverageCoreDistanceToTelescopes_nimages = -99;
     fCut_AverageCoreDistanceToTelescopes_min = -99.;
@@ -304,6 +306,13 @@ bool VGammaHadronCuts::readCuts( string i_cutfilename, int iPrint )
                 fCut_NImages_min = ( atoi( temp.c_str() ) );
                 is_stream >> temp;
                 fCut_NImages_max = ( atoi( temp.c_str() ) );
+            }
+            else if( iCutVariable == "dispnimages" )
+            {
+                is_stream >> temp;
+                fCut_DispNImages_min = ( atoi( temp.c_str() ) );
+                is_stream >> temp;
+                fCut_DispNImages_max = ( atoi( temp.c_str() ) );
             }
             else if( iCutVariable == "arraysize" )
             {
@@ -1120,6 +1129,11 @@ void VGammaHadronCuts::printCutSummary()
     cout << endl;
     cout << "NImage cut: " << fCut_NImages_min << " <= Ntel <= " << fCut_NImages_max;
     cout << endl;
+    if( fCut_DispNImages_min > 0 || fCut_DispNImages_max < 1000 )
+    {
+         cout << "Disp-NImage cut: " << fCut_DispNImages_min << " <= Ntel <= " << fCut_DispNImages_max;
+         cout << endl;
+    }
     if( bMCCuts )
     {
         cout << "MC cuts: " << fCut_CameraFiducialSize_MC_min << " < fiducial area (camera) < " << fCut_CameraFiducialSize_MC_max << " deg ";
@@ -1182,6 +1196,16 @@ bool VGammaHadronCuts::applyStereoQualityCuts_Chi2( bool bCount )
 bool VGammaHadronCuts::applyStereoQualityCuts_NImages( bool bCount )
 {
     if( fData->getNImages() < fCut_NImages_min || fData->getNImages() > fCut_NImages_max )
+    {
+        if( bCount && fStats )
+        {
+            fStats->updateCutCounter( VGammaHadronCutsStatistics::eStereoQuality );
+            fStats->updateCutCounter( VGammaHadronCutsStatistics::eNImages );
+        }
+        return false;
+    }
+    // disp nimages cut (applies only for disp stereo reconstruction)
+    if( fData->DispNImages < fCut_DispNImages_min || fData->DispNImages > fCut_DispNImages_max )
     {
         if( bCount && fStats )
         {
