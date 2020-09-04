@@ -193,7 +193,8 @@ void VTableLookupDataHandler::fill()
         }
     }
     
-    if( fTLRunParameter->bWriteReconstructedEventsOnly >= 0 || fTLRunParameter->bWriteReconstructedEventsOnly == -2 )
+    if( fTLRunParameter->bWriteReconstructedEventsOnly >= 0
+    || fTLRunParameter->bWriteReconstructedEventsOnly == -2 )
     {
         if( isReconstructed() )
         {
@@ -282,11 +283,13 @@ bool VTableLookupDataHandler::getNextEvent( bool bShort )
         // calculate theta2
         if( !fIsMC )
         {
-            ftheta2 = ( fYoff_derot - fWobbleN ) * ( fYoff_derot - fWobbleN ) + ( fXoff_derot - fWobbleE ) * ( fXoff_derot - fWobbleE );
+            ftheta2 = ( fYoff_derot - fWobbleN ) * ( fYoff_derot - fWobbleN ) 
+                    + ( fXoff_derot - fWobbleE ) * ( fXoff_derot - fWobbleE );
         }
         else
         {
-            ftheta2 = ( fXoff - fMCxoff ) * ( fXoff - fMCxoff ) + ( fYoff - fMCyoff ) * ( fYoff - fMCyoff );
+            ftheta2 = ( fXoff - fMCxoff ) * ( fXoff - fMCxoff )
+                    + ( fYoff - fMCyoff ) * ( fYoff - fMCyoff );
         }
         
         setEventWeightfromMCSpectrum();
@@ -578,7 +581,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
         {
             if( !ftpars[i] )
             {
-                cout << "VTableLookupDataHandler::fillNextEvent error: tree tpars not found (telescope " << i + 1 << ")" << endl;
+                cout << "VTableLookupDataHandler::fillNextEvent error:";
+                cout << "tree tpars not found (telescope " << i + 1 << ")" << endl;
                 cout << "\t(run " << runNumber << ", " << eventNumber << ")" << endl;
                 exit( EXIT_FAILURE );
             }
@@ -784,7 +788,6 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
         }
         setNEnergyT( fDispAnalyzerEnergy->getEnergyNT() );
         setNEnergyQuality( fDispAnalyzerEnergy->getEnergyQualityLabel() );
-        
     }
     
     fEventCounter++;
