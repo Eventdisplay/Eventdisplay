@@ -929,10 +929,10 @@ bool VTMVAEvaluator::evaluate()
         }
         
         // evaluate MVA for this event
-        // fTMVA_EvaluationResult = fTMVAData[iDataBin]->fTMVAReader->EvaluateMVA( fTMVAData[iDataBin]->fTMVAMethodTag_2 );
+        fTMVA_EvaluationResult = fTMVAData[iDataBin]->fTMVAReader->EvaluateMVA( fTMVAData[iDataBin]->fTMVAMethodTag_2 );
 
         // evaluate interpolate MVA for this event
-        fTMVA_EvaluationResult = evaluateInterPolateMVA( fData->getEnergy_Log10(), fData->getZe(), iDataBin );
+        // fTMVA_EvaluationResult = evaluateInterPolateMVA( fData->getEnergy_Log10(), fData->getZe(), iDataBin );
 
         // apply MVA cut
         // -> can be either
