@@ -1055,9 +1055,14 @@ void VImageParameterCalculation::calcParameters()
             double xi = getDetectorGeo()->getX()[j];
             double yi = getDetectorGeo()->getY()[j];
             
-            const double si = ( double )fData->getSums()[j]; // charge (dc)
+            double si = ( double )fData->getSums()[j]; // charge (dc)
+            double si2 = ( double )fData->getSums2()[j];
+            if( fData->getRunParameter() && fData->getRunParameter()->fSquaredImageCalculation )
+            {
+                si *= si;
+                si2 *= si2;
+            }
             sumsig += si;
-            const double si2 = ( double )fData->getSums2()[j];
             sumsig_2 += si2;
             // sum in outer ring
             if( getDetectorGeo()->isEdgePixel()[j] )
@@ -1518,6 +1523,10 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
             else
             {
                 fll_Sums.push_back( 0.1 );
+            }
+            if( fData->getRunParameter() && fData->getRunParameter()->fSquaredImageCalculation )
+            {
+                fll_Sums.back() = fll_Sums.back() * fll_Sums.back();
             }
             if( fll_Sums.back() > i_sumMax )
             {

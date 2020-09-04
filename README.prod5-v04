@@ -1,0 +1,10 @@
+# prod5-v04 
+
+add different weighting to image parameter calculation for optimised angular reconstruction
+
+
+## Compilation
+
+```
+make -j4 evndisp CTAPROD=PROD5 GRIDPROD=CTAGRID
+```

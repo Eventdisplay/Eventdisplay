@@ -788,6 +788,11 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
         {
             fRunPara->fprintdeadpixelinfo = true ;
         }
+        // image parameters are weighted by pixel charge*2
+        else if( iTemp.rfind( "imagesquared" ) < iTemp.size() )
+        {
+            fRunPara->fSquaredImageCalculation = true;
+        }
         
         
         // source type

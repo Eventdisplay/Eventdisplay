@@ -29,6 +29,7 @@ then
     exit
 fi
 tar -xvzf sofa_c-20190722.tar.gz
+rm -f sofa_c-20190722.tar.gz
 
 ##########################
 # prepare make file

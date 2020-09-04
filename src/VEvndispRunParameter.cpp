@@ -169,6 +169,7 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fLogLikelihoodLoss_max.push_back( 1.e3 );
     fLogLikelihood_Ntubes_min.push_back( 0 );
     fForceLLImageFit = false;
+    fSquaredImageCalculation = false;
     fImageAnalysisFUIFactor = 2.;
     fFixWindowStart_sumwindow2 = false;
     fDoublePass.push_back( true );
@@ -683,6 +684,10 @@ void VEvndispRunParameter::print( int iEv )
             cout << endl;
         }
         cout << "Fraction of image/border pixel under image ellipse fact (FUI-factor): " << fImageAnalysisFUIFactor << endl;
+        if( fSquaredImageCalculation )
+        {
+            cout << "Use squared weighting for image calculation" << endl;
+        }
     }
     if( ftracefile.size() > 0 )
     {

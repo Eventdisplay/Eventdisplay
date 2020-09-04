@@ -97,8 +97,8 @@ class CData
         Double_t        Yoff;
         Double_t        Xoff_derot;
         Double_t        Yoff_derot;
-		Float_t        Xoff_intersect;
-		Float_t        Yoff_intersect;
+        Float_t        Xoff_intersect;
+        Float_t        Yoff_intersect;
         Double_t        stdS;
         Double_t        theta2;
         Double_t        Xcore;
@@ -159,6 +159,7 @@ class CData
         //[NTelPairs]
         Float_t         EmissionHeightT[VDST_MAXTELESCOPES* VDST_MAXTELESCOPES];
         Double_t        DispDiff;  // from disp method
+        UInt_t          DispNImages;
         /// model3D parameters ///
         Double_t         Smax3D;
         Double_t         sigmaL3D;
@@ -321,6 +322,7 @@ class CData
         TBranch*        b_NTelPairs;              //!
         TBranch*        b_EmissionHeightT;        //!
         TBranch*        b_DispDiff; //disp
+        TBranch*        b_DispNImages; //disp
         // deep learner parameters
         TBranch*        b_dl_gammaness;             //!
         TBranch*        b_dl_isGamma;             //!
@@ -1337,6 +1339,14 @@ void CData::Init( TTree* tree )
     {
         DispDiff = 0.;
     }
+    if( fChain->GetBranchStatus( "DispNImages" ) )
+    {
+        fChain->SetBranchAddress( "DispNImages", &DispNImages );
+    }
+    else
+    {
+        DispNImages = 0;
+    }
     if( fDeepLearner )
     {
         fChain->SetBranchAddress( "dl_gammaness", &dl_gammaness );
@@ -1510,6 +1520,14 @@ Bool_t CData::Notify()
     else
     {
         b_DispDiff = 0;
+    }
+    if( fChain->GetBranchStatus( "DispNImages" ) )
+    {
+        b_DispNImages = fChain->GetBranch( "DispNImages" );
+    }
+    else
+    {
+        b_DispNImages = 0;
     }
     if( fDeepLearner )
     {

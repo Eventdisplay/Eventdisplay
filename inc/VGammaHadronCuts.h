@@ -230,6 +230,8 @@ class VGammaHadronCuts : public VAnalysisUtilities
         double fCut_Emmission_max;
         int    fCut_NImages_min;
         int    fCut_NImages_max;
+        unsigned int    fCut_DispNImages_min;
+        unsigned int    fCut_DispNImages_max;
         double fCut_SizeSecondMax_min;
         double fCut_SizeSecondMax_max;
         double fProbabilityCut;
@@ -429,6 +431,6 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             fReconstructionType = type;
         }
-        ClassDef( VGammaHadronCuts, 65 );
+        ClassDef( VGammaHadronCuts, 66 );
 };
 #endif

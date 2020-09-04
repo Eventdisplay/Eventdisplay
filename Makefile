@@ -195,7 +195,8 @@ endif
 ifeq ($(ARCH),Darwin)
 CXX           = clang++
 LD            = clang++
-CXXFLAGS    += -Wdeprecated-declarations -stdlib=libc++ -std=c++11
+#CXXFLAGS    += -Wdeprecated-declarations -stdlib=libc++ -std=c++11
+CXXFLAGS    += -Wdeprecated-declarations -stdlib=libc++
 LDFLAGS       = -bind_at_load
 DllSuf        = dylib
 UNDEFOPT      = dynamic_lookup
