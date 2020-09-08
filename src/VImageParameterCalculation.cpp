@@ -1045,18 +1045,19 @@ void VImageParameterCalculation::calcParameters()
             pntubesBrightNoImage++;
         }
         
+        // loop over image tubes
         // select image or border pixel
         if( fData->getImage()[j] || fData->getBorder()[j] )
         {
             pntubes += 1;
-            
-            // loop over image tubes
             
             double xi = getDetectorGeo()->getX()[j];
             double yi = getDetectorGeo()->getY()[j];
             
             double si = ( double )fData->getSums()[j]; // charge (dc)
             double si2 = ( double )fData->getSums2()[j];
+            // image weighting with squared intensity
+            // (non standard from traditional image calculation!)
             if( fData->getRunParameter() && fData->getRunParameter()->fSquaredImageCalculation )
             {
                 si *= si;
@@ -1524,6 +1525,8 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
             {
                 fll_Sums.push_back( 0.1 );
             }
+            // image weighting with squared intensity
+            // (non standard from traditional image calculation!)
             if( fData->getRunParameter() && fData->getRunParameter()->fSquaredImageCalculation )
             {
                 fll_Sums.back() = fll_Sums.back() * fll_Sums.back();
@@ -2189,8 +2192,7 @@ void get_LL_imageParameter_2DGauss( Int_t& npar, Double_t* gin, Double_t& f, Dou
     
     double x = 0.;
     double y = 0.;
-    double n = 0.;                                // measured sum in channel i
-    //    double iVar = 0.;
+    double n = 0.;
     
     double rho_1 = -1. / 2. / ( 1. - par[0] * par[0] );
     double rho_s =  1. / 2. / M_PI / par[2] / par[4] / sqrt( 1. - par[0] * par[0] ) * par[5];
