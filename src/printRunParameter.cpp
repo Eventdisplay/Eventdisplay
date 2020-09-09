@@ -143,7 +143,8 @@ bool readTelescopeTypeNumbers( TFile* fIn, string iPara )
                         cout << "SST" << endl;
                     }
                     else if( fList_of_Tel_type_iterator->first == 10408418
-                             || fList_of_Tel_type_iterator->first == 10408618 )
+                             || fList_of_Tel_type_iterator->first == 10408618
+                             || fList_of_Tel_type_iterator->first == 10608418 )
                     {
                         cout << "MST" << endl;
                     }
@@ -153,7 +154,7 @@ bool readTelescopeTypeNumbers( TFile* fIn, string iPara )
                     }
                     else
                     {
-                        cout << fList_of_Tel_type_iterator->first << endl;
+                        cout << "NOTELESCOPETYPE" << endl;
                     }
                     return true;
                 }

@@ -147,6 +147,7 @@ endif
 # compiler and linker general values
 CXX           = g++
 CXXFLAGS      = -O3 -g -Wall -fPIC -fno-strict-aliasing -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
+## OBS CXXFLAGS      = -O3 -g -Wall -Wno-deprecated -fPIC -fno-strict-aliasing  -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
 CXXFLAGS     += -I. -I./inc/
 CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(GSLFLAG) $(GSL2FLAG) $(DCACHEFLAG) $(ASTRONMETRY)
 LD            = g++ 
@@ -163,6 +164,7 @@ ifeq ($(ARCH),Darwin)
 CXX           = clang++
 LD            = clang++
 CXXFLAGS    += -stdlib=libc++
+# OBS CXXFLAGS    += -Wdeprecated-declarations -stdlib=libc++
 LDFLAGS       = -bind_at_load
 DllSuf        = dylib
 UNDEFOPT      = dynamic_lookup
@@ -180,6 +182,24 @@ GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $
 CXXFLAGS    += -Wdeprecated-declarations -std=c++11
 ########################################################
 # CXX FLAGS (taken from root)
+# ROOT 6 and check correct compiler version
+ifeq ($(ROOT6FLAG),-DROOT6)
+      # get major version of gcc, e.g. '4' in '4.6.'
+      GCC_VER_MAJOR := $(shell echo $(GCCVERSION) | cut -f1 -d.)
+      # get minor version of gcc, e.g. '6' in '4.6' 
+      GCC_VER_MINOR := $(shell echo $(GCCVERSION) | cut -f2 -d.)
+      # check if gcc version is smaller than 4.8.
+      GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $(GCC_VER_MINOR) -lt 8 \) ] && echo true)
+#CXXFLAGS    += -Wdeprecated-declarations -std=c++11
+endif
+########################################################
+# CXX FLAGS (taken from root)
+########################################################
+ROOTCFLAGS   = $(shell root-config --auxcflags)
+# ROOTCFLAGS   = -pthread -m64
+CXXFLAGS     += $(ROOTCFLAGS)
+CXXFLAGS     += -I$(shell root-config --incdir) -I$(shell root-config --incdir)/TMVA 
+########################################################
 # root libs
 ########################################################
 ifneq ($(ROOTFLAG),-DNOROOT)
@@ -237,7 +257,6 @@ endif
 ########################################################
 ifneq ($(HESSIO),FALSE)
 HESSIOINCLUDEFLAGS = -I $(HESSIOSYS)/include/
-ifeq ($(strip $(HESSIOCFLAGS)),)
 ### prod1
 # 2010 PROD1 production
 ifeq ($(strip $(CTAPROD)),PROD1)
@@ -282,7 +301,6 @@ endif
 # MAX values
 ifeq ($(strip $(CTAPROD)),CTAMAX)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_MAX
-endif
 endif
 endif
 ########################################################
@@ -427,8 +445,7 @@ EVNOBJECTS =    ./obj/VVirtualDataReader.o \
 		./obj/VSkyCoordinatesUtilities.o \
 		./obj/VHoughTransform.o \
 		./obj/VDB_PixelDataReader.o \
-		./obj/VDisplay.o \
-		./obj/VDeadPixelOrganizer.o 
+		./obj/VDisplay.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     EVNOBJECTS += ./obj/VASlalib.o
@@ -1474,6 +1491,7 @@ endif
 combineEffectiveAreas:	$(COMBINEEFFOBJ)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
+
 
 ########################################################
 # trainTMVAforGammaHadronSeparation

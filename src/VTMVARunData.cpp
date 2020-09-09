@@ -15,7 +15,7 @@ VTMVARunData::VTMVARunData()
     fTrainReconstructionQuality = false;  // in development: please ignore
     
     fCheckValidityOfInputVariables = true;
-    fResetNumberOfTrainingEvents = false;
+    fResetNumberOfTrainingEvents = 0;
     
     fOutputDirectoryName = "";
     fOutputFileName = "";
@@ -44,7 +44,7 @@ VTMVARunData::VTMVARunData()
     open data files and make data trees available
 
 */
-bool VTMVARunData::openDataFiles()
+bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
 {
     if( fDebug )
     {
@@ -98,12 +98,11 @@ bool VTMVARunData::openDataFiles()
     ///////////////////////////////////////////////////////////////////
     // check how many events there are in signal and background trees (after cuts)
     // (note that no cuts are applied here)
-    if( fMinSignalEvents > 0 && fMinBackgroundEvents > 0 )
+    if( iCheckMinEvents && fMinSignalEvents > 0 && fMinBackgroundEvents > 0 )
     {
         TEntryList* i_j_SignalList = 0;
         TEntryList* i_j_BackgroundList = 0;
         bool iEnoughEvents = true;
-        
         
         // loop over all energy and zenith bins
         for( unsigned int i = 0; i < fEnergyCutData.size(); i++ )
@@ -194,17 +193,20 @@ bool VTMVARunData::openDataFiles()
                 gSystem->mkdir( fOutputDirectoryName.c_str() );
                 if( fEnergyCutData.size() > 1 && fZenithCutData.size() > 1 )
                 {
-                    iTempS << fOutputDirectoryName << "/" << fOutputFileName << "_" << i << "_" << j << ".root";    // append a _# at the file name
+                    iTempS << fOutputDirectoryName << "/" << fOutputFileName;
+                    iTempS << "_" << i << "_" << j << ".root";    // append a _# at the file name
                     iTempS2 << fOutputFileName << "_" << i << "_" << j;
                 }
                 else if( fEnergyCutData.size() > 1 && fZenithCutData.size() <= 1 )
                 {
-                    iTempS << fOutputDirectoryName << "/" << fOutputFileName << "_" << i << ".root";    // append a _# at the file name
+                    iTempS << fOutputDirectoryName << "/" << fOutputFileName;
+                    iTempS << "_" << i << ".root";    // append a _# at the file name
                     iTempS2 << fOutputFileName << "_" << i;
                 }
                 else if( fZenithCutData.size() > 1 &&  fEnergyCutData.size() <= 1 )
                 {
-                    iTempS << fOutputDirectoryName << "/" << fOutputFileName << "_0_" << j << ".root";    // append a _# at the file name
+                    iTempS << fOutputDirectoryName << "/" << fOutputFileName;
+                    iTempS << "_0_" << j << ".root";    // append a _# at the file name
                     iTempS2 << fOutputFileName << "_0_" << i;
                 }
                 else
@@ -215,19 +217,21 @@ bool VTMVARunData::openDataFiles()
                 output_zenith.push_back( new TFile( iTempS.str().c_str(), "RECREATE" ) );
                 if( output_zenith.back()->IsZombie() )
                 {
-                    cout << "VTMVARunData::openDataFiles() error creating output file " << output_zenith.back()->GetName() << endl;
+                    cout << "VTMVARunData::openDataFiles() error creating output file ";
+                    cout << output_zenith.back()->GetName() << endl;
                     cout << "aborting..." << endl;
                     return false;
                 }
                 output_zenith.back()->SetTitle( iTempS2.str().c_str() );
-                if( fEnergyCutData[i] )
+                if( i < fEnergyCutData.size() && fEnergyCutData[i] )
                 {
                     fEnergyCutData[i]->Write();
-                }
-                if( fZenithCutData[j] )
+                } 
+                if( j < fZenithCutData.size() && fZenithCutData[j] )
                 {
                     fZenithCutData[j]->Write();
                 }
+                output_zenith.back()->Write();
             }
             fOutputFile.push_back( output_zenith );
         }
@@ -570,9 +574,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             {
                 if( !(is_stream>>std::ws).eof() )
                 {
-                    int iT = 0;
-                    is_stream >> iT;
-                    fResetNumberOfTrainingEvents = ( bool )iT;
+                    is_stream >> fResetNumberOfTrainingEvents;
                 }
             }
             // signal weight
@@ -776,3 +778,10 @@ bool VTMVARunData::readConfigurationFile( char* iC )
     return true;
 }
 
+void VTMVARunData::shuffleFileVectors()
+{
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle( fSignalFileName.begin(), fSignalFileName.end(), g );
+    std::shuffle( fBackgroundFileName.begin(), fBackgroundFileName.end(), g );
+}

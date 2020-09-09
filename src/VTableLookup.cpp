@@ -1376,7 +1376,7 @@ void VTableLookup::readLookupTable()
             //
             // for dispEnergy: fill
             // energy in the data handler
-            int iNERS = 0;
+            int iNERS = fData->fnenergyT;
             if( !fData->useDispEnergy() )
             {
                 fData->setEnergy( s_N->value[E_EREC],
@@ -1391,9 +1391,9 @@ void VTableLookup::readLookupTable()
                         iNERS++;
                     }
                 }
+                fData->setNEnergyT( iNERS );
             }
-            fData->setNEnergyT( iNERS );
-            // energy quality
+            // energy quality (for non-DISP methods)
             if( iNERS > 0 )
             {
                 // good energy from 1 or more images
@@ -1414,7 +1414,7 @@ void VTableLookup::readLookupTable()
                     fData->setNEnergyQuality( -2 );
                 }
             }
-            else
+            else if( !fData->useDispEnergy() )
             {
                 fData->setNEnergyQuality( -1 );
             }

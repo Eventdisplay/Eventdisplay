@@ -18,7 +18,7 @@
 // HARDWIRED MAXIMUM NUMBER OF TELESCOPES AND CHANNELS, etc.
 // (changing anything here means that you have to rerun all stages
 //  of the analysis again)
-#define VDST_MAXTELESCOPES  125    // maximum number of telescopes
+#define VDST_MAXTELESCOPES  180    // maximum number of telescopes
 #define VDST_MAXTELTYPES      7    // maximum number of telescope types
 #define VDST_MAXNNGROUPTYPES  6    // maximum number of NN-group types searched in NN-image cleaning
 #ifndef CTA_PROD3_SC

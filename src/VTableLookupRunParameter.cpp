@@ -731,31 +731,23 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim
         if( iLine.size() > 0 )
         {
             iW = 1.;
+            unsigned int z = 0;
             istringstream is_stream( iLine );
-            
-            is_stream >> iT1;
-            
-            // FOV (not interested in here)
-            if( !(is_stream>>std::ws).eof() )
+
+            while( is_stream >> iT2 )
             {
-                is_stream >> iT2;
+                if( z == 0 )
+                {
+                     iT1 = atoi( iT2.c_str() );
+                }
+                // expected weighting for stereo reconstruction
+                // in column 5
+                else if( z == 5 )
+                {
+                     iW = atof( iT2.c_str() );
+                }
+                z++;
             }
-            // Dynamic range (not interested in here)
-            if( !(is_stream>>std::ws).eof() )
-            {
-                is_stream >> iT2 ;
-            }
-            // use RAW sum or calibrated sum (not interested in here)
-            if( !(is_stream>>std::ws).eof() )
-            {
-                is_stream >> iT2;
-            }
-            // weighting for stereo reconstruction
-            if( !(is_stream>>std::ws).eof() )
-            {
-                is_stream >> iW;
-            }
-            
             // find this telescope and switch it on
             for( unsigned int t = 0; t < fTelToAnalyzeData.size(); t++ )
             {

@@ -929,10 +929,10 @@ bool VTMVAEvaluator::evaluate()
         }
         
         // evaluate MVA for this event
-        // fTMVA_EvaluationResult = fTMVAData[iDataBin]->fTMVAReader->EvaluateMVA( fTMVAData[iDataBin]->fTMVAMethodTag_2 );
+        fTMVA_EvaluationResult = fTMVAData[iDataBin]->fTMVAReader->EvaluateMVA( fTMVAData[iDataBin]->fTMVAMethodTag_2 );
 
         // evaluate interpolate MVA for this event
-        fTMVA_EvaluationResult = evaluateInterPolateMVA( fData->getEnergy_Log10(), fData->getZe(), iDataBin );
+        // fTMVA_EvaluationResult = evaluateInterPolateMVA( fData->getEnergy_Log10(), fData->getZe(), iDataBin );
 
         // apply MVA cut
         // -> can be either
@@ -984,25 +984,15 @@ double VTMVAEvaluator::evaluateInterPolateMVA( double iErec_log10TeV, double iZe
         return fTMVAData[iDataBin]->fTMVAReader->EvaluateMVA( fTMVAData[iDataBin]->fTMVAMethodTag_2 );
     }
 
-    double t = 0;
-    unsigned iZe_mva_bin = 999;
-    unsigned iEn_mva_bin = 999;
-
     for( unsigned int w = 0; w < iW.size(); w++ )
     {
         // ignore very small weights
         if( w < fTMVAData.size() && iW[w] > 0.001
         && fTMVAData[w]->fTMVAReader )
         {
-             if( fTMVAData[w]->fEnergyCut_bin != iEn_mva_bin || fTMVAData[w]->fZenithCut_bin != iZe_mva_bin )
-             {
-                  t = fTMVAData[w]->fTMVAReader->EvaluateMVA( fTMVAData[w]->fTMVAMethodTag_2 );
-             }
+             double t = fTMVAData[w]->fTMVAReader->EvaluateMVA( fTMVAData[w]->fTMVAMethodTag_2 );
              iMVA += iW[w] * t;
              iMVA_tot += iW[w];
-
-             iZe_mva_bin = fTMVAData[w]->fZenithCut_bin;
-             iEn_mva_bin = fTMVAData[w]->fEnergyCut_bin;
         }
     }
     if( iMVA_tot > 0. )

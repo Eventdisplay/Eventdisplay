@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -49,7 +50,7 @@ class VTMVARunData : public TNamed
         
         // training options
         bool              fCheckValidityOfInputVariables;
-        bool              fResetNumberOfTrainingEvents;
+        unsigned int      fResetNumberOfTrainingEvents;
         
         // training data
         double            fSignalWeight;
@@ -97,7 +98,7 @@ class VTMVARunData : public TNamed
         ~VTMVARunData() {}
         void print();
         bool readConfigurationFile( char* );
-        bool openDataFiles();
+        bool openDataFiles( bool iCheckMinEvents = true );
         void setDebug( bool iB = true )
         {
             fDebug = iB;
@@ -106,8 +107,9 @@ class VTMVARunData : public TNamed
         {
             fName = iN;
         }
+        void shuffleFileVectors();
         
-        ClassDef( VTMVARunData, 10 );
+        ClassDef( VTMVARunData, 13 );
 };
 
 #endif

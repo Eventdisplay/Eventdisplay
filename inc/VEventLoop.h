@@ -28,8 +28,6 @@
 #include <VFrogs.h>
 #endif
 
-#include <VDeadPixelOrganizer.h>
-
 #include <iostream>
 #include <map>
 #include <string>
@@ -52,8 +50,6 @@ class VEventLoop : public VEvndispData
 #ifndef NOGSL
         VFrogs* fFrogs;                           //!< Frogs Analyzer
 #endif
-        VDeadPixelOrganizer* fDeadPixelOrganizer ;
-        
         VDeadTime* fDeadTime;                     //!< dead time calculator
         string fFileGains;                        //!< file with gains
         
