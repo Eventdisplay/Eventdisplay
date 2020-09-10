@@ -173,7 +173,10 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
             sprintf( hname, "cat %s*.log > %s.combine.log", ifile.c_str(), outputfile );
         }
         cout << "merge log files into " << hname << endl;
-        system( hname );
+        if( system( hname ) != 0 )
+	{
+	   cout << "error merging log files" << endl;
+        }
     }
     else
     {
