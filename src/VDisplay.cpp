@@ -1512,12 +1512,14 @@ void VDisplay::setFADCText()
              fEventLoop->getAnalyzer()->getFADCStopOffsets()[iChannel] );
     fTextFADC.push_back( new TText( xL, yT, cTemp ) );
     // pulse timing
-    sprintf( cTemp, "pulse timing (raw): " );
+    ostringstream iSTRTextTemp;
+    iSTRTextTemp << "pulse timing (raw): ";
     for( unsigned int p = 0; p < fEventLoop->getRunParameter()->fpulsetiminglevels.size(); p++ )
     {
-        sprintf( cTemp, "%s %d%% : %.1f ", cTemp, ( int )( fEventLoop->getRunParameter()->fpulsetiminglevels[p] * 100. ), fEventLoop->getPulseTiming( false )[p][iChannel] );
+        // sprintf( cTemp, "%s %d%% : %.1f ", cTemp, ( int )( fEventLoop->getRunParameter()->fpulsetiminglevels[p] * 100. ), fEventLoop->getPulseTiming( false )[p][iChannel] );
+	iSTRTextTemp << ( int )( fEventLoop->getRunParameter()->fpulsetiminglevels[p] * 100. ) << " : " << fEventLoop->getPulseTiming( false )[p][iChannel];
     }
-    fTextFADC.push_back( new TText( xL, yT, cTemp ) );
+    fTextFADC.push_back( new TText( xL, yT, iSTRTextTemp.str().c_str() ) );
     // sum / pedvar
     double i_var = 0.;
     if( fEventLoop->getRunParameter()->fsourcetype != 6 &&
