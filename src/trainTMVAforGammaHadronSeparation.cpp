@@ -481,11 +481,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
             iRun->fOutputFile[iEnergyBin][iZenithBin],
             "V:!DrawProgressBar" );
-#ifdef ROOT6
     TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
-#else
-    TMVA::Factory* dataloader = factory;
-#endif
     ////////////////////////////
     // train gamma/hadron separation
     if( iTrainGammaHadronSeparation )
