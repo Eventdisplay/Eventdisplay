@@ -224,6 +224,7 @@ endif
 # VBF
 ########################################################
 ifneq ($(VBFFLAG),-DNOVBF)
+VBFCFLAGS     = -I$(VBFSYS)/include/VBF/
 VBFPP 	      = $(shell $(VBFSYS)/bin/vbfConfig --prefix)
 VBFLIBS       = -L${VBFPP}/lib -lVBF -L${BZ2_PATH}/ -lbz2
 CXXFLAGS     += -I${VBFPP}/include/VBF/
