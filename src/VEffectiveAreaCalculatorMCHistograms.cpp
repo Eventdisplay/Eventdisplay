@@ -104,6 +104,11 @@ void VEffectiveAreaCalculatorMCHistograms::print()
                     cout << "\tEntries (MCweights): ";
                     cout << getHistogram_EmcWeight( j, i )->GetEntries();
                 }
+                if( getHistogram_EmcUnweighted( j ) && getHistogram_EmcUnweighted( j )->GetEntries() > 0 )
+                {
+                    cout << "\t Entries (Unweighted): ";
+                    cout << getHistogram_EmcUnweighted( j )->GetEntries();
+                }
                 cout << endl;
             }
         }
