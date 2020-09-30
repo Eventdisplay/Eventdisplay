@@ -828,6 +828,9 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             
             // disp error: the expected difference between true and
             //             reconstructed direction
+            // Note that this is only the error expected due to the mismatch
+            // of the image length axis with the true direction, not the error
+            // due to a miscalculation of disp itself
             dispError = 0;
             float x1 = cen_x - disp * cosphi;
             float x2 = cen_x + disp * cosphi;
