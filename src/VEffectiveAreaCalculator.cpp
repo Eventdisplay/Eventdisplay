@@ -84,6 +84,12 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "entries",
                         nbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue );
+    newEffectiveAreaHistogram( "1D", E_EmcUW, 
+                        "energy spectrum (unweighted)",
+                        "energy_{MC} [TeV]", 
+                        "entries",
+                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fEnergyAxis_maximum_defaultValue );
     newEffectiveAreaHistogram( "1D", E_Ecut, 
                         "energy spectrum, after cuts",
                         "energy_{MC} [TeV]", 
@@ -1349,6 +1355,18 @@ bool VEffectiveAreaCalculator::getMonteCarloSpectra( VEffectiveAreaCalculatorMCH
                     hV_HIS1D[E_Emc][s][i_az] = 0;
                 }
             }
+            if( s < hV_HIS1D[E_EmcUW].size() && i_az < hV_HIS1D[E_EmcUW][s].size() )
+            {
+                sprintf( hname, "hVEmcUW_%u_%u", s, i_az );
+                if( iMC_histo->getHistogram_EmcUnweighted( s ) )
+                {
+                    hV_HIS1D[E_EmcUW][s][i_az] = ( TH1D* )iMC_histo->getHistogram_EmcUnweighted( s )->Clone( hname );
+                }
+                else
+                {
+                   hV_HIS1D[E_EmcUW][s][i_az] = 0;
+                }
+            }
             // profiles with spectral weights
             if( s < hV_HIS1P[E_EmcSWeight].size() && i_az < hV_HIS1P[E_EmcSWeight][s].size() )
             {
@@ -1811,7 +1829,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
             {
                 e0[b] = hV_HIS1D[E_Emc][s][i_az]->GetBinCenter( b+1 );
             }
-            
+
             // bayesdivide works only for weights == 1
             // errors might be wrong, since histograms are filled with weights != 1
             if( !binomialDivide( gEffAreaMC, hV_HIS1D[E_Ecut][s][i_az], hV_HIS1D[E_Emc][s][i_az],
@@ -2941,17 +2959,6 @@ void VEffectiveAreaCalculator::resetHistogramsVectors( )
     }
 }
 
-
-TH1D* VEffectiveAreaCalculator::getHistogramhEmc()
-{
-    if( h_HIS1D.find( E_Emc ) != h_HIS1D.end() )
-    {
-          h_HIS1D[E_Emc]->Reset();
-          return  h_HIS1D[E_Emc];
-    }
-    return 0;
-}
-
 /*
  * calculate mean systematic error (bias) in energy reconstruction
  *
@@ -3579,6 +3586,8 @@ string VEffectiveAreaCalculator::getEffectiveAreaNamefromEnumInt( int iHisID, st
                    return "hEcutEnergyReconstruction";
                case E_EcutGammaHadron:
                    return "hEcutGammaHadron";
+               case E_EmcUW:
+                   return "hEmcUW";
           }
       }
       else if( iType == "1P" )
