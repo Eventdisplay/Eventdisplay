@@ -444,7 +444,7 @@ void VImageBaseAnalyzer::calcTZerosSums( int iFirstSum, int iLastSum, unsigned i
         cout << "VImageBaseAnalyzer::calcTZerosSums() \t" << iFirstSum << "\t" << iLastSum << endl;
     }
     bool fDebugTrace = false;
-    
+
     /////////////////////////////////////////////////////////////////////////////////
     // DST source file without FADC information
     // ignore everything and just get the sums and tzeros from data trees
@@ -558,8 +558,8 @@ void VImageBaseAnalyzer::calcTZerosSums( int iFirstSum, int iLastSum, unsigned i
             
             // calculate timing parameters (raw and corrected; tzero correction happens later)
             setPulseTiming( i_channelHitID,
-                            fTraceHandler->getPulseTiming( 0, getNSamples(),
-                                                           0, getNSamples(),
+                            fTraceHandler->getPulseTiming( 0, getNSamplesAnalysis(),
+                                                           0, getNSamplesAnalysis(),
                                                            getSumWindow_searchmaxreverse() ),
                             true );
             
@@ -1567,9 +1567,9 @@ int VImageBaseAnalyzer::getFADCTraceIntegrationPosition( int iPos )
     {
         return 0;
     }
-    if( iPos > ( int )getNSamples() )
+    if( iPos > ( int )getNSamplesAnalysis() )
     {
-        return ( int )getNSamples();
+        return ( int )getNSamplesAnalysis();
     }
     
     return iPos;
