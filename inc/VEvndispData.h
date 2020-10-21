@@ -679,6 +679,7 @@ class VEvndispData
                 return fDetectorGeo->getNSamples( iTelID );
             }
         }
+        unsigned int        getNSamplesAnalysis( unsigned int iTelID = 9999 );
         unsigned int        getNTel() const
         {
             return fNTel;
