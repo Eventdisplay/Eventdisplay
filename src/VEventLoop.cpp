@@ -176,6 +176,10 @@ void VEventLoop::printRunInfos()
                 cout << "\t length of first pass summation window (double pass): \t" << fRunPar->fsumwindow_pass1[fRunPar->fTelToAnalyze[i]];
             }
             cout << endl;
+            if( !fRunPar->fSumWindow_searchmaxreverse[fRunPar->fTelToAnalyze[i]] )
+            {
+                cout << "\t ignore reverse trace integration for low gain" << endl;
+            }
         }
         else
         {

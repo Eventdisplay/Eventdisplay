@@ -179,6 +179,7 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fTraceWindowShift.push_back( -1. );
     fsumfirst_startingMethod.push_back( 1 );
     fsumfirst_maxT0startDiff.push_back( 0 );
+    fSumWindow_searchmaxreverse.push_back( true );
     fTraceIntegrationMethod.push_back( 1 );
     fTraceIntegrationMethod_pass1.push_back( 1 );
     fDF_DigitalFilter.push_back( 0 );
@@ -641,12 +642,12 @@ void VEvndispRunParameter::print( int iEv )
         {
             cout << fpulsetiminglevels[i] << ", ";
         }
-                cout << " (tzero index: " << fpulsetiming_tzero_index;
-                cout << ", max index: " << fpulsetiming_max_index;
-                if( fpulsetiming_triggertime_index != 9999 )
-                {
-                    cout << ", trigger time index: " << fpulsetiming_triggertime_index;
-                }
+        cout << " (tzero index: " << fpulsetiming_tzero_index;
+        cout << ", max index: " << fpulsetiming_max_index;
+        if( fpulsetiming_triggertime_index != 9999 )
+        {
+            cout << ", trigger time index: " << fpulsetiming_triggertime_index;
+        }
         cout << endl;
         if( fL2TimeCorrect )
         {
@@ -771,6 +772,10 @@ void VEvndispRunParameter::print( int iEv )
                 {
                     cout << "\t length of first pass summation window (double pass): \t" << fsumwindow_pass1[fTelToAnalyze[i]];
                 }
+                if( fTelToAnalyze[i] < fSumWindow_searchmaxreverse.size() && !fSumWindow_searchmaxreverse[fTelToAnalyze[i]] )
+                {
+                    cout << " (no reverse tmax search for low gain)";
+                }
                 cout << endl;
             }
             else
@@ -844,8 +849,8 @@ void VEvndispRunParameter::setPulseZeroIndex()
     fpulsetiming_tzero_index = 9999;
     fpulsetiming_width_index = 9999;
     fpulsetiming_max_index   = 9999;
-        // trigger time index is fixed
-        fpulsetiming_triggertime_index = fpulsetiminglevels.size();
+    // trigger time index is fixed
+    fpulsetiming_triggertime_index = fpulsetiminglevels.size();
     for( unsigned int i = 0; i < fpulsetiminglevels.size(); i++ )
     {
         if( TMath::Abs( fpulsetiminglevels[i] - 1. ) < 1.e-4 && fpulsetiming_max_index == 9999 )

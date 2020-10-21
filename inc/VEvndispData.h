@@ -908,6 +908,10 @@ class VEvndispData
         {
             return fRunPar->fsumfirst_maxT0startDiff[fTelID];
         }
+        bool getSumWindow_searchmaxreverse()
+        {
+            return fRunPar->fSumWindow_searchmaxreverse[fTelID];
+        }
         unsigned int  getSumWindowStart_T_method()
         {
             return fRunPar->fsumfirst_startingMethod[fTelID];

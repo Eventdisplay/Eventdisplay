@@ -557,7 +557,11 @@ void VImageBaseAnalyzer::calcTZerosSums( int iFirstSum, int iLastSum, unsigned i
             corrlast  = getFADCTraceIntegrationPosition( corrfirst + ( iLastSum - iFirstSum ) );
             
             // calculate timing parameters (raw and corrected; tzero correction happens later)
-            setPulseTiming( i_channelHitID, fTraceHandler->getPulseTiming( 0, getNSamples(), 0, getNSamples() ), true );
+            setPulseTiming( i_channelHitID,
+                            fTraceHandler->getPulseTiming( 0, getNSamples(),
+                                                           0, getNSamples(),
+                                                           getSumWindow_searchmaxreverse() ),
+                            true );
             
             // set integration start and stop
             // use T0 as start of integration window for trace integration method 1

@@ -281,10 +281,15 @@ vector<float> VTraceHandler::getFADCTiming( unsigned int fFirst, unsigned int fL
 
    fFirst, fLast:   range where maximum is determined
    fTFirst, fTLast: range where timing parameters are determined
+   iReverseSearchinLowGain: search time parameters from right to left
+   (important some VERITAS runs with incomplete timing calibration)
 
 */
 
-vector< float >& VTraceHandler::getPulseTiming( unsigned int fFirst, unsigned int fLast, unsigned int fTFirst, unsigned int fTLast )
+vector< float >& VTraceHandler::getPulseTiming(
+           unsigned int fFirst, unsigned int fLast,
+           unsigned int fTFirst, unsigned int fTLast,
+           bool iReverseSearchinLowGain )
 {
     // reset pulse timing vector
     for( unsigned int i = 0; i < fpulsetiming.size(); i++ )
@@ -300,7 +305,7 @@ vector< float >& VTraceHandler::getPulseTiming( unsigned int fFirst, unsigned in
     double trace_max = 0.;
     unsigned int n255 = 0;
     unsigned int maxpos = 0;
-    getTraceMax( fFirst, fLast, trace_max, maxpos, n255 );
+    getTraceMax( fFirst, fLast, trace_max, maxpos, n255, iReverseSearchinLowGain );
     if( maxpos == 99999 )
     {
         return fpulsetiming;
@@ -386,7 +391,11 @@ vector< float >& VTraceHandler::getPulseTiming( unsigned int fFirst, unsigned in
  *   trace value is pedestal subtracted
  *
  */
-void VTraceHandler::getTraceMax( unsigned int fFirst, unsigned int fLast, double& tmax, unsigned int& maxpos, unsigned int& n255 )
+void VTraceHandler::getTraceMax(
+        unsigned int fFirst, unsigned int fLast,
+        double& tmax, unsigned int& maxpos,
+        unsigned int& n255,
+        bool iReverseSearchinLowGain )
 {
     unsigned int nMax = ( unsigned int )( fDynamicRange * tmax );
     n255 = 0;
@@ -396,7 +405,7 @@ void VTraceHandler::getTraceMax( unsigned int fFirst, unsigned int fLast, double
     maxpos = 99999;
     /////////////////////////////////////////////////////
     // determine maximum position in a high gain channel
-    if( !fHiLo )
+    if( !fHiLo || !iReverseSearchinLowGain )
     {
         if( fFirst < fLast && fLast <= fpTrazeSize )
         {

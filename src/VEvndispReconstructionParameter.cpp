@@ -609,9 +609,16 @@ bool VEvndispReconstructionParameter::readKeyWord_FADCSUMMATIONSTART( vector< st
             }
             if( iTemp[5].size() > 0 )
             {
-                if( i < fRunPara->fSearchWindowLast.size() )
+                if( i < fRunPara->fSearchWindowLast.size() && atoi( iTemp[5].c_str() ) >= 0 )
                 {
                     fRunPara->fSearchWindowLast[i] = ( unsigned int )( atoi( iTemp[5].c_str() ) );
+                }
+            }
+            if( iTemp[6].size() > 0 )
+            {
+                if( i < fRunPara->fSumWindow_searchmaxreverse.size() )
+                {
+                    fRunPara->fSumWindow_searchmaxreverse[i] = (bool)( atoi( iTemp[6].c_str() ) );
                 }
             }
         }
@@ -1189,7 +1196,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
         // line without '*' in the beginning are ignored
         if( iLine.size() > 0 && iLine.substr( 0, 1 ) == "*" )
         {
-            iTemp.assign( 6, "" );
+            iTemp.assign( 7, "" );
             istringstream is_stream( iLine );
             is_stream >> iTemp[0];
             // proceed

@@ -206,6 +206,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         unsigned int fpulsetiming_width_index;
         unsigned int fpulsetiming_max_index;
         unsigned int fpulsetiming_triggertime_index;
+        vector< bool > fSumWindow_searchmaxreverse;
         
         // image cleaning
         vector< VImageCleaningRunParameter* >  fImageCleaningParameters;
@@ -339,6 +340,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
             return fuseDB;
         }
         
-        ClassDef( VEvndispRunParameter, 186 ); //(increase this number)
+        ClassDef( VEvndispRunParameter, 187 ); //(increase this number)
 };
 #endif
