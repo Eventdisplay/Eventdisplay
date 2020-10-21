@@ -66,6 +66,10 @@ class VTraceHandler
         {
             return fpTrace;
         }
+        unsigned int getTraceLength()
+        {
+            return fpTrazeSize;
+        }
         double getTraceAverageTime()
         {
             return fTraceAverageTime;
