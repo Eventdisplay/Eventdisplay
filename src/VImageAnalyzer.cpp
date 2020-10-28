@@ -63,21 +63,17 @@ VImageAnalyzer::VImageAnalyzer()
     //VImageParameterCalculation
     if( fRunPar->fhoughmuonmode || fRunPar->fmuonmode )
     {
-    
 #ifndef NOGSL
         cout << "Using GSL libraries for muon analysis." << endl;
 #else
         cout << "Warning! No GSL libraries found. Muon impact parameter corrected Size will not be calculated." << endl;
 #endif
-        
         cout << "" << endl;
         if( fRunPar->fhoughmuonmode )
         {
             fVImageParameterCalculation->houghInitialization();
         }
-        
     }
-    
 }
 
 
@@ -390,6 +386,8 @@ void VImageAnalyzer::fillOutputTree()
         getAnaHistos()->fillL2DiagnosticTree( getRunNumber(), getTelescopeEventNumber( getTelID() ),
                                               0, 0, getFADCstopTZero(), getFADCstopSums() );
     }
+    // fill (optionally) image/border tree lists
+    fVImageParameterCalculation->fillImageBorderPixelTree();
     
     // fill some basic run parameters
     getImageParameters()->fsumfirst = getSumFirst();
@@ -930,7 +928,6 @@ void VImageAnalyzer::printTrace( int iChannel )
         }
     }
     cout << endl;
-    
 }
 
 
