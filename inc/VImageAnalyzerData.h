@@ -79,20 +79,20 @@ class VImageAnalyzerData
         vector<bool> fImage;
         vector<int> fImageUser;                   //!< channels which are enabled/disables by the user
         vector<bool> fBorder;
-        vector<bool> fTrigger;                    //!< MS: pixels selected by trigger algorithm
+        vector<bool> fTrigger;                    //!< pixels selected by trigger algorithm
         vector<bool> fBrightNonImage;             //!< pixel above non image threshold
         vector<bool> fImageBorderNeighbour;       //!< image and border pixel plus their neighbours
         vector<bool> fBorderBorderNeighbour;      //!< image and border pixel plus their neighbours and neighbours of neighbours
         // time cleaning
-        vector<int> fClusterNpix;                 //!< HP: numer of pixels in cluster
-        vector<unsigned int> fClusterID;                   //!< HP: cluster ID
-        int fMainClusterID;                       //!< HP: main cluster ID
-        vector<double> fClusterSize;              //!< HP: size of the cluster
-        vector<double> fClusterTime;              //!< HP: weighted mean time of the cluster
-        vector<double> fClusterCenx;              //!< HP: cenX of the cluster
-        vector<double> fClusterCeny;              //!< HP: cenY of the cluster
-        int fncluster_cleaned;                    //!< HP: number of clusters
-        int fncluster_uncleaned;                  //!< HP: number of clusters before cluster rejection
+        vector<int> fClusterNpix;                 //!< numer of pixels in cluster
+        vector<unsigned int> fClusterID;                   //!< cluster ID
+        int fMainClusterID;                       //!< main cluster ID
+        vector<double> fClusterSize;              //!< size of the cluster
+        vector<double> fClusterTime;              //!< weighted mean time of the cluster
+        vector<double> fClusterCenx;              //!< cenX of the cluster
+        vector<double> fClusterCeny;              //!< cenY of the cluster
+        int fncluster_cleaned;                    //!< number of clusters
+        int fncluster_uncleaned;                  //!< number of clusters before cluster rejection
         // correlation cleaning
         vector<double> fCorrelationCoefficient;  // correlation coefficient
         // time since run start
@@ -117,7 +117,8 @@ class VImageAnalyzerData
         // dummy vector
         vector< unsigned int > iDummyVectorUI;
         
-        VImageAnalyzerData( unsigned int iTelID, unsigned int iShortTree = 0, bool bCalibration = false );
+        VImageAnalyzerData( unsigned int iTelID, unsigned int iShortTree = 0, 
+                            bool bCalibration = false, bool bWriteImagePixelList = false );
         ~VImageAnalyzerData() {}
         
         void                     fillPulseSum( unsigned int, double, bool );
