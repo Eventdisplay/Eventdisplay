@@ -310,6 +310,9 @@ endif
 ifeq ($(strip $(CTAPROD)),PROD3b_North)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3_DEMO
 endif
+ifeq ($(strip $(CTAPROD)),PROD3b_SCT)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3_DEMO
+endif
 # CTA prod3b South (noSCT)
 ifeq ($(strip $(CTAPROD)),PROD3b_South)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3_MERGE
