@@ -7,11 +7,14 @@
 
 #include "VImageParameter.h"
 
-VImageParameter::VImageParameter( unsigned int iShortTree )
+VImageParameter::VImageParameter( 
+               unsigned int iShortTree,
+               bool iWriteNImagePixels )
 {
     fMC = false;
     tpars = 0;
     fShortTree = iShortTree;
+    fWriteNImagePixels = iWriteNImagePixels;
     
     reset();
 }
@@ -52,11 +55,6 @@ void VImageParameter::initTree( string iName, string iTitle, bool iMC, bool iLL,
         tpars->Branch( "fsumwindow", &fsumwindow, "fsumwindow/I" );
         tpars->Branch( "fsumwindow_2", &fsumwindow_2, "fsumwindow_2/I" );
     }
-    
-    // telescope position in shower coordinates
-    //tpars->Branch( "Tel_x_SC", &Tel_x_SC, "Tel_x_SC/D" );
-    //tpars->Branch( "Tel_y_SC", &Tel_y_SC, "Tel_y_SC/D" );
-    //tpars->Branch( "Tel_z_SC", &Tel_z_SC, "Tel_z_SC/D" );
     
     // MC parameters
     if( iMC && fShortTree < 1 )
@@ -117,7 +115,7 @@ void VImageParameter::initTree( string iName, string iTitle, bool iMC, bool iLL,
     tpars->Branch( "sinphi", &sinphi, "sinphi/F" );
     
     tpars->Branch( "ntubes", &ntubes, "ntubes/s" );
-    // MS contains number of triggered pixels
+    // contains number of triggered pixels
     tpars->Branch( "trig_tubes", &trig_tubes, "trig_tubes/s" );
     tpars->Branch( "nzerosuppressed", &nzerosuppressed, "nzerosuppressed/s" );
     tpars->Branch( "nsat", &nsat, "nsat/s" );
@@ -158,9 +156,7 @@ void VImageParameter::initTree( string iName, string iTitle, bool iMC, bool iLL,
         tpars->Branch( "muonSize", &muonSize, "muonSize/F" );
         tpars->Branch( "muonIPCorrectedSize", &muonIPCorrectedSize, "muonIPCorrectedSize/F" );
         tpars->Branch( "muonValid", &muonValid, "muonValid/I" );
-        
     }
-    
     // muon parameters (Hough transform)
     if( iHough )
     {
@@ -175,7 +171,6 @@ void VImageParameter::initTree( string iName, string iTitle, bool iMC, bool iLL,
     }
     
     // log likelihood fit errors/results
-    
     tpars->Branch( "Fitstat", &Fitstat, "Fitstat/I" );
     if( iLL )
     {
@@ -202,6 +197,18 @@ void VImageParameter::initTree( string iName, string iTitle, bool iMC, bool iLL,
         tpars->Branch( "dsigmaY", &dsigmaY, "dsigmaY/F" );
         tpars->Branch( "signal", &signal, "signal/F" );
         tpars->Branch( "dsignal", &dsignal, "dsignal/F" );
+    }
+
+    // image / border pixel list
+    if( fWriteNImagePixels )
+    {
+        // image pixels
+        tpars->Branch( "PixelListN", &PixelListN, "PixelListN/i" );
+        tpars->Branch( "PixelID", PixelID, "PixelID[PixelListN]/i" );
+        tpars->Branch( "PixelType", PixelType, "PixelType[PixelListN]/i" );
+        tpars->Branch( "PixelIntensity", PixelIntensity, "PixelIntensity[PixelListN]/F" );
+        tpars->Branch( "PixelTimingT0", PixelTimingT0, "PixelTimingT0[PixelListN]/F" );
+        tpars->Branch( "PixelPE", PixelPE, "PixelPE[PixelListN]/F" );
     }
 }
 
@@ -350,7 +357,16 @@ void VImageParameter::reset( unsigned int resetLevel )
     houghCN = 0.;
     houghContained = 0.;
     houghMuonValid = 0;
-    
+
+    if( fWriteNImagePixels )
+    {
+        PixelListN = 0;
+        memset( PixelID, 0, VDST_MAXCHANNELS * sizeof(unsigned int));
+        memset( PixelType, 0, VDST_MAXCHANNELS * sizeof(unsigned int));
+        memset( PixelIntensity, 0, VDST_MAXCHANNELS * sizeof(float));
+        memset( PixelTimingT0, 0, VDST_MAXCHANNELS * sizeof(float));
+        memset( PixelPE, 0, VDST_MAXCHANNELS * sizeof(float));
+    }
 }
 
 
@@ -383,3 +399,9 @@ void VImageParameter::setImageBorderPixelPosition( vector< float > iImageBorderP
     fImageBorderPixelPosition_x = iImageBorderPixelPosition_x;
     fImageBorderPixelPosition_y = iImageBorderPixelPosition_y;
 }
+
+/*
+    fill (optionally) list of image / border pixel to tpars
+    tree
+*/
+

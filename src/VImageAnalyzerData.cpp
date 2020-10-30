@@ -5,7 +5,8 @@
 
 #include <VImageAnalyzerData.h>
 
-VImageAnalyzerData::VImageAnalyzerData( unsigned int iTelID, unsigned int iShortTree, bool bCalibration )
+VImageAnalyzerData::VImageAnalyzerData( unsigned int iTelID, unsigned int iShortTree,
+                                        bool bCalibration, bool bWriteImagePixelList )
 {
     fTelID = iTelID;
     if( !bCalibration )
@@ -19,8 +20,8 @@ VImageAnalyzerData::VImageAnalyzerData( unsigned int iTelID, unsigned int iShort
     
     if( !bCalibration )
     {
-        fImageParameter = new VImageParameter( iShortTree );
-        fImageParameterLogL = new VImageParameter( iShortTree );
+        fImageParameter = new VImageParameter( iShortTree, bWriteImagePixelList );
+        fImageParameterLogL = new VImageParameter( iShortTree, bWriteImagePixelList );
     }
     
     // initialize time since run start
