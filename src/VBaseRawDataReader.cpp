@@ -127,26 +127,20 @@ uint32_t VBaseRawDataReader::getHitID( uint32_t i )
     return t_hitid;
 }
 
-
 uint16_t VBaseRawDataReader::getMaxChannels()
 {
-    if( !fEvent[fTelID] )
-    {
-        //return 499;
-    	return 11328; // fullcamera channels
-    	//return 1536; //smallcamera channels
-    }
-    if( fTelID < fEvent.size() )
+    if( fTelID < fEvent.size() && fEvent[fTelID] )
     {
         if( fEvent[fTelID] )
         {
             return fEvent[fTelID]->getMaxChannels();
         }
     }
-    else
+    if( fTelID < fDefaultMaxNChannels.size() )
     {
-        cout << "VBaseRawDataReader::getMaxChannels(): problem with event size " << fTelID << "\t" << fEvent.size() << endl;
+        return fDefaultMaxNChannels[fTelID];
     }
+    // default value is the size of the VERITAS camera
     return 499;
 }
 
