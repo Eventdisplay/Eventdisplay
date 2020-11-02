@@ -1008,7 +1008,7 @@ TList* DST_fillCalibrationTree( VDSTTree* fData, AllHessData* hsdata,
                                 map< unsigned int, VDSTTelescopeConfiguration> telescope_list,
                                 string ipedfile, float iNSBScaling )
 {
-    if( !hsdata )
+    if( !hsdata || fWriteTelConfigTreeOnly )
     {
         return 0;
     }
