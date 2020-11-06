@@ -53,8 +53,11 @@ ctapara = $(distdir).CTA.runparameter
 vtspara = $(package)-$(auxversion).VTS.aux
 #############################
 #############################
-# check root version number
+# root 
 #############################
+ifeq (, $(shell which root-config))
+$(error "no root installed")
+endif
 ROOTVERSION=$(shell root-config --version)
 # check if this is root 6 (or later)
 ROOT6=$(shell expr 5.99 \>= `root-config --version | cut -f1 -d \/`)
