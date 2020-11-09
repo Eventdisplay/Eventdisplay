@@ -502,11 +502,8 @@ void VTableCalculator::terminate( TDirectory* iOut, char* xtitle )
                 {
                     cout << "(" << hMedian->GetEntries() << " entries)";
                     delete hMedian;
-                    if( h )
-                    {
-                        h->SetName( n.c_str() );
-                        h->Write();
-                    }
+                    h->SetName( n.c_str() );
+                    h->Write();
                     delete h;
                 }
             }
