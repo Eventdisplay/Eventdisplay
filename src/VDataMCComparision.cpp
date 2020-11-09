@@ -1035,7 +1035,7 @@ bool VDataMCComparision::fillHistograms( string ifile, int iSingleTelescopeCuts 
                 int j = fData->ImgSel_list[t];
                 
                 // telescope wise quality cuts
-                if( fData->ntubes[t] > ntubes_min && fData->size[t] > 0. && fData->size[t] > 0. && fData->ErecS > 0. )
+                if( fData->ntubes[t] > ntubes_min && fData->size[t] > 0. && fData->ErecS > 0. )
                 {
                     if( fHistoSingleTel[ELENGTH][j] )
                     {
