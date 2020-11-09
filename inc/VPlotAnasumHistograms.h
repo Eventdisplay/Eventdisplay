@@ -91,7 +91,7 @@ class VPlotAnasumHistograms : public VAnalysisUtilities, public VPlotUtilities, 
         
         void drawPSF( TCanvas* c = 0, string iFile = 0, TH2D* h2 = 0, float iPSF = 0.1 );
         //   void fit_energy(double minE = -0.5, double maxE = 0.5 );
-        bool openDataFile( string ifile, int ion = -1 );
+        bool openDataFile( string ifile );
         
         void help();                                                       // this will print all available functions
         

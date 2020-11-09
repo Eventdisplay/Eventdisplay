@@ -134,7 +134,7 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
         string iDirectionString,
         bool iUseIntegratedSensitivityForOffAxisPlots,
         unsigned int iRatioCounter,
-        string iTitleText, string iKPSPrintName )
+        string iTitleText )
 {
     VPlotWPPhysSensitivity a;
     a.setPlotNoLegend( bPlotNoLegend );

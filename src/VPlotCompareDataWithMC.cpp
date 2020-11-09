@@ -976,7 +976,7 @@ TCanvas* VPlotCompareDataWithMC::plot_energyDependentDistributions( string iVari
  * plot stereo parameter
  *
  */
-TCanvas* VPlotCompareDataWithMC::stereo_parameter( int msc_rebin )
+TCanvas* VPlotCompareDataWithMC::stereo_parameter()
 {
     if( !fDataFile )
     {
@@ -1163,7 +1163,7 @@ TCanvas* VPlotCompareDataWithMC::stereo_parameter( int msc_rebin )
 *
 */
 
-void VPlotCompareDataWithMC::mva_parameter( int mva_rebin )
+void VPlotCompareDataWithMC::mva_parameter()
 {
     if( !fDataFile )
     {

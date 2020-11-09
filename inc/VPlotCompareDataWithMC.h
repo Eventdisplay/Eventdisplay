@@ -89,8 +89,8 @@ class VPlotCompareDataWithMC : public VHistogramUtilities
                 double y_min = -99., bool iPlotLogY = false );
         TCanvas* single_telescope( int telid = -1 );
         TCanvas* single_telescope( int telid, string iPlot, bool iOneCanvas = true, int iScalingMethod = 1, int i_rebin = 1 );
-        TCanvas* stereo_parameter( int msc_rebin = 1 );
-        void mva_parameter( int mva_rebin = 1 );
+        TCanvas* stereo_parameter();
+        void mva_parameter();
         
         void setDebug( bool iB = false )
         {

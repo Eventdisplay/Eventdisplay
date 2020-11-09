@@ -1340,15 +1340,6 @@ TCanvas* VPlotInstrumentResponseFunction::plotAngularResolution( string iXaxis, 
                            iResolutionTreeName, iXaxis, iResolutionPad, iLogY );
 }
 
-/*
- *  plot ratio of 68 to 95% containment ratio
- *
- */
-TCanvas* VPlotInstrumentResponseFunction::plotAngularResolutionContaintment( string iXaxis )
-{
-    return 0;
-}
-
 TCanvas* VPlotInstrumentResponseFunction::plotCoreResolution( string iXaxis, double iMax )
 {
     if( iMax > 0. )
