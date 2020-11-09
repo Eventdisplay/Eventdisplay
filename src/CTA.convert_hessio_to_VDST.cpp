@@ -1504,15 +1504,9 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
                     fYTubeMM[p] = hsdata->camera_set[itel].ypix[p] * 1.e3;
 #if defined(CTA_PROD3) || defined(CTA_MAX_SC) || defined(CTA_PROD3_MERGE)
                     // 0: circ., 1,3: hex, 2: square, -1: unknown
-                    if( fPixelShape[p] >= 0 )
-                    {
-                        fPixelShape[p] = ( unsigned int )hsdata->camera_set[itel].pixel_shape[p];
-                    }
-                    else
+                    fPixelShape[p] = ( unsigned int )hsdata->camera_set[itel].pixel_shape[p];
 #endif
-                    {
-                        fPixelShape[p] = 99;
-                    }
+                    fPixelShape[p] = 99;
 #if defined(CTA_PROD3) || defined(CTA_MAX_SC) || defined(CTA_PROD3_MERGE)
                     // use as size the radius of the active area of the tube
                     if( hsdata->camera_set[itel].pixel_shape[p] == 0
