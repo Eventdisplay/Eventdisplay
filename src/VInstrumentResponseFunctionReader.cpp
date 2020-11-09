@@ -897,7 +897,6 @@ TGraphErrors* VInstrumentResponseFunctionReader::getEnergyResolutionMPropInterva
     TH1D i_h_zoffsetsHisto( "i_h_zoffsetsHisto", "", 1000., 0., 1. );
     
     int nbins = 0;
-    bXaxisIsEtrue = true;
     bXaxisIsEtrue = false;
     if( bXaxisIsEtrue )
     {
