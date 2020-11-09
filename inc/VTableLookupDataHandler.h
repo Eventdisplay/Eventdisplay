@@ -27,7 +27,6 @@
 #include "TKey.h"
 
 #include "Cshowerpars.h"
-#include "Cmodel3Dpars.h"
 #include "Ctelconfig.h"
 #include "Ctpars.h"
 
@@ -94,9 +93,6 @@ class VTableLookupDataHandler
         TChain* fTshowerpars;
         TChain* fTshowerpars_QCCut;
         Cshowerpars* fshowerpars;
-        TChain* fTmodel3Dpars;
-        Cmodel3Dpars* fmodel3Dpars;
-        TKey* fKeyModel3D;
         TChain* fTtelconfig;
         Ctelconfig* ftelconfig;
         vector< TChain* > fTtpars;
@@ -365,28 +361,6 @@ class VTableLookupDataHandler
         double dl_gammaness;
         Bool_t dl_isGamma;
 
-        // Model3D parameters
-        bool fUseModel3DStereoParameters; // overwrite geometric Xoff,Yoff,Xcore,Ycore
-        
-        bool fIsModel3D;  // data contains Model3D parameters
-        double fSmax3D;   // height of shower maximum (along the shower axis)
-        double fsigmaL3D; // longitudinal (3D-length)
-        double fsigmaT3D; // transverse (3D-width)
-        double fNc3D;     // total number of Cherenkov photons emitted by the shower
-        double fXcore3D;  // core location
-        double fYcore3D;  // core location
-        double fXoff3D;  // model sky direction
-        double fYoff3D;  // model sky direction
-        double fXoffDeRot3D;  // model sky direction (derotated)
-        double fYoffDeRot3D;  // model sky direction (derotated)
-        double fGoodness3D;   // model goodness of fit
-        double fOmega3D;      // model and hillas: direction difference
-        double fDepth3D;      // model: slant depth of shower maximum
-        double fRWidth3D;     // model: reduced 3D-width
-        double fErrRWidth3D;  // model: error in reduced 3D-width
-        double fErrorsigmaT3D;// model: error in 3D-width
-        bool fConverged3D;   // model: fit converged
-        
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         VTableLookupDataHandler( bool iWrite, VTableLookupRunParameter* iT = 0 );

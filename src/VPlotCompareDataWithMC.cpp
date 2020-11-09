@@ -2298,64 +2298,6 @@ void VPlotCompareDataWithMC::mwr_vs_energy_plots( int iRebin, double xmin, doubl
 }
 
 /*
-    model3D plots (energy dependent)
-*/
-void VPlotCompareDataWithMC::model3D_vs_energy_plots()
-{
-    if( !fDataFile )
-    {
-        return;
-    }
-    int iRebin = 4;
-    double xmin, xmax;
-    xmin = 5.;
-    xmax = 28.;
-    
-    plot_energyDependentDistributions( "sigmaT3D", iRebin, xmin, xmax );
-    plot_energyDependentDistributions( "sigmaT3D", iRebin, xmin, xmax, "REL" );
-    plot_energyDependentDistributions( "sigmaT3D", iRebin, xmin, xmax , "CUMU" );
-    ////
-    xmin = 12.;
-    xmax = 19.;
-    plot_energyDependentDistributions( "Nc3D", iRebin, xmin, xmax );
-    plot_energyDependentDistributions( "Nc3D", iRebin, xmin, xmax, "REL" );
-    plot_energyDependentDistributions( "Nc3D", iRebin, xmin, xmax , "CUMU" );
-    ////
-    xmin = 7.;
-    xmax = 21.;
-    plot_energyDependentDistributions( "Smax3D", iRebin, xmin, xmax );
-    plot_energyDependentDistributions( "Smax3D", iRebin, xmin, xmax, "REL" );
-    plot_energyDependentDistributions( "Smax3D", iRebin, xmin, xmax, "CUMU" );
-    ////
-    xmin = -2.0;
-    xmax = 0.0;
-    plot_energyDependentDistributions( "ErrorsigmaT3D", iRebin, xmin, xmax );
-    plot_energyDependentDistributions( "ErrorsigmaT3D", iRebin, xmin, xmax, "REL" );
-    plot_energyDependentDistributions( "ErrorsigmaT3D", iRebin, xmin, xmax, "CUMU" );
-    ////
-    xmin = -3.0;
-    xmax = 0.4;
-    plot_energyDependentDistributions( "Omega3D", iRebin, xmin, xmax );
-    plot_energyDependentDistributions( "Omega3D", iRebin, xmin, xmax, "REL" );
-    plot_energyDependentDistributions( "Omega3D", iRebin, xmin, xmax, "CUMU" );
-    ////
-    //xmin = 10.;
-    //xmax = 700.;
-    //plot_energyDependentDistributions( "Depth3D", iRebin, xmin, xmax );
-    //plot_energyDependentDistributions( "Depth3D", iRebin, xmin, xmax, "REL" );
-    //xmin = 0.1;
-    //xmax = 5.;
-    //plot_energyDependentDistributions( "RWidth3D", iRebin, xmin, xmax );
-    //plot_energyDependentDistributions( "RWidth3D", iRebin, xmin, xmax, "REL" );
-    //////
-    //xmin = 0.001;
-    //xmax = 0.08;
-    //plot_energyDependentDistributions( "ErrRWidth3D", iRebin, xmin, xmax );
-    //plot_energyDependentDistributions( "ErrRWidth3D", iRebin, xmin, xmax, "REL" );
-    return;
-}
-
-/*
  * plot everything
  *
  */

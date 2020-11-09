@@ -62,7 +62,6 @@ class VCamera
         TMarker* fAnaShowerDir;                   //!< reconstructed shower direction
         TMarker* fAnaShowerCentroid;              //!< image centroid
         TMarker* fMCShowerDir;                    //!< MC shower direction
-        TMarker* fModel3DShowerDir;               //!< Model3D shower direction
         TMarker* fFrogsShowerDir;		  //!< Frogs shower direction
         TMarker* fCameraCentreDir;                //!< camera centre
         TEllipse* fCameraCentreEllipse;

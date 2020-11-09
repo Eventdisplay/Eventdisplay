@@ -2482,10 +2482,13 @@ bool VGammaHadronCuts::initAngularResolutionFile()
     else if( fF1AngResName == "IRF" )
     {
         char iTreeName[200];
-        sprintf( iTreeName, "t_angular_resolution" );
         if( getAngularResolutionContainmentRadius() - 68 != 0 )
         {
-            sprintf( iTreeName, "%s_%03dp", iTreeName, getAngularResolutionContainmentRadius() );
+            sprintf( iTreeName, "t_angular_resolution_%03dp", getAngularResolutionContainmentRadius() );
+        }
+	else
+	{
+           sprintf( iTreeName, "t_angular_resolution" );
         }
         
         cout << "VGammaHadronCuts::initAngularResolutionFile: reading angular resolution graph from file (" << iTreeName << "):" << endl;

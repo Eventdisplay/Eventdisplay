@@ -49,6 +49,8 @@ fi
 make
 make install
 make clean
+pwd
+rm -f -v ../../../../sofa_c-20190722.tar.gz
 
 echo "Installation completed"
 echo "Please set the following environmental variable: "

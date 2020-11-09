@@ -187,36 +187,6 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
             }
         }
         /////////////////////////////////////////////////////////
-        // Model3D
-        else if( iTemp.find( "model3d" ) < iTemp.size() )
-        {
-            fRunPara->fUseModel3D = true;
-            fRunPara->fLnLTableFile = "table_LnL.root";
-        }
-        else if( iTemp.find( "plot3d" ) < iTemp.size() )
-        {
-            fRunPara->fUseModel3D = true;
-            fRunPara->fUseDisplayModel3D = true;
-            fRunPara->fLnLTableFile = "table_LnL.root";
-            fRunPara->fdisplaymode = 1;
-        }
-        else if( iTemp.find( "lnlfile" ) < iTemp.size() )
-        {
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->fLnLTableFile = iTemp2;
-                i++;
-            }
-            else
-            {
-                fRunPara->fLnLTableFile = "table_LnL.root";
-            }
-        }
-        else if( iTemp.find( "createlnltablefile" ) < iTemp.size() )
-        {
-            fRunPara->fUseModel3D = true;
-            fRunPara->fCreateLnLTable = true;
-        }
         // source file
         else if( iTemp.find( "sourcefi" ) < iTemp.size() )
         {
@@ -1095,10 +1065,6 @@ void VReadRunParameter::test_and_adjustParams()
         if( fRunPara->fLowGainCalibrationFile == "NOFILE" || ( fRunPara->fsourcetype == 4 || fRunPara->fsourcetype == 7 ) )
         {
             fRunPara->fLowGainCalibrationFile = "";
-        }
-        if( !fRunPara->fUseModel3D )  //gains needed for Model3D
-        {
-            fRunPara->fEpochFile = "";
         }
     }
     

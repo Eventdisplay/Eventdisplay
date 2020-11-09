@@ -192,10 +192,6 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                     {
                         fReconstructionType = FROGS;
                     }
-                    else if( temp2 == "MODEL3D" )
-                    {
-                        fReconstructionType = MODEL3D;
-                    }
                     else if( temp2 == "DEEPLEARNER" )
                     {
                         fReconstructionType = DEEPLEARNER;

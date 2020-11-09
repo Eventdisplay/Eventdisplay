@@ -26,7 +26,6 @@ VTableLookupRunParameter::VTableLookupRunParameter()
     bShortTree = false;
     bWriteMCPars = false;
     rec_method = 0;
-    bUseModel3DStereoParameters = false;
     fWrite1DHistograms = false;
     fSpectralIndex = 2.0;
     fWobbleOffset = 500;     // integer of wobble offset * 100
@@ -422,10 +421,6 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         else if( iTemp.find( "-write1DHistograms" ) < iTemp.size() )
         {
             fWrite1DHistograms = true;
-        }
-        else if( iTemp.find( "-model3d" ) < iTemp.size() )
-        {
-            bUseModel3DStereoParameters = true;
         }
         else if( iTemp.find( "maxnevents" ) < iTemp.size() )
         {
@@ -980,10 +975,6 @@ void VTableLookupRunParameter::print( int iP )
     if( fSelectRandom > 0. )
     {
         cout << "random event selection: " << fSelectRandom << ", seed:" << fSelectRandomSeed << endl;
-    }
-    if( bUseModel3DStereoParameters )
-    {
-        cout << "\t using Model3D direction and core values" << endl;
     }
     if( fUseSelectedImagesOnly )
     {
