@@ -1184,7 +1184,7 @@ void VCameraRead::resetTelVectors()
     fLowGainActivator.assign( fNTel, 255 );
     //maximal number of neighbours is 6 (for circular pixel type)
     //maximal number of neighbours is 8 (for square pixel type) - pSCT
-    fMaxNeighbour.assign( fNTel, 8 );
+    fMaxNeighbour.assign( fNTel, 6 );
     // set default values for array of four telescopes
     //  later this values are overwritten by the values from the .cfg file
     if( fNTel == 4 )
