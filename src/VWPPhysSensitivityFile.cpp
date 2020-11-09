@@ -71,12 +71,13 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
     int iEnergyXaxisNbinsEffArea = 2 * iEnergyXaxisNbins;
     
     // integrated sensitivity
-    sprintf( hname, "IntSens" );
+    stringstream is_text;
+    is_text << "IntSens";
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fIntSensitivity = new TH1F( hname, "Int. Sens.", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fIntSensitivity = new TH1F( is_text.str().c_str(), "Int. Sens.", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fIntSensitivity->SetXTitle( "log_{10} (E_{th}/TeV)" );
     fIntSensitivity->SetYTitle( "E_{th} times IntegratedFluxSensitivity(E>E_{th}) [erg cm^{-2} s^{-1}]" );
     fIntSensitivity->Print();
@@ -86,12 +87,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fIntSensitivity );
     }
     
-    sprintf( hname, "IntSensCU" );
+    is_text.str("IntSensCU");
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fIntSensitivityCU = new TH1F( hname, "Int. Sens. (CU)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fIntSensitivityCU = new TH1F( is_text.str().c_str(), "Int. Sens. (CU)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fIntSensitivityCU->SetXTitle( "log_{10} (E_{th}/TeV)" );
     fIntSensitivityCU->SetYTitle( "Integral Flux Sensitivity (E>E_{th}) [C.U.]" );
     fIntSensitivityCU->Print();
@@ -103,11 +104,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
     
     // sensitivity and background rates
     sprintf( hname, "DiffSens" );
+    is_text.str("DiffSens");
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fSensitivity = new TH1F( hname, "Diff. Sens.", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fSensitivity = new TH1F( is_text.str().c_str(), "Diff. Sens.", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fSensitivity->SetXTitle( "log_{10} (E/TeV)" );
     fSensitivity->SetYTitle( "E^{2} dF/dE [erg cm^{-2} s^{-1}]" );
     fSensitivity->Print();
@@ -117,12 +119,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fSensitivity );
     }
     
-    sprintf( hname, "DiffSensCU" );
+    is_text.str("DiffSensCU" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fSensitivityCU = new TH1F( hname, "Diff. Sens. (CU)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fSensitivityCU = new TH1F( is_text.str().c_str(), "Diff. Sens. (CU)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fSensitivityCU->SetXTitle( "log_{10} (E/TeV)" );
     fSensitivityCU->SetYTitle( "Differential Flux Sensitivity [C.U.]" );
     fSensitivityCU->Print();
