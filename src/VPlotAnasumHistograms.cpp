@@ -51,13 +51,13 @@ VPlotAnasumHistograms::VPlotAnasumHistograms( string ifile, int ion )
     
     default_settings();
     
-    if( !openDataFile( ifile, ion ) )
+    if( !openDataFile( ifile ) )
     {
         return;
     }
 }
 
-bool VPlotAnasumHistograms::openDataFile( string ifile, int ion )
+bool VPlotAnasumHistograms::openDataFile( string ifile )
 {
     if( !openFile( ifile, fRunNumber, 1 ) )
     {
