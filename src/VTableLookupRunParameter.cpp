@@ -803,7 +803,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
     }
     // cross check if one of the has been switched off in the analysis
     VEvndispReconstructionParameter* iRecPar = ( VEvndispReconstructionParameter* )iF->Get( "EvndispReconstructionParameter" );
-    if( iRecPar && iPar )
+    if( iRecPar )
     {
         // this works only if number of telescopes = number of telescope types
         if( iRecPar->getReconstructionParameterData( rec_method )
