@@ -69,6 +69,8 @@ bool fFillPeakADC = false;
 float fPedestalShift = 0.;
 // Minimum energy cut
 float fMinEnergy = 0.;
+// Maximum energy cut
+float fMaxEnergy = 1.e20;
 // use this for writing of telconfig tree only
 bool fWriteTelConfigTreeOnly = false;
 ///////////////////////////////////////////////////////
@@ -315,6 +317,7 @@ static void syntax( char* program )
     printf( "   -peakadc         (fill leaf with peakadc values into DST tree (default: off)\n" );
     printf( "   -pedshift float(dc) (apply additional pedestal shift to sum values (default: 0.; good value for ASTRI: 150.)\n" );
     printf( "   -minenergy float(TeV) (apply a minimum energy cut in TeV on events in sim_telarray file.)\n" );
+    printf( "   -maxenergy float(TeV) (apply a maximum energy cut in TeV on events in sim_telarray file.)\n" );
     printf( "   -pedshift float(dc) (apply additional pedestal shift to sum values (default: 0.; good value for ASTRI: 150.)\n" );
     
     exit( EXIT_SUCCESS );
@@ -520,6 +523,11 @@ bool DST_fillEvent( VDSTTree* fData, AllHessData* hsdata, map< unsigned int, VDS
     
     // Use only high energy events
     if( hsdata->mc_shower.energy < fMinEnergy )
+    {
+        return true;
+    }
+    // Use only low energy events
+    if( hsdata->mc_shower.energy > fMaxEnergy )
     {
         return true;
     }
@@ -1856,6 +1864,13 @@ int main( int argc, char** argv )
             argv += 2;
             continue;
         }
+        else if( strcmp( argv[1], "-maxenergy" ) == 0 )
+        {
+            fMaxEnergy = atof( argv[2] );
+            argc -= 2;
+            argv += 2;
+            continue;
+        }
         // apply camera scaling for MSTs only
         else if( strcmp( argv[1], "-r" ) == 0 )
         {
@@ -1936,6 +1951,10 @@ int main( int argc, char** argv )
     if( fMinEnergy > 0. )
     {
         cout << "Apply minimum energy cut of " << fMinEnergy << " TeV " << endl;
+    }
+    if( fMaxEnergy < 1.e19 )
+    {
+        cout << "Apply maximum energy cut of " << fMaxEnergy << " TeV " << endl;
     }
     
     // new DST tree

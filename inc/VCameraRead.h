@@ -56,6 +56,7 @@ class VCameraRead : public VGlobalRunParameter
         vector< float > fCameraRotation;          //!< camera rotation (clockwise)
         vector< float > fCameraFieldofView;       //!< camera field of view [deg]
         unsigned int fPixelType;                  //!< pixel type: 1 = circle, 2 = hex, 3 = square
+        bool fPixelCountingFromZero;              //!< pixel counting from zero
         vector< unsigned int > fCNChannels;       //!< number of channels
         vector< unsigned int > fCNSamples;        //!< number of FADC samples
         vector< float > fSample_time_slice;       //!< length of time slice
@@ -91,6 +92,7 @@ class VCameraRead : public VGlobalRunParameter
         vector< double >      fLowGainMultiplier_Trace;  //!< low gain multiplier (usually 6.)
         vector< unsigned int> fLowGainActivator;  //!< threshold for low gain activation (usually 255)
         
+        unsigned int         adjustPixelCounting( unsigned int i_chan );
         void                 cleanNeighbourList();
         void                 convertMMtoDeg();    //!< convert camera vectors from mm to deg
         void                 fillTelescopeVectors();

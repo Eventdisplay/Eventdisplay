@@ -1396,8 +1396,8 @@ void VDisplay::setFADCText()
     }
     ostringstream iSTRText;
     iSTRText << "telescope " << fTelescope + 1;
-    iSTRText << "channel " << fSelectedChan - 200000 << iFADCtext.Data();
-    iSTRText << "(NN " << fEventLoop->getDetectorGeometry()->getNNeighbours()[iChannel] << ": ";
+    iSTRText << " channel " << fSelectedChan - 200000 << iFADCtext.Data();
+    iSTRText << " (NN " << fEventLoop->getDetectorGeometry()->getNNeighbours()[iChannel] << ": ";
     for( unsigned int n = 0; n < fEventLoop->getDetectorGeometry()->getNNeighbours()[iChannel]; n++ )
     {
         iSTRText << " " << fEventLoop->getDetectorGeometry()->getNeighbours()[iChannel][n];

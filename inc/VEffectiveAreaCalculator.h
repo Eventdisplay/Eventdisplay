@@ -116,7 +116,7 @@ class VEffectiveAreaCalculator
                 E_EcutTrigger, E_EcutFiducialArea, 
                 E_EcutStereoQuality, E_EcutTelType,
                 E_EcutDirection, E_EcutEnergyReconstruction,
-                E_EcutGammaHadron };
+                E_EcutGammaHadron, E_EmcUW };
         enum E_HIS1P { E_EmcSWeight, E_EsysMCRelative };
         enum E_HIS2D {E_EsysMCRelativeRMS, E_EsysMCRelative2D, 
                E_EsysMCRelative2DNoDirectionCut, E_Esys2D,
@@ -272,7 +272,6 @@ class VEffectiveAreaCalculator
         
         void               cleanup();
         bool               fill( CData* d, VEffectiveAreaCalculatorMCHistograms* iMC_histo, unsigned int iMethod );
-        TH1D*              getHistogramhEmc();
         TGraphErrors*      getMeanSystematicErrorHistogram();
         TTree*             getEffectiveAreaTree()
         {
@@ -304,6 +303,14 @@ class VEffectiveAreaCalculator
             if( h_HIS1D.find( E_Emc ) != h_HIS1D.end() )
             {
                 return h_HIS1D[E_Emc];
+            }
+            return 0;
+        }
+        TH1D*               getMCHistogramUnWeighted()
+        {
+            if( h_HIS1D.find( E_EmcUW ) != h_HIS1D.end() )
+            {
+                return h_HIS1D[E_EmcUW];
             }
             return 0;
         }

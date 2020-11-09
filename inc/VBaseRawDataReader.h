@@ -50,6 +50,7 @@ class VBaseRawDataReader : public VVirtualDataReader, public VSimulationDataRead
         double            finjectGaussianNoise;
         TRandom3*         fRandomInjectGaussianNoise;
         
+        vector< uint16_t > fDefaultMaxNChannels;
         
         VMonteCarloRunHeader* fMonteCarloHeader;
         
@@ -346,6 +347,11 @@ class VBaseRawDataReader : public VVirtualDataReader, public VSimulationDataRead
         VMonteCarloRunHeader* getMonteCarloHeader()
         {
             return fMonteCarloHeader;
+        }
+
+        void setDefaultMaxNChannels( vector< uint16_t > i_nChannels )
+        {
+            fDefaultMaxNChannels = i_nChannels;
         }
 };
 #endif

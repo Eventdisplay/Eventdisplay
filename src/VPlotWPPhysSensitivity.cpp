@@ -39,6 +39,13 @@ VPlotWPPhysSensitivity::~VPlotWPPhysSensitivity()
             delete fData[i];
         }
     }
+    for( unsigned int i = 0; i < fPlotCTARequirements.size(); i++ )
+    {
+        if( fPlotCTARequirements[i] )
+        {
+            delete fPlotCTARequirements[i];
+        }
+    }
 }
 
 void VPlotWPPhysSensitivity::reset()
@@ -1275,6 +1282,7 @@ vector< TGraph* > VPlotWPPhysSensitivity::plotCurrentInstruments( TCanvas* c )
            } 
         } */
     }
+    iF->Close();
     return iG;
 }
 

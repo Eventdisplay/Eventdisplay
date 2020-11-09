@@ -1155,6 +1155,7 @@ unsigned int VImageBaseAnalyzer::fillHiLo()
                 continue;
             }
             setHiLo( chID, true );
+            // WARNING: this doesn't work for a camera with 500 channels!!
             if( !getDead( true )[chID] && !getDead( false )[chID]
                     && !( fReader->getMaxChannels() == 500 && chID == 499 ) )
             {

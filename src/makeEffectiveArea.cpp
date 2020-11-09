@@ -376,19 +376,19 @@ int main( int argc, char* argv[] )
             cout << ") to " << fOutputfile->GetName() << endl;
             fOutputfile->cd();
             fEffectiveAreaCalculator.getEffectiveAreaTree()->Write();
-            // write one hEmc to disk used for binning
-            if( fEffectiveAreaCalculator.getMCHistogram() )
-            {
-                fEffectiveAreaCalculator.getMCHistogram()->Write();
-            }
         }
         else
         {
             cout << "error: no effective area tree found" << endl;
         }
-        if( fEffectiveAreaCalculator.getHistogramhEmc() )
+        // write one hEmc to disk used for binning
+        if( fEffectiveAreaCalculator.getMCHistogram() )
         {
-            fEffectiveAreaCalculator.getHistogramhEmc()->Write();
+            fEffectiveAreaCalculator.getMCHistogram()->Write();
+        }
+        if( fEffectiveAreaCalculator.getMCHistogramUnWeighted() )
+        {
+            fEffectiveAreaCalculator.getMCHistogramUnWeighted()->Write();
         }
         
         if( fRunPara->fgetXoff_Yoff_afterCut && fEffectiveAreaCalculator.getAcceptance_AfterCuts() )
@@ -462,6 +462,12 @@ int main( int argc, char* argv[] )
     cout << "end..." << endl;
 }
 
+/*
+ * return MC histograms from mscw_energy files
+ *
+ * - loop over all mscw_energy files
+ * - add MC histograms
+ */
 VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c )
 {
     VEffectiveAreaCalculatorMCHistograms* iMC_his = 0;

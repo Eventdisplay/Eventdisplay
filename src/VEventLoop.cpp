@@ -272,6 +272,7 @@ bool VEventLoop::initEventLoop( string iFileName )
                 // (note: MC might have no telescope event data until the first triggered event)
                 // (note: zero suppressed data)
                 vector< bool > i_nSampleSet( fRunPar->fTelToAnalyze.size(), false );
+                vector< uint16_t > i_nChannels( getNTel(), 0 );
                 unsigned int i_counter = 0;
                 for( ;; )
                 {
@@ -284,6 +285,13 @@ bool VEventLoop::initEventLoop( string iFileName )
                         {
                             setNSamples( fRunPar->fTelToAnalyze[i], i_tempReader.getNumSamples() );
                             i_nSampleSet[i] = true;
+                        }
+                        if( i_tempReader.getMaxChannels() != 499 )
+                        {
+                            if( fRunPar->fTelToAnalyze[i] < i_nChannels.size() )
+                            {
+                                i_nChannels[fRunPar->fTelToAnalyze[i]] = i_tempReader.getMaxChannels();
+                            }
                         }
                     }
                     unsigned int z = 0;
@@ -342,6 +350,12 @@ bool VEventLoop::initEventLoop( string iFileName )
                     cout << "T" << fRunPar->fTelToAnalyze[i] + 1 << ": " << getNSamples( fRunPar->fTelToAnalyze[i] ) << " ";
                 }
                 cout << endl;
+                cout << "Number of channels from VBF file: ";
+                for( unsigned int i = 0; i < fRunPar->fTelToAnalyze.size(); i++ )
+                {
+                    cout << "T" << fRunPar->fTelToAnalyze[i] + 1 << ": " << i_nChannels[fRunPar->fTelToAnalyze[i]] << endl;
+                }
+                fRawDataReader->setDefaultMaxNChannels( i_nChannels );
                 ///////////////////////////////////////////////////////////////
             }
             // sourcefile is MC vbf file; noise is read from separate file

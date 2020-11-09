@@ -34,6 +34,8 @@ VCameraRead::VCameraRead()
     setCoordinateTransformer( 1., 1. );
     // default source type
     fsourcetype = 3;
+    // default counting of pixels starts from 1
+    fPixelCountingFromZero = false;
 }
 
 
@@ -513,14 +515,25 @@ bool VCameraRead::readGrisucfg( string iFile, unsigned int iNTel )
                 i_stream >> fCNChannels[i_telID];
                 fTelID = i_telID;
             }
+            // read max number of neighbours
+            i_stream >> i_char;
+            i_stream >> i_char;
+            if( !i_stream.eof() )
+            {
+                i_stream >> fMaxNeighbour[i_telID];
+            }
+
             if( fDebug )
             {
                 cout << "VCameraRead: total number of channels: " << fCNChannels[i_telID] << " (" << i_telID + 1 << ")" << endl;
             }
-            if( fCFGtype == 1 ) for( unsigned int t = 1; t < fCNChannels.size(); t++ )
+            if( fCFGtype == 1 )
+            {
+                for( unsigned int t = 1; t < fCNChannels.size(); t++ )
                 {
                     fCNChannels[t] = fCNChannels[0];
                 }
+            }
         }
         // camera rotation (not a original grisu line)
         else if( iline.find( "CAROT" ) < iline.size() )
@@ -570,10 +583,11 @@ bool VCameraRead::readGrisucfg( string iFile, unsigned int iNTel )
                 i_telID -= 1;
             }
             i_stream >> i_chan;
-            if( i_chan > 0 )
+            if( i_chan == 0 )
             {
-                i_chan -= 1;
+                fPixelCountingFromZero = true;
             }
+            i_chan = adjustPixelCounting( i_chan );
             if( fGrIsuVersion >= 400 )
             {
                 i_stream >> i_char;
@@ -612,10 +626,7 @@ bool VCameraRead::readGrisucfg( string iFile, unsigned int iNTel )
                 i_telID -= 1;
             }
             i_stream >> i_chan;
-            if( i_chan > 0 )
-            {
-                i_chan -= 1;
-            }
+            i_chan = adjustPixelCounting( i_chan );
             i_stream >> i_NN;
             if( i_telID < fNTel  && i_chan < fCNChannels[i_telID] )
             {
@@ -639,7 +650,7 @@ bool VCameraRead::readGrisucfg( string iFile, unsigned int iNTel )
                     {
                         i_stream >> fNeighbour[i_telID][i_chan][j];
                         // grisu starts at 1 with counting, evndisp at 0
-                        fNeighbour[i_telID][i_chan][j] -= 1;
+                        fNeighbour[i_telID][i_chan][j] = adjustPixelCounting( fNeighbour[i_telID][i_chan][j] );
                     }
                     else
                     {
@@ -833,7 +844,7 @@ void VCameraRead::readPixelFile( string iFile )
         if( itemp == "PIXLC" )
         {
             is_stream >> i_chan;
-            i_chan -= 1;
+            i_chan = adjustPixelCounting( i_chan );
             if( i_telID < fNTel  && i_chan < fCNChannels[i_telID] )
             {
                 is_stream >> fXTubeMM[i_telID][i_chan];
@@ -856,15 +867,14 @@ void VCameraRead::readPixelFile( string iFile )
                         if( j < fNeighbour[i_telID][i_chan].size() )
                         {
                             is_stream >> fNeighbour[i_telID][i_chan][j];
-                            // grisu starts at 1 with counting, evndisp at 0
-                            fNeighbour[i_telID][i_chan][j] -= 1;
                         }
                         else
                         {
                             int a = 0;
                             is_stream >> a;
-                            fNeighbour[i_telID][i_chan].push_back( a - 1 );
+                            fNeighbour[i_telID][i_chan].push_back( a );
                         }
+                        fNeighbour[i_telID][i_chan][j] = adjustPixelCounting( fNeighbour[i_telID][i_chan][j] );
                     }
                     else
                     {
@@ -1106,7 +1116,7 @@ void VCameraRead::rotateCamera()
     for( unsigned int i = 0; i < fNTel; i++ )
     {
         // print only rotations significantly different to zero
-        if( TMath::Abs( fCameraRotation[i] ) > 1.e-3 )
+        if( TMath::Abs( fCameraRotation[i] ) > 1.e-3 || fNTel < 5 )
         {
             cout << " T" << i + 1 << ": "  << fCameraRotation[i];
         }
@@ -1172,7 +1182,8 @@ void VCameraRead::resetTelVectors()
     fCameraFieldofView.assign( fNTel, 3.5 );
     fLowGainMultiplier_Trace.assign( fNTel, 6.0 );
     fLowGainActivator.assign( fNTel, 255 );
-    // maximal number of neighbours is 6 (for circular pixel type)
+    //maximal number of neighbours is 6 (for circular pixel type)
+    //maximal number of neighbours is 8 (for square pixel type) - pSCT
     fMaxNeighbour.assign( fNTel, 6 );
     // set default values for array of four telescopes
     //  later this values are overwritten by the values from the .cfg file
@@ -1649,3 +1660,22 @@ vector< unsigned int > VCameraRead::getNumChannelVector()
     }
     return iN;
 }
+
+/*
+ * adjust pixel IDs 
+ * (e.g. handle differences between counting from zero or one)
+ *
+ * default:
+ * - expect cfg files to start from 1 (Grisu convention)
+ * - change to starting from zero (evndisp convention)
+ */
+unsigned int VCameraRead::adjustPixelCounting( unsigned int i_chan )
+{
+    if( fPixelCountingFromZero )
+    {
+        return i_chan;
+    }
+
+    return i_chan - 1;
+}
+

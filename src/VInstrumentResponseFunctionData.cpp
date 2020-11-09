@@ -632,7 +632,8 @@ bool VInstrumentResponseFunctionData::terminate( double iContainmentProbability 
 Double_t kingfunc( Double_t* r, Double_t* par )
 {
     // from mathematica snippet in KingPsf.nb
-    return 1 - pow( 2, -1 + par[1] ) * pow( par[0], -2 + 2 * par[1] ) * pow( par[1] / ( pow( r[0], 2 ) + 2 * par[1] * pow( par[0], 2 ) ), -1 + par[1] ) ;
+    return 1 - pow( 2, -1 + par[1] ) * pow( par[0], -2 + 2 * par[1] )
+       * pow( par[1] / ( pow( r[0], 2 ) + 2 * par[1] * pow( par[0], 2 ) ), -1 + par[1] ) ;
 }
 
 
