@@ -346,7 +346,6 @@ bool VEvndispData::get_reconstruction_parameters( string ifile, bool iMakeNeighb
         {
             cout << "\t making list of neighbours for image cleaning";
             getDetectorGeometry()->makeNeighbourList( getRunParameter()->fNeighbourDistanceFactor,
-                    getRunParameter()->fNeighbourMultiplicity,
                     getRunParameter()->fSquarePixels );
             cout << "...done" << endl;
         }

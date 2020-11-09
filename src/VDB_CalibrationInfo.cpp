@@ -315,40 +315,11 @@ string VDB_CalibrationInfo::WriteQuery_to_write_in_DB()
 
     string query = "";
     
-    if( !test_file_format( fFile_to_write ) )
-    {
-        return query;
-    }
-    
     char c_query[flong_char_query];// has to be long if we ask for a long run list in VDBSourceInfo
     sprintf( c_query, "LOAD DATA LOCAL INFILE '%s' INTO TABLE tblEventDisplay_Analysis_Calibration_Flasher FIELDS TERMINATED BY '%s' ;", fFile_to_write.Data(), fseparation.Data() );
     
-    
     query = c_query;
     return query;
-    
-}
-
-//---------------------------------------------------------------------------
-//-- VDB_CalibrationInfo::test_file_format
-//-- test if the given file to be written to the DB has the right format
-//-- usefull if the given file is not constructed by the local function  DoFile_for_DBwriting
-//-- when ready, should be made public
-//-- private
-//---------------------------------------------------------------------------
-bool VDB_CalibrationInfo::test_file_format( TString file_to_be_copied )
-{
-
-    bool good_format = false;
-    
-    //............................
-    // TO DO
-    //............................
-    
-    
-    good_format = true;
-    
-    return good_format;
     
 }
 

@@ -1282,7 +1282,6 @@ void VCameraRead::resetNeighbourLists( bool bMaxN )
 
 */
 bool VCameraRead::makeNeighbourList( vector< float > iNeighbourDistanceFactor,
-                                     vector< unsigned int > iNeighbourMultiplicity,
                                      vector< bool > iSquarePixels )
 {
     ////////////////////////////////////
