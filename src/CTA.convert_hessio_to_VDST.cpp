@@ -1467,7 +1467,6 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
             {
                 fDynRange = 0.;
             }
-            fCameraScaleFactor = 1.;
             fCameraCentreOffset = 0.;
             fCameraRotation = -1.*hsdata->camera_set[itel].cam_rot * TMath::RadToDeg();
 #if defined(CTA_PROD2)
