@@ -916,13 +916,15 @@ void VCamera::drawEventText()
 	// big letters for plotpaper options
 	if( fPlotPaper && fTelescope == fData->getTeltoAna()[0] )
 	{
-		sprintf( iText, "Run: %d Event: %d", fData->getRunNumber(), int( fData->getReader()->getEventNumber() ) );
+        stringstream i_stext;
+        i_stext <<  "Run: " << fData->getRunNumber();
+        i_stext << "Event: " << int( fData->getReader()->getEventNumber() );
 		if( fCurrentTimeSlice >= 0 )
 		{
-			sprintf( iText, "%s FADC %d", iText, fCurrentTimeSlice );
+            i_stext << "FADC " << fCurrentTimeSlice;
 		}
 		fTextEventPlotPaper->SetNDC( true );
-		fTextEventPlotPaper->SetTitle( iText );
+		fTextEventPlotPaper->SetTitle( i_stext.str().c_str() );
 		fTextEventPlotPaper->DrawLatex( 0.02, 0.95, fTextEventPlotPaper->GetTitle() );
 	}
 	
