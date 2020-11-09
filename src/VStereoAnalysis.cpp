@@ -1168,7 +1168,7 @@ double VStereoAnalysis::combineHistograms()
         while( TH1* h1 = ( TH1* )next() )
         {
             TH1* h2 = ( TH1* )nexth();
-            if( !h1 || !h2 )
+            if( !h2 )
             {
                 continue;
             }
