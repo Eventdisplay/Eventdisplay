@@ -364,13 +364,6 @@ bool VDB_CalibrationInfo::Read_the_DB()
     {
         while( TSQLRow* db_row = db_res->Next() )
         {
-            if( !db_row )
-            {
-                cout << "WARNING VDB_CalibrationInfo::Read_the_DB(): failed reading a row from DB " << endl;
-                cout << "ERROR laser run  " << fcurrent_run << " tel " << fcurrent_tel << " is not in the VOFFLINE DB (yet?)" << std::endl;
-                return false;
-            }
-            
             Vchannel.push_back( ( unsigned int )atoi( db_row->GetField( 0 ) ) ) ;
             Vmean.push_back( atof( db_row->GetField( 1 ) ) ) ;
             Vvar.push_back( atof( db_row->GetField( 2 ) ) );
