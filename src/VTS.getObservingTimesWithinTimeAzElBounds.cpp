@@ -277,7 +277,7 @@ int main( int argc, char* argv[] )
         
         // go through the logic of dealing with each row
         // deal with only getting 0 rows
-        if( decl.size() <= 0 )
+        if( decl.size() == 0 )
         {
             printf( "no runs found, try wider bounds.\n" );
             return 1;
