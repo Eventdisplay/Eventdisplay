@@ -982,10 +982,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
         {
             char hname[2000];
             sprintf( hname, "%s-BRates.pdf", iPrint.c_str() );
-            if( cBck )
-            {
-                cBck->Print( hname );
-            }
+            cBck->Print( hname );
         }
     }
     
