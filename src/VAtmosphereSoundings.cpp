@@ -3402,6 +3402,11 @@ TCanvas* VAtmosphereSoundings::plot_season(
     {
         summer = getDataMODTRAN( 1 );
     }
+    if( !summer || !winter ) 
+    {
+        cout << "Error defining summer / winter atmosphere" << endl;
+        return 0;
+    }
 
     // VAtmosphereSoundingData* summer = makeDefaultSummerAtmosphere( "summer", "" );
     // VAtmosphereSoundingData* winter = makeDefaultWinterAtmosphere( "winter", "" );
