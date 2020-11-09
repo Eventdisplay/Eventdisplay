@@ -1602,7 +1602,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         bool bDirectionCut = false;
         if( !fIsotropicArrivalDirections )
         {
-            if( !fCuts->applyDirectionCuts( iMethod, true ) )
+            if( !fCuts->applyDirectionCuts( true ) )
             {
                 bDirectionCut = true;
             }
@@ -1611,7 +1611,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         // (command line option -d)
         else
         {
-            if( !fCuts->applyDirectionCuts( iMethod, true, 0., 0. ) )
+            if( !fCuts->applyDirectionCuts( true, 0., 0. ) )
             {
                 bDirectionCut = true;
             }

@@ -2243,7 +2243,7 @@ bool VGammaHadronCuts::applyTelTypeTest( bool bCount )
   x0, y0:   calculate theta2 relative to these points (-99999. if relative to MCx/yoff)
 
 */
-bool VGammaHadronCuts::applyDirectionCuts( unsigned int fEnergyReconstructionMethod, bool bCount, double x0, double y0 )
+bool VGammaHadronCuts::applyDirectionCuts( bool bCount, double x0, double y0 )
 {
     double theta2 = 0.;
     
@@ -2823,7 +2823,7 @@ VNTelTypeCut::VNTelTypeCut()
  *   test if this is above the given threshold cut
  *
  */
-bool VNTelTypeCut::test( CData* c, bool iPrint )
+bool VNTelTypeCut::test( CData* c )
 {
     if( !c )
     {

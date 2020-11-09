@@ -45,7 +45,7 @@ class VNTelTypeCut : public TNamed
         ~VNTelTypeCut() {}
         void print();
         void purgeTelTypeIDs();
-        bool test( CData*, bool iPrint = false );
+        bool test( CData* );
         
         ClassDef( VNTelTypeCut, 5 );
 };
@@ -243,7 +243,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
         VGammaHadronCuts();
         ~VGammaHadronCuts();
         
-        bool   applyDirectionCuts( unsigned int iEnergyReconstructionMethod = 0, bool bCount = false, double x0 = -99999., double y0 = -99999. );
+        bool   applyDirectionCuts( bool bCount = false, double x0 = -99999., double y0 = -99999. );
         bool   applyEnergyReconstructionQualityCuts( unsigned int iEnergyReconstructionMethod = 0, bool bCount = false );
         bool   applyInsideFiducialAreaCut( bool bCount = false );
         bool   applyInsideFiducialAreaCut( float Xoff, float Yoff, bool bCount = false );
@@ -431,6 +431,6 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             fReconstructionType = type;
         }
-        ClassDef( VGammaHadronCuts, 66 );
+        ClassDef( VGammaHadronCuts, 67 );
 };
 #endif
