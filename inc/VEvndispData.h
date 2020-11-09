@@ -1079,7 +1079,7 @@ class VEvndispData
         }
         vector< valarray< double > >& getPulseTiming( bool iCorrected = true );
         valarray<double>&   getPulseTime( bool iCorrected = true );
-		valarray<double>&   getTTrigger( bool iCorrected = true )
+		valarray<double>&   getTTrigger()
 		{
 			return fAnaData[fTelID]->getTTrigger();
 		}
