@@ -2,7 +2,8 @@
 
 Original developers: Gernot Maier and Jamie Holder
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3559076.svg)](https://doi.org/10.5281/zenodo.3559075)
+[![DOI](https://zenodo.org/badge/221222023.svg)](https://zenodo.org/badge/latestdoi/221222023)
+
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c4203cc5d45f4db2b30affccd6e0c641)](https://www.codacy.com/manual/GernotMaier/Eventdisplay?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Eventdisplay/Eventdisplay&amp;utm_campaign=Badge_Grade)
 
 ## Overview
