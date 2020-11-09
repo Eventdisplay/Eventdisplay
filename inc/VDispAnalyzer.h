@@ -175,12 +175,12 @@ class VDispAnalyzer
         {
             return f_xs;
         }
-        float getXcoordinate_disp( unsigned int i, float x = -999., float cosphi = -999. );
+        float getXcoordinate_disp( unsigned int i );
         float getYcoordinate_disp()
         {
             return f_ys;
         }
-        float getYcoordinate_disp( unsigned int i, float y = -999., float sinphi = -999. );
+        float getYcoordinate_disp( unsigned int i );
         vector< float >& getXYWeight_disp()
         {
             return fdisp_xy_weight_T;

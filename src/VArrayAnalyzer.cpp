@@ -1942,8 +1942,8 @@ int VArrayAnalyzer::rcs_method_5( unsigned int iMethod, unsigned int iDisp )
     for( unsigned int ii = 0; ii < m.size(); ii++ )
     {
         getShowerParameters()->addDISPPoint( telID[ii], iMethod,
-                                             fDispAnalyzer[iMethod]->getXcoordinate_disp( ii, x[ii], cosphi[ii] ),
-                                             fDispAnalyzer[iMethod]->getYcoordinate_disp( ii, y[ii], sinphi[ii] ), 1. );
+                                             fDispAnalyzer[iMethod]->getXcoordinate_disp( ii ),
+                                             fDispAnalyzer[iMethod]->getYcoordinate_disp( ii ), 1. );
     }
     if( !fillShowerDirection( iMethod, xs, ys, 0. ) )
     {

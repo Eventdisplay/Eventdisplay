@@ -152,7 +152,7 @@ class VTableLookupDataHandler
         unsigned int fNStats_WobbleMinCut;
         unsigned int fNStats_WobbleMaxCut;
         
-        void   calcDistances( int );                //!< calculate distances between telescopes and shower core
+        void   calcDistances();                //!< calculate distances between telescopes and shower core
         void   calcEmissionHeights();
         double calculateMeanNoiseLevel( bool bCurrentNoiseLevel = false );
         bool   checkIfFilesInChainAreRecovered( TChain* c );

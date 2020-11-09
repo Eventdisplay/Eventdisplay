@@ -275,7 +275,7 @@ bool VTableCalculator::createMedianApprox( int i, int j )
     return true;
 }
 
-bool VTableCalculator::create1DHistogram( int i, int j, double w_first_event )
+bool VTableCalculator::create1DHistogram( int i, int j )
 {
     if( i >= 0 && j >= 0 && i < ( int )Oh.size() && j < ( int )Oh[i].size() && !Oh[i][j] )
     {
@@ -705,7 +705,7 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                 {
                     if( fWrite1DHistograms && ir < ( int )Oh[is].size() )
                     {
-                        if( !Oh[is][ir] && !create1DHistogram( is, ir, w_fill[tel] ) )
+                        if( !Oh[is][ir] && !create1DHistogram( is, ir ) )
                         {
                             continue;
                         }

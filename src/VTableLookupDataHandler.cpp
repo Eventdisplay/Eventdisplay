@@ -656,7 +656,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     
     ///////////////////////////////////////////////////////////
     // calculate distances
-    calcDistances( fNImages );
+    calcDistances();
     
     ///////////////////////////////////////////////////////////
     // calculate emission height (not for writing of tables)
@@ -2389,7 +2389,7 @@ void VTableLookupDataHandler::reset()
   calculate distances between telescopes and reconstructed shower core
 
 */
-void VTableLookupDataHandler::calcDistances( int nimages )
+void VTableLookupDataHandler::calcDistances()
 {
     // check for successfull reconstruction
     for( unsigned int tel = 0; tel < fNTel; tel++ )
