@@ -501,7 +501,7 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
     // CTA analysis might provide additional a list of telescope to analyse
     else if( fTelescopeList_sim_telarray_Counting.size() > 0 && inputfile[0].find( "*" ) == string::npos )
     {
-        if( !readTelescopeToAnalyze( fTelescopeList_sim_telarray_Counting, inputfile[0], true ) )
+        if( !readTelescopeToAnalyze( fTelescopeList_sim_telarray_Counting, inputfile[0] ) )
         {
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE );
@@ -671,8 +671,7 @@ bool VTableLookupRunParameter::readTelTypeDepdendentWeights( string iFile )
  *
  */
 bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim_telarray_Counting,
-        string iEvndispRootFile,
-        bool iSimTelArrayCounting )
+        string iEvndispRootFile )
 {
     fTelToAnalyzeData.clear();
     // (this vector will have later the length of the number
