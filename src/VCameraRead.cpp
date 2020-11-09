@@ -1612,7 +1612,7 @@ bool VCameraRead::readDetectorGeometryFromDB( string iDBStartTime, bool iReadRot
                     if( db_row->GetField( 2 ) )
                     {
                         iRot = atof( db_row->GetField( 2 ) ) * TMath::RadToDeg();
-                        if( itelID >= 0 && itelID < ( int )fCameraRotation.size() )
+                        if( itelID < ( int )fCameraRotation.size() )
                         {
                             fCameraRotation[itelID] = -1.* iRot;
                         }
