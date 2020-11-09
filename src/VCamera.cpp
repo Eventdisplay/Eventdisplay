@@ -948,22 +948,23 @@ void VCamera::drawEventText()
 #endif
 	fTextEvent[0]->SetTitle( iText );
 	// get local trigger list
+    stringstream i_stext;
 	if( fBoolAllinOne )
 	{
-		sprintf( iText, "local trigger: " );
+        i_stext << "local trigger: ";
 		for( unsigned int t = 0; t < fData->getNTel(); t++ )
 		{
 			if( fData->getReader()->hasLocalTrigger( t ) )
 			{
-				sprintf( iText, "%s %d", iText, t + 1 );
+                i_stext << " " << t+1;
 			}
 		}
 	}
 	else
 	{
-		sprintf( iText, "Max channel %d", int( fData->getReader()->getMaxChannels() ) );
+        i_stext << "Max channel " << int( fData->getReader()->getMaxChannels() ) << endl;
 	}
-	fTextEvent[1]->SetTitle( iText );
+	fTextEvent[1]->SetTitle( i_stext.str().c_str() );
 	sprintf( iText, "Num Samples %d", int( fData->getNSamples() ) );
 	fTextEvent[2]->SetTitle( iText );
 	sprintf( iText, "Num Trigger %d", fData->getReader()->getNumberofFullTrigger() );
