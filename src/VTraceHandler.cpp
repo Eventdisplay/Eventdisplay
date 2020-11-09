@@ -736,7 +736,7 @@ double VTraceHandler::getMaxSumAutoWindow( float AmplThresh, unsigned int iSearc
     tcharge = 0, tcharge2 = 0;
     //maxbin   = LocMax(ampl);
     
-    if( n <= 0 )
+    if( n == 0 )
     {
         return -1;
     }
