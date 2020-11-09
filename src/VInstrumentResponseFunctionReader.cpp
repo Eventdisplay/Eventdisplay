@@ -794,7 +794,7 @@ VInstrumentResponseFunctionData* VInstrumentResponseFunctionReader::getIRFFromFi
                 continue;
             }
         }
-        if( c && c->fResolutionGraph.size() > 0 )
+        if( c->fResolutionGraph.size() > 0 )
         {
             for( unsigned int r = 0; r < c->fResolutionGraph.size(); r++ )
             {
