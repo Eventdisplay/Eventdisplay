@@ -52,7 +52,7 @@ int main( int argc, char* argv[] )
     if( runnumber != 0 )
     {
     
-        if( runnumber <= 0 )
+        if( runnumber == 0 )
         {
             cout << "Error: Run Number less than 0." << endl;
             return 0;
