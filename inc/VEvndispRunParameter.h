@@ -140,6 +140,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         bool fNoCalibNoPb;                        // if true, when no information for gain and toff can be found, the analysis is done filling thenm with 1 and 0 respectively (in VCalibrator)
         bool fNextDayGainHack;            //if true, and > 100 channels in one telescope have gain=0, all gains in that tel will be set to 1; gains won't be tested in the dead channel finder.
         bool fWriteExtraCalibTree;        // write additional tree into .gain.root file with channel charges/monitor charge/nHiLo for each event
+        bool fWriteImagePixelList;        // write image pixel list to tpars tree
         string fLowGainCalibrationFile;           // file with file name for low-gain calibration
         int fNCalibrationEvents;                  // events to be used for calibration
         float faverageTZeroFiducialRadius;        // fiducial radius for average tzero calculation (DST), in fraction of FOV
@@ -206,6 +207,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         unsigned int fpulsetiming_width_index;
         unsigned int fpulsetiming_max_index;
         unsigned int fpulsetiming_triggertime_index;
+        vector< bool > fSumWindow_searchmaxreverse;
         
         // image cleaning
         vector< VImageCleaningRunParameter* >  fImageCleaningParameters;
@@ -339,6 +341,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
             return fuseDB;
         }
         
-        ClassDef( VEvndispRunParameter, 186 ); //(increase this number)
+        ClassDef( VEvndispRunParameter, 188 ); //(increase this number)
 };
 #endif

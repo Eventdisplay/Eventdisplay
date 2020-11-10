@@ -66,6 +66,10 @@ class VTraceHandler
         {
             return fpTrace;
         }
+        unsigned int getTraceLength()
+        {
+            return fpTrazeSize;
+        }
         double getTraceAverageTime()
         {
             return fTraceAverageTime;
@@ -85,7 +89,9 @@ class VTraceHandler
                                     unsigned int iTraceIntegrationMethod = 9999,
                                     bool iForceWindowStart = false,
                                     unsigned int iSlidingWindowLast = 9999 );
-        virtual vector< float >& getPulseTiming( unsigned int fFirst, unsigned int fLast, unsigned int fTFirst, unsigned int fTLast );
+        virtual vector< float >& getPulseTiming( unsigned int fFirst, unsigned int fLast, 
+                                                 unsigned int fTFirst, unsigned int fTLast,
+                                                 bool iReverseSearchinLowGain = false );
         virtual bool   getPulseTimingStatus()
         {
             return fFindPulseTiming;
@@ -96,7 +102,9 @@ class VTraceHandler
         }
         virtual double getTraceMax();
         virtual double getTraceMax( unsigned int& n255, unsigned int& maxpos );
-        virtual void   getTraceMax( unsigned int fFirst, unsigned int fLast, double& max, unsigned int& maxpos, unsigned int& n255 );
+        virtual void   getTraceMax( unsigned int fFirst, unsigned int fLast,
+                                    double& max, unsigned int& maxpos,
+                                    unsigned int& n255, bool iReverseSearchinLowGain = false );
         bool    getifIPRmeasure()
         {
             return kIPRmeasure;

@@ -1020,6 +1020,10 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
         {
             fRunPara->fWriteExtraCalibTree = true;
         }
+        else if( iTemp.rfind( "writeimagepixellist" ) < iTemp.size() )
+        {
+            fRunPara->fWriteImagePixelList = true;
+        }
         else if( i > 1 )
         {
             cout << "unknown command line parameter: " << iTemp << endl;
