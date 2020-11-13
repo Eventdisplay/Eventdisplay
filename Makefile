@@ -593,6 +593,18 @@ mergeVBF: $(VBFMERGE)
 	@echo "$@ done"
 
 ########################################################
+# merge VBF files
+########################################################
+VBFSPLIT=	./obj/splitVBF.o
+
+./obj/splitVBF.o:    ./src/splitVBF.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+splitVBF: $(VBFSPLIT)
+	$(LD) $(LDFLAGS) $^ $(GLIBS) $(VBFLIBS) $(OutPutOpt) ./bin/$@
+	@echo "$@ done"
+
+########################################################
 # lookup table code (mscw_energy)
 ########################################################
 MSCOBJECTS=	./obj/Cshowerpars.o ./obj/Cmodel3Dpars.o ./obj/Ctpars.o \
