@@ -49,6 +49,8 @@ fi
 make
 make install
 make clean
+cd ../../../../
+rm -rf sofa
 
 echo "Installation completed"
 echo "Please set the following environmental variable: "
