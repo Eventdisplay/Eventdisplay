@@ -368,7 +368,8 @@ all VTS:	evndisp \
 	writeParticleRateFilesForTMVA \
 	trainTMVAforAngularReconstruction \
 	trainTMVAforGammaHadronSeparation \
-	extrasMessage doneMessage
+	extrasMessage doneMessage \
+	mergeVBF splitVBF
 
 CTA:	evndisp \
         CTA.convert_hessio_to_VDST \
@@ -593,7 +594,7 @@ mergeVBF: $(VBFMERGE)
 	@echo "$@ done"
 
 ########################################################
-# merge VBF files
+# split VBF files
 ########################################################
 VBFSPLIT=	./obj/splitVBF.o
 
