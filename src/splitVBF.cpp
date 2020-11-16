@@ -111,6 +111,8 @@ int main(int argc, char **argv){
           if (ipacket == ipacketHeader)
             continue;
 
+          writePacket = false;
+
           packet = reader.readPacket(ipacket);
 
           // cout << "Starting ipacket: " << ipacket << endl;
