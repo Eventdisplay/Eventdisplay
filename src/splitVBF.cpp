@@ -1,9 +1,5 @@
-/*! \file mergeVBF.cpp
-    \brief merge several vbf files into one
-
-    Revision $Id: mergeVBF.cpp,v 1.1.2.2.4.2 2009/10/02 13:48:22 gmaier Exp $
-
-    copied from Peter Cogan.
+/*! \file splitVBF.cpp
+    \brief split one vbf file into several ones
 
 */
 
@@ -19,7 +15,6 @@
 
 // include the configuration mask utilities, which give us parseConfigMask()
 #include "VConfigMaskUtil.h"
-
 
 #include <fstream>
 #include <iostream>
