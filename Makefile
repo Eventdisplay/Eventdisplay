@@ -395,16 +395,6 @@ CTAsens:	mscw_energy \
 	writeParticleRateFilesFromEffectiveAreas \
 	printRunParameter
 
-CTAsens:	mscw_energy \
-	makeEffectiveArea \
-	smoothLookupTables \
-	trainTMVAforGammaHadronSeparation \
-	trainTMVAforAngularReconstruction \
-	writeCTAWPPhysSensitivityFiles \
-	writeCTAWPPhysSensitivityTree \
-	writeParticleRateFilesFromEffectiveAreas \
-	printRunParameter
-
 extrasMessage:
 	@echo "Not going to compile VTS.next_day, VTS.analyzeMuonRings ... Can try to do '$ make extras'"
 doneMessage:
