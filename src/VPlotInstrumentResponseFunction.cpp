@@ -557,19 +557,19 @@ void VPlotInstrumentResponseFunction::plotEnergyReconstructionMatrix( unsigned i
     }
     
     char hname[200];
-    char htitle[200];
     
     sprintf( hname, "cEA_Ematrix_%d_%d_%s_%d", iDataSetID, bFineBinning, iMatrixType.c_str(), bInterPol );
-    sprintf( htitle, "energy reconstruction matrix (%d,%d)", iDataSetID, bInterPol );
+    stringstream textstr;
+    textstr << "energy reconstruction matrix (" << iDataSetID << "," << bInterPol << ")";
     if( bFineBinning )
     {
-        sprintf( htitle, "%s (fine binning)", htitle );
+        textstr << " (fine binning)";
     }
     if( iMatrixType != "default" )
     {
-        sprintf( htitle, "%s, %s", htitle, iMatrixType.c_str() );
+        textstr << ", " << iMatrixType;
     }
-    TCanvas* iEnergyReconstructionMatrixCanvas = new TCanvas( hname, htitle, 610, 10, fCanvasSize_X, fCanvasSize_Y );
+    TCanvas* iEnergyReconstructionMatrixCanvas = new TCanvas( hname, textstr.str().c_str(), 610, 10, fCanvasSize_X, fCanvasSize_Y );
     iEnergyReconstructionMatrixCanvas->SetGridx( 0 );
     iEnergyReconstructionMatrixCanvas->SetGridy( 0 );
     iEnergyReconstructionMatrixCanvas->SetLeftMargin( 0.11 );
