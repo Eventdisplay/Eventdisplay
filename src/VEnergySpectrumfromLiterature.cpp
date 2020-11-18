@@ -395,9 +395,9 @@ TF1* VEnergySpectrumfromLiterature::getEnergySpectrum( unsigned int iID, bool bL
     }
     
     // define functions
-    char hname[600];
+    char hname[6000];
     char h_exponent[600];
-    char h_energy[600];
+    char h_energy[60];
     // define energy variabile (log or lin)
     if( bLogEnergy )
     {
@@ -466,7 +466,7 @@ TF1* VEnergySpectrumfromLiterature::getEnergySpectrum( unsigned int iID, bool bL
     }
     
     // plotting multiplier
-    char hisnmae[1000];
+    char hisnmae[10000];
     sprintf( hisnmae, "%s * TMath::Power( %s, %f )", hname, h_energy, fPlottingMultiplierIndex );
     
     // create function

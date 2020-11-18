@@ -528,7 +528,7 @@ TChain* VAnalysisUtilities::getTreeWithSelectedEvents( string iFile, bool iOn )
     }
     
     char dname[200];
-    char hname[200];
+    char hname[2000];
     if( iOn )
     {
         sprintf( dname, "data_on" );

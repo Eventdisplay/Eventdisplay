@@ -2485,7 +2485,7 @@ bool VGammaHadronCuts::initAngularResolutionFile()
         sprintf( iTreeName, "t_angular_resolution" );
         if( getAngularResolutionContainmentRadius() - 68 != 0 )
         {
-            sprintf( iTreeName, "%s_%03dp", iTreeName, getAngularResolutionContainmentRadius() );
+            sprintf( iTreeName, "t_angular_resolution_%03dp", getAngularResolutionContainmentRadius() );
         }
         
         cout << "VGammaHadronCuts::initAngularResolutionFile: reading angular resolution graph from file (" << iTreeName << "):" << endl;
