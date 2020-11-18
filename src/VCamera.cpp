@@ -926,13 +926,14 @@ void VCamera::drawEventText()
 	// big letters for plotpaper options
 	if( fPlotPaper && fTelescope == fData->getTeltoAna()[0] )
 	{
-		sprintf( iText, "Run: %d Event: %d", fData->getRunNumber(), int( fData->getReader()->getEventNumber() ) );
+        stringstream iTextstr;
+        iTextstr << "Run: " << fData->getRunNumber() << " Event: " << int( fData->getReader()->getEventNumber() );
 		if( fCurrentTimeSlice >= 0 )
 		{
-			sprintf( iText, "%s FADC %d", iText, fCurrentTimeSlice );
+            iTextstr << " FADC " << fCurrentTimeSlice << endl;
 		}
 		fTextEventPlotPaper->SetNDC( true );
-		fTextEventPlotPaper->SetTitle( iText );
+        fTextEventPlotPaper->SetTitle( iTextstr.str().c_str() );
 		fTextEventPlotPaper->DrawLatex( 0.02, 0.95, fTextEventPlotPaper->GetTitle() );
 	}
 	
@@ -956,22 +957,23 @@ void VCamera::drawEventText()
 #endif
 	fTextEvent[0]->SetTitle( iText );
 	// get local trigger list
+    stringstream iTextstr;
 	if( fBoolAllinOne )
 	{
-		sprintf( iText, "local trigger: " );
+        iTextstr << "local trigger: ";
 		for( unsigned int t = 0; t < fData->getNTel(); t++ )
 		{
 			if( fData->getReader()->hasLocalTrigger( t ) )
 			{
-				sprintf( iText, "%s %d", iText, t + 1 );
+                iTextstr << " " << t+1;
 			}
 		}
 	}
 	else
 	{
-		sprintf( iText, "Max channel %d", int( fData->getReader()->getMaxChannels() ) );
+        iTextstr << "Max channel " << int( fData->getReader()->getMaxChannels() ) << endl;
 	}
-	fTextEvent[1]->SetTitle( iText );
+    fTextEvent[1]->SetTitle( iTextstr.str().c_str() );
 	sprintf( iText, "Num Samples %d", int( fData->getNSamples() ) );
 	fTextEvent[2]->SetTitle( iText );
 	sprintf( iText, "Num Trigger %d", fData->getReader()->getNumberofFullTrigger() );
