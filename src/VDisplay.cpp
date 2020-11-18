@@ -1366,6 +1366,7 @@ void VDisplay::setFADCText()
         return;
     }
     char cTemp[500];
+    char cTemp2[5000];
     unsigned int iChannel = unsigned( fSelectedChan - 200000 );
     
     // don't use this for photodiode
@@ -1515,9 +1516,9 @@ void VDisplay::setFADCText()
     sprintf( cTemp, "pulse timing (raw): " );
     for( unsigned int p = 0; p < fEventLoop->getRunParameter()->fpulsetiminglevels.size(); p++ )
     {
-        sprintf( cTemp, "%s %d%% : %.1f ", cTemp, ( int )( fEventLoop->getRunParameter()->fpulsetiminglevels[p] * 100. ), fEventLoop->getPulseTiming( false )[p][iChannel] );
+        sprintf( cTemp2, "%s %d%% : %.1f ", cTemp, ( int )( fEventLoop->getRunParameter()->fpulsetiminglevels[p] * 100. ), fEventLoop->getPulseTiming( false )[p][iChannel] );
     }
-    fTextFADC.push_back( new TText( xL, yT, cTemp ) );
+    fTextFADC.push_back( new TText( xL, yT, cTemp2 ) );
     // sum / pedvar
     double i_var = 0.;
     if( fEventLoop->getRunParameter()->fsourcetype != 6 &&
