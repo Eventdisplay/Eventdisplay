@@ -677,6 +677,7 @@ class VEvndispData
                 return fDetectorGeo->getNSamples( iTelID );
             }
         }
+        unsigned int        getNSamplesAnalysis( unsigned int iTelID = 9999 );
         unsigned int        getNTel() const
         {
             return fNTel;
@@ -893,6 +894,10 @@ class VEvndispData
         float         getSumwWindowStart_T_maxT0Diff()
         {
             return fRunPar->fsumfirst_maxT0startDiff[fTelID];
+        }
+        bool getSumWindow_searchmaxreverse()
+        {
+            return fRunPar->fSumWindow_searchmaxreverse[fTelID];
         }
         unsigned int  getSumWindowStart_T_method()
         {

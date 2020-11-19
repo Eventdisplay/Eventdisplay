@@ -1218,6 +1218,22 @@ bool VEvndispData::isEqualSummationWindows()
     return false;
 }
 
+/*
+ * return length of trace window to be used for the analysis
+
+   take digital filters into account
+
+*/
+unsigned int VEvndispData::getNSamplesAnalysis( unsigned int iTelID )
+{
+    unsigned int i_upSample = 1;
+    if( getDigitalFilterMethod() > 0 )
+    {
+        i_upSample *= getDigitalFilterUpSample();
+    }
+    return getNSamples( iTelID ) * i_upSample;
+}
+
 ////////////////////////////////
 // initialize static variables
 

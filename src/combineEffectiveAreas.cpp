@@ -174,8 +174,8 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         }
         cout << "merge log files into " << hname << endl;
         if( system( hname ) != 0 )
-	{
-	   cout << "error merging log files" << endl;
+	      {
+	         cout << "error merging log files" << endl;
         }
     }
     else

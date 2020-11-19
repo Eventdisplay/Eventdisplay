@@ -71,10 +71,12 @@ class VImageParameterCalculation : public TObject
     
         VImageParameterCalculation( unsigned int iShortTree = 0, VEvndispData* iData = 0 );
         ~VImageParameterCalculation();
-        vector<bool> calcLL( bool iUseSums2 = false, bool i_reInitializeLL = false, bool iEqualSummationWindows = false );          //!< calculate image parameters (log like)
-        void muonRingFinder();                                                                 //!< fit a single ring to the image to look for muons
-        void sizeInMuonRing();                                                                 //! calculate the brightness of the muon ring
-        void muonPixelDistribution();                                                          //!< determine the distribution of pixels in the image
+        vector<bool> calcLL( bool iUseSums2 = false, 
+                             bool i_reInitializeLL = false, 
+                             bool iEqualSummationWindows = false );          //!< calculate image parameters (log like)
+        void muonRingFinder();                     //!< fit a single ring to the image to look for muons
+        void sizeInMuonRing();                     //! calculate the brightness of the muon ring
+        void muonPixelDistribution();              //!< determine the distribution of pixels in the image
         
         //Impact parameter correction factor for size
         float correctSizeInMuonRing();
@@ -88,7 +90,6 @@ class VImageParameterCalculation : public TObject
         void calcTriggerParameters( vector<bool> fTrigger );                                   //!< calculate trigger-level image parameters
         void calcParameters();                                                                 //!< calculate image parameters (geo.)
         void calcTimingParameters( bool iIsSecondPass );
-        void initMinuit( int );                   //!< initialize minuit
         vector<double>& getLLSums()                 //!< return data vector for minuit function
         {
             return fll_Sums;
@@ -127,6 +128,10 @@ class VImageParameterCalculation : public TObject
         }
         //!< return value of 2d-gaus at channel iChannel
         double getFitValue( unsigned int iChannel, double, double, double, double, double, double );
+        //!< fill image/border list (optional)
+        void fillImageBorderPixelTree();
+        //!< initialize minuit
+        void initMinuit( int );
         //!< set the detector geometry
         void setDebug( bool iB = true )
         {

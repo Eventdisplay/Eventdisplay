@@ -171,6 +171,10 @@ void VEventLoop::printRunInfos()
                 cout << "\t length of first pass summation window (double pass): \t" << fRunPar->fsumwindow_pass1[fRunPar->fTelToAnalyze[i]];
             }
             cout << endl;
+            if( !fRunPar->fSumWindow_searchmaxreverse[fRunPar->fTelToAnalyze[i]] )
+            {
+                cout << "\t ignore reverse trace integration for low gain" << endl;
+            }
         }
         else
         {
@@ -636,7 +640,8 @@ void VEventLoop::initializeAnalyzers()
             setTelID( i );
             fAnaData.push_back( new VImageAnalyzerData( i, fRunPar->fShortTree, ( fRunMode == R_PED || fRunMode == R_PEDLOW ||
                                 fRunMode == R_GTO || fRunMode == R_GTOLOW ||
-                                fRunMode == R_TZERO || fRunMode == R_TZEROLOW ) ) );
+                                fRunMode == R_TZERO || fRunMode == R_TZEROLOW ),
+                                getRunParameter()->fWriteImagePixelList ) );
             int iseed = fRunPar->fMCNdeadSeed;
             if( iseed != 0 )
             {

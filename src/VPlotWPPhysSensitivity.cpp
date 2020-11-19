@@ -1068,10 +1068,12 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
         // add requirements line to the tlegend
         TGraph* i_g_req = new TGraph( 1 );
         i_g_req->SetLineColor( 2 );
+	i_g_req->SetMarkerColor( 2 );
         i_g_req->SetLineStyle( 2 );
         TGraph* i_g_goal = new TGraph( 1 );
         i_g_goal->SetLineColor( 3 );
         i_g_goal->SetLineStyle( 2 );
+	i_g_goal->SetMarkerColor( 3 );
         
         // no requirements for effective areas
         if( iPadName.find( "cEA_EFF" ) == string::npos )

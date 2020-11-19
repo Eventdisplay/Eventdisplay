@@ -66,7 +66,11 @@ int main( int argc, char* argv[] )
         cout << endl;
         if( gSystem->Getenv( "EVNDISPSYS" ) )
         {
-            system( "cat $EVNDISPSYS/README/README.EFFECTIVEAREA" );
+            int i_s = system( "cat $EVNDISPSYS/README/README.EFFECTIVEAREA" );
+            if( i_s == -1 )
+            {
+                cout << "error: README/README.EFFECTIVEAREA not found" << endl;
+            }
         }
         else
         {

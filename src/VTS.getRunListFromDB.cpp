@@ -255,7 +255,11 @@ void parseOptions( int argc, char* argv[] )
                 {
                     char readme[500];
                     sprintf( readme, "cat %s/README/README.GETRUNLIST", ENV );
-                    system( readme );
+                    int i_s = system( readme );
+                    if( i_s == -1 )
+                    {
+                        cout << "error reading README/README.GETRUNLIST" << endl;
+                    }
                 }
                 else
                 {

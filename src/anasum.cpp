@@ -153,9 +153,9 @@ int parseOptions( int argc, char* argv[] )
             case 'h':
                 if( gSystem->Getenv( "EVNDISPSYS" ) )
                 {
-		    if( system( "cat $EVNDISPSYS/README/README.ANASUM" ) != 0 )
-		    {
-		        cout << "error reading README" << endl;
+		                if( system( "cat $EVNDISPSYS/README/README.ANASUM" ) != 0 )
+		                {
+		                   cout << "error reading README" << endl;
                     }
                 }
                 else

@@ -16,8 +16,8 @@ VImageParameterCalculation::VImageParameterCalculation( unsigned int iShortTree,
         cout << "VImageParameterCalculation::VImageParameterCalculation()" << endl;
     }
     fData = iData;
-    fParGeo = new VImageParameter( iShortTree );
-    fParLL =  new VImageParameter( iShortTree );
+    fParGeo = new VImageParameter( iShortTree, fData->getRunParameter()->fWriteImagePixelList );
+    fParLL =  new VImageParameter( iShortTree, fData->getRunParameter()->fWriteImagePixelList );
     fboolCalcGeo = false;
     fboolCalcTiming = false;
     fDetectorGeometry = 0;
@@ -2251,5 +2251,57 @@ void VImageParameterCalculation::setImageBorderPixelPosition( VImageParameter* i
             }
         }
         iPar->setImageBorderPixelPosition( i_x, i_y );
+    }
+}
+
+
+/*
+    fill image/border pixel to image parameter tree
+    (optional)
+
+*/
+void VImageParameterCalculation::fillImageBorderPixelTree()
+{
+    if( !fParGeo )
+    {
+        return;
+    }
+    if( !fParGeo->isWriteNImagePixels() )
+    {
+        return;
+    }
+    fParGeo->PixelListN = 0;
+    for( unsigned int i = 0; i < fData->getSums().size(); i++ )
+    {
+        // decide of pixel should be added to list written to tree
+        fParGeo->PixelID[fParGeo->PixelListN] = i;
+        fParGeo->PixelType[fParGeo->PixelListN] = 99;
+        if( fData->getImage()[i] )
+        {
+            fParGeo->PixelType[fParGeo->PixelListN] = 1;
+        }
+        else if( fData->getBorder()[i] )
+        {
+            fParGeo->PixelType[fParGeo->PixelListN] = 2;
+        }
+        else if( i < fData->getPE().size() && fData->getPE()[i] > 0 )
+        {
+            fParGeo->PixelType[fParGeo->PixelListN] = 0;
+        }
+        if( fParGeo->PixelType[fParGeo->PixelListN] < 99 )
+        {
+            fParGeo->PixelIntensity[fParGeo->PixelListN] = fData->getSums()[i];
+            fParGeo->PixelTimingT0[fParGeo->PixelListN] = fData->getPulseTime()[i];
+            if( i < fData->getPE().size() && fData->getPE()[i] > 0 )
+            {
+                fParGeo->PixelPE[fParGeo->PixelListN] = fData->getPE()[i];
+            }
+            // low-gain channel: add '10' to pixel type
+            if( fData->getHiLo()[i] )
+            {
+                fParGeo->PixelType[fParGeo->PixelListN] += 10;
+            } 
+            fParGeo->PixelListN++;
+        }
     }
 }

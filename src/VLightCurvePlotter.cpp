@@ -283,7 +283,7 @@ void VLightCurvePlotter::setLightCurveFluxAxis( double iYmin, double iYmax, stri
 TCanvas* VLightCurvePlotter::plotLightCurve( TCanvas* iCanvasLightCurve, string iCanvasName, string iPlottingOption, double iMaxMJDError )
 {
     char hname[800];
-    char htitle[800];
+    char htitle[5000];
     
     TH1D* hLightCurve = 0;
     
@@ -327,10 +327,6 @@ TCanvas* VLightCurvePlotter::plotLightCurve( TCanvas* iCanvasLightCurve, string 
             sprintf( hname, "phase" );
             sprintf( htitle, "hLightCurve_%d_%d", ( int )fOrbitalPhaseData.fZeroPhase_MJD, ( int )fOrbitalPhaseData.fOrbit_days );
         }
-	else
-	{
-            sprintf( htitle, "hLightCurve" );
-        }
         
         hLightCurve = new TH1D( htitle, "", 100, i_xmin, i_xmax );
         hLightCurve->SetStats( 0 );
@@ -370,8 +366,8 @@ TCanvas* VLightCurvePlotter::plotLightCurve( TCanvas* iCanvasLightCurve, string 
         {
             sprintf( htitle, "hLightCurve_%d_%d", ( int )fOrbitalPhaseData.fZeroPhase_MJD, ( int )fOrbitalPhaseData.fOrbit_days );
         }
-	else
-	{
+	      else
+	      {
             sprintf( htitle, "hLightCurve" );
         }
         hLightCurve = ( TH1D* )fCanvasLightCurve->GetListOfPrimitives()->FindObject( htitle );
