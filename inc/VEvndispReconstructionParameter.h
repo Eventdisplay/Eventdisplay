@@ -71,6 +71,7 @@ class VEvndispReconstructionParameterData : public TNamed
         unsigned int  fNTel_type;
         
         int           fNImages_min;
+        int           fNImages_max;
         double        fAxesAngles_min;
         
         // [telescope type] (not telescope number!!)
@@ -175,6 +176,6 @@ class VEvndispReconstructionParameter : public TNamed
             fDebug = iD;
         }
         
-        ClassDef( VEvndispReconstructionParameter, 28 );
+        ClassDef( VEvndispReconstructionParameter, 29 );
 };
 #endif

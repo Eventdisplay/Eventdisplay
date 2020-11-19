@@ -136,7 +136,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         bool freadCalibfromDB;                    // if true, calibration information are read in VOFFLINE DB
         int freadCalibfromDB_versionquery;        // require a given version of calibration
         bool freadCalibfromDB_save_file;          // calibration information read from the DB are stored in
-        // VGlobalRunParameter::getDirectory_EVNDISPCalibrationData() +/Tel_?
         bool fNoCalibNoPb;                        // if true, when no information for gain and toff can be found, the analysis is done filling thenm with 1 and 0 respectively (in VCalibrator)
         bool fNextDayGainHack;            //if true, and > 100 channels in one telescope have gain=0, all gains in that tel will be set to 1; gains won't be tested in the dead channel finder.
         bool fWriteExtraCalibTree;        // write additional tree into .gain.root file with channel charges/monitor charge/nHiLo for each event
@@ -174,6 +173,10 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         int    fCalibrationSumWindowAverageTime;  // sumwindow for average arrival time calculation
         float  fCalibrationIntSumMin;             // minimum integrated charge in a channel and event to be taken into account in gain or tzero calibration runs
         string fsetSpecialChannels;               // set channels with L2 channels to correct for FADC crate time offsets (file name of channel settings)
+        string fthroughputCorrectionFile;         // throughput correction (e.g., mirror reflectivity or gain loss) --> applied after pixel integration
+        string ftraceamplitudecorrectionFile;     // throughput correction file (e.g., mirror reflectivity or gain loss) --> applied to FADC values
+        vector< float > fthroughoutCorrectionSFactor; // throughput correction (e.g., mirror reflectivity and gain loss) --> applied to FADC values
+        vector< float > fthroughoutCorrectionGFactor; // throughput correction (e.g., gain loss) --> applied to FADC values
         bool   fL2TimeCorrect;                    // use L2 pulses to correct FADC times (default: on )
         unsigned fCalibrationDataType;            // for DSTs: kind of calibration data available: 1: full (peds, pedvars, etc). 0: (no calibration data)
         
@@ -322,6 +325,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         VEvndispRunParameter( bool bSetGlobalParameter = true );
         ~VEvndispRunParameter();
         
+        string       getInstrumentEpoch(  bool iMajor = false );
         bool         isMC()
         {
             return fIsMC;
@@ -334,6 +338,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
             return fuseDB;
         }
         
-        ClassDef( VEvndispRunParameter, 188 ); //(increase this number)
+        ClassDef( VEvndispRunParameter, 189 ); //(increase this number)
 };
 #endif

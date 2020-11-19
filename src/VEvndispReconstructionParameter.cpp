@@ -290,6 +290,11 @@ void VEvndispReconstructionParameter::print_arrayAnalysisCuts()
         }
         cout << endl;
         cout << "\t\t minimum angle between image axes [deg]: " << fReconstructionParameterData[m]->fAxesAngles_min << endl;
+        cout << "\t\t minimum number of images: " << fReconstructionParameterData[m]->fNImages_min << endl;
+        if( fReconstructionParameterData[m]->fNImages_max < VDST_MAXTELESCOPES )
+        {
+            cout << << "\t\t maximum number of images: " << fReconstructionParameterData[m]->fNImages_max << endl;
+        }
         // loop over all telescope types
         for( unsigned int t = 0; t < fReconstructionParameterData[m]->fTelescopeType.size(); t++ )
         {
@@ -1034,6 +1039,11 @@ bool VEvndispReconstructionParameter::readKeyWord_RECMETHOD( vector< string > iT
     else if( iTemp[0] == "MNIMAGE" && iTemp[1].size() > 0 )
     {
         fReconstructionParameterData.back()->fNImages_min = atoi( iTemp[1].c_str() );
+        return true;
+    }
+    else if( iTemp[0] == "MXIMAGE" && iTemp[1].size() > 0 )
+    {
+        fReconstructionParameterData.back()->fNImages_max = atoi( iTemp[1].c_str() );
         return true;
     }
     else if( iTemp[0] == "MINANGLE" && iTemp[1].size() > 0 )
@@ -1933,6 +1943,7 @@ VEvndispReconstructionParameterData::VEvndispReconstructionParameterData( unsign
     fMethodID       = 0;
     
     fNImages_min    = 0.;
+    fNImages_max    = VDST_MAXTELESCOPES;
     fAxesAngles_min = 0.;
     
     // cut parameters: set default parameters
