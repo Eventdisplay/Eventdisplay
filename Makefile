@@ -393,19 +393,19 @@ EVNOBJECTS =    ./obj/VVirtualDataReader.o \
 		./obj/VPETree.o \
 		./obj/VPETree_Dict.o \
 		./obj/VNoiseFileReader.o \
-                ./obj/VCamera.o \
+        ./obj/VCamera.o \
 		./obj/VDisplayBirdsEye.o \
 		./obj/VPlotUtilities.o ./obj/VPlotUtilities_Dict.o \
 		./obj/VCameraRead.o \
 		./obj/VDetectorGeometry.o \
 		./obj/VDetectorTree.o \
-	        ./obj/VImageParameterCalculation.o \
+	    ./obj/VImageParameterCalculation.o \
 		./obj/VImageBaseAnalyzer.o \
 		./obj/VImageCleaning.o \
 		./obj/VDB_CalibrationInfo.o\
 		./obj/VDB_Connection.o\
 		./obj/VCalibrator.o \
-                ./obj/VImageAnalyzer.o \
+        ./obj/VImageAnalyzer.o \
 		./obj/VArrayAnalyzer.o \
 		./obj/VMLPAnalyzer.o \
 		./obj/VDispAnalyzer.o \

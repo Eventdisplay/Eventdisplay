@@ -51,6 +51,10 @@ class VBaseRawDataReader : public VVirtualDataReader, public VSimulationDataRead
         TRandom3*         fRandomInjectGaussianNoise;
         
         vector< uint16_t > fDefaultMaxNChannels;
+
+        // trace amplitude correction
+        vector< float > fTraceAmplitudeCorrectionS;
+        vector< float > fTraceAmplitudeCorrectionG;
         
         VMonteCarloRunHeader* fMonteCarloHeader;
         
@@ -327,11 +331,8 @@ class VBaseRawDataReader : public VVirtualDataReader, public VSimulationDataRead
         valarray<double>&          getPedRMS();
         bool                       initTraceNoiseGenerator( unsigned int, string, VDetectorGeometry*, vector<int>, bool, int, double, vector<double> );
         void                       injectGaussianNoise( double injectGaussianNoise, UInt_t seed = 0 );
+        bool                       initThroughputCorrection( double , vector< float >, vector< float > );
         void                       setSumWindow( unsigned int iTelID, int isw );
-        
-        //      vector< bool >&             getLocalTrigger() { return getSLocalTrigger(); }
-        //      unsigned int               getNTelLocalTrigger();         //!< return number of telescopes with local trigger
-        //      bool                       hasLocalTrigger( unsigned int iTel );
         
         vector< double >           getTelElevation()
         {

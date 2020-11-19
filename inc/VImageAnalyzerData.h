@@ -151,7 +151,9 @@ class VImageAnalyzerData
                                                  unsigned int iTTindex );
         void                     initializeMeanPulseHistograms();
         void                     initializeIntegratedChargeHistograms();
-        bool                     readSpecialChannels( int iRunNumber, string iFile, string iDirectory );
+        bool                     readSpecialChannels( int iRunNumber, string iEpoch,
+                                                      string ispecialchannelfile, 
+                                                      string ithroughputfile, string iDirectory );
         void                     setTraceIntegrationMethod( unsigned iN = 1 )
         {
             fTraceIntegrationMethod = iN;
