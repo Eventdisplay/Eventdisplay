@@ -368,7 +368,8 @@ all VTS:	evndisp \
 	writeParticleRateFilesForTMVA \
 	trainTMVAforAngularReconstruction \
 	trainTMVAforGammaHadronSeparation \
-	extrasMessage doneMessage
+	extrasMessage doneMessage \
+	mergeVBF splitVBF
 
 CTA:	evndisp \
         CTA.convert_hessio_to_VDST \
@@ -589,6 +590,18 @@ VBFMERGE=	./obj/mergeVBF.o
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 mergeVBF: $(VBFMERGE)
+	$(LD) $(LDFLAGS) $^ $(GLIBS) $(VBFLIBS) $(OutPutOpt) ./bin/$@
+	@echo "$@ done"
+
+########################################################
+# split VBF files
+########################################################
+VBFSPLIT=	./obj/splitVBF.o
+
+./obj/splitVBF.o:    ./src/splitVBF.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+splitVBF: $(VBFSPLIT)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(VBFLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
