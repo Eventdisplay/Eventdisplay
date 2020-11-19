@@ -293,7 +293,7 @@ void VEvndispReconstructionParameter::print_arrayAnalysisCuts()
         cout << "\t\t minimum number of images: " << fReconstructionParameterData[m]->fNImages_min << endl;
         if( fReconstructionParameterData[m]->fNImages_max < VDST_MAXTELESCOPES )
         {
-            cout << << "\t\t maximum number of images: " << fReconstructionParameterData[m]->fNImages_max << endl;
+            cout << "\t\t maximum number of images: " << fReconstructionParameterData[m]->fNImages_max << endl;
         }
         // loop over all telescope types
         for( unsigned int t = 0; t < fReconstructionParameterData[m]->fTelescopeType.size(); t++ )
