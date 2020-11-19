@@ -51,13 +51,13 @@ VPlotAnasumHistograms::VPlotAnasumHistograms( string ifile, int ion )
     
     default_settings();
     
-    if( !openDataFile( ifile, ion ) )
+    if( !openDataFile( ifile ) )
     {
         return;
     }
 }
 
-bool VPlotAnasumHistograms::openDataFile( string ifile, int ion )
+bool VPlotAnasumHistograms::openDataFile( string ifile )
 {
     if( !openFile( ifile, fRunNumber, 1 ) )
     {
@@ -1315,6 +1315,7 @@ TCanvas* VPlotAnasumHistograms::plot_radec( int sPlot, double rmax, double zmin,
         {
             IncValues = new TF1( "IncValues", "-x", -Xmin, -Xmax );
         }
+	IncValues->Print();
         
         TGaxis* raLowerAxis = new TGaxis( xmin, ymin, xmax, ymax, "IncValues", 4 );
         raLowerAxis->SetTitleFont( hmap->GetXaxis()->GetTitleFont() );

@@ -398,7 +398,7 @@ TF1* VEnergySpectrumfromLiterature::getEnergySpectrum( unsigned int iID, bool bL
     char hname[6000];
     char h_exponent[600];
     char h_energy[60];
-    // define energy variabile (log or lin)
+    // define energy variable (log or lin)
     if( bLogEnergy )
     {
         sprintf( h_energy, "TMath::Power( 10, x )" );

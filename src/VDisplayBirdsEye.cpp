@@ -155,26 +155,26 @@ void VDisplayBirdsEye::drawEventText()
                  fData->getShowerParameters()->MCxcore, fData->getShowerParameters()->MCycore );
     }
     // shower reconstruction text
-    stringstream textstr;
-    textstr << fData->getShowerParameters()->fShowerNumImages[iM];
-    textstr << " tel in reco (ID" << iM << "): ";
+    stringstream i_stext;
+    i_stext << fData->getShowerParameters()->fShowerNumImages[iM];
+    i_stext << " tel in reco (ID" << iM << "):";
     for( unsigned int i = 0; i < fData->getNTel(); i++ )
     {
         if( fData->getShowerParameters()->fTelIDImageSelected_list[iM][i] )
         {
-            textstr << " " << ( int )( i + 1 );
+	    i_stext << " " << ( int )( i + 1 );
         }
     }
-    fTextRec.push_back( new TText( 0.02, 0.09, textstr.str().c_str() ) );
+    fTextRec.push_back( new TText( 0.02, 0.09, i_stext.str().c_str() ) );
     // triggered events
     // (any trigger condition)
-    textstr.str( "" );
-    textstr << fData->getShowerParameters()->fNTrig << " tel triggered: ";
+    i_stext.str("");
+    i_stext << fData->getShowerParameters()->fNTrig << " tel triggered: ";
     for( unsigned int i = 0; i < fData->getShowerParameters()->fNTrig; i++ )
     {
-        textstr << " " << fData->getShowerParameters()->fTrig_list[i] + 1;
+        i_stext << " " << fData->getShowerParameters()->fTrig_list[i] + 1;
     }
-    fTextRec.push_back( new TText( 0.02, 0.06, textstr.str().c_str() ) );
+    fTextRec.push_back( new TText( 0.02, 0.06, i_stext.str().c_str() ) );
     
     sprintf( iText, "Ze, Az: [%.1f, %.1f] deg, X/Yoff: [%.2f, %.2f] deg, X/Ycore: [%.0f, %.0f ] m",
              fData->getShowerParameters()->fShowerZe[iM], fData->getShowerParameters()->fShowerAz[iM],

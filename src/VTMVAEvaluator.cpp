@@ -627,7 +627,7 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
     // smooth and Interpolate
     if( fParticleNumberFileName.size() > 0 && fSmoothAndInterpolateMVAValues )
     {
-        smoothAndInterpolateMVAValue( 0, 0, 
+        smoothAndInterpolateMVAValue( 
                  iWeightFileIndex_Emin, iWeightFileIndex_Emax, 
                  iWeightFileIndex_Zmin, iWeightFileIndex_Zmax, 
                  iEnergyStepSize );
@@ -2908,7 +2908,7 @@ bool VTMVAEvaluator::optimizeSensitivity_using_qfactor( TH1D* effS, TH1D* effB,
  note: signal and background efficiencies are not updated
 
 */
-void VTMVAEvaluator::smoothAndInterpolateMVAValue( TH1D* effS, TH1D* effB,
+void VTMVAEvaluator::smoothAndInterpolateMVAValue( 
         unsigned int iWeightFileIndex_Emin,
         unsigned int iWeightFileIndex_Emax,
         unsigned int iWeightFileIndex_Zmin,

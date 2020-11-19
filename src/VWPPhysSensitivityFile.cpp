@@ -63,7 +63,6 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         int iEnergyAxisFineBinning, unsigned int iOffsetCounter )
 {
 
-    char hname[200];
     char htitle[200];
     fOffsetCounter = iOffsetCounter;
     
@@ -71,12 +70,13 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
     int iEnergyXaxisNbinsEffArea = 2 * iEnergyXaxisNbins;
     
     // integrated sensitivity
-    sprintf( hname, "IntSens" );
+    stringstream is_text;
+    is_text << "IntSens";
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fIntSensitivity = new TH1F( hname, "Int. Sens.", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fIntSensitivity = new TH1F( is_text.str().c_str(), "Int. Sens.", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fIntSensitivity->SetXTitle( "log_{10} (E_{th}/TeV)" );
     fIntSensitivity->SetYTitle( "E_{th} times IntegratedFluxSensitivity(E>E_{th}) [erg cm^{-2} s^{-1}]" );
     fIntSensitivity->Print();
@@ -86,12 +86,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fIntSensitivity );
     }
     
-    sprintf( hname, "IntSensCU" );
+    is_text.str("IntSensCU");
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fIntSensitivityCU = new TH1F( hname, "Int. Sens. (CU)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fIntSensitivityCU = new TH1F( is_text.str().c_str(), "Int. Sens. (CU)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fIntSensitivityCU->SetXTitle( "log_{10} (E_{th}/TeV)" );
     fIntSensitivityCU->SetYTitle( "Integral Flux Sensitivity (E>E_{th}) [C.U.]" );
     fIntSensitivityCU->Print();
@@ -102,12 +102,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
     }
     
     // sensitivity and background rates
-    sprintf( hname, "DiffSens" );
+    is_text.str("DiffSens");
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fSensitivity = new TH1F( hname, "Diff. Sens.", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fSensitivity = new TH1F( is_text.str().c_str(), "Diff. Sens.", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fSensitivity->SetXTitle( "log_{10} (E/TeV)" );
     fSensitivity->SetYTitle( "E^{2} dF/dE [erg cm^{-2} s^{-1}]" );
     fSensitivity->Print();
@@ -117,12 +117,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fSensitivity );
     }
     
-    sprintf( hname, "DiffSensCU" );
+    is_text.str("DiffSensCU" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fSensitivityCU = new TH1F( hname, "Diff. Sens. (CU)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fSensitivityCU = new TH1F( is_text.str().c_str(), "Diff. Sens. (CU)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fSensitivityCU->SetXTitle( "log_{10} (E/TeV)" );
     fSensitivityCU->SetYTitle( "Differential Flux Sensitivity [C.U.]" );
     fSensitivityCU->Print();
@@ -135,14 +135,14 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
     // sensitivity limits (for on source only)
     if( fOffsetCounter == 9999 )
     {
-        sprintf( hname, "DiffSens_Significance" );
-        fSensitivityLimits.push_back( new TH1F( hname, "Diff. Sens. (significance limit)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max ) );
-        sprintf( hname, "DiffSens_EventNumber" );
-        fSensitivityLimits.push_back( new TH1F( hname, "Diff. Sens. (event number limit)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max ) );
-        sprintf( hname, "DiffSens_SystematicsCuts" );
-        fSensitivityLimits.push_back( new TH1F( hname, "Diff. Sens. (systematics limit)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max ) );
-        sprintf( hname, "DiffSens_OffEvents" );
-        fSensitivityLimits.push_back( new TH1F( hname, "Diff. Sens. (off number limit)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max ) );
+        is_text.str( "DiffSens_Significance" );
+        fSensitivityLimits.push_back( new TH1F( is_text.str().c_str(), "Diff. Sens. (significance limit)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max ) );
+        is_text.str( "DiffSens_EventNumber" );
+        fSensitivityLimits.push_back( new TH1F( is_text.str().c_str(), "Diff. Sens. (event number limit)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max ) );
+        is_text.str( "DiffSens_SystematicsCuts" );
+        fSensitivityLimits.push_back( new TH1F( is_text.str().c_str(), "Diff. Sens. (systematics limit)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max ) );
+        is_text.str( "DiffSens_OffEvents" );
+        fSensitivityLimits.push_back( new TH1F( is_text.str().c_str(), "Diff. Sens. (off number limit)", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max ) );
         
         for( unsigned int i = 0; i < fSensitivityLimits.size(); i++ )
         {
@@ -157,9 +157,10 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         
         for( unsigned int i = 0; i < fSensitivityLimits.size(); i++ )
         {
-            sprintf( hname, "%s_CU", fSensitivityLimits[i]->GetName() );
+            is_text.str("");
+            is_text << fSensitivityLimits[i]->GetName() << "_CU";
             sprintf( htitle, "%s (CU)", fSensitivityLimits[i]->GetTitle() );
-            fSensitivityCULimits.push_back( new TH1F( hname, htitle, iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max ) );
+            fSensitivityCULimits.push_back( new TH1F( is_text.str().c_str(), htitle, iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max ) );
             fSensitivityCULimits[i]->SetXTitle( "log_{10} (E/TeV)" );
             fSensitivityCULimits[i]->SetYTitle( "Differential Flux Sensitivity [C.U.]" );
             fSensitivityCULimits[i]->SetLineColor( i + 2 );
@@ -170,12 +171,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         }
     }
     
-    sprintf( hname, "BGRate" );
+    is_text.str("BGRate" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fBGRate = new TH1F( hname, "Background Rate", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fBGRate = new TH1F( is_text.str().c_str(), "Background Rate", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fBGRate->SetXTitle( "log_{10} (E/TeV)" );
     fBGRate->SetYTitle( "background rate [1/s]" );
     hisList.push_back( fBGRate );
@@ -184,12 +185,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fBGRate );
     }
     
-    sprintf( hname, "ProtRate" );
+    is_text.str("ProtRate" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fProtRate = new TH1F( hname, "Proton Rate", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fProtRate = new TH1F( is_text.str().c_str(), "Proton Rate", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fProtRate->SetXTitle( "log_{10} (E/TeV)" );
     fProtRate->SetYTitle( "background proton rate [1/s]" );
     hisList.push_back( fProtRate );
@@ -198,12 +199,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fProtRate );
     }
     
-    sprintf( hname, "ElecRate" );
+    is_text.str( "ElecRate" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fElecRate = new TH1F( hname, "Electron Rate", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fElecRate = new TH1F( is_text.str().c_str(), "Electron Rate", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fElecRate->SetXTitle( "log_{10} (E/TeV)" );
     fElecRate->SetYTitle( "background electron rate [1/s]" );
     hisList.push_back( fElecRate );
@@ -212,12 +213,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fElecRate );
     }
     
-    sprintf( hname, "BGRatePerSqDeg" );
+    is_text.str( "BGRatePerSqDeg" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fBGRateSqDeg = new TH1F( hname, "Background rate per square degree", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fBGRateSqDeg = new TH1F( is_text.str().c_str(), "Background rate per square degree", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fBGRateSqDeg->SetXTitle( "log_{10} (E/TeV)" );
     fBGRateSqDeg->SetYTitle( "background rate [1/s/deg^{2}]" );
     hisList.push_back( fBGRateSqDeg );
@@ -226,12 +227,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fBGRateSqDeg );
     }
     
-    sprintf( hname, "ProtRateSqDeg" );
+    is_text.str( "ProtRateSqDeg" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fProtRateSqDeg = new TH1F( hname, "Proton Rate per square degree", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fProtRateSqDeg = new TH1F( is_text.str().c_str(), "Proton Rate per square degree", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fProtRateSqDeg->SetXTitle( "log_{10} (E/TeV)" );
     fProtRateSqDeg->SetYTitle( "background proton rate [1/s/deg^{2}]" );
     hisList.push_back( fProtRateSqDeg );
@@ -240,12 +241,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fProtRateSqDeg );
     }
     
-    sprintf( hname, "ElecRateSqDeg" );
+    is_text.str( "ElecRateSqDeg" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fElecRateSqDeg = new TH1F( hname, "electron Rate per square degree", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fElecRateSqDeg = new TH1F( is_text.str().c_str(), "electron Rate per square degree", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fElecRateSqDeg->SetXTitle( "log_{10} (E/TeV)" );
     fElecRateSqDeg->SetYTitle( "background electron rate [1/s/deg^{2}]" );
     hisList.push_back( fElecRateSqDeg );
@@ -254,12 +255,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fElecRateSqDeg );
     }
     
-    sprintf( hname, "EffectiveArea" );
+    is_text.str( "EffectiveArea" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fEffArea = new TH1F( hname, "Effective Area", iEnergyXaxisNbinsEffArea, iEnergyXaxis_min, iEnergyXaxis_max );
+    fEffArea = new TH1F( is_text.str().c_str(), "Effective Area", iEnergyXaxisNbinsEffArea, iEnergyXaxis_min, iEnergyXaxis_max );
     fEffArea->SetXTitle( "log_{10} (E/TeV)" );
     fEffArea->SetYTitle( "effective area [m^{2}]" );
     hisList.push_back( fEffArea );
@@ -268,12 +269,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fEffArea );
     }
     
-    sprintf( hname, "EffectiveAreaEtrue" );
+    is_text.str( "EffectiveAreaEtrue" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fEffAreaMC = new TH1F( hname, "Effective Area in true energy", iEnergyXaxisNbinsEffArea, iEnergyXaxis_min, iEnergyXaxis_max );
+    fEffAreaMC = new TH1F( is_text.str().c_str(), "Effective Area in true energy", iEnergyXaxisNbinsEffArea, iEnergyXaxis_min, iEnergyXaxis_max );
     fEffAreaMC->SetXTitle( "log_{10} (E_{MC}/TeV)" );
     fEffAreaMC->SetYTitle( "effective area [m^{2}]" );
     fEffAreaMC->SetLineColor( 2 );
@@ -282,12 +283,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
     {
         hisListToDisk.push_back( fEffAreaMC );
     }
-    sprintf( hname, "EffectiveAreaEtrueNoTheta2cut" );
+    is_text.str( "EffectiveAreaEtrueNoTheta2cut" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fEffAreaMCNoTheta2cut = new TH1F( hname, "Effective Area in true energy (no direction cut)", iEnergyXaxisNbinsEffArea, iEnergyXaxis_min, iEnergyXaxis_max );
+    fEffAreaMCNoTheta2cut = new TH1F( is_text.str().c_str(), "Effective Area in true energy (no direction cut)", iEnergyXaxisNbinsEffArea, iEnergyXaxis_min, iEnergyXaxis_max );
     fEffAreaMCNoTheta2cut->SetXTitle( "log_{10} (E_{MC}/TeV)" );
     fEffAreaMCNoTheta2cut->SetYTitle( "effective area [m^{2}]" );
     fEffAreaMCNoTheta2cut->SetLineColor( 2 );
@@ -297,12 +298,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fEffAreaMCNoTheta2cut );
     }
     
-    sprintf( hname, "EffectiveAreaNoTheta2cut" );
+    is_text.str( "EffectiveAreaNoTheta2cut" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fEffAreaNoTheta2cut = new TH1F( hname, "Effective Area (no direction cut)", iEnergyXaxisNbinsEffArea, iEnergyXaxis_min, iEnergyXaxis_max );
+    fEffAreaNoTheta2cut = new TH1F( is_text.str().c_str(), "Effective Area (no direction cut)", iEnergyXaxisNbinsEffArea, iEnergyXaxis_min, iEnergyXaxis_max );
     fEffAreaNoTheta2cut->SetXTitle( "log_{10} (E/TeV)" );
     fEffAreaNoTheta2cut->SetYTitle( "effective area [m^{2}]" );
     fEffAreaNoTheta2cut->SetLineColor( 2 );
@@ -312,12 +313,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fEffAreaNoTheta2cut );
     }
     
-    sprintf( hname, "EffectiveArea80" );
+    is_text.str( "EffectiveArea80" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fEffArea80 = new TH1F( hname, "Effective Area for 80% point-source containment", iEnergyXaxisNbinsEffArea, iEnergyXaxis_min, iEnergyXaxis_max );
+    fEffArea80 = new TH1F( is_text.str().c_str(), "Effective Area for 80% point-source containment", iEnergyXaxisNbinsEffArea, iEnergyXaxis_min, iEnergyXaxis_max );
     fEffArea80->SetXTitle( "log_{10} (E/TeV)" );
     fEffArea80->SetYTitle( "effective area [m^{2}]" );
     hisList.push_back( fEffArea80 );
@@ -367,18 +368,19 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         }
         if( fAngRes[i].fContainmentRadius == "68" )
         {
-            sprintf( hname, "%s", i_hisname.c_str() );
+            is_text.str(i_hisname.c_str()); 
         }
         else
         {
-            sprintf( hname, "%s%s", i_hisname.c_str(), fAngRes[i].fContainmentRadius.c_str() );
+            is_text.str("");
+            is_text << i_hisname << fAngRes[i].fContainmentRadius;
         }
         if( fOffsetCounter < 9999 )
         {
-            sprintf( hname, "%s_%d", hname, fOffsetCounter );
+            is_text << "_" << fOffsetCounter;
         }
         
-        fAngRes[i].fHisAngRes = new TH1F( hname, htitle, iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+        fAngRes[i].fHisAngRes = new TH1F( is_text.str().c_str(), htitle, iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
         fAngRes[i].fHisAngRes->SetXTitle( ( "log_{10} (E_{" + fAngRes[i].fEnergyAxis + "}/TeV)" ).c_str() );
         fAngRes[i].fHisAngRes->SetYTitle( ( "containment radius (" + fAngRes[i].fContainmentRadius + "\% containment)" ).c_str() );
         hisList.push_back( fAngRes[i].fHisAngRes );
@@ -389,12 +391,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
     }
     
     // energy resolution
-    sprintf( hname, "ERes" );
+    is_text.str( "ERes" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fEres = new TH1F( hname, "Energy resolution", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fEres = new TH1F( is_text.str().c_str(), "Energy resolution", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fEres->SetXTitle( "log_{10} (E/TeV)" );
     //   fEres->SetYTitle( "Relative Energy resolution (68% containment around Eres/Etrue=1)" );
     fEres->SetYTitle( "energy resolution (RMS)" );
@@ -404,12 +406,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fEres );
     }
     
-    sprintf( hname, "Ebias" );
+    is_text.str( "Ebias" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fEbias = new TH1F( hname, "Energy bias (mean E_{rec}/E_{MC})", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
+    fEbias = new TH1F( is_text.str().c_str(), "Energy bias (mean E_{rec}/E_{MC})", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fEbias->SetXTitle( "log_{10} (E/TeV)" );
     fEbias->SetYTitle( "energy reconstruction bias (<E_{rec}/E_{MC}>)" );
     hisList.push_back( fEbias );
@@ -418,12 +420,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fEbias );
     }
     // histogram with theta2
-    sprintf( hname, "Theta2Cut" );
+    is_text.str( "Theta2Cut" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fTheta2 = new TH1F( hname, "direction cut (#Theta^{2} cut)", iEnergyAxisFineBinning, iEnergyXaxis_min, iEnergyXaxis_max );
+    fTheta2 = new TH1F( is_text.str().c_str(), "direction cut (#Theta^{2} cut)", iEnergyAxisFineBinning, iEnergyXaxis_min, iEnergyXaxis_max );
     fTheta2->SetXTitle( "log_{10} (E/TeV)" );
     fTheta2->SetYTitle( "#Theta^{2} cut [deg^{2}]" );
     hisList.push_back( fTheta2 );
@@ -432,12 +434,12 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fTheta2 );
     }
     
-    sprintf( hname, "ThetaCut" );
+    is_text.str( "ThetaCut" );
     if( fOffsetCounter < 9999 )
     {
-        sprintf( hname, "%s_%d", hname, fOffsetCounter );
+        is_text << "_" << fOffsetCounter;
     }
-    fTheta = new TH1F( hname, "direction cut (#Theta cut)", iEnergyAxisFineBinning, iEnergyXaxis_min, iEnergyXaxis_max );
+    fTheta = new TH1F( is_text.str().c_str(), "direction cut (#Theta cut)", iEnergyAxisFineBinning, iEnergyXaxis_min, iEnergyXaxis_max );
     fTheta->SetXTitle( "log_{10} (E/TeV)" );
     fTheta->SetYTitle( "#Theta cut [deg]" );
     hisList.push_back( fTheta );

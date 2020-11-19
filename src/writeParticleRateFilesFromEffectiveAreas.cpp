@@ -191,26 +191,23 @@ int main( int argc, char* argv[] )
     cout << "STARTING SUBARRAY " << SubArray << endl;
     
     // on-axis rates
-    if( iMC_Gamma_onSource.size() > 0 )
+    sprintf( iParticleNumberFile, "%s/ParticleNumbers.%s.00.root", iDataDir.c_str(), SubArray.c_str() );
+    sprintf( iGamma, "%s/%s.%s_ID%d.eff-%d.root", iDataDir.c_str(), iMC_Gamma_onSource.c_str(), SubArray.c_str(), iRecID, 0 );
+    sprintf( iProton, "%s/%s.%s_ID%d.eff-%d.root", iDataDir.c_str(), iMC_Proton_onSource.c_str(), SubArray.c_str(), iRecID, 0 );
+    if( iMC_Electron_onSource.size() > 0 )
     {
-        sprintf( iParticleNumberFile, "%s/ParticleNumbers.%s.00.root", iDataDir.c_str(), SubArray.c_str() );
-        sprintf( iGamma, "%s/%s.%s_ID%d.eff-%d.root", iDataDir.c_str(), iMC_Gamma_onSource.c_str(), SubArray.c_str(), iRecID, 0 );
-        sprintf( iProton, "%s/%s.%s_ID%d.eff-%d.root", iDataDir.c_str(), iMC_Proton_onSource.c_str(), SubArray.c_str(), iRecID, 0 );
-        if( iMC_Electron_onSource.size() > 0 )
-        {
-            sprintf( iElectron, "%s/%s.%s_ID%d.eff-%d.root", iDataDir.c_str(), iMC_Electron_onSource.c_str(), SubArray.c_str(), iRecID, 0 );
-            writeParticleNumberFile( iGamma, iProton, iElectron, 5, iParticleNumberFile );
-        }
-        else
-        {
-            writeParticleNumberFile( iGamma, iProton, 0, 5, iParticleNumberFile );
-        }
-        // angular resolution histogram
-        if( iAngResDir.size() > 0 )
-        {
-            sprintf( iGamma, "%s/%s.%s_ID%d.eff-%d.root", iAngResDir.c_str(), iMC_Gamma_onSource.c_str(), SubArray.c_str(), iRecID, 0 );
-            writeAngResHistogram( iGamma, iParticleNumberFile );
-        }
+        sprintf( iElectron, "%s/%s.%s_ID%d.eff-%d.root", iDataDir.c_str(), iMC_Electron_onSource.c_str(), SubArray.c_str(), iRecID, 0 );
+        writeParticleNumberFile( iGamma, iProton, iElectron, 5, iParticleNumberFile );
+    }
+    else
+    {
+        writeParticleNumberFile( iGamma, iProton, 0, 5, iParticleNumberFile );
+    }
+    // angular resolution histogram
+    if( iAngResDir.size() > 0 )
+    {
+        sprintf( iGamma, "%s/%s.%s_ID%d.eff-%d.root", iAngResDir.c_str(), iMC_Gamma_onSource.c_str(), SubArray.c_str(), iRecID, 0 );
+        writeAngResHistogram( iGamma, iParticleNumberFile );
     }
     
     // off-axis rates

@@ -2243,7 +2243,7 @@ bool VGammaHadronCuts::applyTelTypeTest( bool bCount )
   x0, y0:   calculate theta2 relative to these points (-99999. if relative to MCx/yoff)
 
 */
-bool VGammaHadronCuts::applyDirectionCuts( unsigned int fEnergyReconstructionMethod, bool bCount, double x0, double y0 )
+bool VGammaHadronCuts::applyDirectionCuts( bool bCount, double x0, double y0 )
 {
     double theta2 = 0.;
     
@@ -2482,10 +2482,14 @@ bool VGammaHadronCuts::initAngularResolutionFile()
     else if( fF1AngResName == "IRF" )
     {
         char iTreeName[200];
-        sprintf( iTreeName, "t_angular_resolution" );
         if( getAngularResolutionContainmentRadius() - 68 != 0 )
         {
             sprintf( iTreeName, "t_angular_resolution_%03dp", getAngularResolutionContainmentRadius() );
+
+        }
+	      else
+	      {
+           sprintf( iTreeName, "t_angular_resolution" );
         }
         
         cout << "VGammaHadronCuts::initAngularResolutionFile: reading angular resolution graph from file (" << iTreeName << "):" << endl;
@@ -2820,7 +2824,7 @@ VNTelTypeCut::VNTelTypeCut()
  *   test if this is above the given threshold cut
  *
  */
-bool VNTelTypeCut::test( CData* c, bool iPrint )
+bool VNTelTypeCut::test( CData* c )
 {
     if( !c )
     {

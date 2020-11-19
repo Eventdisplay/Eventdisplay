@@ -290,13 +290,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         //   elevation-dependant template file names
         string ffrogsparameterfile;               // parameter file for frogs settings
         
-        // Model3D
-        bool fUseModel3D;                         // use Model3D analysis, JG
-        bool fUseDisplayModel3D;                  // display Model3D generated images, JG
-        bool fCreateLnLTable;                     // create lookup table for likelihood
-        string fLnLTableFile;                     // read lookup table for likelihood from this file
-        unsigned int fIDstartDirectionModel3D;    // reconstruction ID for starting values
-        
         // write pulse histograms to gain files
         int  fwriteLaserPulseN;                    // number of pulse histogram written to gain file
         bool fwriteAverageLaserPulse;              // write average laser pulse to file

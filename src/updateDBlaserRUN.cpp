@@ -1302,15 +1302,6 @@ void read_laserRUN_fromVOFFLINE_DB( vector < vector < unsigned int > >& VOFFLINE
     {
         while( TSQLRow* db_row = db_res->Next() )
         {
-            if( !db_row )
-            {
-                cout << "WARNING read_laserRUN_fromVOFFLINE_DB: failed reading a row from DB " << endl;
-                VOFFLINE_DB_LaserRunNumber_Telnum.push_back( i_VOFFLINE_DB_LaserRunNumber_Tel );
-                VOFFLINE_DB_LaserDate_Telnum.push_back( i_VOFFLINE_DB_Laserdate_Tel );
-                VOFFLINE_DB_LaserVersion_Telnum.push_back( i_VOFFLINE_DB_Laserversion_Tel );
-                return;
-            }
-            
             if( atoi( db_row->GetField( 0 ) ) == forget_this_run )
             {
                 continue;

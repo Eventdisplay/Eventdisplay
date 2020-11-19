@@ -23,7 +23,6 @@
 #include "VShowerParameters.h"
 #include "VFrogsParameters.h"
 //#include "VFrogsImageData.h"
-#include "VModel3DParameters.h"
 #include "VPointing.h"
 #include "VArrayPointing.h"
 #include "VTraceHandler.h"
@@ -127,7 +126,6 @@ class VEvndispData
         static VShowerParameters* fShowerParameters;
         static VFrogsParameters* fFrogsParameters;
         //	static vector< VFrogImageData* > fFrogsData;    //!< frogs Template tube information
-        static VModel3DParameters* fModel3DParameters;
         static VMCParameters* fMCParameters;      //!< data class with MC parameters
         
         // timing results
@@ -802,10 +800,6 @@ class VEvndispData
         {
             return fFrogsParameters;
         }
-        VModel3DParameters* getModel3DParameters()
-        {
-            return fModel3DParameters;
-        }
         int                 getSumFirst()
         {
             return fRunPar->fsumfirst[fTelID];
@@ -833,14 +827,6 @@ class VEvndispData
         double              getTemplateMuMax()
         {
             return fAnaData[fTelID]->fTemplateMu.max();
-        }
-        valarray<double>&   getModel3DMu()
-        {
-            return fAnaData[fTelID]->fModel3DMu;
-        }
-        vector<bool>&       getModel3DClean()
-        {
-            return fAnaData[fTelID]->fModel3DClean;
         }
         unsigned int        getLargestSumWindow();
         unsigned int        getLargestSumWindow( unsigned int iTelID );
@@ -1098,7 +1084,7 @@ class VEvndispData
         }
         vector< valarray< double > >& getPulseTiming( bool iCorrected = true );
         valarray<double>&   getPulseTime( bool iCorrected = true );
-		valarray<double>&   getTTrigger( bool iCorrected = true )
+		valarray<double>&   getTTrigger()
 		{
 			return fAnaData[fTelID]->getTTrigger();
 		}
@@ -1592,14 +1578,6 @@ class VEvndispData
         void                setTemplateMu( valarray< double > iVTemplateMu )
         {
             fAnaData[fTelID]->fTemplateMu = iVTemplateMu;
-        }
-        void                setModel3DMu( valarray< double > iVModel3DMu )
-        {
-            fAnaData[fTelID]->fModel3DMu = iVModel3DMu;
-        }
-        void                setModel3DClean( vector<bool> iVModel3DClean )
-        {
-            fAnaData[fTelID]->fModel3DClean = iVModel3DClean;
         }
         void                setTCorrectedSumFirst( unsigned int iT )
         {

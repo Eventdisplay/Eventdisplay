@@ -791,7 +791,7 @@ void VDispAnalyzer::calculateExpectedDirectionError( unsigned int i_ntel,
  * calculate x coordinate from disp, centroid, and image line orientation
  *
 */
-float VDispAnalyzer::getXcoordinate_disp( unsigned int ii, float x, float cosphi )
+float VDispAnalyzer::getXcoordinate_disp( unsigned int ii )
 {
     // disp table analysis
     if( fDispTableAnalyzer )
@@ -811,7 +811,7 @@ float VDispAnalyzer::getXcoordinate_disp( unsigned int ii, float x, float cosphi
  * calculate y coordinate from disp, centroid, and image line orientation
  *
 */
-float VDispAnalyzer::getYcoordinate_disp( unsigned int ii, float y, float sinphi )
+float VDispAnalyzer::getYcoordinate_disp( unsigned int ii )
 {
     if( fDispTableAnalyzer )
     {
@@ -1139,7 +1139,8 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
                                   ( float )img_cen_x[i], ( float )img_cen_y[i],
                                   ( float )xoff_4, ( float )yoff_4, ( ULong64_t )iTelType[i],
                                   ( float )( 90. - iArrayElevation ), ( float )iArrayAzimuth,
-                                  ( float )iRcore[i], -1., ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
+                                  ( float )iRcore[i], -1.,
+                                  ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
                                   ( float )img_fui[i], ( float )img_ntubes[i] );
         }
         else
@@ -1161,7 +1162,7 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
     float i_xrot, i_yrot, i_zrot = 0.;
     float xcoreSC = 0.;
     float ycoreSC = 0.;
-    i_A.tel_impact( i_xcos, i_ycos, xcoreSR, xcoreSR, 0., &xcoreSC, &ycoreSC, &i_zrot, false );
+    i_A.tel_impact( i_xcos, i_ycos, xcoreSR, ycoreSR, 0., &xcoreSC, &ycoreSC, &i_zrot, false );
     
     float m = 0.;
     float theta = 0.;

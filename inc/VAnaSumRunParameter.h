@@ -182,10 +182,6 @@ class VAnaSumRunParameter : public TNamed, public VGlobalRunParameter
         unsigned int fWriteEventTree;   // 0=don't fill the event tree; 1=write all events; 2=write events after direction cuts (default)
         bool fWriteEventTreeForCtools ; // WRITEEVENTTREEFORCTOOLS (same as fWriteEventTree=1)
         
-        // advanced analysis codes
-        bool fModel3D;
-        bool fDirectionModel3D;
-        
         // Likelihood Spectral Analysis
         bool fLikelihoodAnalysis;
         

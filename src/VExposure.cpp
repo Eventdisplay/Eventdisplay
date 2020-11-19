@@ -1686,8 +1686,6 @@ void VExposure::printListOfRuns( string iCatalogue, double iR, double iMinDurati
         fEventList_inFOV_noTevcat = new TEventList( "V_noPointing" );
     }
     
-    
-    char iTexTable[2000];
     set< string > iVERITAS_targets;
     
     double r_centre = 0.;
@@ -1807,107 +1805,6 @@ void VExposure::printListOfRuns( string iCatalogue, double iR, double iMinDurati
                     fEventList_inFOV_noTevcat->Enter( i );
                 }
             }
-            ///////////////////////////////////
-            // add a line to the tex table
-            ///////////////////////////////////
-            // green: known TeV source
-            if( tev_select >= 0 && tev->getStarName( tev_select ) != "NONAME" )
-            {
-                sprintf( iTexTable, "{\\color{green} %s}", s->getStarName( i ).c_str() );
-            }
-            else if( r_tot > 3600.*3. &&  r_VA_object_mean / r_N > 0.1 )
-            {
-                sprintf( iTexTable, "{\\color{red} %s}", s->getStarName( i ).c_str() );
-            }
-            else
-            {
-                sprintf( iTexTable, "%s ", s->getStarName( i ).c_str() );
-            }
-            sprintf( iTexTable, "%s & (%.1f,%.1f) & ", iTexTable, s->getStar_l( i ), s->getStar_b( i ) );
-            if( s->getStarFlux( i ).size() > 0 )
-            {
-                sprintf( iTexTable, "%s %.1f/%.1f & ", iTexTable, s->getStarFlux( i )[s->getStarFlux( i ).size() - 1] / 1.e-10, s->getStarSpectralIndex( i ) );
-                fTexTable_EFlux_min = s->getStarFluxEnergyMin( i )[s->getStarFlux( i ).size() - 1];
-                fTexTable_EFlux_max = s->getStarFluxEnergyMax( i )[s->getStarFlux( i ).size() - 1];
-            }
-            else
-            {
-                sprintf( iTexTable, "%s & -", iTexTable );
-            }
-            set<string>::iterator it_set;
-            int z = 0;
-            for( it_set = iVERITAS_targets.begin(); it_set != iVERITAS_targets.end(); it_set++ )
-            {
-                string a = VUtilities::search_and_replace( *it_set, "_", " " );
-                if( iVERITAS_targets.size() == 1 )
-                {
-                    sprintf( iTexTable, "%s %s  ", iTexTable, a.c_str() );
-                }
-                else if( z < ( int )( iVERITAS_targets.size() ) - 1 )
-                {
-                    sprintf( iTexTable, "%s %s, ", iTexTable, a.c_str() );
-                }
-                //		 else                                  sprintf( iTexTable, "%s %s ", iTexTable, a.c_str() );
-                else
-                {
-                    sprintf( iTexTable, "%s ...", iTexTable );
-                }
-                if( z > 0 )
-                {
-                    break;
-                }
-                z++;
-            }
-            sprintf( iTexTable, "%s & %.1f", iTexTable, r_VA_object_mean / r_N );
-            sprintf( iTexTable, "%s & %.1f", iTexTable, r_centre_mean / r_N );
-            sprintf( iTexTable, "%s & %d", iTexTable, ( int )( r_meanElevation / r_N ) );
-            sprintf( iTexTable, "%s & %.1f (%.1f)", iTexTable, r_tot / 3600., r_tot_V5 / 3600. );
-            if( tev_select >= 0 && tev->getStarName( tev_select ) != "NONAME" )
-            {
-                string a = VUtilities::search_and_replace( tev->getStarName( tev_select ), "_", " " );
-                sprintf( iTexTable, "%s & {\\color{green} %s}", iTexTable, a.c_str() );
-            }
-            else
-            {
-                if( s->getStarType( i ).size() > 1 )
-                {
-                    sprintf( iTexTable, "%s & {\\textit %s}", iTexTable, s->getStarType( i ).c_str() );
-                }
-                else
-                {
-                    sprintf( iTexTable, "%s &", iTexTable );
-                }
-                if( s->getStarAssociations( i ).size() > 0 )
-                {
-                    sprintf( iTexTable, "%s, ", iTexTable );
-                    z = 0;
-                    sprintf( iTexTable, "%s", iTexTable );
-                    for( unsigned int o = 0; o < s->getStarAssociations( i ).size(); o++ )
-                    {
-                        if( s->getStarAssociations( i )[o].size() > 3 )
-                        {
-                            if( z < ( int )s->getStarAssociations( i ).size() - 1 )
-                            {
-                                sprintf( iTexTable, "%s %s,", iTexTable, s->getStarAssociations( i )[o].c_str() );
-                            }
-                            else
-                            {
-                                sprintf( iTexTable, "%s %s", iTexTable, s->getStarAssociations( i )[o].c_str() );
-                            }
-                            
-                            if( z > 2 )
-                            {
-                                break;
-                            }
-                            z++;
-                        }
-                    }
-                }
-            }
-            //	     else sprintf( iTexTable, "%s & ", iTexTable );
-            sprintf( iTexTable, "%s \\\\", iTexTable );
-            string iTe = iTexTable;
-            fTexTable.push_back( iTe );
         }
     }
     if( fEventList_tevcat )
@@ -1926,50 +1823,6 @@ void VExposure::printListOfRuns( string iCatalogue, double iR, double iMinDurati
     {
         fEventListfile->Close();
     }
-}
-
-void VExposure::printTexTable()
-{
-    if( fTexTable.size() == 0 )
-    {
-        cout << "Error: no entries in tex table" << endl;
-        return;
-    }
-    // print header
-    cout << "\\documentclass{article}" << endl;
-    cout << "\\usepackage[pdftex]{graphicx,color}" << endl;
-    cout << "\\usepackage{longtable}" << endl;
-    cout << "\\usepackage{lscape}" << endl;
-    cout << "\\usepackage{a4wide}" << endl;
-    cout << "\\usepackage{nopageno}" << endl;
-    cout << "\\usepackage[pdftex,colorlinks=true,bookmarks=true,bookmarksopen=true]{hyperref}" << endl;
-    cout << "\\pagestyle{plain}" << endl;
-    cout << "\\renewcommand{\\baselinestretch}{1.5}" << endl;
-    cout << "\\begin{document}" << endl;
-    
-    // print table
-    cout << "\\begin{footnotesize}" << endl;
-    cout << "\\begin{landscape}" << endl;
-    cout << "\\begin{longtable}{l|c|c|c|c|c|c|c|c}" << endl;
-    cout << "Name & (l,b) & Flux/index                                                                  & VERITAS & distance to    & average             & mean      & total time                & remarks \\\\" << endl;
-    cout << "     &       & (" << ( int )fTexTable_EFlux_min << "," << ( int )fTexTable_EFlux_max << ") GeV & target  & VERITAS        & distance to         & elevation & (new array                & \\\\" << endl;
-    cout << "     &       &  $10^{-10}$                                                                        &         & target         & camera centre       &           & configuration)            &       \\\\" << endl;
-    cout << "     &       &          [ph/cm$^{-2}$ s$^{-1}$]                                                              &           &    [deg]       &   [deg]             &  [deg]    &   [h]                     &       \\\\" << endl;
-    cout << "\\endhead" << endl;
-    cout << "\\hline" << endl;
-    for( unsigned int i = 0; i < fTexTable.size(); i++ )
-    {
-        cout << fTexTable[i] << endl;
-        cout << "\\hline" << endl;
-    }
-    cout << "\\end{longtable}" << endl;
-    cout << "\\end{landscape}" << endl;
-    cout << "\\end{footnotesize}" << endl;
-    
-    cout << "\\end{document}" << endl;
-    
-    
-    
 }
 
 void VExposure::printShortRunList()
@@ -2654,17 +2507,25 @@ void VExposure::downloadRunList()
             {
                 sprintf( mkdir_string, "mkdir %s", filepath );
                 cout << "COMMAND: " << mkdir_string << endl;
-                system( mkdir_string );
+                if( system( mkdir_string ) != 0 )
+		{
+		    cout << "error mkdir " << filepath << endl;
+		    exit( EXIT_FAILURE );
+                }
                 sprintf( permission_string, "chmod g+sw %s", filepath );
                 cout << "COMMAND: " << permission_string << endl;
-                system( permission_string );
+		if( system( permission_string ) != 0 )
+		{
+		    cout << "error setting permissions" << endl;
+		    exit( EXIT_FAILURE );
+                }
             }
             
             if( system( "which bbftp" ) != 0 )
             {
                 cout << "ERROR: \"which bbftp\" shows no match. Install bbftp and add to you $PATH." << endl;
                 cout << "exiting ...." << endl;
-                exit( -1 );
+                exit( EXIT_FAILURE );
             }
             // Then Download
             sprintf( dl_string, "bbftp -V -S -p 12 -u bbftp -e \"get /veritas/data/d%d/%d.cvbf %s/data/d%d/%d.cvbf\" %s", fRunDownloadDate[i], fRunDownload[i],
@@ -2672,9 +2533,19 @@ void VExposure::downloadRunList()
                      getRawDataServer().c_str() );
             sprintf( permission_string , "chmod g+w %s", filename );
             cout << dl_string << endl;
-            system( dl_string );
+	    if( system( dl_string ) != 0 )
+	    {
+	        cout << "error downloading" << endl;
+		cout << dl_string << endl;
+		exit( EXIT_FAILURE );
+            }
             cout << permission_string << endl;
-            system( permission_string );
+	    if( system( permission_string ) != 0 )
+	    {
+	        cout << "error setting permissions" << endl;
+		cout << permission_string << endl;
+		exit( EXIT_FAILURE );
+            }
             
             checkMD5sum( fRunDownloadDate[i], fRunDownload[i] );
         }
@@ -2708,16 +2579,22 @@ void VExposure::downloadRunList()
                 {
                     sprintf( mkdir_string, "mkdir %s", filepath );
                     cout << "COMMAND: " << mkdir_string << endl;
-                    system( mkdir_string );
+                    if( system( mkdir_string ) != 0 )
+		    { 
+		        cout << "error making directory " << endl;
+                    }
                     sprintf( permission_string, "chmod g+sw %s", filepath );
                     cout << "COMMAND: " << permission_string << endl;
-                    system( permission_string );
+                    if( system( permission_string ) != 0 )
+		    { 
+		        cout << "error setting permissions" << endl;
+                    }
                 }
                 if( system( "which bbftp" ) != 0 )
                 {
                     cout << "ERROR: \"which bbftp\" shows no match. Install bbftp and add to you $PATH." << endl;
                     cout << "exiting ...." << endl;
-                    exit( -1 );
+                    exit( EXIT_FAILURE );
                 }
                 // Then Download
                 sprintf( dl_string, "bbftp -V -S -p 12 -u bbftp -e \"get /veritas/data/d%d/%d.cvbf %s/data/d%d/%d.cvbf\" %s", fLaserDownloadDate[i], fLaserDownload[i],
@@ -2727,9 +2604,15 @@ void VExposure::downloadRunList()
                 if( fLaserDownload[i] > 0 )
                 {
                     cout << dl_string << endl;
-                    system( dl_string );
+                    if( system( dl_string ) != 0 )
+		    {
+                        cout << "error downloading" << endl;
+                    }
                     cout << permission_string << endl;
-                    system( permission_string );
+                    if( system( permission_string ) != 0 )
+		    {
+                        cout << "error setting permission string" << endl;
+                    }
                     checkMD5sum( fLaserDownloadDate[i], fLaserDownload[i] );
                 }
                 else
@@ -2900,7 +2783,10 @@ TString VExposure::getArchiveMD5sum( int date, int run, bool force_download )
         {
             cout << "VExposure::getArchiveMD5sum Error: Problem executing command : " << dlcommand << endl;
         }
-        system( chmodcommand.Data() );
+	if( system( chmodcommand.Data() ) != 0 )
+	{
+	    cout << "error running " << dlcommand << endl;
+        }
         if( use_new_ucla_sumfile )
         {
             checksum = readMD5sumFromFile( UCLA_new_sumfilename, run );
@@ -3022,9 +2908,15 @@ TString VExposure::calcMD5sum( int date, int run )
         if( system( command.Data() ) == 0 )
         {
             command.Form( "rm %s", tempfilename.Data() );
-            system( command.Data() );
+	    if( system( command.Data() ) != 0 )
+	    {
+	        cout << "error calculating md5sum" << endl;
+            }
             command.Form( "chmod g+w %s", resultfilename.Data() );
-            system( command.Data() );
+            if( system( command.Data() ) != 0 )
+	    {
+	        cout << "error setting permissions" << endl;
+            }
         }
     }
     return checksum;

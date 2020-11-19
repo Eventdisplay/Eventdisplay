@@ -51,7 +51,7 @@ class VEvndispReconstructionCut : public TNamed
         void  print( unsigned int telType, string iCutName );
         bool  test( int iValue, int ntubes );
         bool  test( double iValue, int ntubes );
-        void  setCutValues( bool iCutSet );
+        void  setCutValues( bool iCutSet = false );
         void  setCutValues( int iMin, int iMax, int ntubes_min = -99999, int ntubes_max = -99999 );
         void  setCutValues( double iMin, double iMax, int ntubes_min = -99999, int ntubes_max = -99999 );
         
@@ -96,7 +96,7 @@ class VEvndispReconstructionParameterData : public TNamed
         bool              isValidTelescopeType( unsigned int iTelType );
         void              setDebug( bool iB = false )
         {
-            fDebug = false;
+            fDebug = iB;
         }
         void              setMethodID( unsigned int iMethodID );
         bool              test( unsigned int iTelType, string iVarName, double iVarD, int iNtubes );
@@ -122,7 +122,7 @@ class VEvndispReconstructionParameter : public TNamed
         vector< ULong64_t> fTel_typeUniqueVector;           // list of telescope types; length of vector: #of telescope types;
         vector< VEvndispReconstructionParameterData* > fReconstructionParameterData;  // one element per rec cut / method
         
-        void addNewMethod( unsigned int iRecordID, unsigned int iMethodID );
+        void addNewMethod( unsigned int iMethodID );
         bool fillImageCleaningParameter( vector< string > iTemp,
                                          int t_temp,
                                          vector< VImageCleaningRunParameter* >& iImageCleaningParameters );
@@ -132,16 +132,16 @@ class VEvndispReconstructionParameter : public TNamed
         bool readKeyWord_FADCSUMMATIONWINDOW( vector< string > iTemp, int t_temp );
         bool readKeyWord_FADCSUMMATIONSTART( vector< string > iTemp, int t_temp );
         bool readKeyWord_CLEANING( vector< string > iTemp, int t_temp );
-        bool readKeyWord_BRIGHTSTARS( vector< string > iTemp, int t_temp );
+        bool readKeyWord_BRIGHTSTARS( vector< string > iTemp );
         bool readKeyWord_LLEDGEFIT( vector< string > iTemp, int t_temp );
-        bool readKeyWord_FORCELL( vector< string > iTemp, int t_temp );
-        bool readKeyWord_CreateIPRdatabase( vector< string > iTemp, int t_temp );
-        bool readKeyWord_IPRdatabaseFile( vector< string > iTemp, int t_temp );
-        bool readKeyWord_ReadIPRfromDST( vector< string > iTemp, int t_temp );
-        bool readKeyWord_ReadIPRfromDatabase( vector< string > iTemp, int t_temp );
-        bool readKeyWord_IPRdatabase( vector< string > iTemp, int t_temp );
-        bool readKeyWord_WriteGraphsToFile( vector< string > iTemp, int t_temp );
-        bool readKeyWord_GraphsFile( vector< string > iTemp, int t_temp );
+        bool readKeyWord_FORCELL( vector< string > iTemp );
+        bool readKeyWord_CreateIPRdatabase( vector< string > iTemp );
+        bool readKeyWord_IPRdatabaseFile( vector< string > iTemp );
+        bool readKeyWord_ReadIPRfromDST( vector< string > iTemp );
+        bool readKeyWord_ReadIPRfromDatabase( vector< string > iTemp );
+        bool readKeyWord_IPRdatabase( vector< string > iTemp );
+        bool readKeyWord_WriteGraphsToFile( vector< string > iTemp );
+        bool readKeyWord_GraphsFile( vector< string > iTemp );
         bool readKeyWord_RECMETHOD( vector< string > iTemp, int t_temp, ULong64_t t_type );
         bool readKeyWord_NEIGHBOURS( vector< string > iTemp, int t_temp );
         bool readKeyWord_SQUARE( vector< string > iTemp, int t_temp );
@@ -175,6 +175,6 @@ class VEvndispReconstructionParameter : public TNamed
             fDebug = iD;
         }
         
-        ClassDef( VEvndispReconstructionParameter, 27 );
+        ClassDef( VEvndispReconstructionParameter, 28 );
 };
 #endif

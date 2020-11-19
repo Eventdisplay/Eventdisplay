@@ -151,9 +151,6 @@ map< ULong64_t, float > readCameraScalingMap( string iFile )
     string iT1;
     cout << "reading camera scaling configuration from " << iFile << endl;
     
-    ULong64_t teltype = 0;
-    float scaling = 0.;
-    
     while( getline( is, iLine ) )
     {
         if( iLine.size() > 0 && iLine.substr( 0, 1 ) == "*" )
@@ -163,12 +160,11 @@ map< ULong64_t, float > readCameraScalingMap( string iFile )
             if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iT1;
-                teltype = atoi( iT1.c_str() );
+                ULong64_t teltype = atoi( iT1.c_str() );
                 if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> iT1;
-                    scaling = atof( iT1.c_str() );
-                    iCameraScalingMap[teltype] = scaling;
+                    iCameraScalingMap[teltype] = atof( iT1.c_str() );
                     cout << "\t camera scaling for telescope type " << teltype << " :\t";
                     cout << 1. + iCameraScalingMap[teltype] << endl;
                 }
@@ -1471,7 +1467,6 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
             {
                 fDynRange = 0.;
             }
-            fCameraScaleFactor = 1.;
             fCameraCentreOffset = 0.;
             fCameraRotation = -1.*hsdata->camera_set[itel].cam_rot * TMath::RadToDeg();
 #if defined(CTA_PROD2)
@@ -1508,15 +1503,9 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
                     fYTubeMM[p] = hsdata->camera_set[itel].ypix[p] * 1.e3;
 #if defined(CTA_PROD3) || defined(CTA_MAX_SC) || defined(CTA_PROD3_MERGE)
                     // 0: circ., 1,3: hex, 2: square, -1: unknown
-                    if( fPixelShape[p] >= 0 )
-                    {
-                        fPixelShape[p] = ( unsigned int )hsdata->camera_set[itel].pixel_shape[p];
-                    }
-                    else
+                    fPixelShape[p] = ( unsigned int )hsdata->camera_set[itel].pixel_shape[p];
 #endif
-                    {
-                        fPixelShape[p] = 99;
-                    }
+                    fPixelShape[p] = 99;
 #if defined(CTA_PROD3) || defined(CTA_MAX_SC) || defined(CTA_PROD3_MERGE)
                     // use as size the radius of the active area of the tube
                     if( hsdata->camera_set[itel].pixel_shape[p] == 0
@@ -2036,8 +2025,8 @@ int main( int argc, char** argv )
         if( input_fname )
         {
             f_inputfilename = input_fname;
+            printf( "\nInput file '%s' has been opened.\n", input_fname );
         }
-        printf( "\nInput file '%s' has been opened.\n", input_fname );
         input_fname = NULL;
         
         fRunPara_InputFileName += f_inputfilename;

@@ -159,10 +159,6 @@ VAnaSumRunParameter::VAnaSumRunParameter()
     fWriteEventTreeForCtools = false ;
     fWriteEventTree = 2;
     
-    // model3D analysis
-    fModel3D = false; // MODEL3DANALYSIS
-    fDirectionModel3D = false; //USEDIRECTIONMODEL3D
-    
     // Binned Likelihood
     fLikelihoodAnalysis = false; 
 
@@ -686,10 +682,6 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
                 {
                     fReconstructionType = FROGS;
                 }
-                else if( temp2 == "MODEL3D" )
-                {
-                    fReconstructionType = MODEL3D;
-                }
                 else if( temp2 == "DEEPLEARNER" )
                 {
                     fReconstructionType = DEEPLEARNER;
@@ -761,25 +753,6 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
                 if( tmpWriteAll == 1 )
                 {
                     fWriteEventTreeForCtools = true ;
-                }
-            }
-            
-            /// use Model3D analysis ///
-            else if( temp == "MODEL3DANALYSIS" )
-            {
-                unsigned int tmpModel3D = ( unsigned int )atoi( temp2.c_str() ) ;
-                if( tmpModel3D == 1 )
-                {
-                    fModel3D = true;
-                }
-            }
-            /// use Model3D direction ///
-            else if( temp == "USEDIRECTIONMODEL3D" )
-            {
-                unsigned int tmpDirectionModel3D = ( unsigned int )atoi( temp2.c_str() ) ;
-                if( tmpDirectionModel3D == 1 )
-                {
-                    fDirectionModel3D = true;
                 }
             }
             /// enable likelihood analysis ///

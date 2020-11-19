@@ -115,11 +115,6 @@ VEventLoop::VEventLoop( VEvndispRunParameter* irunparameter )
         fFrogs = new VFrogs();
     }
 #endif
-    // Model3D
-    if( fRunPar->fUseModel3D )
-    {
-        fModel3D = new VModel3D();
-    }
     // reset cut strings and variables
     resetRunOptions();
 }
@@ -631,27 +626,6 @@ void VEventLoop::initializeAnalyzers()
         fDST->initialize();
     }
     
-    // initialize the model3D analysis
-    if( fRunPar->fUseModel3D && fModel3D )
-    {
-        if( getOutputFile() )
-        {
-            getOutputFile()->cd();
-            fModel3D->initialize();
-            if( fRunPar->fCreateLnLTable )
-            {
-                fModel3D->createLnLTable();
-                fRunPar->fUseModel3D = false;
-                exit( EXIT_FAILURE );
-            }
-        }
-        else
-        {
-            cout << "Error initialzing Model3D trees; no output file available" << endl;
-            exit( EXIT_FAILURE );
-        }
-    }
-    
     // set analysis data storage classes
     // (slight inconsistency, produce VImageAnalyzerData for all telescopes,
     //  not only for the requested ones (in teltoana))
@@ -826,10 +800,6 @@ void VEventLoop::shutdown()
         if( fArrayAnalyzer )
         {
             fArrayAnalyzer->terminate( fDebug_writing );
-        }
-        if( fRunPar->fUseModel3D && fModel3D )
-        {
-            fModel3D->terminate();
         }
 #ifndef NOGSL
         if( fRunPar->ffrogsmode )
@@ -1412,11 +1382,6 @@ int VEventLoop::analyzeEvent()
 #endif
         {
             fArrayAnalyzer->doAnalysis();
-            // Model3D analysis
-            if( fRunPar->fUseModel3D && fReader->hasArrayTrigger() )
-            {
-                fModel3D->doModel3D();
-            }
             // Frogs Analysis
 #ifndef NOGSL
             if( fRunPar->ffrogsmode )

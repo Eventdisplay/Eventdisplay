@@ -275,7 +275,7 @@ bool VTableCalculator::createMedianApprox( int i, int j )
     return true;
 }
 
-bool VTableCalculator::create1DHistogram( int i, int j, double w_first_event )
+bool VTableCalculator::create1DHistogram( int i, int j )
 {
     if( i >= 0 && j >= 0 && i < ( int )Oh.size() && j < ( int )Oh[i].size() && !Oh[i][j] )
     {
@@ -297,11 +297,7 @@ bool VTableCalculator::create1DHistogram( int i, int j, double w_first_event )
         Oh[i][j] = new TH1F( hisname, histitle, fBinning1DxbinsN, fBinning1Dxbins );
         Oh[i][j]->SetXTitle( fName.c_str() );
         // allow automatic rebinning
-#ifdef ROOT6
         Oh[i][j]->GetXaxis()->SetCanExtend( true );
-#else
-        Oh[i][j]->SetBit( TH1::kCanRebin );
-#endif
     }
     else
     {
@@ -506,11 +502,8 @@ void VTableCalculator::terminate( TDirectory* iOut, char* xtitle )
                 {
                     cout << "(" << hMedian->GetEntries() << " entries)";
                     delete hMedian;
-                    if( h )
-                    {
-                        h->SetName( n.c_str() );
-                        h->Write();
-                    }
+                    h->SetName( n.c_str() );
+                    h->Write();
                     delete h;
                 }
             }
@@ -709,7 +702,7 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                 {
                     if( fWrite1DHistograms && ir < ( int )Oh[is].size() )
                     {
-                        if( !Oh[is][ir] && !create1DHistogram( is, ir, w_fill[tel] ) )
+                        if( !Oh[is][ir] && !create1DHistogram( is, ir ) )
                         {
                             continue;
                         }

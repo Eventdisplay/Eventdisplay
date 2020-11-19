@@ -794,7 +794,7 @@ VInstrumentResponseFunctionData* VInstrumentResponseFunctionReader::getIRFFromFi
                 continue;
             }
         }
-        if( c && c->fResolutionGraph.size() > 0 )
+        if( c->fResolutionGraph.size() > 0 )
         {
             for( unsigned int r = 0; r < c->fResolutionGraph.size(); r++ )
             {
@@ -897,7 +897,6 @@ TGraphErrors* VInstrumentResponseFunctionReader::getEnergyResolutionMPropInterva
     TH1D i_h_zoffsetsHisto( "i_h_zoffsetsHisto", "", 1000., 0., 1. );
     
     int nbins = 0;
-    bXaxisIsEtrue = true;
     bXaxisIsEtrue = false;
     if( bXaxisIsEtrue )
     {

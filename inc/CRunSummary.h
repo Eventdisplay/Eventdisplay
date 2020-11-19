@@ -120,7 +120,7 @@ class CRunSummary : public TObject
         
         CRunSummary( TTree* tree = 0 );
         virtual ~CRunSummary();
-        virtual Int_t    Cut( Long64_t entry );
+//        virtual Int_t    Cut( Long64_t entry );
         virtual Int_t    GetEntry( Long64_t entry );
         virtual Long64_t LoadTree( Long64_t entry );
         virtual void     Init( TTree* tree );
@@ -377,12 +377,12 @@ void CRunSummary::Show( Long64_t entry )
 }
 
 
-Int_t CRunSummary::Cut( Long64_t entry )
+/*Int_t CRunSummary::Cut( Long64_t entry )
 {
     entry = 0;
     // This function may be called from Loop.
     // returns  1 if entry is accepted.
     // returns -1 otherwise.
     return 1;
-}
+} */
 #endif                                            // #ifdef CRunSummary_cxx

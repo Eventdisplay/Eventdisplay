@@ -208,7 +208,6 @@ void VEvndispData::resetAnaData()
         fAnaData[fTelID]->fCurrentSummationWindow_2 = fRunPar->fsumwindow_2[fTelID];
         
         fAnaData[fTelID]->fTemplateMu = 0;
-        fAnaData[fTelID]->fModel3DMu = 0;
     }
 }
 
@@ -347,7 +346,6 @@ bool VEvndispData::get_reconstruction_parameters( string ifile, bool iMakeNeighb
         {
             cout << "\t making list of neighbours for image cleaning";
             getDetectorGeometry()->makeNeighbourList( getRunParameter()->fNeighbourDistanceFactor,
-                    getRunParameter()->fNeighbourMultiplicity,
                     getRunParameter()->fSquarePixels );
             cout << "...done" << endl;
         }
@@ -1309,7 +1307,6 @@ VMCParameters* VEvndispData::fMCParameters = 0;
 VEvndispReconstructionParameter* VEvndispData::fEvndispReconstructionParameter = 0;
 VFrogsParameters* VEvndispData::fFrogsParameters = 0;
 //vector< VFrogImageData* > VEvndispData::fFrogData;
-VModel3DParameters* VEvndispData::fModel3DParameters = 0;
 
 // timing graphs
 vector< TGraphErrors* > VEvndispData::fXGraph;

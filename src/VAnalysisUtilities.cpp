@@ -527,19 +527,20 @@ TChain* VAnalysisUtilities::getTreeWithSelectedEvents( string iFile, bool iOn )
         return 0;
     }
     
-    char dname[200];
-    char hname[2000];
+
+    string dname;
+    ostringstream hname;
     if( iOn )
     {
-        sprintf( dname, "data_on" );
+	dname = "data_on";
     }
     else
     {
-        sprintf( dname, "data_off" );
+	dname = "data_off";
     }
     
     TTree* t = 0;
-    TChain* c = new TChain( dname );
+    TChain* c = new TChain( dname.c_str() );
     TDirectory* iDir = gDirectory;
     
     // get some numbers from the run summary tree
@@ -556,8 +557,8 @@ TChain* VAnalysisUtilities::getTreeWithSelectedEvents( string iFile, bool iOn )
             
             if( iRun != -1 )
             {
-                sprintf( hname, "%s/run_%d/stereo/%s", iFile.c_str(), iRun, dname );
-                c->Add( hname );
+		hname << iFile << "/run_" << iRun << "/stereo/" << dname;
+                c->Add( hname.str().c_str() );
             }
         }
     }

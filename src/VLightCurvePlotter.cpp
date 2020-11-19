@@ -362,10 +362,13 @@ TCanvas* VLightCurvePlotter::plotLightCurve( TCanvas* iCanvasLightCurve, string 
     {
         fCanvasLightCurve = iCanvasLightCurve;
         fCanvasLightCurve->cd();
-        sprintf( htitle, "hLightCurve" );
         if( fLightCurveTimeAxis_is_OrbitalPhase )
         {
             sprintf( htitle, "hLightCurve_%d_%d", ( int )fOrbitalPhaseData.fZeroPhase_MJD, ( int )fOrbitalPhaseData.fOrbit_days );
+        }
+	      else
+	      {
+            sprintf( htitle, "hLightCurve" );
         }
         hLightCurve = ( TH1D* )fCanvasLightCurve->GetListOfPrimitives()->FindObject( htitle );
         if( !hLightCurve )

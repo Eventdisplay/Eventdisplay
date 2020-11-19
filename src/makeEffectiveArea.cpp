@@ -144,7 +144,6 @@ int main( int argc, char* argv[] )
     vector< string > f_IRF_Name;
     vector< string > f_IRF_Type;
     vector< float >  f_IRF_ContainmentProbability;
-    string fCuts_AngularResolutionName = "";
     vector< unsigned int > f_IRF_DuplicationID;
     if( fRunPara->fFillingMode != 3 )
     {
@@ -188,15 +187,7 @@ int main( int argc, char* argv[] )
         cout << endl;
         f_IRF.push_back( new VInstrumentResponseFunction() );
         f_IRF.back()->setRunParameter( fRunPara );
-        if( fCuts_AngularResolutionName.size() > 0 && f_IRF_Name[i] == fCuts_AngularResolutionName )
-        {
-            f_IRF.back()->setContainmentProbability( ( ( double )fCuts->getAngularResolutionContainmentRadius() ) / 100. );
-            cout << "setting containment probability to " << f_IRF.back()->getContainmentProbability() << endl;
-        }
-        else
-        {
-            f_IRF.back()->setContainmentProbability( f_IRF_ContainmentProbability[i] );
-        }
+        f_IRF.back()->setContainmentProbability( f_IRF_ContainmentProbability[i] );
         f_IRF.back()->initialize( f_IRF_Name[i], f_IRF_Type[i],
                                   fRunPara->telconfig_ntel, fRunPara->fCoreScatterRadius,
                                   fRunPara->fze, fRunPara->fnoise, fRunPara->fpedvar, fRunPara->fXoff, fRunPara->fYoff );
@@ -236,13 +227,10 @@ int main( int argc, char* argv[] )
             {
                 f_IRF[i]->fillResolutionGraphs( f_IRF[f_IRF[i]->getDuplicationID()]->getIRFData() );
             }
-            if( fCuts_AngularResolutionName.size() > 0 && f_IRF_Name[i] == fCuts_AngularResolutionName )
+            if( fCuts->getDirectionCutSelector() == 2 )
             {
-                if( fCuts->getDirectionCutSelector() == 2 )
-                {
-                    fCuts->setIRFGraph( f_IRF[i]->getAngularResolutionGraph( 0, 0 ) );
-                    f_IRF[i]->getAngularResolutionGraph( 0, 0 )->Print();
-                }
+                fCuts->setIRFGraph( f_IRF[i]->getAngularResolutionGraph( 0, 0 ) );
+                f_IRF[i]->getAngularResolutionGraph( 0, 0 )->Print();
             }
         }
     }

@@ -92,7 +92,6 @@ class VPlotInstrumentResponseFunction : public VPlotUtilities, public VHistogram
                                             double iMin = -1.e99, double iMax = -1.e99,
                                             TPad* iResolutionPad = 0, bool iLogY = false );
         TCanvas*     plotAngularResolution2D( unsigned int iDataSetID = 0, string iXaxis = "energy", string iProbabilityString = "68", double iEnergySlice_TeV = -1. );
-        TCanvas*     plotAngularResolutionContaintment( string iXaxis = "energy" );
         TCanvas*     plotCoreResolution( string iXaxis = "energy", double iMax = -1.e99 );
         TCanvas*     plotCoreResolution2D( unsigned int iDataSetID = 0, string iXaxis = "energy" );
         void         plotCutEfficiency( unsigned int iDataSetID = 0 );

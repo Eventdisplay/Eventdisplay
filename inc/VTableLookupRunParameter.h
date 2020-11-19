@@ -52,8 +52,7 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         void printCTA_MC_offaxisBins();
         bool readTelescopeToAnalyze( string iEvndispRootFile );
         bool readTelescopeToAnalyze( string iTelescopeList_sim_telarray_Counting,
-                                     string iEvndispRootFile,
-                                     bool iSimTelArrayCounting );
+                                     string iEvndispRootFile );
         bool readRunParameters( string iFile );
         bool readTelTypeDepdendentWeights( string iFile );
         void setCTA_MC_offaxisBins();
@@ -120,8 +119,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         // spectral index used to re-weight events while filling the
         // lookup tables
         double fSpectralIndex;
-        // use core position and direction from model3D analysis
-        bool bUseModel3DStereoParameters;
         // parameters set to fix lookup table file directory structure
         // zenith angle
         double ze;
@@ -189,6 +186,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         void print( int iB = 0 );
         void printHelp();
         
-        ClassDef( VTableLookupRunParameter, 48 ); //for any changes to this file: increase this number
+        ClassDef( VTableLookupRunParameter, 49 ); //for any changes to this file: increase this number
 };
 #endif
