@@ -19,6 +19,60 @@
 using namespace std;
 
 /*
+    calculate approx mean elevation of run 
+    from mscw_energy data tree
+*/
+bool readMeanElevation( TFile *fIn )
+{
+	if( !fIn )
+	{
+		return false;
+	}
+        TTree *data = (TTree*)fIn->Get( "data" );
+        if( data )
+        {
+            Double_t TelElevation[VDST_MAXTELESCOPES];
+            data->SetBranchAddress( "TelElevation", TelElevation );
+            data->GetEntry( 0 );
+            double iMean_f = 0.;
+            double iMeanN = 0.;
+            for( unsigned int i = 0; i < VDST_MAXTELESCOPES; i++ )
+            {
+                if( TelElevation[i] > 5. )
+                {
+                    iMean_f += TelElevation[i];
+                    iMeanN++;
+                }
+            }
+            if( data->GetEntries() > 1 )
+            {
+                data->GetEntry( data->GetEntries() - 1 );
+                for( unsigned int i = 0; i < VDST_MAXTELESCOPES; i++ )
+                {
+                    if( TelElevation[i] > 5. )
+                    {
+                        iMean_f += TelElevation[i];
+                        iMeanN++;
+                    }
+                }
+            }
+            if( iMeanN > 0. )
+            {
+                iMean_f /= iMeanN;
+                cout << "Average elevation: " << iMean_f << endl;
+            }
+        }
+        else
+        {
+            cout << "not implemented" << endl;
+        }
+
+        return true;
+}
+	
+
+
+/*
  *  read observing direction and print N (North) or S (South)
  *
  *  works for MC and data
@@ -274,7 +328,11 @@ bool readRunParameter( TFile* fIn, string iPara )
     }
     else if( iPara == "-epoch" )
     {
-        cout << fPar->fInstrumentEpoch << endl;
+		cout << fPar->getInstrumentEpoch() << endl;
+	}
+	else if( iPara == "-majorepoch" )
+	{
+		cout << fPar->getInstrumentEpoch( true ) << endl;
     }
     else if( iPara == "-runtype" )
     {
@@ -286,7 +344,8 @@ bool readRunParameter( TFile* fIn, string iPara )
     }
     else if( iPara == "-runinfo" )
     {
-        cout << fPar->fInstrumentEpoch << "\t";
+		cout << fPar->getInstrumentEpoch( false ) << "\t";
+		cout << fPar->getInstrumentEpoch( true ) << "\t";
         cout << fPar->fAtmosphereID << "\t";
         cout << fPar->fDBRunType << "\t";
         for( unsigned int i = 0; i < fPar->fTelToAnalyze.size(); i++ )
@@ -356,18 +415,20 @@ void printHelp()
     cout << "print run parameters stored in eventdisplay or mscw_energy file" << endl;
     cout << endl;
     cout << "   options: " << endl;
-    cout << "      -version      print Evndisp version" << endl;
+    cout << "      -version      print Eventdisplay version" << endl;
     cout << "      -mcaz         print MC azimuth angle" << endl;
     cout << "      -runnumber    print MC run number" << endl;
     cout << "      -mcsourcefile print source file name" << endl;
     cout << "      -date         print date of run" << endl;
     cout << "      -mjd          print mjd of run" << endl;
     cout << "      -epoch        print epoch of this run" << endl;
+    cout << "      -majorepoch   print major epoch of this run" << endl;
     cout << "      -atmosphere   print corsika ID of atmospheric condition of this run" << endl;
     cout << "      -runtype      print run type, eg observing, obsFilter etc." << endl;
     cout << "      -teltoana     print telescope combination used in analysis" << endl;
     cout << "      -evndispreconstructionparameterfile print evndisp reconstruction parameter file" << endl;
     cout << "      -runinfo      print relevant run info in one line" << endl;
+    cout << "      -elevation    print (rough) average elevation" << endl;
     cout << "      -MCruninfo    print relevant info on MC run in one line" << endl;
     cout << "      -nLST, -nSST, -nMST, -nMSCT number of telescopes for a specific telescope type (CTA only)" << endl;
     cout << "      -nteltypes    number of telescope types (CTA only)" << endl;
@@ -424,7 +485,11 @@ int main( int argc, char* argv[] )
     
     if( fOption.size() > 0 )
     {
-        if( fOption == "-mcaz" || fOption == "-runnumber" || fOption == "-MCruninfo" )
+        if( fOption == "-elevation" )
+        {
+                readMeanElevation( fIn );
+        }
+        else if( fOption == "-mcaz" || fOption == "-runnumber" || fOption == "-MCruninfo" )
         {
             readMCParameter( fIn, fOption );
         }
