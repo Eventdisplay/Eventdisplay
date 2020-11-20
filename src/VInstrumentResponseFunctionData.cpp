@@ -600,7 +600,8 @@ void VInstrumentResponseFunctionData::fill( double iWeight )
  *
  * calculate containment graphs
 */
-bool VInstrumentResponseFunctionData::terminate( double iContainmentProbability )
+bool VInstrumentResponseFunctionData::terminate( double iContainmentProbability, 
+                                             double iContainmentProbabilityError )
 {
     for( unsigned int i = 0; i < f2DHisto.size(); i++ )
     {
@@ -608,7 +609,8 @@ bool VInstrumentResponseFunctionData::terminate( double iContainmentProbability 
         fContainmentProbability[i] = iContainmentProbability;
         if( i != E_RELA )
         {
-            calculateResolution( f2DHisto[i], fResolutionGraph[i], f2DHisto[i]->GetName(), iContainmentProbability,
+            calculateResolution( f2DHisto[i], fResolutionGraph[i], f2DHisto[i]->GetName(), 
+                                 iContainmentProbability,
                                  fResolutionKingSigmaGraph[i], fResolutionKingGammaGraph[i] );
         }
         // for relative plots get mean and spread from each bin in the histogram
@@ -644,8 +646,9 @@ Double_t kingfunc( Double_t* r, Double_t* par )
     iHistogram is a 2D histogram (e.g. angular difference vs energy)
 
 */
-TList*  VInstrumentResponseFunctionData::calculateResolution( TH2D* iHistogram, TGraphErrors* iResult,
-        string iHistoName, double iContainmentProbability,
+TList*  VInstrumentResponseFunctionData::calculateResolution( 
+        TH2D* iHistogram, TGraphErrors* iResult, string iHistoName, 
+        double iContainmentProbability,
         TGraphErrors* iResultKingSigma, TGraphErrors* iResultKingGamma )
 {
     if( !iHistogram || !iResult )

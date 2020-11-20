@@ -114,7 +114,7 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
         {
             fEnergyReconstructionMethod = iMethod;
         }
-        void   setHistogrambinning( int iN = 25, double iMin = -1.9, double iMax = 3.1 )
+		void   setHistogramEbinning( int iN = 60, double iMin = -2.0, double iMax = 4.0 )
         {
             fHistogrambinningEnergy_TeV_Log = iN;
             fHistogrambinningEnergy_Min_Tev_Log = iMin;
