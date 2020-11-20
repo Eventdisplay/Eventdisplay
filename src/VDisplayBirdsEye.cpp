@@ -457,14 +457,6 @@ void VDisplayBirdsEye::drawImageLines_and_Corepositions()
     {
         fMarkerCore.back()->Draw();
     }
-    //Draw FROGS reconstruction
-    if( fData->getRunParameter()->ffrogsmode  && fData->getFrogsParameters() )
-    {
-        fMarkerFrogsCore = new TMarker( convertX( fData->getFrogsParameters()->frogsXP ), convertY( fData->getFrogsParameters()->frogsYP ), 29 );
-        fMarkerFrogsCore->SetMarkerColor( 7 );
-        fMarkerFrogsCore->SetMarkerSize( 2. );
-        fMarkerFrogsCore->Draw();
-    }
     // draw coordinate system
     // two arrow somewhere in the lower left corner of the canvas
     // the red arrow indicates the x-axis, the black the y-axis

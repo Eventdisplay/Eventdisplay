@@ -233,12 +233,6 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fmuonmode = false;
     fhoughmuonmode = false;
     
-    // Frogs parameters
-    ffrogsmscwfile = "";
-    ffrogsmode = false;
-    ffrogsRecID = 0;
-    ffrogstemplatelist = "";
-    
     // output parameters
     ffillhistos = false;                          // obsolete
     foutputfileName = "";

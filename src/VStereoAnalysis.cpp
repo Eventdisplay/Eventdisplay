@@ -1880,31 +1880,6 @@ CData* VStereoAnalysis::getDataFromFile( int i_runNumber )
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE );
         }
-        fDataFrogsTree = ( TTree* )fDataFile->Get( "frogspars" );
-        if( fRunPara->fRunList[i].fIsFrogs )
-        {
-            if( !fDataFrogsTree )
-            {
-                cout << "VStereoAnalysis::getDataFromFile() info: cannot find frogspars tree in " << iFileName << endl;
-                cout << "(this will lead to a failure for the frogs analysis, but is otherwise not a problem)" << endl;
-            }
-            else
-            {
-                cout << "VStereoAnalysis::getDataFromFile() info: found frogspars tree" << endl;
-                //check that frogs tree and data tree have same number of events.
-                if( fDataRunTree->GetEntries() == fDataFrogsTree->GetEntries() )
-                {
-                    fDataRunTree->AddFriend( fDataFrogsTree );
-                }
-                else
-                {
-                    cout << "VStereoAnalysis::getDataFromFile() Error: data tree has " << fDataRunTree->GetEntries() ;
-                    cout << " entries; frogs tree has " << fDataFrogsTree->GetEntries() << " entries; that's not good. Exiting now." << endl;
-                    exit( EXIT_FAILURE );
-                }
-                
-            }
-        }
         c = new CData( fDataRunTree );
         // read current epoch from data file
         VEvndispRunParameter* i_runPara = ( VEvndispRunParameter* )fDataFile->Get( "runparameterV2" );
@@ -1945,7 +1920,6 @@ bool VStereoAnalysis::terminate()
 
 bool VStereoAnalysis::init_TreeWithSelectedEvents( int irun, bool isOn )
 {
-    //NOTE: This tree is currently allways filled with the eventdisplay reconstruction results. If you want to have frogs results, you need to fix that.
     if( fTreeSelectedEvents )
     {
         delete fTreeSelectedEvents;
@@ -2002,43 +1976,6 @@ bool VStereoAnalysis::init_TreeWithSelectedEvents( int irun, bool isOn )
     fTreeSelectedEvents->Branch( "IsGamma", &fTreeSelected_IsGamma, "IsGamma/i" );
     fTreeSelectedEvents->Branch( "passedDirectionCut", &fTreeSelected_DirectionCut, "passedDirectionCut/i" );
     
-    if( fCuts && fCuts->useFrogsCuts() )
-    {
-        fTreeSelectedEvents->Branch( "frogsEventID", &fTreeSelescted_frogsEventID, "frogsEventID/I" );
-        fTreeSelectedEvents->Branch( "frogsGSLConStat", &fTreeSelescted_frogsGSLConStat, "frogsGSLConStat/I" );
-        fTreeSelectedEvents->Branch( "frogsNB_iter", &fTreeSelescted_frogsNB_iter, "frogsNB_iter/I" );
-        fTreeSelectedEvents->Branch( "frogsNImages", &fTreeSelescted_frogsNImages, "frogsNImages/I" );
-        fTreeSelectedEvents->Branch( "frogsXS", &fTreeSelescted_frogsXS, "frogsXS/D" );
-        fTreeSelectedEvents->Branch( "frogsXSerr", &fTreeSelescted_frogsXSerr, "frogsXSerr/D" );
-        fTreeSelectedEvents->Branch( "frogsYS", &fTreeSelescted_frogsYS, "frogsYS/D" );
-        fTreeSelectedEvents->Branch( "frogsYSerr", &fTreeSelescted_frogsYSerr, "frogsYSerr/D" );
-        fTreeSelectedEvents->Branch( "frogsXP", &fTreeSelescted_frogsXP, "frogsXP/D" );
-        fTreeSelectedEvents->Branch( "frogsXPerr", &fTreeSelescted_frogsXPerr, "frogsXPerr/D" );
-        fTreeSelectedEvents->Branch( "frogsYP", &fTreeSelescted_frogsYP, "frogsYP/D" );
-        fTreeSelectedEvents->Branch( "frogsYPerr", &fTreeSelescted_frogsYPerr, "frogsYPerr/D" );
-        fTreeSelectedEvents->Branch( "frogsXPGC", &fTreeSelescted_frogsXPGC, "frogsXPGC/D" );
-        fTreeSelectedEvents->Branch( "frogsYPYC", &fTreeSelescted_frogsYPGC, "frogsYPGC/D" );
-        fTreeSelectedEvents->Branch( "frogsEnergy", &fTreeSelescted_frogsEnergy, "frogsEnergy/D" );
-        fTreeSelectedEvents->Branch( "frogsEnergyerr", &fTreeSelescted_frogsEnergyerr, "frogsEnergyerr/D" );
-        fTreeSelectedEvents->Branch( "frogsLambda", &fTreeSelescted_frogsLambda, "frogsLambda/D" );
-        fTreeSelectedEvents->Branch( "frogsLambdaerr", &fTreeSelescted_frogsLambdaerr, "frogsLambdaerr/D" );
-        fTreeSelectedEvents->Branch( "frogsGoodnessImg", &fTreeSelescted_frogsGoodnessImg, "frogsGoodnessImg/D" );
-        fTreeSelectedEvents->Branch( "frogsNpixImg", &fTreeSelescted_frogsNpixImg, "frogsNpixImg/I" );
-        fTreeSelectedEvents->Branch( "frogsGoodnessBkg", &fTreeSelescted_frogsGoodnessBkg, "frogsGoodnessBkg/D" );
-        fTreeSelectedEvents->Branch( "frogsNpixBkg", &fTreeSelescted_frogsNpixBkg, "frogsNpixBkg/I" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessImg0", &fTreeSelescted_frogsTelGoodnessImg0, "frogsTelGoodnessImg0/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessImg1", &fTreeSelescted_frogsTelGoodnessImg1, "frogsTelGoodnessImg1/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessImg2", &fTreeSelescted_frogsTelGoodnessImg2, "frogsTelGoodnessImg2/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessImg3", &fTreeSelescted_frogsTelGoodnessImg3, "frogsTelGoodnessImg3/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessBkg0", &fTreeSelescted_frogsTelGoodnessBkg0, "frogsTelGoodnessBkg0/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessBkg1", &fTreeSelescted_frogsTelGoodnessBkg1, "frogsTelGoodnessBkg1/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessBkg2", &fTreeSelescted_frogsTelGoodnessBkg2, "frogsTelGoodnessBkg2/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessBkg3", &fTreeSelescted_frogsTelGoodnessBkg3, "frogsTelGoodnessBkg3/D" );
-        fTreeSelectedEvents->Branch( "frogsXS_derot", &fTreeSelescted_frogsXS_derot, "frogsXS_derot/D" );
-        fTreeSelectedEvents->Branch( "frogsYS_derot", &fTreeSelescted_frogsYS_derot, "frogsYS_derot/D" );
-        fTreeSelectedEvents->Branch( "frogs_theta2", &fTreeSelescted_frogs_theta2, "frogs_theta2/D" );
-    }
-    
     reset_TreeWithSelectedEvents();
     
     return true;
@@ -2074,41 +2011,6 @@ void VStereoAnalysis::reset_TreeWithSelectedEvents()
     fTreeSelected_MVA = -99.;
     fTreeSelected_IsGamma = 0;
     fTreeSelected_DirectionCut = 0;
-    
-    /// frogs ///
-    fTreeSelescted_frogsEventID = 0;
-    fTreeSelescted_frogsGSLConStat = 0;
-    fTreeSelescted_frogsNB_iter = 0;
-    fTreeSelescted_frogsNImages = 0;
-    fTreeSelescted_frogsXS = 0.;
-    fTreeSelescted_frogsXSerr = 0.;
-    fTreeSelescted_frogsYS = 0.;
-    fTreeSelescted_frogsYSerr = 0.;
-    fTreeSelescted_frogsXP = 0.;
-    fTreeSelescted_frogsXPerr = 0.;
-    fTreeSelescted_frogsYP = 0.;
-    fTreeSelescted_frogsYPerr = 0.;
-    fTreeSelescted_frogsXPGC = 0.;
-    fTreeSelescted_frogsYPGC = 0.;
-    fTreeSelescted_frogsEnergy = 0.;
-    fTreeSelescted_frogsEnergyerr = 0.;
-    fTreeSelescted_frogsLambda = 0.;
-    fTreeSelescted_frogsLambdaerr = 0.;
-    fTreeSelescted_frogsGoodnessImg = 0.;
-    fTreeSelescted_frogsNpixImg = 0;
-    fTreeSelescted_frogsGoodnessBkg = 0.;
-    fTreeSelescted_frogsNpixBkg = 0;
-    fTreeSelescted_frogsTelGoodnessImg0 = 0.;
-    fTreeSelescted_frogsTelGoodnessImg1 = 0.;
-    fTreeSelescted_frogsTelGoodnessImg2 = 0.;
-    fTreeSelescted_frogsTelGoodnessImg3 = 0.;
-    fTreeSelescted_frogsTelGoodnessBkg0 = 0.;
-    fTreeSelescted_frogsTelGoodnessBkg1 = 0.;
-    fTreeSelescted_frogsTelGoodnessBkg2 = 0.;
-    fTreeSelescted_frogsTelGoodnessBkg3 = 0.;
-    fTreeSelescted_frogsXS_derot = 0.;
-    fTreeSelescted_frogsYS_derot = 0.;
-    fTreeSelescted_frogs_theta2  = 0.;
 }
 
 void VStereoAnalysis::fill_TreeWithSelectedEvents( CData* c, double i_xderot, double i_yderot, double i_theta2, bool i_bDirectionCut )
@@ -2169,41 +2071,6 @@ void VStereoAnalysis::fill_TreeWithSelectedEvents( CData* c, double i_xderot, do
         fTreeSelected_DirectionCut = 0;
     }
     
-    /// frogs ///
-    fTreeSelescted_frogsEventID     = c->frogsEventID;
-    fTreeSelescted_frogsGSLConStat  = c->frogsGSLConStat;
-    fTreeSelescted_frogsNB_iter     = c->frogsNB_iter;
-    fTreeSelescted_frogsNImages     = c->frogsNImages;
-    fTreeSelescted_frogsXS          = c->frogsXS;
-    fTreeSelescted_frogsXSerr       = c->frogsXSerr;
-    fTreeSelescted_frogsYS          = c->frogsYS;
-    fTreeSelescted_frogsYSerr       = c->frogsYSerr;
-    fTreeSelescted_frogsXP          = c->frogsXP;
-    fTreeSelescted_frogsXPerr       = c->frogsXPerr;
-    fTreeSelescted_frogsYP          = c->frogsYP;
-    fTreeSelescted_frogsYPerr       = c->frogsYPerr;
-    fTreeSelescted_frogsXPGC        = c->frogsXPGC;
-    fTreeSelescted_frogsYPGC        = c->frogsYPGC;
-    fTreeSelescted_frogsEnergy      = c->frogsEnergy;
-    fTreeSelescted_frogsEnergyerr   = c->frogsEnergyerr;
-    fTreeSelescted_frogsLambda      = c->frogsLambda;
-    fTreeSelescted_frogsLambdaerr   = c->frogsLambdaerr;
-    fTreeSelescted_frogsGoodnessImg = c->frogsGoodnessImg;
-    fTreeSelescted_frogsNpixImg     = c->frogsNpixImg;
-    fTreeSelescted_frogsGoodnessBkg = c->frogsGoodnessBkg;
-    fTreeSelescted_frogsNpixBkg     = c->frogsNpixBkg;
-    fTreeSelescted_frogsTelGoodnessImg0 = c->frogsTelGoodnessImg0;
-    fTreeSelescted_frogsTelGoodnessImg1 = c->frogsTelGoodnessImg1;
-    fTreeSelescted_frogsTelGoodnessImg2 = c->frogsTelGoodnessImg2;
-    fTreeSelescted_frogsTelGoodnessImg3 = c->frogsTelGoodnessImg3;
-    fTreeSelescted_frogsTelGoodnessBkg0 = c->frogsTelGoodnessBkg0;
-    fTreeSelescted_frogsTelGoodnessBkg1 = c->frogsTelGoodnessBkg1;
-    fTreeSelescted_frogsTelGoodnessBkg2 = c->frogsTelGoodnessBkg2;
-    fTreeSelescted_frogsTelGoodnessBkg3 = c->frogsTelGoodnessBkg3;
-    fTreeSelescted_frogsXS_derot = i_xderot;
-    fTreeSelescted_frogsYS_derot = i_yderot;
-    fTreeSelescted_frogs_theta2  = i_theta2;
-    
     if( fTreeSelectedEvents )
     {
         fTreeSelectedEvents->Fill();
@@ -2257,7 +2124,6 @@ double VStereoAnalysis::getWobbleWest()
 
 bool VStereoAnalysis::init_TreeWithEventsForCtools( int irun ) // WRITEEVENTTREEFORCTOOLS
 {
-    //NOTE: This tree is currently allways filled with the eventdisplay reconstruction results. If you want to have frogs results, you need to fix that.
     cout << endl;
     cout << " :: init_TreeWithEventsForCtools( " << irun << " )" << endl;
     cout << endl;

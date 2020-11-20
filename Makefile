@@ -199,6 +199,8 @@ endif
 ########################################################
 ROOTCFLAGS   = $(shell root-config --auxcflags)
 # ROOTCFLAGS   = -pthread -m64
+# TEMPORARY
+CXXFLAGS     += -Wno-deprecated 
 CXXFLAGS     += $(ROOTCFLAGS)
 CXXFLAGS     += -I$(shell root-config --incdir) -I$(shell root-config --incdir)/TMVA 
 ########################################################

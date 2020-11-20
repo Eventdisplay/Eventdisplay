@@ -495,15 +495,6 @@ void VCamera::draw( double i_max, int iEventNumber, bool iAllinOne )
 			case C_TRIGGER_EVNDISP:
 				setPMTColorOnOff( fData->getTrigger(), fColorTrigger, fColorTrigger, fFillStylePos );
 				break;
-			case C_TEMPLATE:
-				if( fData->getRunParameter()->ffrogsmode == 1 )
-				{
-				  double minSum = 0;
-				  double maxSum = 0;
-				  getMinMax( fData->getSums(), minSum, maxSum, getDrawingMask( 1, i_va_temp ) );
-				  setPMTColorScheme( fData->getTemplateMu(), getDrawingMask( 1, i_va_temp ), false,  minSum, maxSum, "FROGS signal [d.c.]", false );
-				}
-				break;
 			case C_CLUSTERID:
 				setPMTColorScheme( fData->getClusterID(), getDrawingMask( 1, i_va_temp ), false, 100, 0, "Cluster ID", true, false );	
 				break;
@@ -1853,14 +1844,6 @@ void VCamera::drawAnaResults()
 				fMCShowerDir->SetMarkerColor( 1 );
 				fMCShowerDir->SetMarkerSize( 2. );
 				fMCShowerDir->Draw();
-			}
-			//Draw FROGS reconstruction
-			if( fData->getRunParameter()->ffrogsmode && fData->getFrogsParameters() )
-			{
-				fFrogsShowerDir = new TMarker( convertX( fData->getFrogsParameters()->frogsXS ), convertY( 1.*fData->getFrogsParameters()->frogsYS ), 29 );
-				fFrogsShowerDir->SetMarkerColor( 7 );
-				fFrogsShowerDir->SetMarkerSize( 2. );
-				fFrogsShowerDir->Draw();
 			}
 			// camera center
 			fCameraCentreDir = new TMarker( convertX( 0. ), convertY( 0. ), 5 );

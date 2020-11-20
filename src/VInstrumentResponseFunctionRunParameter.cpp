@@ -188,10 +188,6 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                         fReconstructionType = ENERGY_ER;
                         fEnergyReconstructionMethod = 0;
                     }
-                    else if( temp2 == "FROGS" )
-                    {
-                        fReconstructionType = FROGS;
-                    }
                     else if( temp2 == "DEEPLEARNER" )
                     {
                         fReconstructionType = DEEPLEARNER;

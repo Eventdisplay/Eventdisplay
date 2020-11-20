@@ -52,7 +52,7 @@ class VTableLookup
     private:
         // list of lookup table types
         // (E_MSCW, E_MSCL, E_EREC are expected to be the first three types)
-        enum E_TLvalue { E_MSCW, E_MSCL, E_EREC, E_TGRA, E_FRGO };
+        enum E_TLvalue { E_MSCW, E_MSCL, E_EREC, E_TGRA };
         
         VTableLookupRunParameter* fTLRunParameter; // lookup table run parameter
         

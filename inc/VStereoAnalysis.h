@@ -211,41 +211,6 @@ class VStereoAnalysis
         
         double fTreeSelected_MVA;
         
-        /// frogs ///
-        int   fTreeSelescted_frogsEventID;
-        int   fTreeSelescted_frogsGSLConStat;
-        int   fTreeSelescted_frogsNB_iter;
-        int   fTreeSelescted_frogsNImages;
-        double fTreeSelescted_frogsXS;
-        double fTreeSelescted_frogsXSerr;
-        double fTreeSelescted_frogsYS;
-        double fTreeSelescted_frogsYSerr;
-        double fTreeSelescted_frogsXP;
-        double fTreeSelescted_frogsXPerr;
-        double fTreeSelescted_frogsYP;
-        double fTreeSelescted_frogsYPerr;
-        double fTreeSelescted_frogsXPGC;
-        double fTreeSelescted_frogsYPGC;
-        double fTreeSelescted_frogsEnergy;
-        double fTreeSelescted_frogsEnergyerr;
-        double fTreeSelescted_frogsLambda;
-        double fTreeSelescted_frogsLambdaerr;
-        double fTreeSelescted_frogsGoodnessImg;
-        int   fTreeSelescted_frogsNpixImg;
-        double fTreeSelescted_frogsGoodnessBkg;
-        int   fTreeSelescted_frogsNpixBkg;
-        double fTreeSelescted_frogsTelGoodnessImg0;
-        double fTreeSelescted_frogsTelGoodnessImg1;
-        double fTreeSelescted_frogsTelGoodnessImg2;
-        double fTreeSelescted_frogsTelGoodnessImg3;
-        double fTreeSelescted_frogsTelGoodnessBkg0;
-        double fTreeSelescted_frogsTelGoodnessBkg1;
-        double fTreeSelescted_frogsTelGoodnessBkg2;
-        double fTreeSelescted_frogsTelGoodnessBkg3;
-        double fTreeSelescted_frogsXS_derot;
-        double fTreeSelescted_frogsYS_derot;
-        double fTreeSelescted_frogs_theta2;
-        
         double fTotCount;
         
         map < int, double > f_t_in_s_min;
@@ -256,7 +221,6 @@ class VStereoAnalysis
         
         CData* fDataRun;
         TTree* fDataRunTree;
-        TTree* fDataFrogsTree;
         TFile* fDataFile;
         string fInstrumentEpoch;
         vector< unsigned int > fTelToAnalyze;

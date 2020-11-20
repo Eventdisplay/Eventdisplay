@@ -106,8 +106,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         
         // use lookup tables for time gradient (optional)
         bool fUsetimeGradientLookupTables;
-        // use lookup tables for FROGS analysis (optional)
-        bool fUsefrogsGoodnessTables;
         
         //////////////////////////////////////////
         // parameters for table filling (writing) only

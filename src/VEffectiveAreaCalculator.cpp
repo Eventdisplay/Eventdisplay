@@ -1719,7 +1719,6 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
             
             // fill tree with acceptance information after cuts (needed to construct background model in ctools)
             // NOTE: This tree is currently allways filled with the eventdisplay reconstruction results.
-            // If you want to have frogs/3Dmodel results, you need to fix that.
             if( !bDirectionCut && fRunPara->fgetXoff_Yoff_afterCut )
             {
                 fXoff_aC = d->Xoff;

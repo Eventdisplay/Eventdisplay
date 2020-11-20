@@ -126,67 +126,6 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
             fRunPara->fhoughmuonmode = 1;
         }
         /////////////////////////////////////////////////////////
-        // Frogs mode
-        else if( iTemp1 == "-frogs" )
-        {
-            fRunPara->ffrogsmode = 1;
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->ffrogsmscwfile = iTemp2;
-                i++;
-                // setting default parameters for frogs
-                // (might be overwritten by the following command lines)
-                if( fRunPara->ffrogsparameterfile.size() == 0 )
-                {
-                    fRunPara->ffrogsparameterfile = "FROGS.runparameter";
-                }
-                if( fRunPara->ffrogsRecID < 0 )
-                {
-                    fRunPara->ffrogsRecID = 0;
-                }
-            }
-            else
-            {
-                fRunPara->ffrogsmscwfile = "";
-            }
-        }
-        else if( iTemp1 == "-frogsid" )
-        {
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->ffrogsRecID = atoi( iTemp2.c_str() );
-                i++;
-            }
-            else
-            {
-                fRunPara->ffrogsRecID = 0;
-            }
-        }
-        else if( iTemp1 == "-templatelistforfrogs" )
-        {
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->ffrogstemplatelist = iTemp2 ;
-                i++;
-            }
-            else
-            {
-                fRunPara->ffrogstemplatelist = "" ;
-            }
-        }
-        else if( iTemp1 == "-frogsparameterfile" )
-        {
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->ffrogsparameterfile = iTemp2 ;
-                i++;
-            }
-            else
-            {
-                fRunPara->ffrogsparameterfile = "" ;
-            }
-        }
-        /////////////////////////////////////////////////////////
         // source file
         else if( iTemp.find( "sourcefi" ) < iTemp.size() )
         {
@@ -1689,14 +1628,6 @@ void VReadRunParameter::test_and_adjustParams()
         cout << "Can't send less than zero pixels to moment-generating function: " << fRunPara->fPWlimit << endl;
         exit( EXIT_FAILURE );
     }
-    
-    // (TMPTMPTMP ) don't start frogs analysis unless it's a 4-Telescope run
-    if( fRunPara->ffrogsmode && fRunPara->fTelToAnalyze.size() != 4 )
-    {
-        cout << "Error: You requested a frogs analysis for " << fRunPara->fTelToAnalyze.size() << " telescopes; will only do frogs analysis for exactly 4 telescopes!" << endl;
-        exit( EXIT_FAILURE );
-    }
-    
     
     if( fPrintOutputFile )
     {

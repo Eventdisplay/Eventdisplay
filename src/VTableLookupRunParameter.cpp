@@ -54,7 +54,6 @@ VTableLookupRunParameter::VTableLookupRunParameter()
     fQualityCutLevel = 0;
     
     fUsetimeGradientLookupTables = false;
-    fUsefrogsGoodnessTables = false;
     
     fMC_distance_to_cameracenter_min =  0.;
     fMC_distance_to_cameracenter_max =  1.e10;
@@ -397,10 +396,6 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         else if( iTemp.find( "use_tgrad_tables" ) < iTemp.size() )
         {
             fUsetimeGradientLookupTables = true;
-        }
-        else if( iTemp.find( "use_frogs_tables" ) < iTemp.size() )
-        {
-            fUsefrogsGoodnessTables = true;
         }
         else if( iTemp.find( "-short" ) < iTemp.size() )
         {

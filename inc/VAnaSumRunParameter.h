@@ -113,9 +113,6 @@ class VAnaSumRunParameterDataClass : public TNamed
         double fTE_mscl_min;
         double fTE_mscl_max;
         
-        // Analysis type
-        bool   fIsFrogs;
-        
         VAnaSumRunParameterDataClass();
         ~VAnaSumRunParameterDataClass();
         ClassDef( VAnaSumRunParameterDataClass, 3 );
@@ -131,8 +128,7 @@ class VAnaSumRunParameter : public TNamed, public VGlobalRunParameter
         int    checkNumberOfArguments( string is );
         void   checkNumberOfArguments( int im, int narg, string isf, string isl, int iversion, bool ishortlist );
         double getRingWidth( double sr, double rr, double rat );
-        bool   isFROGSAnalysis( string iFile );
-        bool   readCutParameter( string ifile, double& iSourceRadius, double& iMaximumDistance, bool& isFrogs );
+        bool   readCutParameter( string ifile, double& iSourceRadius, double& iMaximumDistance );
         double readMaximumDistance( string );
         double readSourceRadius( string iCutFile );
         void   reset( VAnaSumRunParameterDataClass );

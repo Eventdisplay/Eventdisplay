@@ -27,7 +27,6 @@ VTableLookupDataHandler::VTableLookupDataHandler( bool iwrite, VTableLookupRunPa
     fTshowerpars = 0;
     fTshowerpars_QCCut = 0;
     fshowerpars = 0;
-    fFrogspars = 0;
     fDeepLearnerpars = 0;
     fOTree = 0;
     fShortTree = fTLRunParameter->bShortTree;
@@ -343,10 +342,6 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     if( !fshowerpars->GetEntry( fEventCounter ) )
     {
         return -1;
-    }
-    if( fFrogspars )
-    {
-        fFrogspars->GetEntry( fEventCounter );
     }
     if( fDeepLearnerpars )
     {
@@ -1206,10 +1201,6 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
     // get shower parameter tree
     fTshowerpars = new TChain( "showerpars" );
     fTshowerpars_QCCut = new TChain( "showerpars" );
-    if( fTLRunParameter->fUsefrogsGoodnessTables )
-    {
-        fFrogspars = new TChain( "frogspars" );
-    }
     if( fIsDeepLearner )
     {
         fDeepLearnerpars = new TChain( "data_DL" );
@@ -1219,11 +1210,6 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
     {
         fTshowerpars->Add( finputfile[i].c_str() );
         fTshowerpars_QCCut->Add( finputfile[i].c_str() );
-        if( fFrogspars )
-        {
-            fFrogspars->Add( finputfile[i].c_str() );
-            fFrogspars->SetBranchAddress( "fFrogsTelGoodnessImg", &ffrogs_goodness_vector );
-        }
         if( fDeepLearnerpars )
         {
             fDeepLearnerpars->Add( finputfile[i].c_str() );
@@ -1737,11 +1723,6 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
             sprintf( iTT, "MSCTT[%d]/D", fNTel );
             fOTree->Branch( "MSCTT", ftmsct, iTT );
         }
-        if( fTLRunParameter && fTLRunParameter->fUsefrogsGoodnessTables )
-        {
-            sprintf( iTT, "MSC_FRGO_T[%d]/D", fNTel );
-            fOTree->Branch( "MSC_FRGO_T", ftmsc_frgo, iTT );
-        }
         sprintf( iTT, "MSCWTSigma[%d]/F", fNTel );
         fOTree->Branch( "MSCWTSigma", ftmscw_sigma, iTT );
         sprintf( iTT, "MSCLTSigma[%d]/F", fNTel );
@@ -1750,11 +1731,6 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
         {
             sprintf( iTT, "MSCTTSigma[%d]/F", fNTel );
             fOTree->Branch( "MSCTTSigma", ftmsct_sigma, iTT );
-        }
-        if( fTLRunParameter && fTLRunParameter->fUsefrogsGoodnessTables )
-        {
-            sprintf( iTT, "MSC_FRGO_Sigma[%d]/F", fNTel );
-            fOTree->Branch( "MSC_FRGO_Sigma", ftmsc_frgo_sigma, iTT );
         }
     }
     sprintf( iTT, "NMSCW/I" );
@@ -1773,11 +1749,6 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     {
         sprintf( iTT, "MSCT/D" );
         fOTree->Branch( "MSCT", &fmsct, iTT );
-    }
-    if( fTLRunParameter && fTLRunParameter->fUsefrogsGoodnessTables )
-    {
-        sprintf( iTT, "MSC_FRGO/D" );
-        fOTree->Branch( "MSC_FRGO", &fmsc_frgo, iTT );
     }
     sprintf( iTT, "ErecS/D" );
     fOTree->Branch( "ErecS", &fenergyS, iTT );
@@ -2962,40 +2933,6 @@ double VTableLookupDataHandler::getTelElevation()
     
     return fTelElevation[i_max];
 }
-
-/*
- * get frogs goodness data vector
- *
-*/
-double* VTableLookupDataHandler::getFROGS_goodness( ULong64_t iTelType )
-{
-    unsigned int z = 0;
-    for( unsigned int i = 0; i < getNTel(); i++ )
-    {
-        if( ffrogs_goodness_vector && i < ( *ffrogs_goodness_vector ).size()
-                && fTel_type[i] == iTelType && i )
-        {
-            ffrogs_goodness_telType[z] = ( *ffrogs_goodness_vector )[i];
-            z++;
-        }
-    }
-    return ffrogs_goodness_telType;
-}
-
-double* VTableLookupDataHandler::getFROGS_goodness()
-{
-    unsigned int z = 0;
-    for( unsigned int i = 0; i < getNTel(); i++ )
-    {
-        if( ffrogs_goodness_vector && i < ( *ffrogs_goodness_vector ).size() )
-        {
-            ffrogs_goodness_telType[z] = ( *ffrogs_goodness_vector )[i];
-            z++;
-        }
-    }
-    return ffrogs_goodness_telType;
-}
-
 
 /*
  * get time gradient data vector

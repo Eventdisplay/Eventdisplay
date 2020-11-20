@@ -227,6 +227,7 @@ vector<unsigned int>& VImageAnalyzerData::getFADCstopTrigChannelID()
  */
 bool VImageAnalyzerData::readSpecialChannels( int iRunNumber, string iEpoch, 
                                               string ispecialchannelfile, 
+                                              string ithroughputfile, string iDirectory )
 {
     if( fSpecialChannel )
     {

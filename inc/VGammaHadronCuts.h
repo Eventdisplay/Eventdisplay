@@ -167,12 +167,10 @@ class VGammaHadronCuts : public VAnalysisUtilities
         VGammaHadronCutsStatistics* fStats;                       //!
         
         bool   applyProbabilityCut( int i, bool fIsOn );
-        bool   applyFrogsCut();
         bool   applyDeepLearnerCut();
         double getEnergyDependentCut( double energy_TeV, TGraph* iG, bool bUseEvalue = true, bool bMaxCut = true );
         TGraph* getEnergyDependentCut( string iCutName );
         bool   getEnergyDependentCutFromFile( string iFileName, string iVariable );
-        double getMeanGoodness( double, double, double, double, int );
         bool   initAngularResolutionFile();
         bool   initProbabilityCuts( int irun );
         bool   initProbabilityCuts( string iDir );
@@ -418,10 +416,6 @@ class VGammaHadronCuts : public VAnalysisUtilities
         bool   useDeepLearnerCuts()
         {
             return ( fReconstructionType == DEEPLEARNER );
-        }
-        bool   useFrogsCuts()
-        {
-            return ( fReconstructionType == FROGS );
         }
         bool   useTMVACuts()
         {

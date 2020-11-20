@@ -156,7 +156,7 @@ int main( int argc, char* argv[] )
         fCuts->setInstrumentEpoch( fInstrumentEpoch );
         fCuts->setTelToAnalyze( teltoana );
         fCuts->setNTel( ntel );
-        // set reconstruction type (e.g. GEO, DISP, FROGS, ...
+        // set reconstruction type (e.g. GEO, DISP, ...
         fCuts->setReconstructionType( fRunPara->fReconstructionType );
         fCuts->readCuts( cutfilename );
     }

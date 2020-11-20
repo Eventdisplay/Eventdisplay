@@ -79,8 +79,6 @@ VAnaSumRunParameterDataClass::VAnaSumRunParameterDataClass()
     fRE_nMinoffsource = 3;                        // minmum number of off source regions (default 3)
     fRE_nMaxoffsource = 7;                        // maximum number of off source regions (default 7)
     
-    fIsFrogs = false;
-    
     // TEMPLATE MODEL
     fTE_mscw_min = 0.;
     fTE_mscw_max = 0.;
@@ -678,10 +676,6 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
                     fReconstructionType = ENERGY_ER;
                     fEnergyReconstructionMethod = 0;
                 }
-                else if( temp2 == "FROGS" )
-                {
-                    fReconstructionType = FROGS;
-                }
                 else if( temp2 == "DEEPLEARNER" )
                 {
                     fReconstructionType = DEEPLEARNER;
@@ -952,8 +946,6 @@ int VAnaSumRunParameter::loadLongFileList( string i_listfilename, bool bShortLis
                     cout << "invalid source radius " << i_sT.fSourceRadius << endl;
                     exit( EXIT_FAILURE );
                 }
-                // is this a frogs analysis
-                i_sT.fIsFrogs = isFROGSAnalysis( i_sT.fCutFile );
             }
             // background model
             is_stream >> temp;
@@ -1024,7 +1016,7 @@ int VAnaSumRunParameter::loadLongFileList( string i_listfilename, bool bShortLis
                     // (read theta2 cut from cut file)
                     if( !bTotalAnalysisOnly )
                     {
-                        readCutParameter( i_sT.fCutFile, i_sT.fSourceRadius, i_sT.fmaxradius, i_sT.fIsFrogs );
+                        readCutParameter( i_sT.fCutFile, i_sT.fSourceRadius, i_sT.fmaxradius );
                     }
                     else
                     {
@@ -1368,26 +1360,6 @@ double VAnaSumRunParameter::getRingWidth( double a_on, double rr, double rat )
     return rat / 4. / TMath::Pi() / rr * a_on * 2.;
 }
 
-/*
- * check if this is a FROGS analysis
- */
-bool VAnaSumRunParameter::isFROGSAnalysis( string ifile )
-{
-    VGammaHadronCuts iC;
-    iC.setNTel( 1 );  // irrelevant - but suppresses some warnings
-    if( !iC.readCuts( ifile, 0 ) )
-    {
-        return -1;
-    }
-    if( iC.useFrogsCuts() )
-    {
-        return true;
-    }
-    
-    return false;
-}
-
-
 double VAnaSumRunParameter::readSourceRadius( string ifile )
 {
     VGammaHadronCuts iC;
@@ -1408,7 +1380,7 @@ double VAnaSumRunParameter::readSourceRadius( string ifile )
  * read some parameters from gamma/hadron cuts (root file)
  *
  */
-bool VAnaSumRunParameter::readCutParameter( string ifile, double& iSourceRadius, double& iMaximumDistance, bool& iIsFrogs )
+bool VAnaSumRunParameter::readCutParameter( string ifile, double& iSourceRadius, double& iMaximumDistance )
 {
     iSourceRadius = -1.;
     iMaximumDistance = -1.;
@@ -1440,9 +1412,6 @@ bool VAnaSumRunParameter::readCutParameter( string ifile, double& iSourceRadius,
         iSourceRadius = iC->getTheta2Cut_max();
     }
     iMaximumDistance = iC->fCut_CameraFiducialSize_max;
-    
-    // frogs cut
-    iIsFrogs = iC->useFrogsCuts();
     
     if( iF )
     {

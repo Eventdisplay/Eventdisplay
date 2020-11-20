@@ -98,7 +98,6 @@ class VTableLookupDataHandler
         vector< TChain* > fTtpars;
         vector< Ctpars* > ftpars;
         vector< VPointingCorrectionsTreeReader* > fpointingCorrections;
-        TChain* fFrogspars;
         TChain* fDeepLearnerpars;
         
         double fEventWeight;
@@ -288,9 +287,6 @@ class VTableLookupDataHandler
         float  fcrossO_short[VDST_MAXTELESCOPES];
         float  ftgrad_x_short[VDST_MAXTELESCOPES];
         int    fFitstat_short[VDST_MAXTELESCOPES];
-        double ffrogs_goodness_telType[VDST_MAXTELESCOPES];
-        vector<float>* ffrogs_goodness_vector;
-        
         
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // results
@@ -325,11 +321,6 @@ class VTableLookupDataHandler
         double fmsct;                             //!< mean scaled time gradient
         double ftmsct    [VDST_MAXTELESCOPES];    //!< msct assigned to each telescope
         float  ftmsct_sigma[VDST_MAXTELESCOPES];  //!< msct sigma assigned to each telescope
-        
-        // FROGS goodness
-        double fmsc_frgo;                             //!< mean scaled frogs goodness
-        double ftmsc_frgo    [VDST_MAXTELESCOPES];    //!< msc_frgo assigned to each telescope
-        float  ftmsc_frgo_sigma[VDST_MAXTELESCOPES];  //!< msc_frgo sigma assigned to each telescope
         
         // emission height
         unsigned int fNTelPairs;
@@ -433,8 +424,6 @@ class VTableLookupDataHandler
         {
             return fEventCounter;
         }
-        double* getFROGS_goodness();
-        double* getFROGS_goodness( ULong64_t iTelType );
         double* getLength()
         {
             return flength;
