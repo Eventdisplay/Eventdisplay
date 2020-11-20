@@ -108,13 +108,6 @@ VEventLoop::VEventLoop( VEvndispRunParameter* irunparameter )
     fDeadTime = new VDeadTime();
     fDeadTime->defineHistograms( fRunPar->fRunDuration );
     
-#ifndef NOGSL
-    // FROGS
-    if( fRunPar->ffrogsmode )
-    {
-        fFrogs = new VFrogs();
-    }
-#endif
     // reset cut strings and variables
     resetRunOptions();
 }
@@ -813,12 +806,6 @@ void VEventLoop::shutdown()
         {
             fArrayAnalyzer->terminate( fDebug_writing );
         }
-#ifndef NOGSL
-        if( fRunPar->ffrogsmode )
-        {
-            fFrogs->terminate();
-        }
-#endif
         // write analysis results for each telescope to output file
         if( fAnalyzer )
         {
@@ -881,15 +868,6 @@ void VEventLoop::shutdown()
         {
             cout << endl << "Final checks on result file (seems to be OK): " << fRunPar->foutputfileName << endl;
         }
-        // FROGS finishing here
-        // (GM) not clear why this has to happen at this point in the program
-        // (logically wrong)
-#ifndef NOGSL
-        if( fRunPar->ffrogsmode )
-        {
-            fFrogs->finishFrogs( &f );
-        }
-#endif
         f.Close();
     }
     // end of analysis
@@ -1394,14 +1372,6 @@ int VEventLoop::analyzeEvent()
 #endif
         {
             fArrayAnalyzer->doAnalysis();
-            // Frogs Analysis
-#ifndef NOGSL
-            if( fRunPar->ffrogsmode )
-            {
-				string fArrayEpoch = getRunParameter()->getInstrumentEpoch( true );
-                fFrogs->doFrogsStuff( fEventNumber, fArrayEpoch );
-            }
-#endif
         }
     }
     

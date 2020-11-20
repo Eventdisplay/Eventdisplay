@@ -21,8 +21,6 @@
 #include "VEvndispRunParameter.h"
 #include "VStarCatalogue.h"
 #include "VShowerParameters.h"
-#include "VFrogsParameters.h"
-//#include "VFrogsImageData.h"
 #include "VPointing.h"
 #include "VArrayPointing.h"
 #include "VTraceHandler.h"
@@ -124,8 +122,6 @@ class VEvndispData
         static vector< VImageAnalyzerData* > fAnaData; //!< data class with analysis results for each telescope
         //!< data class with analysis results from all telescopes
         static VShowerParameters* fShowerParameters;
-        static VFrogsParameters* fFrogsParameters;
-        //	static vector< VFrogImageData* > fFrogsData;    //!< frogs Template tube information
         static VMCParameters* fMCParameters;      //!< data class with MC parameters
         
         // timing results
@@ -795,10 +791,6 @@ class VEvndispData
         VShowerParameters*  getShowerParameters()
         {
             return fShowerParameters;
-        }
-        VFrogsParameters*    getFrogsParameters()
-        {
-            return fFrogsParameters;
         }
         int                 getSumFirst()
         {

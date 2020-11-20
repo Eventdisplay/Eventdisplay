@@ -1305,8 +1305,6 @@ vector< VImageAnalyzerData* > VEvndispData::fAnaData;
 VShowerParameters* VEvndispData::fShowerParameters = 0;
 VMCParameters* VEvndispData::fMCParameters = 0;
 VEvndispReconstructionParameter* VEvndispData::fEvndispReconstructionParameter = 0;
-VFrogsParameters* VEvndispData::fFrogsParameters = 0;
-//vector< VFrogImageData* > VEvndispData::fFrogData;
 
 // timing graphs
 vector< TGraphErrors* > VEvndispData::fXGraph;

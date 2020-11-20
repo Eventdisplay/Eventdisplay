@@ -24,10 +24,6 @@
 #include <VPEReader.h>
 #include <VEvndispRunParameter.h>
 
-#ifndef NOGSL
-#include <VFrogs.h>
-#endif
-
 #include <iostream>
 #include <map>
 #include <string>
@@ -47,9 +43,6 @@ class VEventLoop : public VEvndispData
         VImageAnalyzer* fAnalyzer;                     //!< default analyzer class
         VArrayAnalyzer* fArrayAnalyzer;           //!< default array analyzer
         VDST* fDST;                               //!< data summarizer
-#ifndef NOGSL
-        VFrogs* fFrogs;                           //!< Frogs Analyzer
-#endif
         VDeadTime* fDeadTime;                     //!< dead time calculator
         string fFileGains;                        //!< file with gains
         

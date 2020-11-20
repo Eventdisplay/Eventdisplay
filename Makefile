@@ -407,7 +407,6 @@ EVNOBJECTS =    ./obj/VVirtualDataReader.o \
 		./obj/VCalibrator.o \
         ./obj/VImageAnalyzer.o \
 		./obj/VArrayAnalyzer.o \
-		./obj/VMLPAnalyzer.o \
 		./obj/VDispAnalyzer.o \
 		./obj/VDispTableReader.o \
 		./obj/VDispTableReader_Dict.o \
@@ -472,15 +471,6 @@ ifneq ($(VBFFLAG),-DNOVBF)
 		    ./obj/VBFDataReader.o \
 	 	    ./obj/VSimulationDataReader.o 
 endif
-
-FROGSOBJECTS = ./obj/VFrogs.o \
-            ./obj/frogs.o \
-            ./obj/VFrogsParameters.o
-
-ifneq ($(GSLFLAG),-DNOGSL)
-   EVNOBJECTS += $(FROGSOBJECTS)
-endif
-
 
 # finalize
 EVNOBJECTS += ./obj/evndisp.o
@@ -559,7 +549,6 @@ MSCOBJECTS=	./obj/Cshowerpars.o ./obj/Ctpars.o \
 		./obj/VImageCleaningRunParameter.o ./obj/VImageCleaningRunParameter_Dict.o \
 		./obj/VTableLookupRunParameter.o ./obj/VTableLookupRunParameter_Dict.o \
 		./obj/VSimpleStereoReconstructor.o \
-		./obj/VMLPAnalyzer.o \
 		./obj/VDispAnalyzer.o \
 		./obj/VDispTableReader.o ./obj/VDispTableReader_Dict.o \
 		./obj/VDispTableAnalyzer.o \
