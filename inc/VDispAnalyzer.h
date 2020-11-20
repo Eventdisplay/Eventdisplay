@@ -12,7 +12,6 @@
 
 #include "VDispTableAnalyzer.h"
 #include "VGrIsuAnalyzer.h"
-#include "VMLPAnalyzer.h"
 #include "VStatistics.h"
 #include "VTMVADispAnalyzer.h"
 
@@ -28,7 +27,6 @@ class VDispAnalyzer
         
         string              fDispMethod;
         
-        VMLPAnalyzer*       fMLPAnalyzer;
         VDispTableAnalyzer* fDispTableAnalyzer;
         VTMVADispAnalyzer*  fTMVADispAnalyzer;
         

@@ -13,7 +13,6 @@
 
 VDispAnalyzer::VDispAnalyzer()
 {
-    fMLPAnalyzer = 0;
     fDispTableAnalyzer = 0;
     fTMVADispAnalyzer = 0;
     
@@ -53,21 +52,8 @@ bool VDispAnalyzer::initialize( string iFile, string iDispMethod, string iDispTy
 {
     fDispMethod = iDispMethod;
     
-    // disp is calculated using a ROOT MLP NN
-    if( fDispMethod == "MLP" )
-    {
-        fMLPAnalyzer = new VMLPAnalyzer( iFile );
-        if( fMLPAnalyzer->isZombie() )
-        {
-            setZombie( true );
-        }
-        else
-        {
-            setZombie( false );
-        }
-    }
     // disp is calculated using simple lookup tables
-    else if( fDispMethod == "DISPTABLES" )
+    if( fDispMethod == "DISPTABLES" )
     {
         fDispTableAnalyzer = new VDispTableAnalyzer( iFile );
         if( fDispTableAnalyzer->isZombie() )
@@ -116,11 +102,6 @@ bool VDispAnalyzer::initialize( string iFile, string iDispMethod, string iDispTy
  */
 void VDispAnalyzer::terminate()
 {
-    if( fMLPAnalyzer )
-    {
-        fMLPAnalyzer->terminate();
-    }
-    
     if( fDispTableAnalyzer )
     {
         fDispTableAnalyzer->terminate();
@@ -145,11 +126,7 @@ float VDispAnalyzer::evaluate( float iWidth, float iLength, float iAsymm, float 
 {
     f_disp = -99.;
     
-    if( fMLPAnalyzer )
-    {
-        f_disp = fMLPAnalyzer->evaluate( iWidth, iLength, iAsymm, iSize, iDist );
-    }
-    else if( fDispTableAnalyzer )
+    if( fDispTableAnalyzer )
     {
         f_disp = fDispTableAnalyzer->evaluate( iWidth, iLength, iSize, iPedvar, iZe, iAz, b2D );
     }
@@ -275,7 +252,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         fDispTableAnalyzer->calculateMeanDirection( xs, ys, x, y, cosphi, sinphi, v_disp, v_weight );
     }
     ///////////////////////////////////////////////////////////////////////
-    // method: MLP or BDTs
+    // method: BDTs
     ///////////////////////////////////////////////////////////////////////
     // first: 4 image and less
     //

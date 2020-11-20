@@ -40,7 +40,7 @@ VImageAnalyzerData::VImageAnalyzerData( unsigned int iTelID, unsigned int iShort
     
     fSpecialChannel = 0;
     
-        fpulsetiming_triggertime_index = 9999;
+    fpulsetiming_triggertime_index = 9999;
     fpulsetiming_tzero_index = 9999;
     fpulsetiming_width_index = 9999;
     
@@ -217,7 +217,16 @@ vector<unsigned int>& VImageAnalyzerData::getFADCstopTrigChannelID()
     return iDummyVectorUI;
 }
 
-bool VImageAnalyzerData::readSpecialChannels( int iRunNumber, string iFile, string iDirectory )
+/*
+ * read special channel configuration 
+ * (e.g. channels occupied by L2)
+ *
+ * read through put correction from file
+ *
+ * use special channel for this (although it is per telescope)
+ */
+bool VImageAnalyzerData::readSpecialChannels( int iRunNumber, string iEpoch, 
+                                              string ispecialchannelfile, 
 {
     if( fSpecialChannel )
     {
@@ -227,7 +236,8 @@ bool VImageAnalyzerData::readSpecialChannels( int iRunNumber, string iFile, stri
     {
         fSpecialChannel = new VSpecialChannel( fTelID );
     }
-    fSpecialChannel->readSpecialChannels( iRunNumber, iFile, iDirectory );
+	fSpecialChannel->readSpecialChannels( iRunNumber, ispecialchannelfile, iDirectory );
+    fSpecialChannel->readThroughput( iEpoch, ithroughputfile, iDirectory, fNChannels );
     
     return !fSpecialChannel->isZombie();
 }
