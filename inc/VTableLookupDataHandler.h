@@ -655,15 +655,6 @@ class VTableLookupDataHandler
             ftmsct[i] = iMSTC;
             ftmsct_sigma[i] = iMSTC_T;
         }
-        void setMSC_FRGO( double iMSW_FRGO )
-        {
-            fmsc_frgo = iMSW_FRGO;
-        }
-        void setMSC_FRGOT( int i, double iMSTC, float iMSTC_T = -99. )
-        {
-            ftmsc_frgo[i] = iMSTC;
-            ftmsc_frgo_sigma[i] = iMSTC_T;
-        }
         void setMWR( double iM )
         {
             fmwr = iM;

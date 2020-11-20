@@ -42,6 +42,9 @@ class VAnaSumRunParameterDataClass : public TNamed
         
         double fMJDOn;
         double fMJDOff;
+
+        double fMJDOnStart;
+        double fMJDOnStop;
         
         string fTarget;
         double fTargetRAJ2000;
@@ -176,7 +179,6 @@ class VAnaSumRunParameter : public TNamed, public VGlobalRunParameter
         bool fRunWiseRadialAcceptance;
         
         unsigned int fWriteEventTree;   // 0=don't fill the event tree; 1=write all events; 2=write events after direction cuts (default)
-        bool fWriteEventTreeForCtools ; // WRITEEVENTTREEFORCTOOLS (same as fWriteEventTree=1)
         
         // Likelihood Spectral Analysis
         bool fLikelihoodAnalysis;
@@ -210,7 +212,7 @@ class VAnaSumRunParameter : public TNamed, public VGlobalRunParameter
         // (note: this is just a placeholder!)
         VExclusionRegions* fExclusionRegions;
         
-        // for saving the deadtime fraction for ctools
+        // saving the deadtime fraction
         double fScalarDeadTimeFrac ;
         
         string fTimeMaskFile;
@@ -254,8 +256,9 @@ class VAnaSumRunParameter : public TNamed, public VGlobalRunParameter
         void printStereoParameter( unsigned int icounter );
         void printStereoParameter( int irun );
         int  readRunParameter( string i_filename, bool fIgnoreZeroExclusionRegion = false );
+        bool setRunTimes( unsigned int irun, double iMJDStart, double iMJDStopp );
         bool setSkyMapCentreJ2000( unsigned int i, double ra, double dec );
-        bool setTargetRADecJ2000( unsigned int i, double ra, double dec );
+		bool setTargetRADecJ2000( unsigned int i, double ra, double dec, string iTargetName );
         bool setTargetRADec_currentEpoch( unsigned int i, double ra, double dec );
         bool setTargetShifts( unsigned int i, double west, double north, double ra, double dec );
         bool writeListOfExcludedSkyRegions( int inonRun );

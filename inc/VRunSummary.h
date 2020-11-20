@@ -36,6 +36,7 @@ class VRunSummary
         double MJDOn_runStart;
         double MJDOn_runStopp;
         double RunDurationOn;
+        Char_t fTargetName[300];
         
         int runOff;
         double MJDOff;
@@ -56,14 +57,12 @@ class VRunSummary
         double fWobbleNorth;
         double fWobbleWest;
         unsigned int fNTel;
-        
-        double tOn;                 // exposure
-        double tOff;                // exposure
-        
+        Char_t fTelList[300];
         double elevationOn;
         double azimuthOn;
         double elevationOff;
         double azimuthOff;
+        double fTheta2Max;
         double RawRateOn;
         double RawRateOff;
         double pedvarsOn;

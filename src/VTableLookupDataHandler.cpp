@@ -1815,6 +1815,10 @@ bool VTableLookupDataHandler::readRunParameter()
             VEvndispRunParameter* iPar = ( VEvndispRunParameter* ) ifInput.Get( "runparameterV2" );
             VEvndispReconstructionParameter* iERecPar = ( VEvndispReconstructionParameter* )ifInput.Get( "EvndispReconstructionParameter" );
             VMonteCarloRunHeader* iMC = ( VMonteCarloRunHeader* )ifInput.Get( "MC_runheader" );
+            if( iMC )
+            {
+                 fTLRunParameter->ze = iMC->getMeanZenithAngle_Deg();
+            }
             if( iPar )
             {
                 if( fTLRunParameter->fTelToAnalyse.size() > 0 )
@@ -1997,9 +2001,7 @@ bool VTableLookupDataHandler::terminate( TNamed* iM )
         // copy TTree 'pointingDataReduced' and 'deadPixelRegistry' from evndisp.<>.root to mscw.<>.root
         if( finputfile.size() > 1 && !fIsMC )
         {
-            cout << "Warning, VTableLookupDataHandler->finputfile.size() isn't 1, not sure which input file to copy TTree 'pointingDataReduced' from";
-            cout << ", copying from file finputfile[0]:" << finputfile[0] << endl;
-            cout << "(this might be ok, especially for CTA simulations)" << endl;
+			cout << "Warning, VTableLookupDataHandler->finputfile.size() isn't 1, not sure which input file to copy TTree 'pointingDataReduced' from, copying from file finputfile[0]:" << finputfile[0] << endl;
         }
         // not sure why we don't want to do this for MC
         if( finputfile.size() > 0 && !fIsMC )
@@ -2312,11 +2314,9 @@ void VTableLookupDataHandler::reset()
         ftmscl[i] = -99.;
         ftmscw[i] = -99.;
         ftmsct[i] = -99.;
-        ftmsc_frgo[i] = -99.;
         ftmscw_sigma[i] = -99.;
         ftmscl_sigma[i] = -99.;
         ftmsct_sigma[i] = -99.;
-        ftmsc_frgo_sigma[i] = -99.;
         fXoff_T[i] = -99.;
         fYoff_T[i] = -99.;
         fWoff_T[i] = -99.;
@@ -2327,7 +2327,6 @@ void VTableLookupDataHandler::reset()
     fenergyQL = -1;
     fmscl = -99.;
     fmscw = -99.;
-    fmsc_frgo = -99.;
     fmwr  = -99.;
     fmlr  = -99.;
     fenergyS = -99.;
@@ -2669,11 +2668,9 @@ void VTableLookupDataHandler::resetAll()
         ftmscw[i] = 0.;
         ftmscl[i] = 0.;
         ftmsct[i] = 0.;
-        ftmsc_frgo[i] = 0.;
         ftmscw_sigma[i] = 0.;
         ftmscl_sigma[i] = 0.;
         ftmsct_sigma[i] = 0.;
-        ftmsc_frgo_sigma[i] = 0.;
         fES[i] = 0.;
         fES_short[i] = 0.;
     }
@@ -2688,7 +2685,6 @@ void VTableLookupDataHandler::resetAll()
     fmscw = 0.;
     fmscl = 0.;
     fmsct = 0.;
-    fmsc_frgo = 0.;
     fmwr  = 0.;
     fmlr  = 0.;
     fenergyS = 0.;

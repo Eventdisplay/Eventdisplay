@@ -723,6 +723,27 @@ void VAnaSum::fillRunSummary( int onrun, int offrun, double iexp_on, double iexp
         fRunSummary->elevationOff = fStereoOff->getMeanElevation();
         fRunSummary->azimuthOn = fRunAzMeanOn[onrun];
         fRunSummary->azimuthOff = fRunAzMeanOff[offrun];
+        for( unsigned int p = 0; p < fRunPara->fRunList.size(); p++ )
+        {
+            stringstream iTelCombination;
+            if( fRunPara->fRunList[p].fRunOn == onrun )
+            {
+                for( unsigned int t = 0; t < fRunPara->fRunList[p].fTelToAnalyze.size(); t++ )
+                {
+                    iTelCombination << "T";
+                    iTelCombination << fRunPara->fRunList[p].fTelToAnalyze[t]+1;
+                }
+                if( iTelCombination.str().size() < 300 )
+                {
+                    sprintf( fRunSummary->fTelList, "%s", iTelCombination.str().c_str() );
+                }
+                else
+                {
+                    sprintf( fRunSummary->fTelList, "%s", iTelCombination.str().substr(0,299).c_str() );
+                }
+            }    
+        }
+        fRunSummary->fTheta2Max = fRunPara->fMapRunList[onrun].fSourceRadius;
     }
     else
     {
@@ -737,10 +758,22 @@ void VAnaSum::fillRunSummary( int onrun, int offrun, double iexp_on, double iexp
         fRunSummary->fWobbleNorth = 0.;
         fRunSummary->fWobbleWest = 0.;
         fRunSummary->fNTel = 0;
+        sprintf( fRunSummary->fTelList, "NOTSET" );
         fRunSummary->elevationOn = fMeanElevationOn;
         fRunSummary->elevationOff = fMeanElevationOff;
         fRunSummary->azimuthOn = fMeanAzimuthOn;
         fRunSummary->azimuthOff = fMeanAzimuthOff;
+    }
+    if( onrun != -1 )
+    {
+           if( fRunPara->fMapRunList[onrun].fTarget.size() < 300 )
+           {
+                sprintf( fRunSummary->fTargetName, "%s", fRunPara->fMapRunList[onrun].fTarget.c_str() );
+           }
+           else
+           {
+                sprintf( fRunSummary->fTargetName, "%s", fRunPara->fMapRunList[onrun].fTarget.substr( 0, 299 ).c_str() );
+           }
     }
     if( onrun != -1 && fRunPara->fMapRunList.find( onrun ) != fRunPara->fMapRunList.end() )
     {
