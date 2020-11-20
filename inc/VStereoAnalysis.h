@@ -168,7 +168,7 @@ class VStereoAnalysis
         int    fTreeSelected_MJD;
         double fTreeSelected_Time;
         int    fTreeSelected_NImages;
-		double fTreeSelected_theta2;
+		ULong64_t fTreeSelected_ImgSel;
         double fTreeSelected_theta2;
         double fTreeSelected_Xoff;
         double fTreeSelected_Yoff;
@@ -203,11 +203,10 @@ class VStereoAnalysis
 		double  fDL3EventTree_RA;
 		double  fDL3EventTree_DEC;
 		double  fDL3EventTree_Erec;
-		double  fDL3EventTree_ErecS;
 		double  fDL3EventTree_Erec_Err;
-		double  fDL3EventTree_ErecS_Err;
-		double  fDL3EventTree_XGroundCore;
-		double  fDL3EventTree_YGroundCore;
+		double  fDL3EventTree_dE;
+		double  fDL3EventTree_Xcore;
+		double  fDL3EventTree_Ycore;
 		int     fDL3EventTree_NImages;
 		ULong64_t fDL3EventTree_ImgSel;
 		double  fDL3EventTree_MSCW;

@@ -24,6 +24,13 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     fMCEnergy_min = -99.;
     fMCEnergy_max = -99.;
     fMCEnergy_index = 5.;
+
+    // IRF histogram bin definition
+    fBiasBin = 300;                       // Energy bias (bias bins)
+    fLogAngularBin = 100;                 // Angular resolution Log10 (bins)
+    fResponseMatricesEbinning = 500;      // bins in the ResponseMatrices 
+    fhistoNEbins = fEnergyAxisBins_log10; // E binning (affects 2D histograms only)
+
     
     fCutFileName = "";
     fGammaHadronCutSelector = -1;
@@ -167,6 +174,47 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                     }
                 }
             }
+			// number of bins on log10 energy axis
+			else if( temp == "ENERGYAXISBINS" )
+			{
+				if( !(is_stream>>std::ws).eof() )
+				{
+					is_stream >> fEnergyAxisBins_log10;
+				}
+            }
+			// number of bins on log10 energy axis - IRF histograms only (allows re-binning)
+			else if( temp == "ENERGYAXISBINHISTOS" )
+			{
+				if( !(is_stream>>std::ws).eof() )
+				{
+					is_stream >> fhistoNEbins;
+				}
+            }
+			// number of bins on energy bias - IRF histograms only
+			else if( temp == "EBIASBINHISTOS" )
+			{
+				if( !(is_stream>>std::ws).eof() )
+				{
+					is_stream >> fBiasBin;
+				}
+            }
+			// number of bins on angular resolution - IRF histograms only
+			else if( temp == "ANGULARRESOLUTIONBINHISTOS" )
+			{
+				if( !(is_stream>>std::ws).eof() )
+				{
+					is_stream >> fLogAngularBin;
+				}
+            }
+			// number of fine-bins for the response matrices (likelihood analysis)
+			else if( temp == "RESPONSEMATRICESEBINS" )
+			{
+				if( !(is_stream>>std::ws).eof() )
+				{
+					is_stream >> fResponseMatricesEbinning;
+				}
+            }
+			// energy reconstruction quality
             else if( temp == "RECONSTRUCTIONTYPE" )
             {
                 if( !(is_stream>>std::ws).eof() )
@@ -511,6 +559,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameters( string ifilenam
     VEvndispRunParameter* i_runPara = ( VEvndispRunParameter* )iFile->Get( "runparameterV2" );
     if( i_runPara )
     {
+        fObservatory = i_runPara->getObservatory();
         fInstrumentEpoch = i_runPara->fInstrumentEpoch;
         fTelToAnalyse = i_runPara->fTelToAnalyze;
     }
@@ -606,6 +655,8 @@ void VInstrumentResponseFunctionRunParameter::print()
     cout << endl;
     cout << "run parameters for calculation of instrument response functions: " << endl;
     cout << "-----------------------------------------------------------------" << endl;
+    cout << endl;
+	cout << "observatory " << fObservatory << endl;
     cout << endl;
     cout << "filling mode " << fFillingMode;
     if( fFillingMode == 0 )
@@ -748,19 +799,17 @@ bool VInstrumentResponseFunctionRunParameter::readCRSpectralParameters()
         return false;
     }
     
-    // read energy spectrum from literature class
-    TF1* i_Ftemp = espec.getEnergySpectrum( fCREnergySpectrumID, false );
-    if( i_Ftemp )
+	if( espec.getEnergySpectrum( fCREnergySpectrumID ) )
     {
         char hname[1000];
-        sprintf( hname, "%s_C", i_Ftemp->GetName() );
-        fCREnergySpectrum = new TF1( hname, i_Ftemp->GetExpFormula(),
-                                     i_Ftemp->GetXmin(),
-                                     i_Ftemp->GetXmax() );
-        for( int i = 0; i < i_Ftemp->GetNpar(); i++ )
+		sprintf( hname, "%s_C", espec.getEnergySpectrum( fCREnergySpectrumID )->GetName() );
+		fCREnergySpectrum = new TF1( hname, espec.getEnergySpectrum( fCREnergySpectrumID )->GetExpFormula(),
+									 espec.getEnergySpectrum( fCREnergySpectrumID )->GetXmin(),
+									 espec.getEnergySpectrum( fCREnergySpectrumID )->GetXmax() );
+		for( int i = 0; i < espec.getEnergySpectrum( fCREnergySpectrumID )->GetNpar(); i++ )
         {
-            fCREnergySpectrum->SetParameter( i, i_Ftemp->GetParameter( i ) );
-            fCREnergySpectrum->SetParError( i, i_Ftemp->GetParError( i ) );
+			fCREnergySpectrum->SetParameter( i, espec.getEnergySpectrum( fCREnergySpectrumID )->GetParameter( i ) );
+			fCREnergySpectrum->SetParError( i, espec.getEnergySpectrum( fCREnergySpectrumID )->GetParError( i ) );
         }
         delete i_Ftemp;
     }
@@ -772,3 +821,11 @@ bool VInstrumentResponseFunctionRunParameter::readCRSpectralParameters()
     return true;
 }
 
+string VInstrumentResponseFunctionRunParameter::getInstrumentEpoch( bool iMajor )
+{
+        if( iMajor )
+        {
+             return fInstrumentEpoch.substr( 0, fInstrumentEpoch.find( "_" ) );
+        }
+        return fInstrumentEpoch;
+} 

@@ -35,6 +35,19 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     
     // number of bins for histograms
     nbins = fRunPara->fEnergyAxisBins_log10;
+	nbins_MC = fRunPara->fEnergyAxisBins_log10;
+
+    // bin definition for 2D histograms (allows coarser binning in energy)
+    fBiasBin       = fRunPara->fBiasBin;      
+    fhistoNEbins   = fRunPara->fhistoNEbins; 
+    fLogAngularBin = fRunPara->fLogAngularBin; 
+    fResponseMatricesEbinning = fRunPara->fResponseMatricesEbinning;
+
+    // this should not be changed
+    fEnergyAxis_minimum_defaultValue = -2.;
+    fEnergyAxis_maximum_defaultValue =  4.;
+    fLogAngular_minimum_defaultValue = -4.;
+    fLogAngular_maximum_defaultValue =  1.;
     
     // cuts
     fCuts = icuts;
@@ -201,7 +214,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "energy reconstruction",
                         "log_{10} energy_{MC} [TeV]",
                         "energy bias (E_{rec}-E_{MC})/E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
                         -1, -1000., 1000., "s" );
 
@@ -209,35 +222,35 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "energy reconstruction",
                         "energy_{MC} [TeV]",
                         "energy bias (E_{rec}-E_{MC})/E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
-                        3000, -5., 5., "" );
+                        1000, -5., 5., "" );
     newEffectiveAreaHistogram( "2D", E_EsysMCRelative2D,
                         "energy reconstruction",
                         "energy_{MC} [TeV]",
                         "energy bias E_{rec}/E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        300, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
-                        300, 0., 3., "" );
+                        fBiasBin, 0., 3., "" );
     newEffectiveAreaHistogram( "2D", E_EsysMCRelative2DNoDirectionCut,
                         "energy reconstruction, after gamma-selection cuts",
                         "energy_{MC} [TeV]",
                         "energy bias E_{rec}/E_{MC}",
                         nbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
-                        300, 0., 3., "" );
+                        fBiasBin, 0., 3., "" );
     newEffectiveAreaHistogram( "2D", E_Esys2D,
                         "energy reconstruction",
                         "energy_{MC} [TeV]",
                         "log_{10} E_{rec} - log_{10} E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
                         100, -0.98, 2.02, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrix,
                         "migration matrix",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
                         nbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue, "" );
@@ -245,36 +258,36 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "migration matrix, fine binning",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        500, -2.3, 2.7,
-                        500, -2.3, 2.7, "" );
+                        fResponseMatricesEbinning, -2.3, 2.7,
+                        fResponseMatricesEbinning, -2.3, 2.7, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrixQC,
                         "migration matrix, after quality cuts",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
                         nbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrixFineQC,
                         "migration matrix, fine binning",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        500, -2., 2.7,
-                        500, -2.3, 2.7, "" );
+                        fResponseMatricesEbinning, -2., 2.7,
+                        fResponseMatricesEbinning, -2.3, 2.7, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrixNoDirectionCut,
                         "migration matrix",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrixFineNoDirectionCut,
                         "migration matrix, fine binning",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        500, -2., 2.7,
-                        500, -2.3, 2.7, "" );
+                        fResponseMatricesEbinning, -2., 2.7,
+                        fResponseMatricesEbinning, -2.3, 2.7, "" );
     
     // log angular difference histogram (vs true energy)
     sprintf( hname, "hAngularLogDiffEmc_2D" );

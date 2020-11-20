@@ -379,7 +379,6 @@ double VStereoAnalysis::fillHistograms( int icounter, int irun, double iAzMin, d
     
     // initialize time mask
     fTimeMask->setMask( irun, iMJDStart, iMJDStopp, fRunPara->fTimeMaskFile );
-    fRunPara->setRunTimes( icounter, iMJDStart, iMJDStopp );
     
     // initialize cuts
     setCuts( fRunPara->fRunList[fHisCounter], irun );
@@ -1964,8 +1963,8 @@ bool VStereoAnalysis::init_TreeWithSelectedEvents( int irun, bool isOn )
     fTreeSelectedEvents->Branch( "MLR", &fTreeSelected_MLR, "MLR/D" );
 	fTreeSelectedEvents->Branch( "Erec", &fTreeSelected_Erec, "Erec/D" );
 	fTreeSelectedEvents->Branch( "EChi2", &fTreeSelected_EChi2, "EChi2/D" );
-	fTreeSelectedEvents->Branch( "ErecS", &fTreeSelected_ErecS, "ErecS/D" );
-	fTreeSelectedEvents->Branch( "EChi2S", &fTreeSelected_EChi2S, "EChi2S/D" );
+	fTreeSelectedEvents->Branch( "Erec", &fTreeSelected_Erec, "Erec/D" );
+	fTreeSelectedEvents->Branch( "EChi2", &fTreeSelected_EChi2, "EChi2/D" );
     fTreeSelectedEvents->Branch( "EmissionHeight", &fTreeSelected_EmissionHeight, "EmissionHeight/F" );
     fTreeSelectedEvents->Branch( "EmissionHeightChi2", &fTreeSelected_EmissionHeightChi2, "EmissionHeightChi2/F" );
     fTreeSelectedEvents->Branch( "SizeSecondMax", &fTreeSelected_SizeSecondMax, "SizeSecondMax/D" );
@@ -2145,8 +2144,8 @@ bool VStereoAnalysis::init_DL3Tree( int irun, int icounter )
 	fDL3EventTree->Branch( "MJD",            &fDL3EventTree_MJD,            "MJD/I" );
 	fDL3EventTree->Branch( "Energy",         &fDL3EventTree_Erec,           "Erec/D" );
 	fDL3EventTree->Branch( "Energy_Err",     &fDL3EventTree_Erec_Err,       "Erec_Err/D" );
-	fDL3EventTree->Branch( "XCore",          &fDL3EventTree_XGroundCore,    "XCore/D" );
-	fDL3EventTree->Branch( "YCore",          &fDL3EventTree_YGroundCore,    "YCore/D" );
+	fDL3EventTree->Branch( "XCore",          &fDL3EventTree_Xcore,          "XCore/D" );
+	fDL3EventTree->Branch( "YCore",          &fDL3EventTree_Ycore,          "YCore/D" );
 	fDL3EventTree->Branch( "Xderot",         &fDL3EventTree_Xderot,         "Xderot/D" );
 	fDL3EventTree->Branch( "Yderot",         &fDL3EventTree_Yderot,         "Yderot/D" );
 	fDL3EventTree->Branch( "NImages",        &fDL3EventTree_NImages,        "NImages/I" );
@@ -2196,8 +2195,8 @@ void VStereoAnalysis::fill_DL3Tree( CData* c , double i_xderot, double i_yderot,
     fDL3EventTree_Yderot   = i_yderot;        // Derotated Gamma Point-Of-Origin (deg, DEC)
     fDL3EventTree_Erec        = c->getEnergy_TeV();        // Reconstructed Gamma Energy (TeV)
     fDL3EventTree_dE          = c->getEnergyDelta();          // Reconstructed Gamma Energy (TeV) Error
-    fDL3EventTree_Xcore        = c->getXcore_M();        // Gamma Ray Core-Ground intersection location (north?)
-    fDL3EventTree_Ycore        = c->getYcore_M();        // Gamma Ray Core-Ground intersection location (east?)
+    fDL3EventTree_Xcore = c->getXcore_M();        // Gamma Ray Core-Ground intersection location (north?)
+    fDL3EventTree_Ycore = c->getYcore_M();        // Gamma Ray Core-Ground intersection location (east?)
     fDL3EventTree_NImages      = c->getNImages();      // Number of images used in reconstruction?
     fDL3EventTree_ImgSel       = c->getImgSel();       // 4-bit binary code describing which telescopes had images
     fDL3EventTree_MSCW         = c->MSCW ;        // mean scaled width
@@ -2218,7 +2217,7 @@ void VStereoAnalysis::fill_DL3Tree( CData* c , double i_xderot, double i_yderot,
         double i_centerpoint_dec = ( fRunPara->fRunList[icounter].fTargetDecJ2000 + getWobbleNorth() );
         double i_Spherical_RA  = 0.;
         double i_Spherical_DEC = 0.;
-        slaDtp2s( fDL3EventTree_Xderot * TMath::DegToRad(),
+        VAstronometry::vlaDtp2s( fDL3EventTree_Xderot * TMath::DegToRad(),
                   fDL3EventTree_Yderot * TMath::DegToRad(),
                   i_centerpoint_RA * TMath::DegToRad(), 
                   i_centerpoint_dec * TMath::DegToRad(),

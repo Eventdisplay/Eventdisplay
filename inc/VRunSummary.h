@@ -37,7 +37,9 @@ class VRunSummary
         double MJDOn_runStopp;
         double RunDurationOn;
         Char_t fTargetName[300];
-        
+
+        double tOn;                 // exposure
+        double tOff;                // exposure
         int runOff;
         double MJDOff;
         double MJDOff_runStart;

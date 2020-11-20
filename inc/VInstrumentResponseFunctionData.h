@@ -37,6 +37,11 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
         int     fHistogrambinningEnergy_TeV_Log;
         double  fHistogrambinningEnergy_Min_Tev_Log;
         double  fHistogrambinningEnergy_Max_Tev_Log;
+
+        // angular binning
+        int     fHistogrambinningAngular_Log;
+		double  fHistogrambinningAngular_Min_Log;
+		double  fHistogrambinningAngular_Max_Log;
         
         // array centre
         double  fArrayCentre_X;
@@ -76,7 +81,8 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
         unsigned int fEnergyReconstructionMethod;
         
         // list of histogram types
-        enum    E_HISTOID { E_DIFF, E_DIFF2, E_LOGDIFF, E_NIMAG, E_DIST, E_ERROR, E_RELA, E_DIFF_MC, E_DIFF2_MC, E_LOGDIFF_MC };
+        enum    E_HISTOID { E_DIFF, E_DIFF2, E_LOGDIFF, E_NIMAG, E_DIST, E_ERROR, E_RELA,
+                                    E_DIFF_MC, E_DIFF2_MC, E_LOGDIFF_MC };
         TList*                     fHistogramList;
         vector< TH2D* >            f2DHisto;
         vector< TGraphErrors* >    fResolutionGraph;
@@ -114,9 +120,15 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
             fHistogrambinningEnergy_Min_Tev_Log = iMin;
             fHistogrambinningEnergy_Max_Tev_Log = iMax;
         }
-        bool   terminate( double iContainmentProbability );
+		void   setHistogramLogAngbinning( int iN = 20, double iMin = -4.0, double iMax = 1.0 )
+		{
+			fHistogrambinningAngular_Log = iN;
+			fHistogrambinningAngular_Min_Log = iMin;
+			fHistogrambinningAngular_Max_Log = iMax;
+        }
+        bool   terminate( double iContainmentProbability, double iContainmentProbabilityError );
         
-        ClassDef( VInstrumentResponseFunctionData, 8 );
+        ClassDef( VInstrumentResponseFunctionData, 9 );
 };
 
 #endif

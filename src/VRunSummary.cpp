@@ -47,7 +47,7 @@ bool VRunSummary::setBranches()
     fRunSummaryTree->Branch( "WobbleNorth", &fWobbleNorth, "WobbleNorth/D" );
     fRunSummaryTree->Branch( "WobbleWest", &fWobbleWest, "WobbleWest/D" );
     fRunSummaryTree->Branch( "NTel", &fNTel, "NTel/i" );
-        fRunSummaryTree->Branch( "TelList", &fTelList, "TelList/C"  );
+    fRunSummaryTree->Branch( "TelList", &fTelList, "TelList/C"  );
     fRunSummaryTree->Branch( "tOn", &tOn, "tOn/D" );
     fRunSummaryTree->Branch( "tOff", &tOff, "tOff/D" );
     fRunSummaryTree->Branch( "elevationOn", &elevationOn, "elevationOn/D" );
@@ -113,7 +113,7 @@ void VRunSummary::init()
     elevationOff = 0.;
     azimuthOn  = 0.;
     azimuthOff = 0.;
-        fTheta2Max = 0.;
+    fTheta2Max = 0.;
     RawRateOn = 0.;
     RawRateOff = 0.;
     pedvarsOn = 0.;

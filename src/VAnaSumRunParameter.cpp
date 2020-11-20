@@ -18,7 +18,7 @@ VAnaSumRunParameterDataClass::VAnaSumRunParameterDataClass()
     fRunOn = 0;
     fRunOnFileName = "";
     fRunOff = 0;
-        fRunOffFileName = "";
+    fRunOffFileName = "";
     
     fMJDOn = 0.;
     fMJDOff = 0.;
@@ -52,8 +52,8 @@ VAnaSumRunParameterDataClass::VAnaSumRunParameterDataClass()
     fTargetShiftDecJ2000 = 0.;
     
     fNTel = 4;
+    fTelToAna = "";
     fMaxTelID = fNTel;
-        fTelToAna = "";
     
     fBackgroundModel = 0;
     fSourceRadius = 0.;                           // actually radius^2
@@ -154,7 +154,6 @@ VAnaSumRunParameter::VAnaSumRunParameter()
     // length of time intervals in seconds for rate plots and short term histograms
     fTimeIntervall = 4. * 60.;
     
-    fWriteEventTreeForCtools = false ;
     fWriteEventTree = 2;
     
     // Binned Likelihood
@@ -166,7 +165,7 @@ VAnaSumRunParameter::VAnaSumRunParameter()
     // use run-wise radial acceptance curve
     fRunWiseRadialAcceptance = false;
     
-    // for deadtime fraction storage CTOOLS
+    // for deadtime fraction storage
     fScalarDeadTimeFrac = 0.0 ;
     
     // set monte carlo zenith angles
@@ -735,19 +734,6 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
             else if( temp == "WRITEEVENTTREE" )
             {
                 fWriteEventTree = ( unsigned int )atoi( temp2.c_str() );
-            }
-            
-            ///////////////////////////////////////////////////////////
-            // WRITEEVENTTREEFORCTOOLS
-            // adds an extra tree "run_#####/stereo/TreeWithEventsForCtools" to anasum.#####.root,
-            // containing info for converting veritas data to CTOOLs event list format
-            else if( temp == "WRITEEVENTTREEFORCTOOLS" )
-            {
-                unsigned int tmpWriteAll = ( unsigned int )atoi( temp2.c_str() ) ;
-                if( tmpWriteAll == 1 )
-                {
-                    fWriteEventTreeForCtools = true ;
-                }
             }
             /// enable likelihood analysis ///
             else if (temp == "ENABLEBINNEDLIKELIHOOD")
@@ -1564,16 +1550,18 @@ bool VAnaSumRunParameter::setSkyMapCentreJ2000( unsigned int i, double ra, doubl
 }
 
 
-bool VAnaSumRunParameter::setTargetRADecJ2000( unsigned int i, double ra, double dec )
+bool VAnaSumRunParameter::setTargetRADecJ2000( unsigned int i, double ra, double dec, string iTargetName )
 {
     if( i < fRunList.size() )
     {
         fRunList[i].fTargetRAJ2000  = ra;
         fRunList[i].fTargetDecJ2000 = dec;
+        fRunList[i].fTarget = iTargetName;
         if( fMapRunList.find( fRunList[i].fRunOn ) != fMapRunList.end() )
         {
             fMapRunList[fRunList[i].fRunOn].fTargetRAJ2000  = ra;
             fMapRunList[fRunList[i].fRunOn].fTargetDecJ2000 = dec;
+            fMapRunList[fRunList[i].fRunOn].fTarget = iTargetName;
         }
         // set centre of stereo maps (if this parameter is not set in the file runparameter.dat)
         if( TMath::Abs( fSkyMapCentreNorth ) < 1.e-8 && TMath::Abs( fSkyMapCentreWest ) < 1.e-8
