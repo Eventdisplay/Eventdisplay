@@ -117,6 +117,69 @@ bool VFITS::writeCumSignificance( bool iPrint )
 }
 
 /*********************************************************************/
+/* Calculate integral flux in monthly bins and store as table in FITS file */
+/*********************************************************************/
+
+bool VFITS::writeMonthlyFlux( bool iPrint, string outfile )
+{
+	cout << " Write nightly flux to fits file" << endl;
+	VFluxCalculation flux2( fFile_anasum );
+	flux2.setSpectralParameters( 0.35, 1.0, -2.2 );
+	flux2.setSignificanceParameters( -9, -9 );
+	flux2.calculateIntegralFlux( 0.35 );
+	
+	VLightCurve flux;
+	flux.initializeTeVLightCurve( fFile_anasum, 30, 54500, 59200 );
+	flux.setSpectralParameters( 0.35, 1.0, -2.2 );
+	flux.setSignificanceParameters( -9, -9 );
+	flux.fill( 0.35 );
+	flux.plotLightCurve();
+	TGraphAsymmErrors* gFlux = flux.getLightCurveGraph();
+	
+	
+	if( iPrint )
+	{
+		cout << " Calculated the integral flux " << endl;
+	}
+	writeTGraphAsymmErrorsFits( gFlux, "MonthlyFlux", "Date", "F(>0.35 TeV)", "MJD", "1/[cm^2*s]", iPrint );
+	if( iPrint )
+	{
+		cout << " transformed monthly flux into FITS-table" << endl;
+	}
+	
+	if( outfile != "" )
+	{
+		ofstream out;
+		out.open( outfile.c_str() );
+		out << "MJD\tF(>350GeV) [/cm^2/s]\tFlux in C.U." << endl;
+		TString line;
+		double mjd, flx, flxE, flxCrab, flxCrabE;
+		
+		for( int i = 0; i < gFlux->GetN(); i++ )
+		{
+			mjd = gFlux->GetX()[i];
+			flx = gFlux->GetY()[i];
+			flxE = ( gFlux->GetErrorYhigh( i ) + gFlux->GetErrorYlow( i ) ) / 2.0;
+			
+			flxCrab = flux2.getFluxVsCrab( flx, 0.35, 2.2 );
+			flxCrabE = flux2.getFluxVsCrab( flxE, 0.35, 2.2 );
+			
+			line.Form( "%d\t%.3e\t%.3e\t%.2f\t%.2f\n", ( int )mjd, flx, flxE, flxCrab, flxCrabE );
+			out << line ;
+			
+		}
+		flux2.getFlux( -1, flx, flxE, mjd );
+		flxCrab = flux2.getFluxVsCrab( flx, 0.35, 2.2 );
+		flxCrabE = flux2.getFluxVsCrab( flxE, 0.35, 2.2 );
+		
+		line.Form( "Total:\t%.3e\t%.3e\t%.2f\t%.2f\n", flx, flxE, flxCrab, flxCrabE );
+		out << line << endl;
+	}
+	
+	return true;
+}
+
+/*********************************************************************/
 /* Calculate integral flux in nightly bins and store as table in FITS file */
 /*********************************************************************/
 

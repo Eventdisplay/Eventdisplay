@@ -82,8 +82,9 @@ class VFITS : public VAnalysisUtilities, public VPlotUtilities, public VHistogra
         bool writeEnergySpectrum( bool iPrint = false );
         bool writeFITSFile( bool iPrint = false );
         bool writeNightlyFlux( bool iPrint = false , string outfile = "" );
+		bool writeMonthlyFlux( bool iPrint = false , string outfile = "" );
         bool writeAlphaSkyMap( bool iPrint = false );
         bool writeRawCountsSkyMap( bool iPrint = false );
-        ClassDef( VFITS, 1 ); //(increase this number)
+        ClassDef( VFITS, 2 ); //(increase this number)
 };
 #endif

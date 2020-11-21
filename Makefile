@@ -1537,12 +1537,12 @@ MAKEOPTCUTTMVATRAININGOBJ= 	./obj/VMonteCarloRunHeader.o ./obj/VMonteCarloRunHea
 				./obj/VImageCleaningRunParameter.o ./obj/VImageCleaningRunParameter_Dict.o \
 				./obj/VEvndispRunParameter.o obj/VEvndispRunParameter_Dict.o \
 				./obj/VEvndispReconstructionParameter.o obj/VEvndispReconstructionParameter_Dict.o \
-                                ./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-                                ./obj/VStar.o ./obj/VStar_Dict.o \
-                                ./obj/VUtilities.o \
+                ./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
+                ./obj/VStar.o ./obj/VStar_Dict.o \
+                ./obj/VUtilities.o \
 				./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-                                ./obj/VSkyCoordinatesUtilities.o \
-                                ./obj/VDB_Connection.o \
+                ./obj/VSkyCoordinatesUtilities.o \
+                ./obj/VDB_Connection.o \
 				./obj/Ctelconfig.o \
 				./obj/trainTMVAforGammaHadronSeparation_TrainingFile.o
 
@@ -1590,14 +1590,14 @@ VTS.calculateCrabRateFromMC:	./obj/CEffArea.o ./obj/CEffArea_Dict.o \
 VTS.analyzeMuonRings:		./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
 				./obj/VImageCleaningRunParameter.o ./obj/VImageCleaningRunParameter_Dict.o \
 				./obj/VEvndispRunParameter.o ./obj/VEvndispRunParameter_Dict.o \
-                                ./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-                                ./obj/VStar.o ./obj/VStar_Dict.o \
-		                ./obj/VDB_Connection.o \
-                                ./obj/VUtilities.o \
-                                ./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-                                ./obj/VSkyCoordinatesUtilities.o \
+                ./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
+                ./obj/VStar.o ./obj/VStar_Dict.o \
+		        ./obj/VDB_Connection.o \
+                ./obj/VUtilities.o \
+                ./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
+                ./obj/VSkyCoordinatesUtilities.o \
 				./obj/Ctelconfig.o ./obj/Cshowerpars.o ./obj/Ctpars.o \
-			    	./obj/VUtilities.o  \
+			    ./obj/VUtilities.o  \
 				./obj/VStarCatalogue.o  ./obj/VStarCatalogue_Dict.o \
 				./obj/VSkyCoordinatesUtilities.o \
 				./obj/VEvndispReconstructionParameter.o ./obj/VEvndispReconstructionParameter_Dict.o \
