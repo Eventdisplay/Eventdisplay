@@ -31,7 +31,7 @@ void VPlotCompareDataWithMC::help()
     cout << endl;
     cout << "compare image and shower parameter distribution of simulations and on/off data" << endl;
     cout << "------------------------------------------------------------------------------" << endl;
-    cout << endl;
+	cout << endl << endl;
     cout << "shower parameter distributions:  stereo_parameter()  " << endl << endl;
     cout << "mscw/mscl energy dependent:      msc_vs_energy_plots()  " << endl << endl;
     cout << "mwr/mlr energy dependent:        mwr_vs_energy_plots()  " << endl << endl;
@@ -348,7 +348,7 @@ TF1* VPlotCompareDataWithMC::do_theta2Fit( TH1D* h, int icolor, int istyle )
     return fTheta2;
 }
 
-void VPlotCompareDataWithMC::plotCummulativePlot( TH1D* h1, TH1D* h2, double xmin, double xmax, double iSystematicCutCheck, int iTelescope, bool iLeftToRight, double iBinValue )
+void VPlotCompareDataWithMC::plotCummulativePlot( TH1D* h1, TH1D* h2, double xmin, double xmax, bool iLeftToRight, double iBinValue )
 {
     if( !h1 || !h2 )
     {
@@ -693,8 +693,8 @@ void VPlotCompareDataWithMC::msc_vs_energy_plots( int iRebin, double xmin, doubl
         return;
     }
     
-    plot_energyDependentDistributions( "MSCL", iRebin, xmin, xmax , "CUMU", 0, iSystematicCutCheck );
     plot_energyDependentDistributions( "MSCW", iRebin, xmin, xmax , "CUMU", 0, iSystematicCutCheck );
+    plot_energyDependentDistributions( "MSCL", iRebin, xmin, xmax , "CUMU", 0, iSystematicCutCheck );
     plot_energyDependentDistributions( "MSCL", iRebin, xmin, xmax , "REL" );
     plot_energyDependentDistributions( "MSCW", iRebin, xmin, xmax , "REL" );
     plot_energyDependentDistributions( "MSCL", iRebin, xmin, xmax );

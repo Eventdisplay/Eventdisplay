@@ -125,7 +125,6 @@ class VPlotAnasumHistograms : public VAnalysisUtilities, public VPlotUtilities, 
         void            plot_reflectedRegions( TCanvas* iC, int i, int j, int iColor = 5 );
         void            plot_excludedRegions( TCanvas* c, int iLineColor = 6 );
         TH1D*           plot_triggerpattern( int ntel = 3, bool bPlot = true );
-        void            plot_qfactors( char* varexp, char* selection, char* hisname, int ibin, double xmin, double xmax, char* xtitle = 0, double iSourceStrength = 1. );
         TCanvas*	plot_cumulativeSignificance( bool doSqrtFit = true );
         
         void            setPlottingCorrelatedHistograms( bool iB = false )

@@ -620,7 +620,7 @@ int parseOptions( int argc, char* argv[] )
                 ENV = getenv( "OBS_EVNDISP_AUX_DIR" );
                 char readme[500];
                 sprintf( readme, "cat %s/ParameterFiles/EVNDISP.updateDBlaserRUN.runparameter", ENV );
-                system( readme );
+                if( system( readme ) < 0 ) cout << "error in finding readme" << endl;
                 exit( 0 );
                 break;
             case 'd':

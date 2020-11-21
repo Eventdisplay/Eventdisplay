@@ -563,16 +563,13 @@ void doEVNDanalysis( TString new_laser_run_list_name )
     //-- launch the analysis if run_list is not empty
     if( !is_file_empty( run_list ) )
     {
-        //char test_string[800];
-        //sprintf(test_string,"echo %s",run_list.Data());
-        //std::cout << "COMMAND: " << test_string << std::endl;
-        //system(test_string);
-        
         char launching_EVNDISP_string_string[800];
         sprintf( launching_EVNDISP_string_string, "$EVNDISPSYS/scripts/VTS/VTS.EVNDISP.sub_analyse_laser.sh %s", run_list.Data() );
         std::cout << "COMMAND " << launching_EVNDISP_string_string << std::endl;
-        system( launching_EVNDISP_string_string );
-        
+        if( system( launching_EVNDISP_string_string ) < 0 )
+        {
+            std::cout << "error launching " << launching_EVNDISP_string_string << endl;
+        }
     }
     else
     {
@@ -976,7 +973,10 @@ int parseOptions( int argc, char* argv[] )
                 ENV = getenv( "OBS_EVNDISP_AUX_DIR" );
                 char readme[500];
                 sprintf( readme, "cat %s/ParameterFiles/EVNDISP.updateDBlaserRUN.runparameter", ENV );
-                system( readme );
+                if( system( readme ) < 0 )
+                {
+                    cout << "error printing readme" << endl;
+                }
                 exit( 0 );
                 break;
             case 'g':
