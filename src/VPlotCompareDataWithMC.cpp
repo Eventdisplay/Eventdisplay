@@ -348,7 +348,7 @@ TF1* VPlotCompareDataWithMC::do_theta2Fit( TH1D* h, int icolor, int istyle )
     return fTheta2;
 }
 
-void VPlotCompareDataWithMC::plotCummulativePlot( TH1D* h1, TH1D* h2, double xmin, double xmax, bool iLeftToRight, double iBinValue )
+void VPlotCompareDataWithMC::plotCummulativePlot( TH1D* h1, TH1D* h2, double xmin, double xmax, double iSystematicCutCheck, int iTelescope, bool iLeftToRight, double iBinValue )
 {
     if( !h1 || !h2 )
     {

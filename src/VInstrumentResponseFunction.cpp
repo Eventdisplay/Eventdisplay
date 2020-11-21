@@ -123,7 +123,8 @@ bool VInstrumentResponseFunction::initialize( string iName, string iType, unsign
             }
             
             i_irf.back()->setData( iZe, ( int )j, fVMinAz[j], fVMaxAz[j], iNoise, iPedvars, fVSpectralIndex[i], iXoff, iYoff );
-            i_irf.back()->setHistogrambinning();
+			i_irf.back()->setHistogramLogAngbinning( fRunPara->fLogAngularBin );
+			i_irf.back()->setHistogramEbinning( fRunPara->fhistoNEbins );
             i_irf.back()->setEnergyReconstructionMethod( fEnergyReconstructionMethod );
         }
         fIRFData.push_back( i_irf );
