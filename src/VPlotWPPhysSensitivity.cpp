@@ -759,6 +759,7 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
         }
     }
     i_PPUT.printLatexTable();
+    i_PPUT.printMarkdownTables();
     if( cSensRatio )
     {
         // TEMPTEMPTEMP
@@ -1386,6 +1387,36 @@ void VPPUTValues::print()
         cout << "PPUT: ";
         cout << fSetName[i] << ": ";
         cout << fPPUT[i] << " +- " << fPPUTError[i] << endl;
+    }
+}
+
+void VPPUTValues::printMarkdownTables()
+{
+    for( unsigned int i = 0; i < fSetName.size(); i++ )
+    {
+        cout << "MARKDOWN ";
+        cout << VUtilities::removeSpaces(fSetName[i]) << " | ";
+        cout << fixed << setfill('0') << setw(4);
+        if( fPPUT[i] > 1.e-5 )
+        {
+            cout << setprecision( 2 ) << fPPUT[i] << " +- " << setprecision( 2 ) << fPPUTError[i] << " | ";
+        }
+        else
+        {
+            cout << " - & ";
+        }
+        cout << setprecision( 2 ) << fnoLoEPPUT[i] << " +- " << setprecision( 2 ) << fnoLoEPPUTError[i] << " | ";
+        if( fPPUT[i] > 1.e-5 )
+        {
+            cout << setprecision( 2 ) << fLowEPPUT[i] << " +- " << setprecision( 2 ) << fLowEPPUTError[i] << " | ";
+        }
+        else
+        {
+            cout << " - & ";
+        }
+        cout << setprecision( 2 ) << fMidEPPUT[i] << " +- " << setprecision( 2 ) << fMidEPPUTError[i] << " | ";
+        cout << setprecision( 2 ) << fHighEPPUT[i] << " +- " << setprecision( 2 ) << fHighEPPUTError[i]; 
+        cout << " |" << endl;
     }
 }
 

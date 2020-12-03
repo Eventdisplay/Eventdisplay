@@ -56,6 +56,7 @@ class VPPUTValues
         void add( string iName, TGraph *iG );
         void print();
         void printLatexTable();
+        void printMarkdownTables();
 };
 
 
