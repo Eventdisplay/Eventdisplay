@@ -596,47 +596,11 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
         // select graph to which the sensitivity ratio is calculated to
         
         TGraphAsymmErrors* gRelG = 0;
+	TGraph *gRelReq = 0;
         // relative to requirement
         if( !fNorthSouthComparision && iRatioGraphCounter == 998 && fPlotCTARequirements.size() > 0 && fPlotCTARequirements[0] )
-            //                if( !fNorthSouthComparision && fPlotCTARequirements.size() > 0 && fPlotCTARequirements[0] )
         {
-            gRelG = ( TGraphAsymmErrors* )fPlotCTARequirements[0]->getRequiredDifferentalSensitivity();
-        }
-        // relative to goal
-        else if( !fNorthSouthComparision && iRatioGraphCounter == 998 && fPlotCTARequirements.size() > 0 && fPlotCTARequirements[0] )
-        {
-            gRelG = 0;
-        }
-        // hard wired values for NS comparision
-        else if( fNorthSouthComparision )
-        {
-            // do not plot first and third ratio
-            if( i == 0 || i == 2 )
-            {
-                continue;
-            }
-            if( fData.size() == 4 )
-            {
-                if( iRatioGraphCounter == 9998 && i == 1 && fPlotCTARequirements.size() > 1 && fPlotCTARequirements[1] )
-                {
-                    gRelG = ( TGraphAsymmErrors* )fPlotCTARequirements[1]->getRequiredDifferentalSensitivity();
-                }
-                else if( iRatioGraphCounter == 9998 && i == 3 && fPlotCTARequirements.size() > 1 && fPlotCTARequirements[1] )
-                {
-                    gRelG = ( TGraphAsymmErrors* )fPlotCTARequirements[0]->getRequiredDifferentalSensitivity();
-                }
-                else
-                {
-                    if( i == 1 && fData[0] && fData[0]->fGraphSensitivity[0] )
-                    {
-                        gRelG = fData[0]->fGraphSensitivity[0];
-                    }
-                    else if( i == 3 && fData[2] && fData[2]->fGraphSensitivity[0] )
-                    {
-                        gRelG = fData[2]->fGraphSensitivity[0];
-                    }
-                }
-            }
+            gRelReq = ( TGraph* )fPlotCTARequirements[0]->getRequiredDifferentalSensitivity();
         }
         // relative to another graph
         else
@@ -655,26 +619,23 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
                 gRelG = fData[iRatioGraphCounter]->fGraphSensitivity[0];
             }
         }
-        if( !gRelG )
+        if( !gRelG && !gRelReq )
         {
             return false;
         }
-        if( fNorthSouthComparision )
-        {
-            iL->SetLineColor( 1 );
-        }
-        else
-        {
-            iL->SetLineColor( gRelG->GetLineColor() );
-        }
+        if( gRelG ) iL->SetLineColor( gRelG->GetLineColor() );
+	if( gRelReq ) iL->SetLineColor( gRelReq->GetLineColor() );
 
         for( unsigned int j = 0; j < fData[i]->fGraphSensitivity.size(); j++ )
         {
-            //
             if( fData[i]->fGraphSensitivity[j] )
             {
                 TGraphAsymmErrors* g = new TGraphAsymmErrors();
-                if( gRelG )
+		if( gRelReq )
+		{
+                    VHistogramUtilities::divide( g, fData[i]->fGraphSensitivity[j], gRelReq );
+                }
+		else if( gRelG )
                 {
                     VHistogramUtilities::divide( g, fData[i]->fGraphSensitivity[j], gRelG );
                 }
@@ -1307,8 +1268,8 @@ void VPPUTValues::add( string iName, TGraph *iG )
     fPPUT.push_back( getPPUT( iG, false, log10( 0.02 ), log10( iMaxE ) ) );
     fPPUTError.push_back( getPPUT( iG, true, log10( 0.02 ), log10( iMaxE ) ) );
 
-    // low energy PPUT from 20 GeV to 150 GeV 
-    // (energy range for which LSTs much fulfill full system requirements)
+    // low energy PPUT from 20 GeV to 90 GeV 
+    // (energy range for which LSTs must fulfill full system requirements)
     fLowEPPUT.push_back( getPPUT( iG, false, log10( 0.02 ), log10( 0.11 ) ) );
     fLowEPPUTError.push_back( getPPUT( iG, true, log10( 0.02 ), log10( 0.11 ) ) );
 
@@ -1403,7 +1364,7 @@ void VPPUTValues::printMarkdownTables()
         }
         else
         {
-            cout << " - & ";
+            cout << " - | ";
         }
         cout << setprecision( 2 ) << fnoLoEPPUT[i] << " +- " << setprecision( 2 ) << fnoLoEPPUTError[i] << " | ";
         if( fPPUT[i] > 1.e-5 )
@@ -1412,7 +1373,7 @@ void VPPUTValues::printMarkdownTables()
         }
         else
         {
-            cout << " - & ";
+            cout << " - | ";
         }
         cout << setprecision( 2 ) << fMidEPPUT[i] << " +- " << setprecision( 2 ) << fMidEPPUTError[i] << " | ";
         cout << setprecision( 2 ) << fHighEPPUT[i] << " +- " << setprecision( 2 ) << fHighEPPUTError[i]; 
