@@ -719,8 +719,8 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
             }
         }
     }
-    i_PPUT.printLatexTable();
-    i_PPUT.printMarkdownTables();
+    i_PPUT.print( "LATEX" );
+    i_PPUT.print( "MARKDOWN" );
     if( cSensRatio )
     {
         // TEMPTEMPTEMP
@@ -757,6 +757,7 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
             }
         }
     }
+    i_PPUT.printHeader( "MARKDOWN" );
     
     return true;
 }
@@ -1254,6 +1255,9 @@ vector< TGraph* > VPlotWPPhysSensitivity::plotCurrentInstruments( TCanvas* c )
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
+/*  PPUT definition
+ *
+ */
 void VPPUTValues::add( string iName, TGraph *iG )
 {
 
@@ -1264,26 +1268,56 @@ void VPPUTValues::add( string iName, TGraph *iG )
     double iMaxE = 110.;
     // iMaxE = 50.;
 
-    fSetName.push_back( iName );
-    fPPUT.push_back( getPPUT( iG, false, log10( 0.02 ), log10( iMaxE ) ) );
-    fPPUTError.push_back( getPPUT( iG, true, log10( 0.02 ), log10( iMaxE ) ) );
+    vector< VPPUTData* > iPPUTData;
 
-    // low energy PPUT from 20 GeV to 90 GeV 
-    // (energy range for which LSTs must fulfill full system requirements)
-    fLowEPPUT.push_back( getPPUT( iG, false, log10( 0.02 ), log10( 0.11 ) ) );
-    fLowEPPUTError.push_back( getPPUT( iG, true, log10( 0.02 ), log10( 0.11 ) ) );
+    iPPUTData.push_back( new VPPUTData() );
+    iPPUTData.back()->fArrayName = iName;
+    iPPUTData.back()->fPPUTName = "full energy range";
+    iPPUTData.back()->fEMin_TeV = 0.02;
+    iPPUTData.back()->fEMax_TeV = iMaxE;
 
-    // medium energy PPUT 
-    fMidEPPUT.push_back( getPPUT( iG, false, log10( 0.09 ), log10( 11. ) ) );
-    fMidEPPUTError.push_back( getPPUT( iG, true, log10( 0.09 ), log10( 11. ) ) );
+    iPPUTData.push_back( new VPPUTData() );
+    iPPUTData.back()->fArrayName = iName;
+    iPPUTData.back()->fPPUTName = "low energy range";
+    iPPUTData.back()->fEMin_TeV = 0.02;
+    iPPUTData.back()->fEMax_TeV = 0.101;
 
-    // high energy PPUT 
-    fHighEPPUT.push_back( getPPUT( iG, false, log10( 5. ), log10( iMaxE ) ) );
-    fHighEPPUTError.push_back( getPPUT( iG, true, log10( 5. ), log10( iMaxE ) ) );
+    iPPUTData.push_back( new VPPUTData() );
+    iPPUTData.back()->fArrayName = iName;
+    iPPUTData.back()->fPPUTName = "low energy range (MST)";
+    iPPUTData.back()->fEMin_TeV = 0.09;
+    iPPUTData.back()->fEMax_TeV = 0.5;
 
-    // no LST PPUT
-    fnoLoEPPUT.push_back( getPPUT( iG, false, log10( 0.09 ), log10( iMaxE ) ) );
-    fnoLoEPPUTError.push_back( getPPUT( iG, true, log10( 0.09 ), log10( iMaxE ) ) );
+    iPPUTData.push_back( new VPPUTData() );
+    iPPUTData.back()->fArrayName = iName;
+    iPPUTData.back()->fPPUTName = "medium energy range (MST)";
+    iPPUTData.back()->fEMin_TeV = 0.5;
+    iPPUTData.back()->fEMax_TeV = 5.;
+
+    iPPUTData.push_back( new VPPUTData() );
+    iPPUTData.back()->fArrayName = iName;
+    iPPUTData.back()->fPPUTName = "medium energy range (SST)";
+    iPPUTData.back()->fEMin_TeV = 5.;
+    iPPUTData.back()->fEMax_TeV = 20.;
+
+    iPPUTData.push_back( new VPPUTData() );
+    iPPUTData.back()->fArrayName = iName;
+    iPPUTData.back()->fPPUTName = "high energy range";
+    iPPUTData.back()->fEMin_TeV = 10.;
+    iPPUTData.back()->fEMax_TeV = iMaxE;
+
+    for( unsigned int i = 0; i < iPPUTData.size(); i++ )
+    {
+	    iPPUTData[i]->fPPUT = getPPUT( iG, false, 
+			    log10( iPPUTData[i]->fEMin_TeV ),
+			    log10( iPPUTData[i]->fEMax_TeV ) );
+	    iPPUTData[i]->fPPUTError = getPPUT( iG, true, 
+			    log10( iPPUTData[i]->fEMin_TeV ),
+			    log10( iPPUTData[i]->fEMax_TeV ) );
+    }
+
+    fPPUTData.push_back( iPPUTData );
+
 }
 
 double VPPUTValues::getPPUT( TGraph *iG, bool iError, double ilogEMin, double ilogEMax )
@@ -1309,19 +1343,6 @@ double VPPUTValues::getPPUT( TGraph *iG, bool iError, double ilogEMin, double il
                 iFOMerror += dy;
                 n++;
             }
-            // check if first point is close to the required minimal energy
-            if( i == 0 )
-            {
-                if( x - ilogEMin > 0.1 )
-                {
-                    return 0.;
-                }
-                // HARD FIX to remove 20 GeV weirdness
-                if( ilogEMin < -1.65 && y < 0.15 )
-                {
-                    return 0.;
-                }
-            }
         }
         if( n > 0. )
         {
@@ -1341,73 +1362,87 @@ double VPPUTValues::getPPUT( TGraph *iG, bool iError, double ilogEMin, double il
     return 0.;
 }
 
-void VPPUTValues::print()
+void VPPUTValues::printHeader( string iType )
 {
-    for( unsigned int i = 0; i < fSetName.size(); i++ )
+    if( fPPUTData.size() == 0 ) return;
+    cout << "MDHEADER ";
+    cout << "| *Array* | ";
+    for( unsigned int i = 0; i < fPPUTData[0].size(); i++ )
     {
-        cout << "PPUT: ";
-        cout << fSetName[i] << ": ";
-        cout << fPPUT[i] << " +- " << fPPUTError[i] << endl;
+	cout << fixed;
+	if( fPPUTData[0][i]->fEMin_TeV < 0.1 ) cout << setprecision( 2 );
+	else cout << setprecision( 1 );
+        cout << fPPUTData[0][i]->fEMin_TeV;
+        cout << " < E < ";
+	if( fPPUTData[0][i]->fEMax_TeV < 0.1 ) cout << setprecision( 2 );
+	else cout << setprecision( 1 );
+        cout << fPPUTData[0][i]->fEMax_TeV << " | ";
+    }
+    cout << endl;
+    cout << "MDHEADER |";
+    for( unsigned int i = 0; i < fPPUTData[0].size()+1; i++ )
+    {
+	cout << ":---:|";
+    }
+    cout << endl;
+}
+
+void VPPUTValues::print( string iType )
+{
+    string iSep = " | ";
+    string iPM = " +- ";
+    if( iType == "LATEX" )
+    {
+       iSep = " & ";
+       iPM = " $\\pm$ ";
+    }
+    // print table
+    for( unsigned int i = 0; i < fPPUTData.size(); i++ )
+    {
+        if( iType == "LATEX" )
+	{
+		cout << "\\hyperref[SensMult-Array-" + VUtilities::removeSpaces(fPPUTData[i][0]->fArrayName);
+		cout << "]{" + VUtilities::removeSpaces(fPPUTData[i][0]->fArrayName) << "} ";
+        }
+	else
+	{
+		cout << "MARKDOWN ";
+		cout << VUtilities::removeSpaces(iSep) << " ";
+		cout << fPPUTData[i][0]->fArrayName;
+        }
+	for( unsigned int p = 0; p < fPPUTData[i].size(); p++ )
+	{
+		cout << iSep << " ";
+		if( fPPUTData[i][p]->fPPUT > 1.e-5 )
+		{
+		   cout << setprecision( 2 ) << fPPUTData[i][p]->fPPUT;
+		   cout  << iPM << setprecision( 2 ) << fPPUTData[i][p]->fPPUTError;
+		   cout  << " ";
+		}
+		else
+		{
+		    cout << "- ";
+		}
+        }
+	if( iType == "LATEX"  )
+	{
+	     cout << "\\\\";
+        }
+	else
+	{
+	    cout << iSep;
+        }
+	cout << endl;
     }
 }
 
-void VPPUTValues::printMarkdownTables()
+VPPUTData::VPPUTData()
 {
-    for( unsigned int i = 0; i < fSetName.size(); i++ )
-    {
-        cout << "MARKDOWN ";
-        cout << VUtilities::removeSpaces(fSetName[i]) << " | ";
-        cout << fixed << setfill('0') << setw(4);
-        if( fPPUT[i] > 1.e-5 )
-        {
-            cout << setprecision( 2 ) << fPPUT[i] << " +- " << setprecision( 2 ) << fPPUTError[i] << " | ";
-        }
-        else
-        {
-            cout << " - | ";
-        }
-        cout << setprecision( 2 ) << fnoLoEPPUT[i] << " +- " << setprecision( 2 ) << fnoLoEPPUTError[i] << " | ";
-        if( fPPUT[i] > 1.e-5 )
-        {
-            cout << setprecision( 2 ) << fLowEPPUT[i] << " +- " << setprecision( 2 ) << fLowEPPUTError[i] << " | ";
-        }
-        else
-        {
-            cout << " - | ";
-        }
-        cout << setprecision( 2 ) << fMidEPPUT[i] << " +- " << setprecision( 2 ) << fMidEPPUTError[i] << " | ";
-        cout << setprecision( 2 ) << fHighEPPUT[i] << " +- " << setprecision( 2 ) << fHighEPPUTError[i]; 
-        cout << " |" << endl;
-    }
+        fArrayName = "";
+	fPPUTName = "";
+	fEMin_TeV = -2.;
+	fEMax_TeV = 2.;
+	fPPUT = 0.;
+	fPPUTError = 0.;
 }
 
-void VPPUTValues::printLatexTable()
-{
-
-    for( unsigned int i = 0; i < fSetName.size(); i++ )
-    {
-        cout << "\\hyperref[SensMult-Array-" + VUtilities::removeSpaces(fSetName[i]);
-        cout << "]{" + VUtilities::removeSpaces(fSetName[i]) << "} & ";
-        cout << fixed << setfill('0') << setw(4);
-        if( fPPUT[i] > 1.e-5 )
-        {
-            cout << setprecision( 2 ) << fPPUT[i] << " $\\pm$ " << setprecision( 2 ) << fPPUTError[i] << " & ";
-        }
-        else
-        {
-            cout << " - & ";
-        }
-        cout << setprecision( 2 ) << fnoLoEPPUT[i] << " $\\pm$ " << setprecision( 2 ) << fnoLoEPPUTError[i] << " & ";
-        if( fPPUT[i] > 1.e-5 )
-        {
-            cout << setprecision( 2 ) << fLowEPPUT[i] << " $\\pm$ " << setprecision( 2 ) << fLowEPPUTError[i] << " & ";
-        }
-        else
-        {
-            cout << " - & ";
-        }
-        cout << setprecision( 2 ) << fMidEPPUT[i] << " $\\pm$ " << setprecision( 2 ) << fMidEPPUTError[i] << " & ";
-        cout << setprecision( 2 ) << fHighEPPUT[i] << " $\\pm$ " << setprecision( 2 ) << fHighEPPUTError[i]; 
-        cout << "\\\\" << endl;
-    }
-}
