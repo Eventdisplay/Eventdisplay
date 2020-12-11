@@ -1349,7 +1349,7 @@ double VPPUTValues::getPPUT( TGraph *iG, bool iError, double ilogEMin, double il
             if( iError )
             {
                 iFOMerror = TMath::Power( iFOM, 1./n ) * sqrt( iFOMerror );
-                iFOMerror = 1./n * TMath::Power( TMath::Power( iFOM, 1./n ), 1./n-1) * iFOMerror;
+                iFOMerror = 1./n * TMath::Power( TMath::Power( iFOM, 1./n ), 1./(n-1)) * iFOMerror;
                 return iFOMerror;
             }
             else
