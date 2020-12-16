@@ -67,6 +67,10 @@ class VSensitivityTree
         int fObservingTime_s;
         float fOffset_deg;
         unsigned int fTelMult;
+        unsigned int fTelMultLST;
+        unsigned int fTelMultMST;
+        unsigned int fTelMultSST;
+        unsigned int fTelMultSCMST;
         
         string fPointingDirection;
         int    fAnalysisID;
@@ -92,6 +96,10 @@ class VSensitivityTree
                         string iSubArrayName, 
                         int iObservingTime_s,
                         int iTelMultiplicity,
+                        int iTelMultiplicityLST,
+                        int iTelMultiplicityMST,
+                        int iTelMultiplicitySST,
+                        int iTelMultiplicitySCST,
                         string iWPPhysDirectory,
                         string iMSTDateID );
         bool initialize( string iOutputFileName, string iName );
@@ -110,6 +118,10 @@ VSensitivityTree::VSensitivityTree()
     fObservingTime_s = 0;
     fOffset_deg = 0.;
     fTelMult = 0;
+    fTelMultLST = 0;
+    fTelMultMST = 0;
+    fTelMultSST = 0;
+    fTelMultSCMST = 0;
     
     fAnalysisID = 0;
     fPointingDirection = "_0deg";
@@ -150,6 +162,10 @@ void VSensitivityTree::reset()
     fObservingTime_s = 0;
     fOffset_deg = 0.;
     fTelMult = 0;
+    fTelMultLST = 0;
+    fTelMultMST = 0;
+    fTelMultSST = 0;
+    fTelMultSCMST = 0;
     for( int i = 0; i < fNumTelTypes; i++ )
     {
         fNTelType[i] = 0;
@@ -180,6 +196,10 @@ bool VSensitivityTree::fillEvent( string iSite,
                                   string iSubArrayName, 
                                   int iObservingTime_s,
                                   int iTelMultiplicity,
+                                  int iTelMultiplicityLST,
+                                  int iTelMultiplicityMST,
+                                  int iTelMultiplicitySST,
+                                  int iTelMultiplicitySCMST,
                                   string iWPPhysDirectory,
                                   string iMSTDateID )
 {
@@ -206,10 +226,10 @@ bool VSensitivityTree::fillEvent( string iSite,
     iWPPhysFile_st << "DESY." << iMSTDateID << ".V3.ID" << fAnalysisID;
     iWPPhysFile_st << fPointingDirection;
     iWPPhysFile_st << "NIM" << iTelMultiplicity;
-    iWPPhysFile_st << "LST" << iTelMultiplicity;
-    iWPPhysFile_st << "MST" << iTelMultiplicity;
-    iWPPhysFile_st << "SST" << iTelMultiplicity;
-    iWPPhysFile_st << "SCMST" << iTelMultiplicity;
+    iWPPhysFile_st << "LST" << iTelMultiplicityLST;
+    iWPPhysFile_st << "MST" << iTelMultiplicityMST;
+    iWPPhysFile_st << "SST" << iTelMultiplicitySST;
+    iWPPhysFile_st << "SCMST" << iTelMultiplicitySCMST;
     iWPPhysFile_st << "." << iSite << ".";
     string iWPPhysFile = iWPPhysFile_st.str();
     
@@ -397,11 +417,16 @@ bool VSensitivityTree::fillEvent( string iSite,
     iObservingTime << iObservingTime_s << "s";
 
     ostringstream iWFile;
-    iWFile << iWPPhysDirectory << "-NIM" << iTelMultiplicity << "/";
+    // iWFile << iWPPhysDirectory << "-NIM" << iTelMultiplicity << "/";
+    iWFile << iWPPhysDirectory << "/";
     iWFile << iWPPhysFile;
     iWFile << iSubArrayName << "." << iObservingTime.str();
     iWFile << ".root";
     fTelMult = iTelMultiplicity;
+    fTelMultLST = iTelMultiplicityLST;
+    fTelMultMST = iTelMultiplicityMST;
+    fTelMultSST = iTelMultiplicitySST;
+    fTelMultSCMST = iTelMultiplicitySCMST;
 
     cout << "reading IRFs from " << iWFile.str() << endl;
 
@@ -520,6 +545,10 @@ bool VSensitivityTree::initialize( string iOutputFileName, string iName )
     fDataTree->Branch( hname, fMedianTelescopeDistance, htitle );
     // observational details
     fDataTree->Branch( "TelMult", &fTelMult, "TelMult/i" );
+    fDataTree->Branch( "TelMultLST", &fTelMultLST, "TelMultLST/i" );
+    fDataTree->Branch( "TelMultMST", &fTelMultMST, "TelMultMST/i" );
+    fDataTree->Branch( "TelMultSST", &fTelMultSST, "TelMultSST/i" );
+    fDataTree->Branch( "TelMultSCMST", &fTelMultSCMST, "TelMultSCMST/i" );
     fDataTree->Branch( "ObsTime_s", &fObservingTime_s, "ObsTime_s/I" );
     fDataTree->Branch( "Offset_deg", &fOffset_deg, "Offset_deg/F" );
     // IRFs 
@@ -647,33 +676,73 @@ int main( int argc, char* argv[] )
     iObservingTimeVector.push_back( 180000 );
 
     // hardwired telescope multiplicity
-    vector< int > iTelMultiplicity;
-    iTelMultiplicity.push_back( 3 );
+    vector< int > iTelMultiplicityLST;
+    iTelMultiplicityLST.push_back( 3 );
+    vector< int > iTelMultiplicityMST;
+    iTelMultiplicityMST.push_back( 2 );
+    iTelMultiplicityMST.push_back( 3 );
+    vector< int > iTelMultiplicitySST;
+    iTelMultiplicitySST.push_back( 2 );
+    iTelMultiplicitySST.push_back( 3 );
+    vector< int > iTelMultiplicitySCMST;
+    iTelMultiplicitySCMST.push_back( 3 );
     
     /////////////////////////////////////////////////////////
     // fill events for complete parameter space
-    
     // array loop
     for( unsigned int i = 0; i < fSubArray.size(); i++ )
     {
         // observing time loop
         for( unsigned int t = 0; t < iObservingTimeVector.size(); t++ )
         {
-            // telescope multiplicity
-            for( unsigned n = 0; n < iTelMultiplicity.size(); n++ )
+            // telescope multiplicity (per telescope type)
+            for( unsigned l = 0; l < iTelMultiplicityLST.size(); l++ )
             {
-                cout << endl << endl;
-                cout << "now filling array layout " << fSubArray[i];
-                cout << " (obs time " << iObservingTimeVector[t] << " s, ";
-                cout << "telescope multiplicity " << iTelMultiplicity[n] << ")" << endl;
-                cout << "=========================================" << endl;
-                cout << endl;
-                fData->fillEvent( fSite, fSubArray[i], iObservingTimeVector[t], iTelMultiplicity[n],
-                       fInputDirectory, fMSTDateID );
+                for( unsigned m = 0; m < iTelMultiplicityMST.size(); m++ )
+                {
+                    for( unsigned s = 0; s < iTelMultiplicitySST.size(); s++ )
+                    {
+                        for( unsigned c = 0; c < iTelMultiplicitySCMST.size(); c++ )
+                        {
+                            // TMPTMPTMP
+                            // (requires NMSTs == NSSTs)
+                            if( iTelMultiplicityMST[m] != iTelMultiplicitySST[s] ) continue;
+
+                            // TMPTMPTMP
+                            iTelMultiplicityLST[l] = std::min( iTelMultiplicityMST[m], iTelMultiplicitySST[s] );
+                            iTelMultiplicitySCMST[c] = std::min( iTelMultiplicityMST[m], iTelMultiplicitySST[s] );
+                            // TMPTMPTMP
+
+                            unsigned int iTelMultiplicity = 
+                                        std::min( iTelMultiplicityLST[l], 
+                                                std::min( iTelMultiplicityMST[m],
+                                                std::min( iTelMultiplicitySST[s], iTelMultiplicitySCMST[c] ) ) );
+
+                            cout << endl << endl;
+                            cout << "now filling array layout " << fSubArray[i];
+                            cout << " (obs time " << iObservingTimeVector[t] << " s), ";
+                            cout << "telescope multiplicity " << iTelMultiplicity;
+                            cout << ", LST: " << iTelMultiplicityLST[l];
+                            cout << ", MST: " << iTelMultiplicityMST[m];
+                            cout << ", SST: " << iTelMultiplicitySST[s];
+                            cout << ", SCMST: " << iTelMultiplicitySCMST[c] << ")" << endl;
+                            cout << "=========================================" << endl;
+                            cout << endl;
+                            
+                            fData->fillEvent( fSite, fSubArray[i], iObservingTimeVector[t], 
+                                   iTelMultiplicity,
+                                   iTelMultiplicityLST[l],
+                                   iTelMultiplicityMST[m],
+                                   iTelMultiplicitySST[s],
+                                   iTelMultiplicitySCMST[c],
+                                   fInputDirectory, fMSTDateID );
+                        }
+                     }
+                }
             }
         }
     }
-    
+        
     fData->terminate();
     
     return 0;
