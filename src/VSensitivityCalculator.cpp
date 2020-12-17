@@ -785,6 +785,12 @@ bool VSensitivityCalculator::calculateSensitivityvsEnergyFromCrabSpectrum( strin
         }
         return true;
     }
+    // read sensitivities from CTA WP Phys tree
+    else if( "CTA-PHYSTREE" )
+    {
+
+       return true;
+    }
     // differential flux vector from anasum file (e.g. a measurement towards the Crab Nebula)
     else
     {
