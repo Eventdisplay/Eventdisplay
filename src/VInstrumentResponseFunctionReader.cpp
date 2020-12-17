@@ -297,7 +297,6 @@ bool VInstrumentResponseFunctionReader::getDataFromFile()
         return false;
     }
     
-    
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // read effective areas
     //
