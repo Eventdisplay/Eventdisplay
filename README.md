@@ -8,7 +8,7 @@ Original developers: Gernot Maier and Jamie Holder
 
 ## Overview
 
-eventdisplay is a reconstruction and analysis pipline for data of
+Eventdisplay is a reconstruction and analysis pipline for data of
 Imaging Atmospheric Cherenkov Telescopes (IACT).
 It has been primarily developed for VERITAS and CTA analysis.
 
