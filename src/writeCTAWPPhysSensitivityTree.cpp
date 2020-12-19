@@ -681,9 +681,11 @@ int main( int argc, char* argv[] )
     vector< int > iTelMultiplicityMST;
     iTelMultiplicityMST.push_back( 2 );
     iTelMultiplicityMST.push_back( 3 );
+    iTelMultiplicityMST.push_back( 4 );
     vector< int > iTelMultiplicitySST;
     iTelMultiplicitySST.push_back( 2 );
     iTelMultiplicitySST.push_back( 3 );
+    iTelMultiplicitySST.push_back( 4 );
     vector< int > iTelMultiplicitySCMST;
     iTelMultiplicitySCMST.push_back( 3 );
     
