@@ -205,7 +205,45 @@ bool VSensitivityTree::fillEvent( string iSite,
 {
     // directories and file names
     //string iDataDirectory = "$CTA_USER_DATA_DIR/analysis/AnalysisData/" + iSite;
-    string iDataDirectory = "/lustre/fs21/group/cta/users/maierg/analysis/AnalysisData/" + iSite;
+    string iDataDirectory = "/lustre/fs22/group/cta/users/maierg/analysis/AnalysisData/" + iSite;
+
+    ////////////////////////////////////////////////////////////////////
+    // open WP Phys file - return if not available
+    //
+    // WP Physfile
+    ostringstream iWPPhysFile_st;
+    iWPPhysFile_st << "DESY." << iMSTDateID << ".V3.ID" << fAnalysisID;
+    iWPPhysFile_st << fPointingDirection;
+    iWPPhysFile_st << "NIM" << iTelMultiplicity;
+    iWPPhysFile_st << "LST" << iTelMultiplicityLST;
+    iWPPhysFile_st << "MST" << iTelMultiplicityMST;
+    iWPPhysFile_st << "SST" << iTelMultiplicitySST;
+    iWPPhysFile_st << "SCMST" << iTelMultiplicitySCMST;
+    iWPPhysFile_st << "." << iSite << ".";
+    string iWPPhysFile = iWPPhysFile_st.str();
+    ostringstream iObservingTime;
+    iObservingTime << iObservingTime_s << "s";
+
+    ostringstream iWFile;
+    // iWFile << iWPPhysDirectory << "-NIM" << iTelMultiplicity << "/";
+    iWFile << iWPPhysDirectory << "/";
+    iWFile << iWPPhysFile;
+    iWFile << iSubArrayName << "." << iObservingTime.str();
+    iWFile << ".root";
+
+    cout << "reading IRFs from " << iWFile.str() << endl;
+
+    // open IRF file
+    TFile iP( iWFile.str().c_str() );
+    if( iP.IsZombie() )
+    {
+        cout << "File does not exist " << iWFile.str() << endl;
+        return false;
+    }
+
+    /////////////////////////////////////////////////////
+    // get telconfig
+    
     
     // dates in file names
     string iEffDate;
@@ -221,17 +259,6 @@ bool VSensitivityTree::fillEvent( string iSite,
     ostringstream iMSCWFile_st;
     iMSCWFile_st << "gamma_onSource." << iSubArrayName << "_ID" << fAnalysisID;
     iMSCWFile_st << "_180deg-" << iSite << "-1.mscw.root";
-    // WP Physfile
-    ostringstream iWPPhysFile_st;
-    iWPPhysFile_st << "DESY." << iMSTDateID << ".V3.ID" << fAnalysisID;
-    iWPPhysFile_st << fPointingDirection;
-    iWPPhysFile_st << "NIM" << iTelMultiplicity;
-    iWPPhysFile_st << "LST" << iTelMultiplicityLST;
-    iWPPhysFile_st << "MST" << iTelMultiplicityMST;
-    iWPPhysFile_st << "SST" << iTelMultiplicitySST;
-    iWPPhysFile_st << "SCMST" << iTelMultiplicitySCMST;
-    iWPPhysFile_st << "." << iSite << ".";
-    string iWPPhysFile = iWPPhysFile_st.str();
     
     cout << iMSCWDirectory_st.str() << endl;
     cout << iMSCWFile_st.str() << endl;
@@ -411,33 +438,13 @@ bool VSensitivityTree::fillEvent( string iSite,
     
     ////////////////////////////////////////////////
     // read sensitivities
-    
-    fObservingTime_s = iObservingTime_s;
-    ostringstream iObservingTime;
-    iObservingTime << iObservingTime_s << "s";
 
-    ostringstream iWFile;
-    // iWFile << iWPPhysDirectory << "-NIM" << iTelMultiplicity << "/";
-    iWFile << iWPPhysDirectory << "/";
-    iWFile << iWPPhysFile;
-    iWFile << iSubArrayName << "." << iObservingTime.str();
-    iWFile << ".root";
+    fObservingTime_s = iObservingTime_s;
     fTelMult = iTelMultiplicity;
     fTelMultLST = iTelMultiplicityLST;
     fTelMultMST = iTelMultiplicityMST;
     fTelMultSST = iTelMultiplicitySST;
     fTelMultSCMST = iTelMultiplicitySCMST;
-
-    cout << "reading IRFs from " << iWFile.str() << endl;
-
-    // open IRF file
-    TFile iP( iWFile.str().c_str() );
-    if( iP.IsZombie() )
-    {
-        cout << "Error reading file " << iWFile.str() << endl;
-        return false;
-    }
-    
     
     // check energy bins
     TH1F* h = ( TH1F* )iP.Get( "DiffSens" );
@@ -674,6 +681,7 @@ int main( int argc, char* argv[] )
     // hardwired observing time
     vector< int > iObservingTimeVector;
     iObservingTimeVector.push_back( 180000 );
+    iObservingTimeVector.push_back( 1800 );
 
     // hardwired telescope multiplicity
     vector< int > iTelMultiplicityLST;
@@ -682,10 +690,14 @@ int main( int argc, char* argv[] )
     iTelMultiplicityMST.push_back( 2 );
     iTelMultiplicityMST.push_back( 3 );
     iTelMultiplicityMST.push_back( 4 );
+    iTelMultiplicityMST.push_back( 5 );
+    iTelMultiplicityMST.push_back( 6 );
     vector< int > iTelMultiplicitySST;
     iTelMultiplicitySST.push_back( 2 );
     iTelMultiplicitySST.push_back( 3 );
     iTelMultiplicitySST.push_back( 4 );
+    iTelMultiplicitySST.push_back( 5 );
+    iTelMultiplicitySST.push_back( 6 );
     vector< int > iTelMultiplicitySCMST;
     iTelMultiplicitySCMST.push_back( 3 );
     
@@ -708,7 +720,7 @@ int main( int argc, char* argv[] )
                         {
                             // TMPTMPTMP
                             // (requires NMSTs == NSSTs)
-                            if( iTelMultiplicityMST[m] != iTelMultiplicitySST[s] ) continue;
+                            // if( iTelMultiplicityMST[m] != iTelMultiplicitySST[s] ) continue;
 
                             // TMPTMPTMP
                             iTelMultiplicityLST[l] = std::min( iTelMultiplicityMST[m], iTelMultiplicitySST[s] );
