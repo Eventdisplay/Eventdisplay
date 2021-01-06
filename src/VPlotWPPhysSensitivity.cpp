@@ -681,7 +681,7 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
                 if( g->GetN() > 0 )
                 {
                     setGraphPlottingStyle( g, fData[i]->fGraphSensitivity[j]->GetMarkerColor(), 1.,
-                                           fData[i]->fPlottingMarkerStyle[j], 1.1,
+                                           fData[i]->fPlottingMarkerStyle[j], 0.75,
                                            fData[i]->fPlottingFillStyle[j],
                                            fData[i]->fPlottingLineStyle[j] );
                     g->Draw( "p" );
@@ -843,7 +843,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             a->setPlotCrabLines( bPlotCrabLines );
             a->setEnergyRange_Lin( fMinEnergy_TeV, fMaxEnergy_TeV );
             a->setPlotCanvasSize( 900, 600 );
-            a->setPlottingStyle( fData[i]->fPlottingColor[j], fData[i]->fPlottingLineStyle[j], 2., 21, 1., fData[i]->fPlottingFillStyle[j] );
+            a->setPlottingStyle( fData[i]->fPlottingColor[j], fData[i]->fPlottingLineStyle[j], 1., 21, 0.75, fData[i]->fPlottingFillStyle[j] );
             if( iUnit == "ENERGY" )
             {
                 a->setFluxRange_ENERG( iMinSensitivity, iMaxSensitivity );
@@ -902,8 +902,8 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             b->setMaximumEnergyBias( fMaximumAllowedEnergyBias );
             if( fData[i]->fPlottingColor.size() > 0 )
             {
-                b->setPlottingStyle( fData[i]->fPlottingColor[0], fData[i]->fPlottingLineStyle[0], 2.,
-                                     fData[i]->fPlottingMarkerStyle[0], 1., fData[i]->fPlottingFillStyle[0] );
+                b->setPlottingStyle( fData[i]->fPlottingColor[0], fData[i]->fPlottingLineStyle[0], 1.,
+                                     fData[i]->fPlottingMarkerStyle[0], 0.75, fData[i]->fPlottingFillStyle[0] );
             }
             cSensInter = b->plotSensitivityvsEnergyFromCrabSpectrum( cSensInter, iUnit, 0.2, ( i == 0 ) );
             if( fRequirementsString.size() > 0 )
