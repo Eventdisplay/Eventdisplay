@@ -180,6 +180,7 @@ int main( int argc, char* argv[] )
     if( !iData->fillHistograms1D( fDataDirectory, true ) )
     {
         cout << "error filling on source histograms" << endl;
+        exit( EXIT_FAILURE );
     }
     
     /////////////////////////////////////
@@ -202,6 +203,7 @@ int main( int argc, char* argv[] )
             // fail for all other bins
             else
             {
+                cout << "error filling off source histogram " << i << endl;
                 exit( EXIT_FAILURE );
             }
         }

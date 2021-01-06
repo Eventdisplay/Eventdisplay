@@ -227,15 +227,6 @@ bool VGlobalRunParameter::setDirectories()
             fEVNDISPOutputDirectory += "/";
         }
     }
-    if( gSystem->AccessPathName( fEVNDISPOutputDirectory.c_str() ) )
-    {
-        cout << "VGlobalRunParameter::setDirectories(): cannot find directory for EVNDISP output data" << endl;
-        cout << "\t looking for " << fEVNDISPOutputDirectory << endl;
-        cout << "\t is environmental variable $OBS_USER_DATA_DIR set?" << endl;
-        cout << "\t (see README/INSTALL)" << endl;
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE );
-    }
     
     return true;
 }
