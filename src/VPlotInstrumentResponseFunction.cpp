@@ -262,6 +262,7 @@ TCanvas* VPlotInstrumentResponseFunction::plotEffectiveArea( double iEffAreaMin_
             {
                 g->Print();
             }
+            g->SetLineWidth( 1 );
             if( iSmooth )
             {
                 // smooth this graph using a Kernel of width 0.4
@@ -342,7 +343,7 @@ TCanvas* VPlotInstrumentResponseFunction::plotWeightedRate()
     {
         if( fData[i] && fData[i]->hWeightedRate )
         {
-            setHistogramPlottingStyle( fData[i]->hWeightedRate, i + 1, 2. );
+            setHistogramPlottingStyle( fData[i]->hWeightedRate, i + 1, 1. );
             fData[i]->hWeightedRate->Draw( "same" );
             if( iLegend )
             {
@@ -957,6 +958,7 @@ TCanvas* VPlotInstrumentResponseFunction::plotEnergyResolution( double ymin, dou
         }
         if( iEnergyResolution )
         {
+            iEnergyResolution->SetLineWidth( 1 );
             // smooth the energy resolution graph to remove wiggles due to
             // local fluctuations
             if( iSmoothEnergyResolution )
@@ -1761,6 +1763,7 @@ TCanvas*  VPlotInstrumentResponseFunction::plotResolution( string iName, string 
             {
                 g->Print();
             }
+            g->SetLineWidth( 1 );
             g->Draw( fData[i]->fPlotOption.c_str() );
             if( fFunction_fitResolution.size() > 0 )
             {
