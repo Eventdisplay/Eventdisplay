@@ -28,15 +28,34 @@ bool readMeanElevation( TFile *fIn )
 	{
 		return false;
 	}
-        TTree *data = (TTree*)fIn->Get( "data" );
-        if( data )
+    // get total number of telescopes available
+    TTree *telconfig = (TTree*)fIn->Get( "telconfig" );
+    if( !telconfig )
+    {
+        return false;
+    }
+    unsigned int iNTel = (unsigned int)telconfig->GetEntries();
+    if( iNTel >= VDST_MAXTELESCOPES ) iNTel = VDST_MAXTELESCOPES;
+    TTree *data = (TTree*)fIn->Get( "data" );
+    if( data )
+    {
+        Double_t TelElevation[VDST_MAXTELESCOPES];
+        data->SetBranchAddress( "TelElevation", TelElevation );
+        data->GetEntry( 0 );
+        double iMean_f = 0.;
+        double iMeanN = 0.;
+        for( unsigned int i = 0; i < iNTel; i++ )
         {
-            Double_t TelElevation[VDST_MAXTELESCOPES];
-            data->SetBranchAddress( "TelElevation", TelElevation );
-            data->GetEntry( 0 );
-            double iMean_f = 0.;
-            double iMeanN = 0.;
-            for( unsigned int i = 0; i < VDST_MAXTELESCOPES; i++ )
+            if( TelElevation[i] > 5. )
+            {
+                iMean_f += TelElevation[i];
+                iMeanN++;
+            }
+        }
+        if( data->GetEntries() > 1 )
+        {
+            data->GetEntry( data->GetEntries() - 1 );
+            for( unsigned int i = 0; i < iNTel; i++ )
             {
                 if( TelElevation[i] > 5. )
                 {
@@ -44,32 +63,21 @@ bool readMeanElevation( TFile *fIn )
                     iMeanN++;
                 }
             }
-            if( data->GetEntries() > 1 )
-            {
-                data->GetEntry( data->GetEntries() - 1 );
-                for( unsigned int i = 0; i < VDST_MAXTELESCOPES; i++ )
-                {
-                    if( TelElevation[i] > 5. )
-                    {
-                        iMean_f += TelElevation[i];
-                        iMeanN++;
-                    }
-                }
-            }
-            if( iMeanN > 0. )
-            {
-                iMean_f /= iMeanN;
-                cout << "Average elevation: " << iMean_f << endl;
-            }
         }
-        else
+        if( iMeanN > 0. )
         {
-            cout << "not implemented" << endl;
+            iMean_f /= iMeanN;
+            cout << "Average elevation: " << iMean_f << endl;
         }
+    }
+    else
+    {
+        cout << "not implemented" << endl;
+    }
 
-        return true;
+    return true;
 }
-	
+
 
 
 /*
