@@ -868,7 +868,7 @@ TGraphErrors* VInstrumentResponseFunctionReader::getEnergyResolutionMPropInterva
         cout << "use mop of energy distributions" << endl;
     }
     cout << "\t minevents: " << fMProp_minEvents;
-    cout << ", maxErrorRatio: " << fMProp_maxerror;
+    cout << ", maxPropERatio: " << fMProp_maxerror;
     cout << ", bootstrap loops: " << fMProp_nBootStrap;
     cout << endl;
     
