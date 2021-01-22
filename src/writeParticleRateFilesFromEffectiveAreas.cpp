@@ -129,11 +129,13 @@ void writeParticleNumberFile( char* iMC_Gamma = 0, char* iMC_Proton = 0, char* i
 */
 int main( int argc, char* argv[] )
 {
-    if( argc != 5 && argc != 6 )
+    if( argc != 6 && argc != 7 )
     {
         cout << endl;
         cout << "writeParticleRateFilesFromEffectiveAreas <sub array> <onSource/cone>";
-        cout <<  "<reconstruction ID> <directory with effective areas> [directory with angular resolution files]" << endl;
+        cout <<  "<reconstruction ID> <directory with effective areas> ";
+        cout << "<output directory> ";
+        cout << "[directory with angular resolution files]" << endl;
         cout << argc << endl;
         cout << endl;
         exit( EXIT_SUCCESS );
@@ -148,10 +150,11 @@ int main( int argc, char* argv[] )
     string iOnSource = argv[2];
     int    iRecID = atoi( argv[3] );
     string iDataDir = argv[4];
+    string iODataDir = argv[5];
     string iAngResDir = "";
-    if( argc == 6 )
+    if( argc == 7 )
     {
-        iAngResDir = argv[5];
+        iAngResDir = argv[6];
     }
     
     // hardwired total number of off source bins
@@ -193,7 +196,7 @@ int main( int argc, char* argv[] )
     // on-axis rates
     if( iMC_Gamma_onSource.size() > 0 )
     {
-        sprintf( iParticleNumberFile, "%s/ParticleNumbers.%s.00.root", iDataDir.c_str(), SubArray.c_str() );
+        sprintf( iParticleNumberFile, "%s/ParticleNumbers.%s.00.root", iODataDir.c_str(), SubArray.c_str() );
         sprintf( iGamma, "%s/%s.%s_ID%d.eff-%d.root", iDataDir.c_str(), iMC_Gamma_onSource.c_str(), SubArray.c_str(), iRecID, 0 );
         sprintf( iProton, "%s/%s.%s_ID%d.eff-%d.root", iDataDir.c_str(), iMC_Proton_onSource.c_str(), SubArray.c_str(), iRecID, 0 );
         if( iMC_Electron_onSource.size() > 0 )
@@ -217,7 +220,7 @@ int main( int argc, char* argv[] )
     for( int j = 0; j < iOffSetCounter; j++ ) // use first bin on source particle file
     {
     
-        sprintf( iParticleNumberFile, "%s/ParticleNumbers.%s.%d.root", iDataDir.c_str(), SubArray.c_str(), j );
+        sprintf( iParticleNumberFile, "%s/ParticleNumbers.%s.%d.root", iODataDir.c_str(), SubArray.c_str(), j );
         sprintf( iGamma, "%s/%s.%s_ID%d.eff-%d.root", iDataDir.c_str(), iMC_Gamma_cone.c_str(), SubArray.c_str(), iRecID, j );
         sprintf( iProton, "%s/%s.%s_ID%d.eff-%d.root", iDataDir.c_str(), iMC_Proton.c_str(), SubArray.c_str(), iRecID, j );
         
