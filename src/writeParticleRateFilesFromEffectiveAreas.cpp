@@ -132,7 +132,7 @@ int main( int argc, char* argv[] )
     if( argc != 6 && argc != 7 )
     {
         cout << endl;
-        cout << "writeParticleRateFilesFromEffectiveAreas <sub array> <onSource/cone>";
+        cout << "writeParticleRateFilesFromEffectiveAreas <sub array> <onSource/cone> ";
         cout <<  "<reconstruction ID> <directory with effective areas> ";
         cout << "<output directory> ";
         cout << "[directory with angular resolution files]" << endl;
