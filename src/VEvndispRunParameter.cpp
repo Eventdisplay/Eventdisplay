@@ -283,12 +283,6 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
         fFADCtoPhe[i] = -1.;
     }
     
-    // parallaxwidth
-    fPWmethod = -1;            // default is to use cleaned CFD trigger map
-    fPWcleanNeighbors = 2;     // default number of neighbors required for identifying center pixels in the trigger map
-    fPWcleanThreshold = 26.0;  // default is about 5.3 dc/pe for VERITAS (5 sample integration window), i.e. cleaning of ~5 pe
-    fPWlimit = 0;              // default is no restriction on the number of trigger pixels transmitted to moment-generating function
-    
     fNNGraphsFile = "";
     fIPRdatabase = "";
     fIPRdatabaseFile = "";
@@ -739,12 +733,6 @@ void VEvndispRunParameter::print( int iEv )
     if( iEv == 2 )
     {
         cout << endl;
-        if( fPWmethod == 3 )
-        {
-            cout << "Parallaxwidth: trigger map input type: " << fPWmethod << endl;
-            cout << "Parallaxwidth: number of neighbors required for cleaning: " << fPWcleanNeighbors << endl;
-            cout << "Parallaxwidth: FADC cleaning threshold for identifying triggered pixels (for method 3): " << fPWcleanThreshold << endl;
-        }
         for( unsigned int i = 0; i < fTelToAnalyze.size(); i++ )
         {
             cout << "Telescope " << fTelToAnalyze[i] + 1 << endl;

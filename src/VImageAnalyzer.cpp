@@ -210,23 +210,9 @@ void VImageAnalyzer::doAnalysis()
     }
     
     ///////////////////////////////////////////////////////////////////////////////////////////
-    // parallax width cleaning (not default)
-    if( fRunPar->fPWmethod > -1 && getImageCleaningParameter() )
-    {
-        fVImageCleaning->cleanTriggerFixed( getImageCleaningParameter() );
-    }
-    
-    ///////////////////////////////////////////////////////////////////////////////////////////
     // set parameters required for image parameter calculation
     fVImageParameterCalculation->setDetectorGeometry( getDetectorGeometry() );
     fVImageParameterCalculation->setParameters( getImageParameters() );
-    
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // parallax width trigger parameter calculation (not default)
-    if( fRunPar->fPWmethod > -1 )
-    {
-        fVImageParameterCalculation->calcTriggerParameters( getTrigger() );
-    }
     
     ///////////////////////////////////////////////////////////////////////////////////////////
     // image parameter calculation
@@ -316,13 +302,6 @@ void VImageAnalyzer::doAnalysis()
                 getDead( true )[i] = savedDeadLow[i];
                 getGains( true )[i] = savedGainsLow[i];
             }
-        }
-        ///////////////////////////////////////////////////////////////////////////////////////////
-        // parallax width trigger parameter calculation
-        if( fRunPar->fPWmethod > -1 && getImageCleaningParameter() )
-        {
-            fVImageCleaning->cleanTriggerFixed( getImageCleaningParameter() );
-            fVImageParameterCalculation->calcTriggerParameters( getTrigger() );
         }
         
         ///////////////////////////////////////////////////////////////////////////////////////////

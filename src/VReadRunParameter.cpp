@@ -928,22 +928,6 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
         {
             fRunPara->fShortTree = 0;
         }
-        else if( iTemp.find( "pwmethod" ) < iTemp.size() )
-        {
-            fRunPara->fPWmethod = atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
-        }
-        else if( iTemp.find( "pwcleanneighbors" ) < iTemp.size() )
-        {
-            fRunPara->fPWcleanNeighbors = atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
-        }
-        else if( iTemp.find( "pwcleanthreshold" ) < iTemp.size() )
-        {
-            fRunPara->fPWcleanThreshold = atof( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
-        }
-        else if( iTemp.find( "pwlimit" ) < iTemp.size() )
-        {
-            fRunPara->fPWlimit = atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
-        }
         else if( iTemp.rfind( "printgrisuheader" ) < iTemp.size() )
         {
             fRunPara->fPrintGrisuHeader = atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
@@ -1604,29 +1588,6 @@ void VReadRunParameter::test_and_adjustParams()
         {
             fRunPara->fTraceWindowShift[t] = 0;
         }
-    }
-    
-    // throws an error if its a simulation file and it was asked to calculate the PW parameters from the CFD hits, since CFDs don't exist in the simulation record
-    if( fRunPara->fIsMC > 0 && ( fRunPara->fPWmethod == 0 || fRunPara->fPWmethod == 1 ) )
-    {
-        cout << " GrISU simulations don't have true CFD hits! PWmethod=" << fRunPara->fPWmethod << " can only be used with data with CFD hits." << endl;
-        cout << " Switching to FADC signals cleaned with PWcleanThreshold!!  " << endl << endl;
-    }
-    
-    if( fRunPara->fPWmethod > 3 )
-    {
-        cout << "Incorrect method for calculating binary-image trigger map: " << fRunPara->fPWmethod << endl;
-        exit( EXIT_FAILURE );
-    }
-    if( fRunPara->fPWcleanNeighbors < 0 )
-    {
-        cout << "Incorrect number of nearest neighbors required for cleaning: " << fRunPara->fPWcleanNeighbors << endl;
-        exit( EXIT_FAILURE );
-    }
-    if( fRunPara->fPWlimit < 0 )
-    {
-        cout << "Can't send less than zero pixels to moment-generating function: " << fRunPara->fPWlimit << endl;
-        exit( EXIT_FAILURE );
     }
     
     if( fPrintOutputFile )
