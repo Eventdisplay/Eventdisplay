@@ -192,7 +192,7 @@ ifeq ($(ROOT6FLAG),-DROOT6)
       GCC_VER_MINOR := $(shell echo $(GCCVERSION) | cut -f2 -d.)
       # check if gcc version is smaller than 4.8.
       GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $(GCC_VER_MINOR) -lt 8 \) ] && echo true)
-#CXXFLAGS    += -Wdeprecated-declarations -std=c++11
+CXXFLAGS    += -Wdeprecated-declarations -std=c++11
 endif
 ########################################################
 # CXX FLAGS (taken from root)
@@ -200,7 +200,7 @@ endif
 ROOTCFLAGS   = $(shell root-config --auxcflags)
 # ROOTCFLAGS   = -pthread -m64
 # TEMPORARY
-CXXFLAGS     += -Wno-deprecated 
+#CXXFLAGS     += -Wno-deprecated 
 CXXFLAGS     += $(ROOTCFLAGS)
 CXXFLAGS     += -I$(shell root-config --incdir) -I$(shell root-config --incdir)/TMVA 
 ########################################################
@@ -343,7 +343,8 @@ all VTS:	evndisp \
 	writeParticleRateFilesForTMVA \
 	trainTMVAforAngularReconstruction \
 	trainTMVAforGammaHadronSeparation \
-	extrasMessage doneMessage
+	extrasMessage doneMessage \
+	mergeVBF splitVBF
 
 CTA:	evndisp \
         CTA.convert_hessio_to_VDST \
@@ -539,10 +540,22 @@ mergeVBF: $(VBFMERGE)
 	@echo "$@ done"
 
 ########################################################
+# split VBF files
+########################################################
+VBFSPLIT=	./obj/splitVBF.o
+
+./obj/splitVBF.o:    ./src/splitVBF.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+splitVBF: $(VBFSPLIT)
+	$(LD) $(LDFLAGS) $^ $(GLIBS) $(VBFLIBS) $(OutPutOpt) ./bin/$@
+	@echo "$@ done"
+
+########################################################
 # lookup table code (mscw_energy)
 ########################################################
 MSCOBJECTS=	./obj/Cshowerpars.o ./obj/Ctpars.o \
-                ./obj/Ctelconfig.o ./obj/VTableLookupDataHandler.o ./obj/VTableCalculator.o \
+        ./obj/Ctelconfig.o ./obj/VTableLookupDataHandler.o ./obj/VTableCalculator.o \
 		./obj/VTableLookup.o ./obj/VTablesToRead.o \
 		./obj/VEmissionHeightCalculator.o \
 		./obj/VEffectiveAreaCalculatorMCHistograms.o ./obj/VEffectiveAreaCalculatorMCHistograms_Dict.o \
@@ -562,13 +575,13 @@ MSCOBJECTS=	./obj/Cshowerpars.o ./obj/Ctpars.o \
 		./obj/VMonteCarloRunHeader.o ./obj/VMonteCarloRunHeader_Dict.o \
 		./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
 		./obj/VHistogramUtilities.o ./obj/VHistogramUtilities_Dict.o \
-                ./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-                ./obj/VStar.o ./obj/VStar_Dict.o \
-                ./obj/VUtilities.o \
-                ./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
+        ./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
+        ./obj/VStar.o ./obj/VStar_Dict.o \
+        ./obj/VUtilities.o \
+        ./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
 		./obj/VMedianCalculator.o \
-                ./obj/VSkyCoordinatesUtilities.o \
-                ./obj/VDB_Connection.o \
+        ./obj/VSkyCoordinatesUtilities.o \
+        ./obj/VDB_Connection.o \
 		./obj/VPointingCorrectionsTreeReader.o \
 		./obj/mscw_energy.o
 
@@ -850,7 +863,6 @@ SHAREDOBJS= 	./obj/VRunList.o ./obj/VRunList_Dict.o \
 		./obj/VSpectralFitter.o ./obj/VSpectralFitter_Dict.o \
 		./obj/VEnergyThreshold.o ./obj/VEnergyThreshold_Dict.o \
 		./obj/VEnergySpectrum.o ./obj/VEnergySpectrum_Dict.o \
-		./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o  \
 		./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
 		./obj/VStar.o ./obj/VStar_Dict.o \
 		./obj/Ctelconfig.o \
@@ -924,6 +936,9 @@ endif
 
 ifeq ($(ROOT_MINUIT2),yes)
   SHAREDOBJS	+= ./obj/VSourceGeometryFitter.o ./obj/VSourceGeometryFitter_Dict.o
+endif
+ifneq ($(GSLFLAG),-DNOGSL)
+  SHAREDOBJS	+= ./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o
 endif
 
 ifneq ($(FITS),FALSE)
@@ -1161,9 +1176,8 @@ WRITECTAPHYSOBJ=	./obj/VWPPhysSensitivityFile.o \
 			./obj/VRunList.o ./obj/VRunList_Dict.o \
 			./obj/VEnergySpectrumfromLiterature.o ./obj/VEnergySpectrumfromLiterature_Dict.o \
 			./obj/VEnergySpectrum.o ./obj/VEnergySpectrum_Dict.o \
-			./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o  \
 			./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o  \
-		        ./obj/VFluxAndLightCurveUtilities.o ./obj/VFluxAndLightCurveUtilities_Dict.o \
+		    ./obj/VFluxAndLightCurveUtilities.o ./obj/VFluxAndLightCurveUtilities_Dict.o \
 			./obj/VDifferentialFluxData.o ./obj/VDifferentialFluxData_Dict.o \
 			./obj/VMonteCarloRateCalculator.o ./obj/VMonteCarloRateCalculator_Dict.o \
 			./obj/VMonteCarloRunHeader.o ./obj/VMonteCarloRunHeader_Dict.o \
@@ -1173,6 +1187,10 @@ WRITECTAPHYSOBJ=	./obj/VWPPhysSensitivityFile.o \
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     WRITECTAPHYSOBJ += ./obj/VASlalib.o
+endif
+
+ifneq ($(GSLFLAG),-DNOGSL)
+    WRITEVTSPHYSOBJ  += ./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o
 endif
 
 ./obj/writeCTAWPPhysSensitivityFiles.o: 	./src/writeCTAWPPhysSensitivityFiles.cpp
