@@ -63,6 +63,10 @@ class VEnergyThreshold : public TObject
         double feffFract_20p;
         double feffFract_50p;
         double feffFract_90p;
+        // effective areas
+        double feff_300GeV;
+        double feff_500GeV;
+        double feff_1TeV;
         
         int fPlottingMarkerStyle;
         int fPlottingMarkerColor;
