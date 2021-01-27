@@ -122,7 +122,7 @@ class VInstrumentResponseFunction
         void   setDuplicationID( unsigned int iDuplicationID = 9999 );
         void   setEnergyReconstructionMethod( unsigned int iMethod );
         void   setCuts( VGammaHadronCuts* iCuts );
-		void   setContainmentProbability( double iP = 0.68, double iPError = 0.95 )
+	void   setContainmentProbability( double iP = 0.68, double iPError = 0.95 )
         {
             fContainmentProbability = iP;
 			fContainmentProbabilityError = iPError;
@@ -133,7 +133,7 @@ class VInstrumentResponseFunction
         {
              fOutputFile = iOutputFile;
         }
-		void   setRunParameter( VInstrumentResponseFunctionRunParameter* iRunPar = 0 );
+	void   setRunParameter( VInstrumentResponseFunctionRunParameter* iRunPar = 0 );
         void   setTelescopeTypeCuts( bool iB = true )
         {
             fTelescopeTypeCutsSet = iB;

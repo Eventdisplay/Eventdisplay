@@ -120,11 +120,11 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
             fHistogrambinningEnergy_Min_Tev_Log = iMin;
             fHistogrambinningEnergy_Max_Tev_Log = iMax;
         }
-		void   setHistogramLogAngbinning( int iN = 20, double iMin = -4.0, double iMax = 1.0 )
-		{
-			fHistogrambinningAngular_Log = iN;
-			fHistogrambinningAngular_Min_Log = iMin;
-			fHistogrambinningAngular_Max_Log = iMax;
+        void   setHistogramLogAngbinning( int iN = 20, double iMin = -4.0, double iMax = 1.0 )
+	{
+            fHistogrambinningAngular_Log = iN;
+            fHistogrambinningAngular_Min_Log = iMin;
+            fHistogrambinningAngular_Max_Log = iMax;
         }
         bool   terminate( double iContainmentProbability, double iContainmentProbabilityError );
         
