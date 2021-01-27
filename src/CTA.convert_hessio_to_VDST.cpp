@@ -2017,7 +2017,10 @@ int main( int argc, char** argv )
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE );
         }
-        cout << "opening simtel file " << input_fname << endl;
+        if( input_fname )
+        {
+            cout << "opening simtel file " << input_fname << endl;
+        }
         
         fflush( stdout );
         fprintf( stderr, "%s\n", input_fname );
