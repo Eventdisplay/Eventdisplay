@@ -283,7 +283,7 @@ int main( int argc, char* argv[] )
             return 1;
         }
         // deal with only getting 1 row, assume a time span of 2 seconds, centered on our only row
-        else if( decl.size() == 1 )
+        else if( decl.size() == 1 && selectedMJD.size() > 0 )
         {
             zone += 1 ;
             printf( "Z%2d %12.6f only one row!\n", zone, mjd[i_row] );
