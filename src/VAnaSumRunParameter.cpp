@@ -801,7 +801,7 @@ int VAnaSumRunParameter::loadSimpleFileList( string i_listfilename )
     {
         cout << " VAnaSumRunParameter:::loadSimpleFileList error: file with list of runs not found : " << i_listfilename << endl;
         cout << "exiting..." << endl;
-        exit( -1 );
+        exit( EXIT_FAILURE );
     }
     string is_line;
     string temp;
@@ -1064,7 +1064,7 @@ int VAnaSumRunParameter::loadLongFileList( string i_listfilename, bool bShortLis
                 is_stream >> temp;
                 i_sT.fTE_mscl_max = atof( temp.c_str() );
                 cout << "DO NOT USE " << endl;
-                exit( 0 );
+                exit( EXIT_SUCCESS );
             }
             else if( i_sT.fBackgroundModel == eONOFF )
             {
@@ -1244,7 +1244,7 @@ void VAnaSumRunParameter::checkNumberOfArguments( int im, int narg, string i_lis
     {
         cout << "VAnaSumRunParameter::checkNumberOfArguments error: unknown background model" << endl;
         cout << "exiting..." << endl;
-        exit( -1 );
+        exit( EXIT_FAILURE );
     }
     
     // wobble offsets removed with version >=3
@@ -1699,13 +1699,14 @@ void VAnaSumRunParameter::getWobbleOffsets( string fDatadir )
         if( i_f->IsZombie() )
         {
             cout << "VAnaSumRunParameter::getWobbleOffset fatal error: file not found, " << i_temp << endl;
-            exit( -1 );
+            exit( EXIT_FAILURE );
         }
         
         TTree* i_tree = ( TTree* )i_f->Get( i_treename.c_str() );
         if( !i_tree )
         {
             cout << "VAnaSumRunParameter::getWobbleOffset tree not found " << i_treename << endl;
+            exit( EXIT_FAILURE );
         }
         i_tree->GetEntry( 1 );
         
@@ -1721,7 +1722,7 @@ void VAnaSumRunParameter::getWobbleOffsets( string fDatadir )
             cout << endl;
             cout << "VAnaSumRunParameter::getWobbleOffset error: cannot determine wobble offset for run " << fRunList[i].fRunOn << " from mscw_energy output file" << endl;
             cout << "\t old file version?" << endl;
-            exit( 0 );
+            exit( EXIT_SUCCESS );
         }
         i_f->Close();
     }
