@@ -2017,16 +2017,12 @@ int main( int argc, char** argv )
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE );
         }
-        if( input_fname )
-        {
-            cout << "opening simtel file " << input_fname << endl;
-        }
-        
-        fflush( stdout );
-        fprintf( stderr, "%s\n", input_fname );
         string f_inputfilename = "";
         if( input_fname )
         {
+            cout << "opening simtel file " << input_fname << endl;
+            fflush( stdout );
+            fprintf( stderr, "%s\n", input_fname );
             f_inputfilename = input_fname;
             printf( "\nInput file '%s' has been opened.\n", input_fname );
         }
