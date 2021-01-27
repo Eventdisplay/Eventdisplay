@@ -104,6 +104,7 @@ VSensitivityTree::VSensitivityTree()
     fDataTree = 0;
     fObservingTime_s = 0;
     fOffset_deg = 0.;
+    fScaling = 0;
     
     fAnalysisID = 0;
     fPointingDirection = "_0deg";
