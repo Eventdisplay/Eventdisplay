@@ -370,6 +370,7 @@ TString prepare_CalibVOFF_writing()
         if( list_tel_missing.size() < list_of_valid_tel.size() )
         {
             std::cout << "ERROR: BIG Problem !!!! check what the code is doing (RUN:" << fcurrent_run << ")" << std::endl;
+            fclose(wDB_file);
             return wDB_file_name;
         }
         else if( list_tel_missing.size() == list_of_valid_tel.size() )
