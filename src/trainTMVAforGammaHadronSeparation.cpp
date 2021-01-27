@@ -19,6 +19,7 @@
 #include "TMVA/Reader.h"
 #include "TMVA/Tools.h"
 
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -495,7 +496,9 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
                 ostringstream iTempCut;
                 // require at least 2 image per telescope type
                 iTempCut << iTemp.str() << ">1";
-                TCut iCutCC = iTempCut.str().c_str();
+                char *cstr = new char [iTempCut.str().length()+1];
+                std::strcpy (cstr, iTempCut.str().c_str() );
+                TCut iCutCC = cstr;
                 
                 double iSignalMean = 1.;
                 double iBckMean    = -1.;
@@ -516,6 +519,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
                     cout << "warning: removed constant variable " << iTemp.str() << " from training (added to spectators)" << endl;
                     dataloader->AddSpectator( iTemp.str().c_str() );
                 }
+                delete[] cstr;
             }
         }
         else
