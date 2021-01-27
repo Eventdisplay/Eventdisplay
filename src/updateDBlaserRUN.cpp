@@ -112,7 +112,6 @@ void write_calib_DB( TString new_laser_run_list_name );
 //-- Active function
 //------------------------------- used in get_new_laser_run_list():
 unsigned long Check_telmissing_from_VOFFDB( unsigned int VERITAS_DB_LaserRunNumber_i_run, unsigned int VERITAS_DB_LaserConfigMask_i_run, unsigned int VERITAS_DB_LaserExclTel_i_run, vector< vector < unsigned int > > VOFFLINE_DB_LaserRunNumber_Tel );
-void global_look_calibration( vector< unsigned int > VLaserRunNumner, vector< unsigned int > VLaserMaskListTel );
 void check_run_calib( unsigned int RunNumber, int  mask, int excluded_tel_mask );
 void check_run_calib( vector< int >  ListTel , vector< int >& list_of_valid_tel, FILE*& pbFile );
 bool test_gain_toff( TString file_root_name_gain, TString file_root_name_toff , FILE*& pbFile );
@@ -614,7 +613,6 @@ void prepare_CalibVOFF_writing( TString new_laser_run_list_name )
     
     // lucie: to do (mais pas dans cette fonction)
     //global vision of the run list
-    //global_look_calibration(VERITAS_DB_LaserRunNumber,VERITAS_DB_LaserConfigMask);
     
     //-- run by run check
     //-- for summary
@@ -860,23 +858,6 @@ void write_calib_DB( TString new_laser_run_list_name )
 //===========================================================================
 //====== ACTIVE functions for look_at_evndisp_calibration_output
 
-
-//---------------------------------------------------------------------------
-//-- void global_look_calibration
-//---------------------------------------------------------------------------
-//-- should give the mask, it's global so should see where the telescope are missing from one another
-//-- depend what we want to look at
-//-- Mask can be from VERITAS DB, or it can be the mask describing the list of telescope missing from DB
-//---------------------------------------------------------------------------
-void global_look_calibration( vector< unsigned int > VLaserRunNumner, vector< unsigned int > VLaserMaskListTel )
-{
-
-    //........................
-    //... TO DO
-    //........................
-    
-    return;
-}
 
 //---------------------------------------------------------------------------
 //-- void construct_VOFFLINE_calibration_writing_file
