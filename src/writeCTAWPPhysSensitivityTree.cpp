@@ -54,19 +54,23 @@ class VSensitivityTree
         //////////////////////////////////////
         // variables defining the array
         Char_t fArray[300];
-        unsigned int fArrayID;
-        unsigned int fScaling;
         int fNTel;
         // hardwired number of telescopes
         // prod2: 0 = LST, 1 = MST, 2 = 7m SST, 3 = 4m SST, 4 = SC-MST
         // static const int fNumTelTypes = 5;
         // prod3: 0 = LST, 1 = F-MST, 2 = N-MST, 3 = G-SST, 4 = D-SST, 5 = A-SST, 6 = SC-MST
-        static const int fNumTelTypes = 7;
+        // prod5: 0 = LST, 1 = F-MST, 2 = N-MST, 3 = SST, 4 = SC-MST
+        static const int fNumTelTypes = 5;
         int fNTelType[fNumTelTypes];                    // types of telescopes
         float fAverageTelescopeDistance[fNumTelTypes];  // average telescope distance to closest telescope
         float fMedianTelescopeDistance[fNumTelTypes];  // median telescope distance to closest telescope
         int fObservingTime_s;
         float fOffset_deg;
+        unsigned int fTelMult;
+        unsigned int fTelMultLST;
+        unsigned int fTelMultMST;
+        unsigned int fTelMultSST;
+        unsigned int fTelMultSCMST;
         
         string fPointingDirection;
         int    fAnalysisID;
@@ -88,7 +92,16 @@ class VSensitivityTree
     
         VSensitivityTree();
         ~VSensitivityTree() {}
-        bool fillEvent( string iSite, string iSubArrayName, int iObservingTime_s, unsigned int iSubArrayID, unsigned int iScaling );
+        bool fillEvent( string iSite, 
+                        string iSubArrayName, 
+                        int iObservingTime_s,
+                        int iTelMultiplicity,
+                        int iTelMultiplicityLST,
+                        int iTelMultiplicityMST,
+                        int iTelMultiplicitySST,
+                        int iTelMultiplicitySCST,
+                        string iWPPhysDirectory,
+                        string iMSTDateID );
         bool initialize( string iOutputFileName, string iName );
         void setFileNameParameters( string iPointingDirection, int iAnalysisID )
         {
@@ -105,6 +118,11 @@ VSensitivityTree::VSensitivityTree()
     fObservingTime_s = 0;
     fOffset_deg = 0.;
     fScaling = 0;
+    fTelMult = 0;
+    fTelMultLST = 0;
+    fTelMultMST = 0;
+    fTelMultSST = 0;
+    fTelMultSCMST = 0;
     
     fAnalysisID = 0;
     fPointingDirection = "_0deg";
@@ -141,10 +159,14 @@ VSensitivityTree::VSensitivityTree()
 void VSensitivityTree::reset()
 {
     sprintf( fArray, "noArrayName" );
-    fArrayID = 0;
     fNTel = 0;
     fObservingTime_s = 0;
     fOffset_deg = 0.;
+    fTelMult = 0;
+    fTelMultLST = 0;
+    fTelMultMST = 0;
+    fTelMultSST = 0;
+    fTelMultSCMST = 0;
     for( int i = 0; i < fNumTelTypes; i++ )
     {
         fNTelType[i] = 0;
@@ -171,93 +193,87 @@ void VSensitivityTree::reset()
  * read array layouts and sensitivity parameters from mscw and phys files
  *
  */
-bool VSensitivityTree::fillEvent( string iSite, string iSubArrayName, int iObservingTime_s, unsigned int iSubArrayID, unsigned int iScaling )
+bool VSensitivityTree::fillEvent( string iSite,
+                                  string iSubArrayName, 
+                                  int iObservingTime_s,
+                                  int iTelMultiplicity,
+                                  int iTelMultiplicityLST,
+                                  int iTelMultiplicityMST,
+                                  int iTelMultiplicitySST,
+                                  int iTelMultiplicitySCMST,
+                                  string iWPPhysDirectory,
+                                  string iMSTDateID )
 {
-    ////////////////////////////////////
-    // HARDWIRED VALUES - START //
-    // PROD2
-    /*    string iMSCWDirectory = "/lustre/fs9/group/cta/users/maierg/CTA/analysis/AnalysisData/prod2-Aar2014-NS/ARRAYLAYOUT/Analysis-ID0-d20150322-onAxis/";
-        string iMSCWFile = "gamma_onSource.ARRAYLAYOUT_ID0POINTINGDIRECTION-prod2-Aar2014-NS-1.mscw.root";
-        string iWPPhysDirectory = "/lustre/fs9/group/cta/users/maierg/CTA//analysis/WPPhys.20150901/";
-    //    string iWPPhysFile = "DESY.d20150824.Erec1.L1.ID0POINTINGDIRECTIONNIM2.prod2-Aar2014-NN.";
-        string iWPPhysFile = "DESY.d20150824.Erec1.L1.ID0POINTINGDIRECTIONNIM2.prod2-Aar-40deg-NN.";
-        string iTelescopePointingDirection = "_0deg";  */
-    // PROD3
-    char hname[2000];
+    // directories and file names
+    //string iDataDirectory = "$CTA_USER_DATA_DIR/analysis/AnalysisData/" + iSite;
+    string iDataDirectory = "/lustre/fs22/group/cta/users/maierg/analysis/AnalysisData/" + iSite;
+
+    ////////////////////////////////////////////////////////////////////
+    // open WP Phys file - return if not available
+    //
+    // WP Physfile
+    ostringstream iWPPhysFile_st;
+    iWPPhysFile_st << "DESY." << iMSTDateID << ".V3.ID" << fAnalysisID;
+    iWPPhysFile_st << fPointingDirection;
+    iWPPhysFile_st << "NIM" << iTelMultiplicity;
+    iWPPhysFile_st << "LST" << iTelMultiplicityLST;
+    iWPPhysFile_st << "MST" << iTelMultiplicityMST;
+    iWPPhysFile_st << "SST" << iTelMultiplicitySST;
+    iWPPhysFile_st << "SCMST" << iTelMultiplicitySCMST;
+    iWPPhysFile_st << "." << iSite << ".";
+    string iWPPhysFile = iWPPhysFile_st.str();
+    ostringstream iObservingTime;
+    iObservingTime << iObservingTime_s << "s";
+
+    ostringstream iWFile;
+    // iWFile << iWPPhysDirectory << "-NIM" << iTelMultiplicity << "/";
+    iWFile << iWPPhysDirectory << "/";
+    iWFile << iWPPhysFile;
+    iWFile << iSubArrayName << "." << iObservingTime.str();
+    iWFile << ".root";
+
+    cout << "reading IRFs from " << iWFile.str() << endl;
+
+    // open IRF file
+    TFile iP( iWFile.str().c_str() );
+    if( iP.IsZombie() )
+    {
+        cout << "File does not exist " << iWFile.str() << endl;
+        return false;
+    }
+
+    /////////////////////////////////////////////////////
+    // get telconfig
     
-    string iDataDirectory = "/lustre/fs9/group/cta/users/maierg/CTA/analysis/AnalysisData/";
-    string iWPPhysDirectory = "/lustre/fs16/group/cta/users/maierg/CTA/analysis/WPPhys/";
     
     // dates in file names
     string iEffDate;
     string iMSCWDate;
-    if( iSite == "prod3-paranalp05-NN" )
-    {
-        iEffDate = "d20160304";
-        iMSCWDate = "d20160304";
-    }
-    else if( iSite == "prod3-paranalp05-40deg-NN" )
-    {
-        iEffDate = "d20160304";
-        iMSCWDate = "d20160224";
-    }
-    else if( iSite == "prod3-LaPalmap05-NN" )
-    {
-        iEffDate = "d20160304";
-        iMSCWDate = "d20160304";
-    }
-    else
-    {
-        cout << "Site not found" << endl;
-        exit( EXIT_FAILURE );
-    }
-    
     
     // directory with MSCW files
     ostringstream iMSCWDirectory_st;
-    iMSCWDirectory_st << iDataDirectory << "/" << iSite << "/";
-    iMSCWDirectory_st << "ARRAYLAYOUT/Analysis-ID" << fAnalysisID << "-";
-    iMSCWDirectory_st << iMSCWDate  << "/";
-    string iMSCWDirectory = iMSCWDirectory_st.str();
+    iMSCWDirectory_st << iDataDirectory << "/";
+    iMSCWDirectory_st << iSubArrayName << "/Analysis-ID" << fAnalysisID << "-";
+    iMSCWDirectory_st << iMSTDateID << "/";
     // MSCW file name
+    // (only used for telconfig tree, so pointing directory is not relevant)
     ostringstream iMSCWFile_st;
-    iMSCWFile_st << "gamma_onSource.ARRAYLAYOUT_ID" << fAnalysisID;
-    iMSCWFile_st << "POINTINGDIRECTION-" << iSite << "-1.mscw.root";
-    string iMSCWFile = iMSCWFile_st.str();
-    // WP Physfile
-    ostringstream iWPPhysFile_st;
-    iWPPhysFile_st << "DESY." << iEffDate << ".V5.ID" << fAnalysisID;
-    iWPPhysFile_st << "POINTINGDIRECTIONNIM2." << iSite << ".";
-    string iWPPhysFile = iWPPhysFile_st.str();
+    iMSCWFile_st << "gamma_onSource." << iSubArrayName << "_ID" << fAnalysisID;
+    iMSCWFile_st << "_180deg-" << iSite << "-1.mscw.root";
     
-    cout << iMSCWDirectory << endl;
-    cout << iMSCWFile << endl;
+    cout << iMSCWDirectory_st.str() << endl;
+    cout << iMSCWFile_st.str() << endl;
     cout << iWPPhysFile << endl;
-    
-    ////////////////////////////////////
-    // HARDWIRED VALUES - STOPP //
-    
+
     reset();
     
     // array name & ID
     sprintf( fArray, "%s", iSubArrayName.c_str() );
-    fArrayID = iSubArrayID;
-    fScaling = iScaling;
     
     ////////////////////////////////////////////////
     // read telconfig tree from MSCW files
     
-    string iMFile = iMSCWDirectory.replace( iMSCWDirectory.find( "ARRAYLAYOUT" ), std::string( "ARRAYLAYOUT" ).length(), iSubArrayName );
-    iMFile += iMSCWFile.replace( iMSCWFile.find( "ARRAYLAYOUT" ), std::string( "ARRAYLAYOUT" ).length(), iSubArrayName );
-    if( fPointingDirection.size() > 0 )
-    {
-        iMFile  = iMFile.replace( iMFile.find( "POINTINGDIRECTION" ), std::string( "POINTINGDIRECTION" ).length(), fPointingDirection );
-    }
-    else
-    {
-        iMFile  = iMFile.replace( iMFile.find( "POINTINGDIRECTION" ), std::string( "POINTINGDIRECTION" ).length(), "_180deg" );
-    }
-    
+    string iMFile = iMSCWDirectory_st.str() + "/" + iMSCWFile_st.str();
     cout << "reading telconfig from " << iMFile << endl;
     
     TFile iT( iMFile.c_str() );
@@ -291,173 +307,74 @@ bool VSensitivityTree::fillEvent( string iSite, string iSubArrayName, int iObser
     {
         fTelescopeData.push_back( i_TempTD );
     }
-    
-    
     // loop over all entries to count different telescope types
     for( int i = 0; i < t->GetEntries(); i++ )
     {
         t->GetEntry( i );
-        
-        ///////////////////////////////////////////
-        // prod2 (5 different telescope types)
-        if( fNumTelTypes == 5 )
+
+        // LSTs (Type 0: 23m-LSTs)
+        if( iTelType == 138704810 )
         {
-            // LSTs (Type 0: 23m-LSTs)
-            if( iTelType == 138704810 || iTelType == 141305009 || iTelType == 141305109 )
+            fNTelType[0]++;
+            if( fTelescopeData.size() > 0 )
             {
-                fNTelType[0]++;
-                if( fTelescopeData.size() > 0 )
-                {
-                    fTelescopeData[0].push_back( new VTelescopeData() );
-                    fTelescopeData[0].back()->fTelTypeName = "23m-LST";
-                    fTelescopeData[0].back()->fTel_x = iTelX;
-                    fTelescopeData[0].back()->fTel_y = iTelY;
-                }
-            }
-            // standard MSTs (type 1: 12m-MSTs)
-            else if( iTelType == 10007818 || iTelType == 10408418 || iTelType == 10008118 )
-            {
-                fNTelType[1]++;
-                if( fTelescopeData.size() > 1 )
-                {
-                    fTelescopeData[1].push_back( new VTelescopeData() );
-                    fTelescopeData[1].back()->fTelTypeName = "12m-MST";
-                    fTelescopeData[1].back()->fTel_x = iTelX;
-                    fTelescopeData[1].back()->fTel_y = iTelY;
-                }
-            }
-            // standard SSTs (type 2: 4m SSTs)
-            else if( iTelType == 201509515 )
-            {
-                fNTelType[2]++;
-                if( fTelescopeData.size() > 2 )
-                {
-                    fTelescopeData[2].push_back( new VTelescopeData() );
-                    fTelescopeData[2].back()->fTelTypeName = "4m-SC-SST";
-                    fTelescopeData[2].back()->fTel_x = iTelX;
-                    fTelescopeData[2].back()->fTel_y = iTelY;
-                }
-            }
-            // large SSTs (type 3: 7m SSTs)
-            else if( iTelType == 3709725 || iTelType == 3709425 || iTelType == 3710125 )
-            {
-                fNTelType[3]++;
-                if( fTelescopeData.size() > 3 )
-                {
-                    fTelescopeData[3].push_back( new VTelescopeData() );
-                    fTelescopeData[3].back()->fTelTypeName = "7m-DC-SST";
-                    fTelescopeData[3].back()->fTel_x = iTelX;
-                    fTelescopeData[3].back()->fTel_y = iTelY;
-                }
-            }
-            // SC-MSTs (type 4)
-            else if( iTelType == 201509515 )
-            {
-                fNTelType[4]++;
-                if( fTelescopeData.size() > 4 )
-                {
-                    fTelescopeData[4].push_back( new VTelescopeData() );
-                    fTelescopeData[4].back()->fTelTypeName = "MST-SCT";
-                    fTelescopeData[4].back()->fTel_x = iTelX;
-                    fTelescopeData[4].back()->fTel_y = iTelY;
-                }
-            }
-            else
-            {
-                cout << "unknown telescope type: " << iTelType << endl;
+                fTelescopeData[0].push_back( new VTelescopeData() );
+                fTelescopeData[0].back()->fTelTypeName = "LST";
+                fTelescopeData[0].back()->fTel_x = iTelX;
+                fTelescopeData[0].back()->fTel_y = iTelY;
             }
         }
-        // prod3 (7 telescope types)
+        // F-MST
+        else if( iTelType == 10408618 )
+        {
+            fNTelType[1]++;
+            if( fTelescopeData.size() > 1 )
+            {
+                fTelescopeData[1].push_back( new VTelescopeData() );
+                fTelescopeData[1].back()->fTelTypeName = "FlashCam-MST";
+                fTelescopeData[1].back()->fTel_x = iTelX;
+                fTelescopeData[1].back()->fTel_y = iTelY;
+            }
+        }
+        // N-MST
+        else if( iTelType == 10408418 || iTelType == 10608418 )
+        {
+            fNTelType[2]++;
+            if( fTelescopeData.size() > 1 )
+            {
+                fTelescopeData[2].push_back( new VTelescopeData() );
+                fTelescopeData[2].back()->fTelTypeName = "NectarCam-MST";
+                fTelescopeData[2].back()->fTel_x = iTelX;
+                fTelescopeData[2].back()->fTel_y = iTelY;
+            }
+        }
+        // SST
+        else if( iTelType == 201409917 )
+        {
+            fNTelType[3]++;
+            if( fTelescopeData.size() > 2 )
+            {
+                fTelescopeData[3].push_back( new VTelescopeData() );
+                fTelescopeData[3].back()->fTelTypeName = "SST";
+                fTelescopeData[3].back()->fTel_x = iTelX;
+                fTelescopeData[3].back()->fTel_y = iTelY;
+            }
+        }
+        // SC-MSTs (type 4)
+        else if( iTelType == 207308707 )
+        {
+            fNTelType[4]++;
+            if( fTelescopeData.size() > 5 )
+            {
+                fTelescopeData[4].push_back( new VTelescopeData() );
+                fTelescopeData[4].back()->fTelTypeName = "MST-SCT";
+                fTelescopeData[4].back()->fTel_x = iTelX;
+                fTelescopeData[4].back()->fTel_y = iTelY;
+            }
+        }
         else
         {
-            // LSTs (Type 0: 23m-LSTs)
-            if( iTelType == 138704810 )
-            {
-                fNTelType[0]++;
-                if( fTelescopeData.size() > 0 )
-                {
-                    fTelescopeData[0].push_back( new VTelescopeData() );
-                    fTelescopeData[0].back()->fTelTypeName = "LST";
-                    fTelescopeData[0].back()->fTel_x = iTelX;
-                    fTelescopeData[0].back()->fTel_y = iTelY;
-                }
-            }
-            // F-MST
-            else if( iTelType == 10408618 )
-            {
-                fNTelType[1]++;
-                if( fTelescopeData.size() > 1 )
-                {
-                    fTelescopeData[1].push_back( new VTelescopeData() );
-                    fTelescopeData[1].back()->fTelTypeName = "FlashCam-MST";
-                    fTelescopeData[1].back()->fTel_x = iTelX;
-                    fTelescopeData[1].back()->fTel_y = iTelY;
-                }
-            }
-            // N-MST
-            else if( iTelType == 10408418 )
-            {
-                fNTelType[2]++;
-                if( fTelescopeData.size() > 1 )
-                {
-                    fTelescopeData[2].push_back( new VTelescopeData() );
-                    fTelescopeData[2].back()->fTelTypeName = "NectarCam-MST";
-                    fTelescopeData[2].back()->fTel_x = iTelX;
-                    fTelescopeData[2].back()->fTel_y = iTelY;
-                }
-            }
-            // G-SST
-            else if( iTelType == 201309415 || iTelType == 201309316 )
-            {
-                fNTelType[3]++;
-                if( fTelescopeData.size() > 2 )
-                {
-                    fTelescopeData[3].push_back( new VTelescopeData() );
-                    fTelescopeData[3].back()->fTelTypeName = "G-SST";
-                    fTelescopeData[3].back()->fTel_x = iTelX;
-                    fTelescopeData[3].back()->fTel_y = iTelY;
-                }
-            }
-            // D-SST
-            else if( iTelType == 908924 || iTelType == 909924 )
-            {
-                fNTelType[4]++;
-                if( fTelescopeData.size() > 3 )
-                {
-                    fTelescopeData[4].push_back( new VTelescopeData() );
-                    fTelescopeData[4].back()->fTelTypeName = "D-SST";
-                    fTelescopeData[4].back()->fTel_x = iTelX;
-                    fTelescopeData[4].back()->fTel_y = iTelY;
-                }
-            }
-            // A-SST
-            else if( iTelType == 201510718 || iTelType == 201511619 )
-            {
-                fNTelType[5]++;
-                if( fTelescopeData.size() > 4 )
-                {
-                    fTelescopeData[5].push_back( new VTelescopeData() );
-                    fTelescopeData[5].back()->fTelTypeName = "A-SST";
-                    fTelescopeData[5].back()->fTel_x = iTelX;
-                    fTelescopeData[5].back()->fTel_y = iTelY;
-                }
-            }
-            // SC-MSTs (type 4)
-            else if( iTelType == 207308707 )
-            {
-                fNTelType[6]++;
-                if( fTelescopeData.size() > 5 )
-                {
-                    fTelescopeData[6].push_back( new VTelescopeData() );
-                    fTelescopeData[6].back()->fTelTypeName = "MST-SCT";
-                    fTelescopeData[6].back()->fTel_x = iTelX;
-                    fTelescopeData[6].back()->fTel_y = iTelY;
-                }
-            }
-            else
-            {
-                cout << "unknown telescope type: " << iTelType << endl;
-            }
+            cout << "unknown telescope type: " << iTelType << endl;
         }
     }
     iT.Close();
@@ -520,28 +437,15 @@ bool VSensitivityTree::fillEvent( string iSite, string iSubArrayName, int iObser
         }
     }
     
-    
     ////////////////////////////////////////////////
     // read sensitivities
-    
+
     fObservingTime_s = iObservingTime_s;
-    sprintf( hname, "%ds", iObservingTime_s );
-    string iObservingTime = hname;
-    
-    string iWFile  = iWPPhysDirectory;
-    iWFile        += iWPPhysFile.replace( iWPPhysFile.find( "POINTINGDIRECTION" ), std::string( "POINTINGDIRECTION" ).length(), fPointingDirection );
-    iWFile        += iSubArrayName + "." + iObservingTime + ".root";
-    
-    cout << "reading IRFs from " << iWFile << endl;
-    
-    // open IRF file
-    TFile iP( iWFile.c_str() );
-    if( iP.IsZombie() )
-    {
-        cout << "Error reading file " << iWFile << endl;
-        return false;
-    }
-    
+    fTelMult = iTelMultiplicity;
+    fTelMultLST = iTelMultiplicityLST;
+    fTelMultMST = iTelMultiplicityMST;
+    fTelMultSST = iTelMultiplicitySST;
+    fTelMultSCMST = iTelMultiplicitySCMST;
     
     // check energy bins
     TH1F* h = ( TH1F* )iP.Get( "DiffSens" );
@@ -633,14 +537,12 @@ bool VSensitivityTree::initialize( string iOutputFileName, string iName )
     fDataTree = new TTree( "IRFData", iName.c_str() );
     
     fDataTree->Branch( "Array", &fArray, "Array/C" );
-    fDataTree->Branch( "ArrayID", &fArrayID, "ArrayID/i" );
-    fDataTree->Branch( "Scaling", &fScaling, "Scaling/i" );
+
+    // telescope positions
     fDataTree->Branch( "NTel", &fNTel, "NTel/I" );
     sprintf( hname, "NTelType[%d]", fNumTelTypes );
     sprintf( htitle, "NTelType[%d]/I", fNumTelTypes );
     fDataTree->Branch( hname, fNTelType, htitle );
-    fDataTree->Branch( "ObsTime_s", &fObservingTime_s, "ObsTime_s/I" );
-    fDataTree->Branch( "Offset_deg", &fOffset_deg, "Offset_deg/F" );
     
     sprintf( hname, "AverageTelescopeDistance[%d]", fNumTelTypes );
     sprintf( htitle, "AverageTelescopeDistance[%d]/F", fNumTelTypes );
@@ -649,7 +551,15 @@ bool VSensitivityTree::initialize( string iOutputFileName, string iName )
     sprintf( hname, "MedianTelescopeDistance[%d]", fNumTelTypes );
     sprintf( htitle, "MedianTelescopeDistance[%d]/F", fNumTelTypes );
     fDataTree->Branch( hname, fMedianTelescopeDistance, htitle );
-    
+    // observational details
+    fDataTree->Branch( "TelMult", &fTelMult, "TelMult/i" );
+    fDataTree->Branch( "TelMultLST", &fTelMultLST, "TelMultLST/i" );
+    fDataTree->Branch( "TelMultMST", &fTelMultMST, "TelMultMST/i" );
+    fDataTree->Branch( "TelMultSST", &fTelMultSST, "TelMultSST/i" );
+    fDataTree->Branch( "TelMultSCMST", &fTelMultSCMST, "TelMultSCMST/i" );
+    fDataTree->Branch( "ObsTime_s", &fObservingTime_s, "ObsTime_s/I" );
+    fDataTree->Branch( "Offset_deg", &fOffset_deg, "Offset_deg/F" );
+    // IRFs 
     sprintf( hname, "Energy_logTeV[%d]", fNEnergyBins );
     sprintf( htitle, "Energy_logTeV[%d]/F", fNEnergyBins );
     fDataTree->Branch( hname, fEnergy_logTeV, htitle );
@@ -694,17 +604,18 @@ int main( int argc, char* argv[] )
 {
     /////////////////////
     // input parameters
-    if( argc != 7 )
+    if( argc != 8 )
     {
         cout << endl;
-        cout << "./writeCTAWPPhysSensitivityTree <list of sub array> <site> <nscalings> <output file> <pointing direction> <ID>" << endl;
+        cout << "./writeCTAWPPhysSensitivityTree <list of sub array> <data set> <output file> <pointing direction> <ID> <PHYS file directory> <MSCW data identifier>" << endl;
         cout << endl;
-        cout << "nscalings = 5 (prod3 South) and = 1 (prod3 North)" << endl;
-        cout << "NOTE SEVERAL HARDWIRED PARAMETERS" << endl;
-        cout << "search for all files in hard wired PHYS directory" << endl;
+        cout << "  combine a list of PHYS root files into one single tree" << endl;
         cout << endl;
-        cout << "<pointing direction> (e.g. _180deg, _0deg, \"\" )" << endl;
+        cout << endl;
+        cout << "<pointing direction> (e.g. _180deg, _0deg, Average )" << endl;
         cout << "<ID>                 (e.g. 0, 1, 2, ...)" << endl;
+        cout << "<PHYS file directory> relative to analysis directory" << endl;
+        cout << "<MSCW data identifier> MSCW data used (e.g., g20210921 for Analysis-ID0-g20210921" << endl;
         cout << endl;
         exit( EXIT_FAILURE );
     }
@@ -714,10 +625,8 @@ int main( int argc, char* argv[] )
     cout << endl;
     string fSubArrayList = argv[1];
     string fSite = argv[2];
-    int    fNN_Min = 1;
-    int    fNN_Max = atoi( argv[3] );
-    string fOutputfile = argv[4];
-    string fPointingDirection = argv[5];
+    string fOutputfile = argv[3];
+    string fPointingDirection = argv[4];
     if( fPointingDirection == "Average" )
     {
         fPointingDirection = "";
@@ -730,7 +639,9 @@ int main( int argc, char* argv[] )
     {
         fPointingDirection = "_180deg";
     }
-    int    fAnalysisID = atoi( argv[6] );
+    int    fAnalysisID = atoi( argv[5] );
+    string fInputDirectory = argv[6];
+    string fMSTDateID = argv[7];
     
     // loop over all sub arrays and load files
     vector< string > fSubArray;
@@ -757,7 +668,7 @@ int main( int argc, char* argv[] )
     is.close();
     
     cout << "total number of subarrays: " << fSubArray.size() << endl;
-    
+
     /////////////////////////////////////////
     // initialize and fill data tree
     
@@ -771,52 +682,83 @@ int main( int argc, char* argv[] )
     // hardwired observing time
     vector< int > iObservingTimeVector;
     iObservingTimeVector.push_back( 180000 );
-    iObservingTimeVector.push_back( 18000 );
     iObservingTimeVector.push_back( 1800 );
-    /*    iObservingTimeVector.push_back( 1800000 );
-        iObservingTimeVector.push_back( 360000 );
-        iObservingTimeVector.push_back( 180000 );
-        iObservingTimeVector.push_back( 72000 );
-        iObservingTimeVector.push_back( 36000 );
-        iObservingTimeVector.push_back( 18000 );
-        iObservingTimeVector.push_back( 7200 );
-        iObservingTimeVector.push_back( 600 );
-        iObservingTimeVector.push_back( 300 );
-        iObservingTimeVector.push_back( 60 ); */
-    //        iObservingTimeVector.push_back( 20 );
-    
+
+    // hardwired telescope multiplicity
+    vector< int > iTelMultiplicityLST;
+    iTelMultiplicityLST.push_back( 3 );
+    vector< int > iTelMultiplicityMST;
+    iTelMultiplicityMST.push_back( 2 );
+    iTelMultiplicityMST.push_back( 3 );
+    iTelMultiplicityMST.push_back( 4 );
+    iTelMultiplicityMST.push_back( 5 );
+    iTelMultiplicityMST.push_back( 6 );
+    vector< int > iTelMultiplicitySST;
+    iTelMultiplicitySST.push_back( 2 );
+    iTelMultiplicitySST.push_back( 3 );
+    iTelMultiplicitySST.push_back( 4 );
+    iTelMultiplicitySST.push_back( 5 );
+    iTelMultiplicitySST.push_back( 6 );
+    vector< int > iTelMultiplicitySCMST;
+    iTelMultiplicitySCMST.push_back( 3 );
     
     /////////////////////////////////////////////////////////
     // fill events for complete parameter space
-    
     // array loop
     for( unsigned int i = 0; i < fSubArray.size(); i++ )
     {
-        // array scaling loop
-        for( int a = fNN_Min; a <= fNN_Max; a++ )
+        // observing time loop
+        for( unsigned int t = 0; t < iObservingTimeVector.size(); t++ )
         {
-            stringstream iSubArray;
-            iSubArray << fSubArray[i];
-            if( fSite.find( "LaPalma" ) == string::npos )
+            // telescope multiplicity (per telescope type)
+            for( unsigned l = 0; l < iTelMultiplicityLST.size(); l++ )
             {
-                iSubArray << "-" << a;
-            }
-            
-            // observing time loop
-            for( unsigned int t = 0; t < iObservingTimeVector.size(); t++ )
-            {
-                cout << endl << endl;
-                cout << "now filling array layout " << iSubArray.str();
-                cout << " (obs time " << iObservingTimeVector[t] << " s)" << endl;
-                cout << "=========================================" << endl;
-                cout << endl;
-                fData->fillEvent( fSite, iSubArray.str(), iObservingTimeVector[t], i, a );
+                for( unsigned m = 0; m < iTelMultiplicityMST.size(); m++ )
+                {
+                    for( unsigned s = 0; s < iTelMultiplicitySST.size(); s++ )
+                    {
+                        for( unsigned c = 0; c < iTelMultiplicitySCMST.size(); c++ )
+                        {
+                            // TMPTMPTMP
+                            // (requires NMSTs == NSSTs)
+                            // if( iTelMultiplicityMST[m] != iTelMultiplicitySST[s] ) continue;
+
+                            // TMPTMPTMP
+                            iTelMultiplicityLST[l] = std::min( iTelMultiplicityMST[m], iTelMultiplicitySST[s] );
+                            iTelMultiplicitySCMST[c] = std::min( iTelMultiplicityMST[m], iTelMultiplicitySST[s] );
+                            // TMPTMPTMP
+
+                            unsigned int iTelMultiplicity = 
+                                        std::min( iTelMultiplicityLST[l], 
+                                                std::min( iTelMultiplicityMST[m],
+                                                std::min( iTelMultiplicitySST[s], iTelMultiplicitySCMST[c] ) ) );
+
+                            cout << endl << endl;
+                            cout << "now filling array layout " << fSubArray[i];
+                            cout << " (obs time " << iObservingTimeVector[t] << " s), ";
+                            cout << "telescope multiplicity " << iTelMultiplicity;
+                            cout << ", LST: " << iTelMultiplicityLST[l];
+                            cout << ", MST: " << iTelMultiplicityMST[m];
+                            cout << ", SST: " << iTelMultiplicitySST[s];
+                            cout << ", SCMST: " << iTelMultiplicitySCMST[c] << ")" << endl;
+                            cout << "=========================================" << endl;
+                            cout << endl;
+                            
+                            fData->fillEvent( fSite, fSubArray[i], iObservingTimeVector[t], 
+                                   iTelMultiplicity,
+                                   iTelMultiplicityLST[l],
+                                   iTelMultiplicityMST[m],
+                                   iTelMultiplicitySST[s],
+                                   iTelMultiplicitySCMST[c],
+                                   fInputDirectory, fMSTDateID );
+                        }
+                     }
+                }
             }
         }
     }
-    
+        
     fData->terminate();
     
     return 0;
 }
-

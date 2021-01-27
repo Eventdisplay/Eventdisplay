@@ -785,6 +785,12 @@ bool VSensitivityCalculator::calculateSensitivityvsEnergyFromCrabSpectrum( strin
         }
         return true;
     }
+    // read sensitivities from CTA WP Phys tree
+    else if( "CTA-PHYSTREE" )
+    {
+
+       return true;
+    }
     // differential flux vector from anasum file (e.g. a measurement towards the Crab Nebula)
     else
     {
@@ -876,8 +882,10 @@ bool VSensitivityCalculator::calculateSensitivityvsEnergyFromCrabSpectrum( strin
         int i_s_z = 0;
         for( unsigned int q = 0; q < i_N_iter; q++ )
         {
-            double iN_on  = gRandom->Poisson( non );
-            double iN_off = gRandom->Poisson( noff );
+            //double iN_on  = gRandom->Poisson( non );
+            //double iN_off = gRandom->Poisson( noff );
+            double iN_on  = gRandom->Gaus( non, non_error );
+            double iN_off = gRandom->Gaus( noff, noff_error );
             // in case of no background events: set background rate to very very small number
             // (otherwise no sensitivity values is calculated)
             if( iN_off <= 0. )

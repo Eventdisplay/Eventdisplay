@@ -33,6 +33,7 @@ void printHelp()
      cout << "\t\t smoothTableLog, mscwTableLog, mscwTableList" << endl;
      cout << "\t\t tmvaLog, tmvaRunparameter" << endl;
      cout << "\t\t effAreaLog, effAreaCuts, effAreaParameters" << endl;
+     cout << "\t\t IRFLog" << endl;
      cout << endl;
 }
 
@@ -48,7 +49,6 @@ int main( int argc, char* argv[] )
      if( argc != 3 && argc != 4 )
      {
          printHelp();
-         cout << argc << endl;
          exit( EXIT_SUCCESS );
      } 
 
@@ -59,6 +59,7 @@ int main( int argc, char* argv[] )
      logObjectNames.push_back( "mscwTableLog" );
      logObjectNames.push_back( "tmvaLog" );
      logObjectNames.push_back( "effAreaLog" );
+     logObjectNames.push_back( "IRFLog" );
 
      fLogFileName = argv[1];
      fRootFile = argv[2];
@@ -70,7 +71,7 @@ int main( int argc, char* argv[] )
      ////////////////////////////////////////////////
      if( argc == 3 )
      {
-           TFile fF( fRootFile.c_str(), "UPDATE" );
+           TFile fF( fRootFile.c_str(), "READ" );
            if( fF.IsZombie() )
            {
                 cout << "Error: root file not found" << endl;

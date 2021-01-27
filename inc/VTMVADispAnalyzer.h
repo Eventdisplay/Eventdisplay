@@ -3,6 +3,7 @@
 #ifndef VTMVADispAnalyzer_H
 #define VTMVADispAnalyzer_H
 
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
