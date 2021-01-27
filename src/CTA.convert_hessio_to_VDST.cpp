@@ -387,6 +387,7 @@ bool read_trigger_mask( string trg_mask_file )
     {
         cout << "read_trigger_mask(): error, cannot open trigger mask file: " << endl;
         cout << "\t" << trg_mask_file << endl;
+        free(tms);
         return false;
     }
     
