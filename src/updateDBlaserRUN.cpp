@@ -1361,11 +1361,6 @@ void read_laserRUN_fromVERITAS_DB( vector< unsigned int >& VERITAS_DB_LaserRunNu
     {
         while( TSQLRow* db_row = db_res->Next() )
         {
-            if( !db_row )
-            {
-                cout << "WARNING read_laserRUN_fromVERITAS_DB: failed reading a row from DB " << endl;
-                return;
-            }
             if( db_row->GetField( 0 ) )
             {
                 VERITAS_DB_LaserRunNumber.push_back( atoi( db_row->GetField( 0 ) ) );
