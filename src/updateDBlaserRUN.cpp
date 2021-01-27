@@ -472,6 +472,8 @@ void prepareEVNDanalysis( TString new_laser_run_list_name )
     if( !file_new_laser_run_list_name )
     {
         std::cout << "ERROR: imposible to open file " << new_laser_run_list_name << std::endl;
+        fclose(NEW_laser_list_File_for_EVNDISP_analyse_laser);
+        fclose(NEW_laser_list_File_EVNDISP_analyse_laser_DONE);
         return;
     }
     
