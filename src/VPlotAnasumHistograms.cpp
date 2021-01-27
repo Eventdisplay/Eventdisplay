@@ -248,19 +248,15 @@ void VPlotAnasumHistograms::plot_mscPlots( int irebin, double xmin, double xmax,
         VDouble_gauss* fdouble_gauss = new VDouble_gauss();
         
         TF1* hmscw_diff_fit = new TF1( hname, fdouble_gauss, -1.5, 1.5, 4, "VDouble_gauss" );
-        //TF1 *hmscw_diff_fit = new TF1( hname,double_gauss, -1.5, 1.5, 4);
         hmscw_diff_fit->SetParameter( 0, hmscw_diff->GetMaximum() );
         hmscw_diff_fit->SetParameter( 1, 0. );
         hmscw_diff_fit->SetParameter( 2, 0.3 );
         hmscw_diff_fit->SetParameter( 3, 0.3 );
         hmscw_diff->Fit( hmscw_diff_fit->GetName(), "0RME" );
-        if( hmscw_diff_fit )
-        {
-            hmscw_diff_fit->SetLineColor( 2 );
-            hmscw_diff_fit->SetLineStyle( 2 );
-            hmscw_diff_fit->Draw( "same" );
-            cout << "Mean scaled width fit: " << hmscw_diff_fit->GetParameter( 1 ) << " +- " << hmscw_diff_fit->GetParError( 1 ) << endl;
-        }
+        hmscw_diff_fit->SetLineColor( 2 );
+        hmscw_diff_fit->SetLineStyle( 2 );
+        hmscw_diff_fit->Draw( "same" );
+        cout << "Mean scaled width fit: " << hmscw_diff_fit->GetParameter( 1 ) << " +- " << hmscw_diff_fit->GetParError( 1 ) << endl;
         
         TLine* lmscw_diff = new TLine( 0., hmscw_diff->GetMinimum(), 0., hmscw_diff->GetMaximum() );
         lmscw_diff->SetLineStyle( 2 );
@@ -294,13 +290,10 @@ void VPlotAnasumHistograms::plot_mscPlots( int irebin, double xmin, double xmax,
         hmscl_diff_fit->SetParameter( 2, 0.3 );
         hmscl_diff_fit->SetParameter( 3, 0.3 );
         hmscl_diff->Fit( hmscl_diff_fit->GetName(), "0RME" );
-        if( hmscl_diff_fit )
-        {
-            hmscl_diff_fit->SetLineColor( 2 );
-            hmscl_diff_fit->SetLineStyle( 2 );
-            hmscl_diff_fit->Draw( "same" );
-            cout << "Mean scaled length fit: " << hmscl_diff_fit->GetParameter( 1 ) << " +- " << hmscl_diff_fit->GetParError( 1 ) << endl;
-        }
+        hmscl_diff_fit->SetLineColor( 2 );
+        hmscl_diff_fit->SetLineStyle( 2 );
+        hmscl_diff_fit->Draw( "same" );
+        cout << "Mean scaled length fit: " << hmscl_diff_fit->GetParameter( 1 ) << " +- " << hmscl_diff_fit->GetParError( 1 ) << endl;
         cout << "Mean scaled length: " << hmscl_diff->GetMean() << " +- " << hmscl_diff->GetRMS() << endl;
         
         TLine* lmscl_diff = new TLine( 0., hmscl_diff->GetMinimum(), 0., hmscl_diff->GetMaximum() );

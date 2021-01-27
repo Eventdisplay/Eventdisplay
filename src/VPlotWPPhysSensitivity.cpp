@@ -811,7 +811,6 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
         string iUnit,
         TPad* iSensitivityPad, TPad* iBckPad )
 {
-    TCanvas* cIntSens = 0;
     TCanvas* cSens = 0;
     TCanvas* cSensInter = ( TCanvas* )iSensitivityPad;
     TCanvas* cBck = ( TCanvas* )iBckPad;
@@ -861,14 +860,6 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             {
                 cSens = c_temp;
             }
-            // integral sensitivity
-            /*TCanvas *c_tempInter = 0;
-            // cIntSens name (changing VSensitivityCalculator::fPlot_CanvasName default value)
-            a->setPlotCanvasName("cIntegratedSensitivity", "integral sensitivity vs energy" );
-            a->setFluxRange_ENERG(  2.5e-14, 2.5e-11 );
-            c_tempInter = a->plotIntegralSensitivityvsEnergyFromCrabSpectrum( cIntSens, "CTA-PHYS", iUnit,
-              		                                                  fData[i]->fSiteFile_Emin[j], fData[i]->fSiteFile_Emax[j] );
-            if( c_tempInter ) cIntSens = c_tempInter; */
             c_temp = a->plotSignalBackgroundRates( cBck, ( z == 0 ), 2.e-7, 14. ); // plot also protons and electrons
             if( c_temp )
             {
@@ -945,16 +936,6 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
     }
     /////////////////////////////
     // print results
-    if( cIntSens )
-    {
-        plotLegend( cIntSens, false );
-        if( iPrint.size() > 0 )
-        {
-            char hname[2000];
-            sprintf( hname, "%s-IntegratedSensitivity.pdf", iPrint.c_str() );
-            cIntSens->Print( hname );
-        }
-    }
     if( cSens )
     {
         plotLegend( cSens, false );

@@ -499,7 +499,7 @@ VMonteCarloRunHeader* VInstrumentResponseFunctionRunParameter::readMCRunHeader()
     if( !iMC )
     {
         cout << "VInstrumentResponseFunctionRunParameter::readMCRunHeader: no MC run header found in " << fdatafile << endl;
-        cout << "(" << iMC->GetName() << ")" << endl;
+        cout << "(" << iF->GetName() << ")" << endl;
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }

@@ -472,7 +472,7 @@ void VTableCalculator::terminate( TDirectory* iOut, char* xtitle )
             }
         }
         // write 2D histograms to file
-        if( fOutDir && hNevents->GetEntries() > 0 )
+        if( fOutDir && hNevents && hNevents->GetEntries() > 0 )
         {
             fOutDir->cd();
             if( xtitle && hMedian )

@@ -940,8 +940,13 @@ bool VSensitivityCalculator::calculateSensitivityvsEnergyFromCrabSpectrum( strin
                 noff / fDifferentialFlux[i].ExposureTime * 60., alpha, energy, 4 );
                 
         // fill sensitivity graphs
-        double f1 = i_fFunCrabFlux->Eval( log10( fDifferentialFlux[i].Energy_lowEdge ) );
-        double f2 = i_fFunCrabFlux->Eval( log10( fDifferentialFlux[i].Energy_upEdge ) );
+        double f1 = 0.;
+        double f2 = 0.;
+        if( i_fFunCrabFlux )
+        {
+            f1 = i_fFunCrabFlux->Eval( log10( fDifferentialFlux[i].Energy_lowEdge ) );
+            f2 = i_fFunCrabFlux->Eval( log10( fDifferentialFlux[i].Energy_upEdge ) );
+        }
         
         if( i_fFunCrabFlux != 0 && s > 0.
                 && fDifferentialFlux[i].Energy > iEnergyMin_TeV_lin && fDifferentialFlux[i].Energy < iEnergyMax_TeV_lin

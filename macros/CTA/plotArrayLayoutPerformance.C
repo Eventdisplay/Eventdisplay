@@ -1184,11 +1184,10 @@ TCanvas* drawPerformanceCurves( vector< CPerformance* > fPerformance, string iCa
                             h->GetXaxis()->SetBinLabel( h->GetXaxis()->FindBin( b + 1 ), fPerformance[i]->fArrayLayoutLabels[e][b].c_str() );
                         }
                     }
+                    sprintf( hname, "PPUT (relative to S.3HB1-%s-3, Av PT)", iTelescopeCombination.c_str() );
+                    h->GetYaxis()->SetTitle( hname );
+                    h->GetYaxis()->SetTitleOffset( 1.1 );
                 }
-                //                h->GetYaxis()->SetTitle( "PPUT (relative to requirement)" );
-                sprintf( hname, "PPUT (relative to S.3HB1-%s-3, Av PT)", iTelescopeCombination.c_str() );
-                h->GetYaxis()->SetTitle( hname );
-                h->GetYaxis()->SetTitleOffset( 1.1 );
                 if( e < fPerformance[i]->fEnergyLabels.size() )
                 {
                     fPerformance[i]->fEnergyLabels[e]->SetTextSize( fPerformance[i]->fEnergyLabels[e]->GetTextSize() * 1.5 );
