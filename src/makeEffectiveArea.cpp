@@ -108,7 +108,7 @@ int main( int argc, char* argv[] )
     VGammaHadronCuts* fCuts = new VGammaHadronCuts();
     fCuts->initialize();
     fCuts->setNTel( fRunPara->telconfig_ntel, fRunPara->telconfig_arraycentre_X, fRunPara->telconfig_arraycentre_Y );
-	fCuts->setInstrumentEpoch( fRunPara->getInstrumentEpoch( true ) );
+    fCuts->setInstrumentEpoch( fRunPara->getInstrumentEpoch( true ) );
     fCuts->setTelToAnalyze( fRunPara->fTelToAnalyse );
     fCuts->setReconstructionType( fRunPara->fReconstructionType );
     if( !fCuts->readCuts( fRunPara->fCutFileName, 2 ) )
@@ -226,11 +226,6 @@ int main( int argc, char* argv[] )
                      && f_IRF[f_IRF[i]->getDuplicationID()] )
             {
                 f_IRF[i]->fillResolutionGraphs( f_IRF[f_IRF[i]->getDuplicationID()]->getIRFData() );
-            }
-            if( fCuts->getDirectionCutSelector() == 2 )
-            {
-                fCuts->setIRFGraph( f_IRF[i]->getAngularResolutionGraph( 0, 0 ) );
-                f_IRF[i]->getAngularResolutionGraph( 0, 0 )->Print();
             }
         }
     }

@@ -309,7 +309,7 @@ bool VInstrumentResponseFunction::fillResolutionGraphs( vector< vector< VInstrum
         {
             if( fIRFData[i][j] )
             {
-				fIRFData[i][j]->terminate( fContainmentProbability, fContainmentProbabilityError );
+		fIRFData[i][j]->terminate( fContainmentProbability, fContainmentProbabilityError );
             }
         }
     }

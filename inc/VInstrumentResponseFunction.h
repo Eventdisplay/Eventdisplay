@@ -63,7 +63,7 @@ class VInstrumentResponseFunction
         
         // containment probabilities
         double  fContainmentProbability;
-		double  fContainmentProbabilityError;
+	double  fContainmentProbabilityError;
         
         bool    defineHistograms();
         bool    fillEventData();

@@ -2371,8 +2371,8 @@ bool VGammaHadronCuts::initAngularResolutionFile()
             sprintf( iTreeName, "t_angular_resolution_%03dp", getAngularResolutionContainmentRadius() );
 
         }
-	      else
-	      {
+        else
+        {
            sprintf( iTreeName, "t_angular_resolution" );
         }
         

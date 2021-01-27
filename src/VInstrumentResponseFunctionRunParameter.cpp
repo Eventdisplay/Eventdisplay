@@ -656,7 +656,7 @@ void VInstrumentResponseFunctionRunParameter::print()
     cout << "run parameters for calculation of instrument response functions: " << endl;
     cout << "-----------------------------------------------------------------" << endl;
     cout << endl;
-	cout << "observatory " << fObservatory << endl;
+    cout << "observatory " << fObservatory << endl;
     cout << endl;
     cout << "filling mode " << fFillingMode;
     if( fFillingMode == 0 )

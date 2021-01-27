@@ -40,8 +40,8 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
 
         // angular binning
         int     fHistogrambinningAngular_Log;
-		double  fHistogrambinningAngular_Min_Log;
-		double  fHistogrambinningAngular_Max_Log;
+	double  fHistogrambinningAngular_Min_Log;
+	double  fHistogrambinningAngular_Max_Log;
         
         // array centre
         double  fArrayCentre_X;
@@ -114,7 +114,7 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
         {
             fEnergyReconstructionMethod = iMethod;
         }
-		void   setHistogramEbinning( int iN = 60, double iMin = -2.0, double iMax = 4.0 )
+	void   setHistogramEbinning( int iN = 60, double iMin = -2.0, double iMax = 4.0 )
         {
             fHistogrambinningEnergy_TeV_Log = iN;
             fHistogrambinningEnergy_Min_Tev_Log = iMin;
