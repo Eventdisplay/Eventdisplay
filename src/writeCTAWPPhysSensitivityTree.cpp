@@ -117,7 +117,6 @@ VSensitivityTree::VSensitivityTree()
     fDataTree = 0;
     fObservingTime_s = 0;
     fOffset_deg = 0.;
-    fScaling = 0;
     fTelMult = 0;
     fTelMultLST = 0;
     fTelMultMST = 0;
