@@ -34,23 +34,6 @@ bool trainGammaHadronSeparation( VTMVARunData* iRun, unsigned int iEnergyBin, un
 bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin );
 
 /*
- * get number of requested training events
- *
- */
-Long64_t getNumberOfRequestedTrainingEvents( string a, bool iSignal )
-{
-   string b = "nTrain_Signal=";
-   if( !iSignal )
-   {
-      b = "nTrain_Background=";
-   }
-   // extensive string gymnastics
-   Long64_t nS = (Long64_t)atoi( a.substr( a.find( b ) + b.size(), a.find( ":", a.find( b ) - a.find( b ) - b.size() ) ).c_str() );
-
-   return nS;
-}
-
-/*
  * check settings for number of training events;
  * if required reset event numbers
  *
