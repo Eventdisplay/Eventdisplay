@@ -29,9 +29,27 @@
 #include "VSiteData.h"
 #include "VUtilities.h"
 
+class VPPUTData
+{
+    public:
+        string fArrayName;
+	string fPPUTName;
+	double fEMin_TeV;
+	double fEMax_TeV;
+	double fPPUT;
+	double fPPUTError;
+
+	VPPUTData();
+       ~VPPUTData() {}
+};
+
+
 class VPPUTValues
 {
     private:
+	// fPPUTData[array name][energy range]
+        vector< vector< VPPUTData* > > fPPUTData;
+
         vector< string > fSetName;
         vector< double > fPPUT;
         vector< double > fPPUTError;
@@ -39,14 +57,17 @@ class VPPUTValues
         vector< double > fLowEPPUT;
         vector< double > fLowEPPUTError;
 
+        vector< double > fLowEMSTPPUT;
+        vector< double > fLowEMSTPPUTError;
+
         vector< double > fMidEPPUT;
         vector< double > fMidEPPUTError;
 
         vector< double > fHighEPPUT;
         vector< double > fHighEPPUTError;
 
-        vector< double > fnoLoEPPUT;
-        vector< double > fnoLoEPPUTError;
+        vector< double > fMedHighEPPUT;
+        vector< double > fMedHighEPPUTError;
 
         double getPPUT( TGraph *iG, bool iError = false, double ilogEMin = -20., double ilogEMax = 20. );
 
@@ -54,8 +75,8 @@ class VPPUTValues
         VPPUTValues() {}
         ~VPPUTValues() {}
         void add( string iName, TGraph *iG );
-        void print();
-        void printLatexTable();
+        void print( string iType = "MARKDOWN" );
+        void printHeader( string iType = "MARKDOWN" );
 };
 
 

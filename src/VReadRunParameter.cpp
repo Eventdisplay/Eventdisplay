@@ -1687,10 +1687,15 @@ void VReadRunParameter::setDirectories()
                 cout << "\t creating calibration directory for Telescope " << i + 1 << " : " << i_text << endl;
                 if( gSystem->mkdir( i_text, kTRUE ) != 0 )
                 {
-                    cout << "VReadRunParameter::test_and_adjustParams() error: unable to create calibration directory for Telescope ";
-                    cout << i + 1 << ": " << endl;
-                    cout << i_text << endl;
-                    exit( EXIT_FAILURE );
+                    // possibilitiy that many jobs try to do the same thing; repeat after sleep
+                    gSystem->Sleep( gRandom->Uniform( 10., 60 ) );
+                    if( gSystem->mkdir( i_text, kTRUE ) != 0 )
+                    {
+                        cout << "VReadRunParameter::test_and_adjustParams() error: unable to create calibration directory for Telescope ";
+                        cout << i + 1 << ": " << endl;
+                        cout << i_text << endl;
+                        exit( EXIT_FAILURE );
+                    }
                 }
             }
         }

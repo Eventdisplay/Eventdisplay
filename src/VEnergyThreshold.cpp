@@ -123,6 +123,14 @@ VEnergyThreshold::VEnergyThreshold( double iEnergyThresholdFixed, string iEnergy
     setPlottingYaxis();
 }
 
+VEnergyThreshold::~VEnergyThreshold()
+{
+       if( fEffArea )
+       {
+            delete fEffArea;
+       }
+}
+
 bool VEnergyThreshold::closeOutputFile()
 {
        if( fOutFile )
@@ -263,8 +271,8 @@ bool VEnergyThreshold::calculateEnergyThreshold( int nentries )
             feffFract_20p = getEnergy_MaxEffectiveAreaFraction( hG, 0.20 );
             feffFract_50p = getEnergy_MaxEffectiveAreaFraction( hG, 0.50 );
             feffFract_90p = getEnergy_MaxEffectiveAreaFraction( hG, 0.90 );
-            
             fdiffmax = getEnergy_diffMax( hG, fEffArea->index );
+            delete hG;
         }
         else if( i == 0 )
         {

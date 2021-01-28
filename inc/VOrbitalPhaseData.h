@@ -6,6 +6,7 @@
 #include "VFluxAndLightCurveUtilities.h"
 
 #include "TMath.h"
+#include <TNamed.h>
 
 #include <iostream>
 #include <string>

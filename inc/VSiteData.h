@@ -35,11 +35,14 @@ class VSiteData
         float            fSite_B_dB;
         float            fSiteRequirementID;
         string           fReferenceSiteName;
+        string           fSiteFileType;
         vector< string > fSiteFileName;
         vector< bool   > fSiteFile_exists;
         vector< float >  fSiteFile_Emin;
         vector< float >  fSiteFile_Emax;
         vector< float >  fObservationTime_s;
+        vector< int >    fTelCutMSTs;
+        vector< int >    fTelCutSSTs;
         vector< float >  fCameraOffset_deg;
         vector< string > fArray;
         vector< TGraphAsymmErrors* > fGraphSensitivity;

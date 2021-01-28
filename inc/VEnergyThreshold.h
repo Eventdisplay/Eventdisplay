@@ -88,7 +88,7 @@ class VEnergyThreshold : public TObject
         VEnergyThreshold();
         VEnergyThreshold( string ioutfilename, string iFileOption = "UPDATE" );
         VEnergyThreshold( double iEthFixed, string iInFile = "" );
-        ~VEnergyThreshold() {}
+       ~VEnergyThreshold();
         bool closeOutputFile();
         bool  isZombie() { return fIsZombie; }
         bool   openEffectiveAreaFile( string ifile );

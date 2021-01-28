@@ -105,7 +105,7 @@ class VEvndispReconstructionParameterData : public TNamed
         bool              testUserImage( unsigned int iTelType );
         bool              testL2TriggerType( unsigned int iTel, unsigned int iTelType, unsigned short int iLocalTriggerType );
         
-        ClassDef( VEvndispReconstructionParameterData, 3 );
+        ClassDef( VEvndispReconstructionParameterData, 4 );
         
 };
 

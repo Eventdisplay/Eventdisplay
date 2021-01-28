@@ -924,6 +924,7 @@ double VAnaSum::getAzRange( int i_run, string i_treename, double& azmin, double&
     if( !i_tree )
     {
         cout << "VAnaSum::getAZRange tree not found " << i_treename << endl;
+        exit( EXIT_FAILURE );
     }
     Float_t ArrayPointing_Azimuth;
     i_tree->SetBranchAddress( "ArrayPointing_Azimuth", &ArrayPointing_Azimuth );

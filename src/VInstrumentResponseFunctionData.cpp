@@ -25,8 +25,8 @@ VInstrumentResponseFunctionData::VInstrumentResponseFunctionData()
     setEnergyReconstructionMethod();
     
     fHistogramList = 0;
-	setHistogramEbinning();
-	setHistogramLogAngbinning();
+    setHistogramEbinning();
+    setHistogramLogAngbinning();
     setArrayCentre();
 }
 

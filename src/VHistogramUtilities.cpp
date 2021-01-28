@@ -775,14 +775,26 @@ bool VHistogramUtilities::divide( TGraphAsymmErrors* g, TGraphAsymmErrors* g1, T
     
     double x1 = 0.;
     double y1 = 0.;
-    
+
+    double xmin = 10.;
+    double xmax = -10.;
+
+    for( int i = 0; i < g2->GetN(); i++ )
+    {
+	    g2->GetPoint( i, x1, y1 );
+	    if( x1 < xmin ) xmin = x1;
+	    if( x1 > xmax ) xmax = x1;
+    }
+
     int z = 0;
     for( int i = 0; i < g1->GetN(); i++ )
     {
         g1->GetPoint( i, x1, y1 );
+
+	if( x1 < xmin || x1 > xmax ) continue;
         
         double y2 = g2->Eval( x1 );
-        
+
         if( y1 != 0. )
         {
             g->SetPoint( z, x1, y2 / y1 );
@@ -827,7 +839,6 @@ bool VHistogramUtilities::divide( TGraphAsymmErrors* g, TGraphAsymmErrors* g1, T
             {
                 double y = y2 / y1;
                 g->SetPoint( z, x1, y );
-                
                 
                 // double iErr1 = 1. / y1 * 0.5 * ( g1->GetErrorYhigh( i ) + g1->GetErrorYlow( i ) );
                 double iErr1 = y2 / y1 / y1 * 0.5 * ( g1->GetErrorYhigh( i ) + g1->GetErrorYlow( i ) );

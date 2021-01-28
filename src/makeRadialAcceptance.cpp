@@ -382,10 +382,7 @@ int main( int argc, char* argv[] )
             }
         }
         
-        if( fCuts )
-        {
-            fCuts->printCutSummary();
-        }
+        fCuts->printCutSummary();
         
         int neventStats = 0;
         int i_entries_after_cuts = 0;

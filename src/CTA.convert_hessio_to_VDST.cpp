@@ -387,6 +387,7 @@ bool read_trigger_mask( string trg_mask_file )
     {
         cout << "read_trigger_mask(): error, cannot open trigger mask file: " << endl;
         cout << "\t" << trg_mask_file << endl;
+        free(tms);
         return false;
     }
     
@@ -2017,13 +2018,12 @@ int main( int argc, char** argv )
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE );
         }
-        cout << "opening simtel file " << input_fname << endl;
-        
-        fflush( stdout );
-        fprintf( stderr, "%s\n", input_fname );
         string f_inputfilename = "";
         if( input_fname )
         {
+            cout << "opening simtel file " << input_fname << endl;
+            fflush( stdout );
+            fprintf( stderr, "%s\n", input_fname );
             f_inputfilename = input_fname;
             printf( "\nInput file '%s' has been opened.\n", input_fname );
         }

@@ -675,7 +675,6 @@ bool VDataMCComparision::fillHistograms( string ifile, int iSingleTelescopeCuts 
             else
             {
                 cout << "VDataMCComparision::fillHistograms: error reading file for wobbles ";
-                cout << iCurrentFile->GetName() << endl;
                 cout << "exiting..." << endl;
                 exit( EXIT_FAILURE );
             }

@@ -1608,8 +1608,8 @@ VTS.calculateCrabRateFromMC:	./obj/CEffArea.o ./obj/CEffArea_Dict.o \
 VTS.analyzeMuonRings:		./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
 				./obj/VImageCleaningRunParameter.o ./obj/VImageCleaningRunParameter_Dict.o \
 				./obj/VEvndispRunParameter.o ./obj/VEvndispRunParameter_Dict.o \
-                ./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-                ./obj/VStar.o ./obj/VStar_Dict.o \
+                		./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
+                		./obj/VStar.o ./obj/VStar_Dict.o \
 		        ./obj/VDB_Connection.o \
                 ./obj/VUtilities.o \
                 ./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \

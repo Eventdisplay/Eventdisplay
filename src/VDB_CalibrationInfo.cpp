@@ -295,7 +295,7 @@ string VDB_CalibrationInfo::please_give_the_password()
     
     
     printf( "Please enter the password: " );
-    int result_scan = scanf( "%s", str );
+    int result_scan = scanf( "%79s", str );
     
     if( result_scan > 0 )
     {
