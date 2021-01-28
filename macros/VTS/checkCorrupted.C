@@ -1,3 +1,9 @@
+/*  check if a root can be opened or it
+ *  is the recovery bit is set
+ *
+ *  return 0 if everything is good, otherwise 1
+ *
+ */
 #include <TFile>
 
 int checkCorrupted(TString F) 
