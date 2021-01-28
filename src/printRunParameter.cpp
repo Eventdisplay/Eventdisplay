@@ -24,10 +24,10 @@ using namespace std;
 */
 bool readMeanElevation( TFile *fIn )
 {
-	if( !fIn )
-	{
-		return false;
-	}
+    if( !fIn )
+    {
+            return false;
+    }
     // get total number of telescopes available
     TTree *telconfig = (TTree*)fIn->Get( "telconfig" );
     if( !telconfig )
