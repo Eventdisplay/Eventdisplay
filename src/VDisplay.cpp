@@ -1366,7 +1366,6 @@ void VDisplay::setFADCText()
         return;
     }
     char cTemp[500];
-    char cTemp2[5000];
     unsigned int iChannel = unsigned( fSelectedChan - 200000 );
     
     // don't use this for photodiode
