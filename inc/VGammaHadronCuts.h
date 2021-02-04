@@ -158,6 +158,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
         double       fAngRes_AbsoluteMinimum;
         double       fAngRes_AbsoluteMaximum;
         unsigned int fAngResContainmentProbability;
+        double       fAngRes_FixedAboveEnergy_TeV;
         
         //////////////////////////
         // energy dependent cuts
