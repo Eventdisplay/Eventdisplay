@@ -35,7 +35,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     
     // number of bins for histograms
     nbins = fRunPara->fEnergyAxisBins_log10;
-	nbins_MC = fRunPara->fEnergyAxisBins_log10;
+    nbins_MC = fRunPara->fEnergyAxisBins_log10;
 
     // bin definition for 2D histograms (allows coarser binning in energy)
     fBiasBin       = fRunPara->fBiasBin;      
@@ -43,6 +43,8 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     fLogAngularBin = fRunPara->fLogAngularBin; 
     fResponseMatricesEbinning = fRunPara->fResponseMatricesEbinning;
 
+    // Important: changing this means probably that the values used in
+    // VEffectiveAreaCalculatorMCHistograms have to be changed as well
     // this should not be changed
     fEnergyAxis_minimum_defaultValue = -2.;
     fEnergyAxis_maximum_defaultValue =  4.;
@@ -3154,7 +3156,7 @@ double VEffectiveAreaCalculator::getCRWeight( double iEMC_TeV_lin, TH1* h, bool 
         n_cr *= fRunPara->fCREnergySpectrum->Eval( log10( iEMC_TeV_lin ) );
     }
 
-    // (ctools) for the acceptance map construction, the weight is in #/s ()
+    // (DL3) for the acceptance map construction, the weight is in #/s ()
     if( for_back_map )
     {
         // need to normalize this number considering the cone in which the particle are simulated
@@ -3193,8 +3195,6 @@ double VEffectiveAreaCalculator::getCRWeight( double iEMC_TeV_lin, TH1* h, bool 
 // Calculate the ratio between the solid angle of the cone where the MC have been done and the solid angle of the offset bin considered
 void VEffectiveAreaCalculator::Calculate_Bck_solid_angle_norm()
 {
-
-
     if( fRunPara->fViewcone_max > 0. )
     {
         // solid angle in which the particule have been simulated
@@ -3202,9 +3202,7 @@ void VEffectiveAreaCalculator::Calculate_Bck_solid_angle_norm()
         
         fsolid_angle_norm = SolidAngle_MCScatterAngle;
         fsolid_angle_norm_done = true;
-        
     }
-    
     
     return;
 }

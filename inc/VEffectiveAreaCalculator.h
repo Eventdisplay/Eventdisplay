@@ -60,18 +60,18 @@ class VEffectiveAreaCalculator
         // effective areas (reading of effective areas)
 		unsigned int fNBins;                    // bins in the true energy of MC (fEff_E0)
         unsigned int fBiasBin;                  // bins in the energy bias
-		unsigned int fhistoNEbins;              // energy bins for histograms only
+        unsigned int fhistoNEbins;              // energy bins for histograms only
         unsigned int fResponseMatricesEbinning; // fine bins for response matrices. Likelihood analysis.
         unsigned int fLogAngularBin;            // bins for the log10(angular diff R,MC [deg])
 
         vector< float >                      fEff_E0;
         map< unsigned int, vector< float > > fEffArea_map;
-	    map< unsigned int, vector< float > > fEffAreaMC_map;
+	map< unsigned int, vector< float > > fEffAreaMC_map;
         map< unsigned int, vector< float > > fEff_EsysMCRelative;
-	    map< unsigned int, vector< float > > fe_MC_Res_map;
-	    map< unsigned int, vector< float > > fe_Rec_Res_map;
-	    map< unsigned int, vector< float > > fe_Rec_Res_Err_map;
-	    map< unsigned int, unsigned int > fEntry_map;
+	map< unsigned int, vector< float > > fe_MC_Res_map;
+	map< unsigned int, vector< float > > fe_Rec_Res_map;
+	map< unsigned int, vector< float > > fe_Rec_Res_Err_map;
+	map< unsigned int, unsigned int > fEntry_map;
         
         // mean and mean time binned effective areas
         unsigned int     fNTimeBinnedMeanEffectiveArea;
@@ -286,10 +286,10 @@ class VEffectiveAreaCalculator
         {
             return fEffArea;
         }
-		int getEnergyAxis_nbins_defaultValue()
-		{
-			return fhistoNEbins;
-		}
+        int getEnergyAxis_nbins_defaultValue()
+        {
+                return fhistoNEbins;
+        }
         TTree*             getEventCutDataTree()
         {
                 return fEventTreeCuts;

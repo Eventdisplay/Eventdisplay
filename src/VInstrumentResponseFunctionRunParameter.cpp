@@ -19,6 +19,8 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     fReconstructionType = NOT_SET;
     fEnergyReconstructionMethod = 0;
     fEnergyAxisBins_log10 = 60;
+    fEnergyAxis_logTeV_min = -2.;
+    fEnergyAxis_logTeV_max =  4.;
     fIgnoreEnergyReconstructionQuality = false;
     
     fMCEnergy_min = -99.;
@@ -28,9 +30,12 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     // IRF histogram bin definition
     fBiasBin = 300;                       // Energy bias (bias bins)
     fLogAngularBin = 100;                 // Angular resolution Log10 (bins)
+    fhistoAngularBin_min = -4.;
+    fhistoAngularBin_max =  1.;
     fResponseMatricesEbinning = 500;      // bins in the ResponseMatrices 
     fhistoNEbins = fEnergyAxisBins_log10; // E binning (affects 2D histograms only)
-
+    fhistoNEbins_logTeV_min = fEnergyAxis_logTeV_min;
+    fhistoNEbins_logTeV_max = fEnergyAxis_logTeV_max;
     
     fCutFileName = "";
     fGammaHadronCutSelector = -1;
@@ -141,10 +146,10 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // write event data tree with cuts 
             else if( temp == "WRITEEVENTDATATREE" )
             {
-                    if( !(is_stream>>std::ws).eof() )
-                    {
-                            is_stream >> fWriteEventdatatrees;
-                    }
+                if( !(is_stream>>std::ws).eof() )
+                {
+                        is_stream >> fWriteEventdatatrees;
+                }
             }
             // fill MC histograms
             else if( temp == "FILLMONTECARLOHISTOS" )
@@ -174,45 +179,42 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                     }
                 }
             }
-			// number of bins on log10 energy axis
-			else if( temp == "ENERGYAXISBINS" )
-			{
-				if( !(is_stream>>std::ws).eof() )
-				{
-					is_stream >> fEnergyAxisBins_log10;
-				}
+            // number of bins on log10 energy axis
+            else if( temp == "ENERGYAXISBINS" )
+            {
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fEnergyAxisBins_log10;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fEnergyAxis_logTeV_min;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fEnergyAxis_logTeV_max;
             }
-			// number of bins on log10 energy axis - IRF histograms only (allows re-binning)
-			else if( temp == "ENERGYAXISBINHISTOS" )
-			{
-				if( !(is_stream>>std::ws).eof() )
-				{
-					is_stream >> fhistoNEbins;
-				}
+            // number of bins on log10 energy axis - IRF histograms only (allows re-binning)
+            else if( temp == "ENERGYAXISBINHISTOS" )
+            {
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoNEbins;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoNEbins_logTeV_min;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoNEbins_logTeV_max;
             }
-			// number of bins on energy bias - IRF histograms only
-			else if( temp == "EBIASBINHISTOS" )
-			{
-				if( !(is_stream>>std::ws).eof() )
-				{
-					is_stream >> fBiasBin;
-				}
+            // number of bins on energy bias - IRF histograms only
+            else if( temp == "EBIASBINHISTOS" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                        is_stream >> fBiasBin;
+                }
             }
-			// number of bins on angular resolution - IRF histograms only
-			else if( temp == "ANGULARRESOLUTIONBINHISTOS" )
-			{
-				if( !(is_stream>>std::ws).eof() )
-				{
-					is_stream >> fLogAngularBin;
-				}
+            // number of bins on angular resolution - IRF histograms only
+            else if( temp == "ANGULARRESOLUTIONBINHISTOS" )
+            {
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fLogAngularBin;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoAngularBin_min;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoAngularBin_max;
             }
-			// number of fine-bins for the response matrices (likelihood analysis)
-			else if( temp == "RESPONSEMATRICESEBINS" )
-			{
-				if( !(is_stream>>std::ws).eof() )
-				{
-					is_stream >> fResponseMatricesEbinning;
-				}
+            // number of fine-bins for the response matrices (likelihood analysis)
+            else if( temp == "RESPONSEMATRICESEBINS" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                        is_stream >> fResponseMatricesEbinning;
+                }
             }
 			// energy reconstruction quality
             else if( temp == "RECONSTRUCTIONTYPE" )
@@ -254,15 +256,6 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                     cout << " will use GammaHadron cut file to decide." << endl;
                 }
                 
-            }
-            
-            // number of bins on log10 energy axis
-            else if( temp == "ENERGYAXISBINS" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> fEnergyAxisBins_log10;
-                }
             }
             // energy reconstruction quality
             else if( temp == "ENERGYRECONSTRUCTIONQUALITY" )
@@ -779,6 +772,13 @@ void VInstrumentResponseFunctionRunParameter::print()
         cout << "CR energy spectrum used for weighted rate histogram: ";
         cout << fCREnergySpectrumFile << " (ID" << fCREnergySpectrumID << ")" << endl;
     }
+    cout << "IRF histogram binning: " << endl;
+    cout << "\t energy (log TeV; 1D): " << fEnergyAxisBins_log10;
+    cout << " [" << fEnergyAxis_logTeV_min << ", " << fEnergyAxis_logTeV_max << "]" << endl;
+    cout << "\t energy (log TeV; 2D): " << fhistoNEbins;
+    cout << " [" << fhistoNEbins_logTeV_min << ", " << fhistoNEbins_logTeV_max << "]" << endl;
+    cout << "\t angres axis (log): " << fLogAngularBin;
+    cout << " [" << fhistoAngularBin_min << ", " << fhistoAngularBin_max << "]" << endl;
     cout << endl << endl;
 }
 
@@ -798,19 +798,21 @@ bool VInstrumentResponseFunctionRunParameter::readCRSpectralParameters()
     {
         return false;
     }
-    
-	if( espec.getEnergySpectrum( fCREnergySpectrumID ) )
+    // read energy spectrum from literature class
+    TF1* i_Ftemp = espec.getEnergySpectrum( fCREnergySpectrumID, false );
+    if( i_Ftemp )
     {
         char hname[1000];
-		sprintf( hname, "%s_C", espec.getEnergySpectrum( fCREnergySpectrumID )->GetName() );
-		fCREnergySpectrum = new TF1( hname, espec.getEnergySpectrum( fCREnergySpectrumID )->GetExpFormula(),
-									 espec.getEnergySpectrum( fCREnergySpectrumID )->GetXmin(),
-									 espec.getEnergySpectrum( fCREnergySpectrumID )->GetXmax() );
-		for( int i = 0; i < espec.getEnergySpectrum( fCREnergySpectrumID )->GetNpar(); i++ )
+        sprintf( hname, "%s_C", i_Ftemp->GetName() );
+        fCREnergySpectrum = new TF1( hname, i_Ftemp->GetExpFormula(),
+                                     i_Ftemp->GetXmin(),
+                                     i_Ftemp->GetXmax() );
+        for( int i = 0; i < i_Ftemp->GetNpar(); i++ )
         {
-			fCREnergySpectrum->SetParameter( i, espec.getEnergySpectrum( fCREnergySpectrumID )->GetParameter( i ) );
-			fCREnergySpectrum->SetParError( i, espec.getEnergySpectrum( fCREnergySpectrumID )->GetParError( i ) );
+            fCREnergySpectrum->SetParameter( i, i_Ftemp->GetParameter( i ) );
+            fCREnergySpectrum->SetParError( i, i_Ftemp->GetParError( i ) );
         }
+        delete i_Ftemp;
     }
     else
     {
