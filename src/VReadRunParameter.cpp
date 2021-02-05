@@ -1545,6 +1545,7 @@ void VReadRunParameter::test_and_adjustParams()
             fRunPara->fTraceWindowShift.push_back( fRunPara->fTraceWindowShift[0] );
             fRunPara->fsumfirst_startingMethod.push_back( fRunPara->fsumfirst_startingMethod[0] );
             fRunPara->fsumfirst_maxT0startDiff.push_back( fRunPara->fsumfirst_maxT0startDiff[0] );
+            fRunPara->fSumWindow_searchmaxreverse.push_back( fRunPara->fSumWindow_searchmaxreverse[0] );
             fRunPara->fTraceIntegrationMethod.push_back( fRunPara->fTraceIntegrationMethod[0] );
             fRunPara->fTraceIntegrationMethod_pass1.push_back( fRunPara->fTraceIntegrationMethod_pass1[0] );
             fRunPara->fDF_DigitalFilter.push_back( fRunPara->fDF_DigitalFilter[0] );
