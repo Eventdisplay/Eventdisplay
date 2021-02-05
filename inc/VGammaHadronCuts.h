@@ -291,6 +291,10 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             return fDirectionCutSelector;
         }
+        double getDirectionCutFixedAboveEnergy_TeV()
+        {
+            return fAngRes_FixedAboveEnergy_TeV;
+        }
         int    getGammaHadronCutSelector()
         {
             return fGammaHadronCutSelector;
@@ -432,6 +436,6 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             fReconstructionType = type;
         }
-        ClassDef( VGammaHadronCuts, 66 );
+        ClassDef( VGammaHadronCuts, 67 );
 };
 #endif

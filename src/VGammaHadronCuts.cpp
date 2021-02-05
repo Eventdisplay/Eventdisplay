@@ -2424,14 +2424,21 @@ double VGammaHadronCuts::getTheta2Cut_max( double e )
             {
                 theta_cut_max = 0.;
             }
-            theta_cut_fixed = fTMVAEvaluator->getOptimalTheta2Cut( fAngRes_FixedAboveEnergy_TeV );
+            if( fAngRes_FixedAboveEnergy_TeV > 0. )
+            {
+                theta_cut_fixed = fTMVAEvaluator->getOptimalTheta2Cut( log10( fAngRes_FixedAboveEnergy_TeV ) );
+            }
         }
         /////////////////////////////////////////////
         // use a graph with theta2 cuts
         else if( fDirectionCutSelector == 5 && getTheta2Cut_TMVA_max() )
         {
             theta_cut_max = getEnergyDependentCut( e, getTheta2Cut_TMVA_max(), true, true );
-            theta_cut_fixed = getEnergyDependentCut( fAngRes_FixedAboveEnergy_TeV, getTheta2Cut_TMVA_max(), true, true );
+            if( fAngRes_FixedAboveEnergy_TeV > 0. )
+            {
+                theta_cut_fixed = getEnergyDependentCut( log10(fAngRes_FixedAboveEnergy_TeV),
+                                                         getTheta2Cut_TMVA_max(), true, true );
+            }
             if( theta_cut_max < 0. )
             {
                 theta_cut_max = 0.;
