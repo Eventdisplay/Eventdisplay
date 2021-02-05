@@ -32,7 +32,7 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         
     public:
     
-		string fObservatory;
+	string fObservatory;
         unsigned int    fFillingMode;              // filling mode
         bool            fEffArea_short_writing;    // short/long tree writing
         
@@ -44,7 +44,6 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         
         E_ReconstructionType fReconstructionType;
         unsigned int    fEnergyReconstructionMethod;
-        unsigned int    fEnergyAxisBins_log10;
         bool            fIgnoreEnergyReconstructionQuality;
         unsigned int    fNSpectralIndex;
         double          fSpectralIndexMin;
@@ -58,10 +57,17 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         bool            fWriteEventdatatrees;
 
         // IRF histogram bin definition
+        unsigned int    fEnergyAxisBins_log10;
+        double  fEnergyAxis_logTeV_min;
+        double  fEnergyAxis_logTeV_max;
         unsigned int fBiasBin;                       // Energy bias (bias bins)
         unsigned int fLogAngularBin;                 // Angular resolution Log10 (bins)
+        double   fhistoAngularBin_min;
+        double   fhistoAngularBin_max;
         unsigned int fResponseMatricesEbinning;      // bins in the ResponseMatrices 
         unsigned int fhistoNEbins;                   // E binning (affects 2D histograms only)
+        double   fhistoNEbins_logTeV_min;
+        double   fhistoNEbins_logTeV_max;
         
         string          fCoreScatterMode;
         double          fCoreScatterRadius;
@@ -109,7 +115,7 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         bool                  readRunParameterFromTextFile( string iFile );
         bool                  testRunparameters();
         
-        ClassDef( VInstrumentResponseFunctionRunParameter, 17 );
+        ClassDef( VInstrumentResponseFunctionRunParameter, 18 );
 };
 
 #endif

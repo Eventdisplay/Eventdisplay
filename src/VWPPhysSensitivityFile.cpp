@@ -86,7 +86,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fIntSensitivity );
     }
     
-    is_text.str("IntSensCU");
+    is_text.str("");
+    is_text << "IntSensCU";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -102,7 +103,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
     }
     
     // sensitivity and background rates
-    is_text.str("DiffSens");
+    is_text.str("");
+    is_text << "DiffSens";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -117,7 +119,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fSensitivity );
     }
     
-    is_text.str("DiffSensCU" );
+    is_text.str("");
+    is_text << "DiffSensCU";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -171,7 +174,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         }
     }
     
-    is_text.str("BGRate" );
+    is_text.str("");
+    is_text << "BGRate";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -185,7 +189,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fBGRate );
     }
     
-    is_text.str("ProtRate" );
+    is_text.str("");
+    is_text << "ProtRate";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -199,7 +204,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fProtRate );
     }
     
-    is_text.str( "ElecRate" );
+    is_text.str("");
+    is_text << "ElecRate";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -213,7 +219,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fElecRate );
     }
     
-    is_text.str( "BGRatePerSqDeg" );
+    is_text.str("");
+    is_text << "BGRatePerSqDeg";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -227,7 +234,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fBGRateSqDeg );
     }
     
-    is_text.str( "ProtRateSqDeg" );
+    is_text.str("");
+    is_text << "ProtRateSqDeg";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -241,7 +249,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fProtRateSqDeg );
     }
     
-    is_text.str( "ElecRateSqDeg" );
+    is_text.str("");
+    is_text << "ElecRateSqDeg";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -255,7 +264,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fElecRateSqDeg );
     }
     
-    is_text.str( "EffectiveArea" );
+    is_text.str("");
+    is_text << "EffectiveArea";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -269,7 +279,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fEffArea );
     }
     
-    is_text.str( "EffectiveAreaEtrue" );
+    is_text.str("");
+    is_text << "EffectiveAreaEtrue";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -283,7 +294,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
     {
         hisListToDisk.push_back( fEffAreaMC );
     }
-    is_text.str( "EffectiveAreaEtrueNoTheta2cut" );
+    is_text.str("");
+    is_text << "EffectiveAreaEtrueNoTheta2cut";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -298,7 +310,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fEffAreaMCNoTheta2cut );
     }
     
-    is_text.str( "EffectiveAreaNoTheta2cut" );
+    is_text.str("");
+    is_text << "EffectiveAreaNoTheta2cut";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -313,7 +326,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fEffAreaNoTheta2cut );
     }
     
-    is_text.str( "EffectiveArea80" );
+    is_text.str("");
+    is_text << "EffectiveArea80";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -366,13 +380,13 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         {
             sprintf( htitle, "Angular resolution (%s%% containment)", fAngRes[i].fContainmentRadius.c_str() );
         }
+        is_text.str("");
         if( fAngRes[i].fContainmentRadius == "68" )
         {
-            is_text.str(i_hisname.c_str()); 
+            is_text << i_hisname.c_str(); 
         }
         else
         {
-            is_text.str("");
             is_text << i_hisname << fAngRes[i].fContainmentRadius;
         }
         if( fOffsetCounter < 9999 )
@@ -391,14 +405,14 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
     }
     
     // energy resolution
-    is_text.str( "ERes" );
+    is_text.str("");
+    is_text << "ERes";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
     }
     fEres = new TH1F( is_text.str().c_str(), "Energy resolution", iEnergyXaxisNbins, iEnergyXaxis_min, iEnergyXaxis_max );
     fEres->SetXTitle( "log_{10} (E/TeV)" );
-    //   fEres->SetYTitle( "Relative Energy resolution (68% containment around Eres/Etrue=1)" );
     fEres->SetYTitle( "energy resolution (RMS)" );
     hisList.push_back( fEres );
     if( fOffsetCounter == 9999 )
@@ -406,7 +420,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fEres );
     }
     
-    is_text.str( "Ebias" );
+    is_text.str("");
+    is_text << "Ebias";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -420,7 +435,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fEbias );
     }
     // histogram with theta2
-    is_text.str( "Theta2Cut" );
+    is_text.str("");
+    is_text << "Theta2Cut";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
@@ -434,7 +450,8 @@ bool VWPPhysSensitivityFile::initializeHistograms( int iEnergyXaxisNbins, double
         hisListToDisk.push_back( fTheta2 );
     }
     
-    is_text.str( "ThetaCut" );
+    is_text.str("");
+    is_text << "ThetaCut";
     if( fOffsetCounter < 9999 )
     {
         is_text << "_" << fOffsetCounter;
