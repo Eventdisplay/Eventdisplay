@@ -36,6 +36,7 @@ class VEffectiveAreaCalculatorMCHistograms : public TNamed
         double   fMCEnergyRange_TeV_max;
         double   fMCSpectralIndex;
         
+        // range in log(E) for the EffArea hisotrams
         int      fEnergyAxisBins_log10;
         double   fEnergyAxisMin_log10;
         double   fEnergyAxisMax_log10;

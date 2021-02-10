@@ -108,9 +108,6 @@ class VImageCleaning
         // cluster cleaning
         void cleanImageWithClusters( VImageCleaningRunParameter* iImageCleaningParameters, bool isFixed );
         
-        // produce a trigger map
-        void cleanTriggerFixed( VImageCleaningRunParameter* iImageCleaningParameters );
-        
         // trace correlation cleaning
         void cleanImageTraceCorrelate( VImageCleaningRunParameter* iImageCleaningParameters );
         

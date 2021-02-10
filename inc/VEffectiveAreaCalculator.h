@@ -42,11 +42,11 @@ class VEffectiveAreaCalculator
 {
     private:
     
-        vector< vector< double > > fEffArea_time;           // effective area vs time [time bin][energy bin]
-	vector< vector< double > > fEffAreaMC_time;           // effective area vs time [time bin][energy bin] (MC Energy)
-        vector< double > timebins;                          // centre of time bin [time bin]
+        vector< vector< double > > fEffArea_time;
+     	vector< vector< double > > fEffAreaMC_time;
+        vector< double > timebins;
         
-        float fMC_ScatterArea;                                  // scatter area in MC (read from CORSIKA run header)
+        float fMC_ScatterArea;
         
         bool bNOFILE;
         TDirectory* fGDirectory;
@@ -58,6 +58,12 @@ class VEffectiveAreaCalculator
         vector< vector< vector< vector< double > > > > fEff_SpectralIndex;
         
         // effective areas (reading of effective areas)
+		unsigned int fNBins;                    // bins in the true energy of MC (fEff_E0)
+        unsigned int fBiasBin;                  // bins in the energy bias
+        unsigned int fhistoNEbins;              // energy bins for histograms only
+        unsigned int fResponseMatricesEbinning; // fine bins for response matrices. Likelihood analysis.
+        unsigned int fLogAngularBin;            // bins for the log10(angular diff R,MC [deg])
+
         vector< float >                      fEff_E0;
         map< unsigned int, vector< float > > fEffArea_map;
 	map< unsigned int, vector< float > > fEffAreaMC_map;
@@ -70,8 +76,8 @@ class VEffectiveAreaCalculator
         // mean and mean time binned effective areas
         unsigned int     fNTimeBinnedMeanEffectiveArea;
         vector< double > fVTimeBinnedMeanEffectiveArea;
-	unsigned int     fNTimeBinnedMeanEffectiveAreaMC;
-	vector< double > fVTimeBinnedMeanEffectiveAreaMC;
+        unsigned int     fNTimeBinnedMeanEffectiveAreaMC;
+        vector< double > fVTimeBinnedMeanEffectiveAreaMC;
         TGraphAsymmErrors* gMeanEffectiveArea;
         TGraph2DErrors*    gTimeBinnedMeanEffectiveArea;
         
@@ -92,6 +98,9 @@ class VEffectiveAreaCalculator
         
         double fEnergyAxis_minimum_defaultValue;
         double fEnergyAxis_maximum_defaultValue;
+
+        double fLogAngular_minimum_defaultValue;
+        double fLogAngular_maximum_defaultValue;
         
         VInstrumentResponseFunctionRunParameter* fRunPara;
         
@@ -169,9 +178,9 @@ class VEffectiveAreaCalculator
         int   nbins;
         float e0[VMAXBINS];
         float eff[VMAXBINS];
-	int nbins_MC;
-	float e0_MC[VMAXBINS];
-	float eff_MC[VMAXBINS];
+        int nbins_MC;
+        float e0_MC[VMAXBINS];
+        float eff_MC[VMAXBINS];
         float eff_error[VMAXBINS];
         float effNoTh2[VMAXBINS];
         float effNoTh2_error[VMAXBINS];
@@ -276,6 +285,10 @@ class VEffectiveAreaCalculator
         TTree*             getEffectiveAreaTree()
         {
             return fEffArea;
+        }
+        int getEnergyAxis_nbins_defaultValue()
+        {
+                return fhistoNEbins;
         }
         TTree*             getEventCutDataTree()
         {

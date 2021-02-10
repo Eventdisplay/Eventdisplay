@@ -67,7 +67,7 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         f.SetBranchStatus( "nbins", 1 );
         f.SetBranchStatus( "e0", 1 );
         f.SetBranchStatus( "eff", 1 );
-        f.SetBranchStatus( "eff_error", 1 );
+		f.SetBranchStatus( "effNoTh2", 1 );
         f.SetBranchStatus( "esys_rel", 1 );
         f.SetBranchStatus( "Rec_eff", 1 );
         f.SetBranchStatus( "Rec_eff_error", 1 );
@@ -81,16 +81,7 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         f.SetBranchStatus( "hEsysMCRelative", 1 );
         f.SetBranchStatus( "hEsysMCRelative2D", 1 );
         f.SetBranchStatus( "hEsysMCRelative2DNoDirectionCut", 1 );
-        // Response Matrix Approximation
-        f.SetBranchStatus( "nbins_MC_Res", 1 );
-        f.SetBranchStatus( "e_MC_Res", 1 );
-        f.SetBranchStatus( "e_Rec_Res", 1 );
-        f.SetBranchStatus( "e_Rec_Res_Err", 1 );
-        // f.SetBranchStatus( "hAngularDiff_2D", 1 );
         f.SetBranchStatus( "hAngularLogDiffEmc_2D", 1 );
-        f.SetBranchStatus( "gEffAreaRec", 1 );
-        f.SetBranchStatus( "gEffAreaNoTh2MC", 1 );
-        f.SetBranchStatus( "gEffAreaNoTh2Rec", 1 );
     }
     f.Merge( hname );
     cout << "done.." << endl;
@@ -173,7 +164,10 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
             sprintf( hname, "cat %s*.log > %s.combine.log", ifile.c_str(), outputfile );
         }
         cout << "merge log files into " << hname << endl;
-        system( hname );
+        if( system( hname ) != 0 )
+	      {
+	         cout << "error merging log files" << endl;
+        }
     }
     else
     {

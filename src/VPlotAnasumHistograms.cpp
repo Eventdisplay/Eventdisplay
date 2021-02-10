@@ -51,13 +51,13 @@ VPlotAnasumHistograms::VPlotAnasumHistograms( string ifile, int ion )
     
     default_settings();
     
-    if( !openDataFile( ifile, ion ) )
+    if( !openDataFile( ifile ) )
     {
         return;
     }
 }
 
-bool VPlotAnasumHistograms::openDataFile( string ifile, int ion )
+bool VPlotAnasumHistograms::openDataFile( string ifile )
 {
     if( !openFile( ifile, fRunNumber, 1 ) )
     {
@@ -248,19 +248,15 @@ void VPlotAnasumHistograms::plot_mscPlots( int irebin, double xmin, double xmax,
         VDouble_gauss* fdouble_gauss = new VDouble_gauss();
         
         TF1* hmscw_diff_fit = new TF1( hname, fdouble_gauss, -1.5, 1.5, 4, "VDouble_gauss" );
-        //TF1 *hmscw_diff_fit = new TF1( hname,double_gauss, -1.5, 1.5, 4);
         hmscw_diff_fit->SetParameter( 0, hmscw_diff->GetMaximum() );
         hmscw_diff_fit->SetParameter( 1, 0. );
         hmscw_diff_fit->SetParameter( 2, 0.3 );
         hmscw_diff_fit->SetParameter( 3, 0.3 );
         hmscw_diff->Fit( hmscw_diff_fit->GetName(), "0RME" );
-        if( hmscw_diff_fit )
-        {
-            hmscw_diff_fit->SetLineColor( 2 );
-            hmscw_diff_fit->SetLineStyle( 2 );
-            hmscw_diff_fit->Draw( "same" );
-            cout << "Mean scaled width fit: " << hmscw_diff_fit->GetParameter( 1 ) << " +- " << hmscw_diff_fit->GetParError( 1 ) << endl;
-        }
+        hmscw_diff_fit->SetLineColor( 2 );
+        hmscw_diff_fit->SetLineStyle( 2 );
+        hmscw_diff_fit->Draw( "same" );
+        cout << "Mean scaled width fit: " << hmscw_diff_fit->GetParameter( 1 ) << " +- " << hmscw_diff_fit->GetParError( 1 ) << endl;
         
         TLine* lmscw_diff = new TLine( 0., hmscw_diff->GetMinimum(), 0., hmscw_diff->GetMaximum() );
         lmscw_diff->SetLineStyle( 2 );
@@ -294,13 +290,10 @@ void VPlotAnasumHistograms::plot_mscPlots( int irebin, double xmin, double xmax,
         hmscl_diff_fit->SetParameter( 2, 0.3 );
         hmscl_diff_fit->SetParameter( 3, 0.3 );
         hmscl_diff->Fit( hmscl_diff_fit->GetName(), "0RME" );
-        if( hmscl_diff_fit )
-        {
-            hmscl_diff_fit->SetLineColor( 2 );
-            hmscl_diff_fit->SetLineStyle( 2 );
-            hmscl_diff_fit->Draw( "same" );
-            cout << "Mean scaled length fit: " << hmscl_diff_fit->GetParameter( 1 ) << " +- " << hmscl_diff_fit->GetParError( 1 ) << endl;
-        }
+        hmscl_diff_fit->SetLineColor( 2 );
+        hmscl_diff_fit->SetLineStyle( 2 );
+        hmscl_diff_fit->Draw( "same" );
+        cout << "Mean scaled length fit: " << hmscl_diff_fit->GetParameter( 1 ) << " +- " << hmscl_diff_fit->GetParError( 1 ) << endl;
         cout << "Mean scaled length: " << hmscl_diff->GetMean() << " +- " << hmscl_diff->GetRMS() << endl;
         
         TLine* lmscl_diff = new TLine( 0., hmscl_diff->GetMinimum(), 0., hmscl_diff->GetMaximum() );
@@ -1315,6 +1308,7 @@ TCanvas* VPlotAnasumHistograms::plot_radec( int sPlot, double rmax, double zmin,
         {
             IncValues = new TF1( "IncValues", "-x", -Xmin, -Xmax );
         }
+	IncValues->Print();
         
         TGaxis* raLowerAxis = new TGaxis( xmin, ymin, xmax, ymax, "IncValues", 4 );
         raLowerAxis->SetTitleFont( hmap->GetXaxis()->GetTitleFont() );
@@ -2867,123 +2861,6 @@ TH1D* VPlotAnasumHistograms::plot_triggerpattern( int ntel, bool bPlot )
     }
     
     return hTriggerPatternAfterCuts_on;
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////
-/*
- *
- *
- */
-void VPlotAnasumHistograms::plot_qfactors( char* varexp, char* selection, char* hisname, int ibin, double xmin, double xmax, char* xtitle, double iSourceStrength )
-{
-
-    TTree* cOn = getTreeWithSelectedEvents( fAnasumDataFile.c_str(), true );
-    if( !cOn )
-    {
-        cout << "error: tree not found in " << fAnasumDataFile << endl;
-        return;
-    }
-    TTree* cOff = getTreeWithSelectedEvents( fAnasumDataFile.c_str(), false );
-    if( !cOff )
-    {
-        cout << "error: tree not found in " << fAnasumDataFile << endl;
-        return;
-    }
-    
-    char hname[800];
-    sprintf( hname, "%s_on", hisname );
-    TH1D* hon = new TH1D( hname, "", ibin, xmin, xmax );
-    hon->Sumw2();
-    hon->SetStats( 0 );
-    if( xtitle )
-    {
-        hon->SetXTitle( xtitle );
-    }
-    hon->SetLineWidth( 2 );
-    sprintf( hname, "%s_off", hisname );
-    
-    TH1D* hoff = new TH1D( hname, "", ibin, xmin, xmax );
-    hoff->Sumw2();
-    hoff->SetStats( 0 );
-    if( xtitle )
-    {
-        hoff->SetXTitle( xtitle );
-    }
-    hoff->SetLineWidth( 2 );
-    hoff->SetLineColor( 2 );
-    hoff->SetMarkerColor( 2 );
-    
-    sprintf( hname, "%s_diff", hisname );
-    TH1D* hdiff = new TH1D( hname, "", ibin, xmin, xmax );
-    hdiff->Sumw2();
-    hdiff->SetStats( 0 );
-    if( xtitle )
-    {
-        hdiff->SetXTitle( xtitle );
-    }
-    hdiff->SetLineWidth( 2 );
-    hdiff->SetLineColor( 3 );
-    hdiff->SetMarkerColor( 3 );
-    
-    cOn->Project( hon->GetName(), varexp, selection );
-    cOff->Project( hoff->GetName(), varexp, selection );
-    
-    double iNorm = getNormalisationFactor( -1 );
-    cout << "normalisation factor: " << iNorm << endl;
-    if( iNorm > 0. )
-    {
-        hoff->Scale( iNorm );
-    }
-    
-    hdiff->Add( hon, hoff, 1., -1. );
-    hdiff->Scale( iSourceStrength );
-    hon->Add( hdiff, hoff, 1., 1. );
-    
-    // draw everything
-    
-    // on/off histograms
-    
-    TCanvas* cOnOff = new TCanvas( "cOnOff", "on/off histograms", 10, 10, 400, 400 );
-    cOnOff->Draw();
-    
-    double ioentries = hoff->GetEntries();
-    if( ioentries > 0 )
-    {
-        hon->Scale( 1. / ioentries );
-        hoff->Scale( 1. / ioentries );
-    }
-    
-    hon->DrawCopy( "hist e" );
-    hoff->Draw( "hist e same" );
-    
-    TCanvas* cDiff = new TCanvas( "cDiff", "diff histograms", 300, 10, 400, 400 );
-    cDiff->Draw();
-    
-    hdiff->Draw( "hist e" );
-    TLine* iLine = new TLine( hdiff->GetXaxis()->GetXmin(), 0., hdiff->GetXaxis()->GetXmax(), 0. );
-    iLine->SetLineStyle( 2 );
-    iLine->SetLineColor( 3 );
-    iLine->Draw();
-    
-    // do qfactors
-    
-    TH1D* hupper = doQfactors( hon, hoff, hdiff, true, 0, 1. );
-    if( hupper )
-    {
-        TCanvas* cUpper = new TCanvas( "cUpper", "qfactor( upper limit )", 500, 10, 400, 400 );
-        cUpper->Draw();
-        
-        hupper->Draw();
-    }
-    TH1D* hlower = doQfactors( hon, hoff, hdiff, false, 0, 1. );
-    if( hlower )
-    {
-        TCanvas* clower = new TCanvas( "clower", "qfactor( lower limit )", 700, 10, 400, 400 );
-        clower->Draw();
-        
-        hlower->Draw();
-    }
 }
 
 

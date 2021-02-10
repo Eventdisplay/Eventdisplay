@@ -35,6 +35,21 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     
     // number of bins for histograms
     nbins = fRunPara->fEnergyAxisBins_log10;
+    nbins_MC = fRunPara->fEnergyAxisBins_log10;
+
+    // bin definition for 2D histograms (allows coarser binning in energy)
+    fBiasBin       = fRunPara->fBiasBin;      
+    fhistoNEbins   = fRunPara->fhistoNEbins; 
+    fLogAngularBin = fRunPara->fLogAngularBin; 
+    fResponseMatricesEbinning = fRunPara->fResponseMatricesEbinning;
+
+    // Important: changing this means probably that the values used in
+    // VEffectiveAreaCalculatorMCHistograms have to be changed as well
+    // this should not be changed
+    fEnergyAxis_minimum_defaultValue = -2.;
+    fEnergyAxis_maximum_defaultValue =  4.;
+    fLogAngular_minimum_defaultValue = -4.;
+    fLogAngular_maximum_defaultValue =  1.;
     
     // cuts
     fCuts = icuts;
@@ -201,7 +216,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "energy reconstruction",
                         "log_{10} energy_{MC} [TeV]",
                         "energy bias (E_{rec}-E_{MC})/E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
                         -1, -1000., 1000., "s" );
 
@@ -209,35 +224,35 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "energy reconstruction",
                         "energy_{MC} [TeV]",
                         "energy bias (E_{rec}-E_{MC})/E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
-                        3000, -5., 5., "" );
+                        1000, -5., 5., "" );
     newEffectiveAreaHistogram( "2D", E_EsysMCRelative2D,
                         "energy reconstruction",
                         "energy_{MC} [TeV]",
                         "energy bias E_{rec}/E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        300, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
-                        300, 0., 3., "" );
+                        fBiasBin, 0., 3., "" );
     newEffectiveAreaHistogram( "2D", E_EsysMCRelative2DNoDirectionCut,
                         "energy reconstruction, after gamma-selection cuts",
                         "energy_{MC} [TeV]",
                         "energy bias E_{rec}/E_{MC}",
                         nbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
-                        300, 0., 3., "" );
+                        fBiasBin, 0., 3., "" );
     newEffectiveAreaHistogram( "2D", E_Esys2D,
                         "energy reconstruction",
                         "energy_{MC} [TeV]",
                         "log_{10} E_{rec} - log_{10} E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
                         100, -0.98, 2.02, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrix,
                         "migration matrix",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
                         nbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue, "" );
@@ -245,36 +260,36 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "migration matrix, fine binning",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        500, -2.3, 2.7,
-                        500, -2.3, 2.7, "" );
+                        fResponseMatricesEbinning, -2.3, 2.7,
+                        fResponseMatricesEbinning, -2.3, 2.7, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrixQC,
                         "migration matrix, after quality cuts",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
                         nbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrixFineQC,
                         "migration matrix, fine binning",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        500, -2., 2.7,
-                        500, -2.3, 2.7, "" );
+                        fResponseMatricesEbinning, -2., 2.7,
+                        fResponseMatricesEbinning, -2.3, 2.7, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrixNoDirectionCut,
                         "migration matrix",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue, "" );
     newEffectiveAreaHistogram( "2D", E_ResponseMatrixFineNoDirectionCut,
                         "migration matrix, fine binning",
                         "energy_{rec} [TeV]",
                         "energy_{MC} [TeV]",
-                        500, -2., 2.7,
-                        500, -2.3, 2.7, "" );
+                        fResponseMatricesEbinning, -2., 2.7,
+                        fResponseMatricesEbinning, -2.3, 2.7, "" );
     
     // log angular difference histogram (vs true energy)
     sprintf( hname, "hAngularLogDiffEmc_2D" );
@@ -1602,7 +1617,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         bool bDirectionCut = false;
         if( !fIsotropicArrivalDirections )
         {
-            if( !fCuts->applyDirectionCuts( iMethod, true ) )
+            if( !fCuts->applyDirectionCuts( true ) )
             {
                 bDirectionCut = true;
             }
@@ -1611,7 +1626,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         // (command line option -d)
         else
         {
-            if( !fCuts->applyDirectionCuts( iMethod, true, 0., 0. ) )
+            if( !fCuts->applyDirectionCuts( true, 0., 0. ) )
             {
                 bDirectionCut = true;
             }
@@ -1719,7 +1734,6 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
             
             // fill tree with acceptance information after cuts (needed to construct background model in ctools)
             // NOTE: This tree is currently allways filled with the eventdisplay reconstruction results.
-            // If you want to have frogs/3Dmodel results, you need to fix that.
             if( !bDirectionCut && fRunPara->fgetXoff_Yoff_afterCut )
             {
                 fXoff_aC = d->Xoff;
@@ -3142,7 +3156,7 @@ double VEffectiveAreaCalculator::getCRWeight( double iEMC_TeV_lin, TH1* h, bool 
         n_cr *= fRunPara->fCREnergySpectrum->Eval( log10( iEMC_TeV_lin ) );
     }
 
-    // (ctools) for the acceptance map construction, the weight is in #/s ()
+    // (DL3) for the acceptance map construction, the weight is in #/s ()
     if( for_back_map )
     {
         // need to normalize this number considering the cone in which the particle are simulated
@@ -3181,8 +3195,6 @@ double VEffectiveAreaCalculator::getCRWeight( double iEMC_TeV_lin, TH1* h, bool 
 // Calculate the ratio between the solid angle of the cone where the MC have been done and the solid angle of the offset bin considered
 void VEffectiveAreaCalculator::Calculate_Bck_solid_angle_norm()
 {
-
-
     if( fRunPara->fViewcone_max > 0. )
     {
         // solid angle in which the particule have been simulated
@@ -3190,9 +3202,7 @@ void VEffectiveAreaCalculator::Calculate_Bck_solid_angle_norm()
         
         fsolid_angle_norm = SolidAngle_MCScatterAngle;
         fsolid_angle_norm_done = true;
-        
     }
-    
     
     return;
 }

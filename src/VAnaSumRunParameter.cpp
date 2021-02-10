@@ -18,10 +18,13 @@ VAnaSumRunParameterDataClass::VAnaSumRunParameterDataClass()
     fRunOn = 0;
     fRunOnFileName = "";
     fRunOff = 0;
-        fRunOffFileName = "";
+    fRunOffFileName = "";
     
     fMJDOn = 0.;
     fMJDOff = 0.;
+
+    fMJDOnStart = 0.;
+    fMJDOnStop = 0.;
     
     fTarget = "";
     fTargetRAJ2000 = 0.;
@@ -52,8 +55,8 @@ VAnaSumRunParameterDataClass::VAnaSumRunParameterDataClass()
     fTargetShiftDecJ2000 = 0.;
     
     fNTel = 4;
+    fTelToAna = "";
     fMaxTelID = fNTel;
-        fTelToAna = "";
     
     fBackgroundModel = 0;
     fSourceRadius = 0.;                           // actually radius^2
@@ -78,8 +81,6 @@ VAnaSumRunParameterDataClass::VAnaSumRunParameterDataClass()
     fRE_distanceSourceOff = 0.2;                  // minimal distance of off source regions in number of background regions from the source region
     fRE_nMinoffsource = 3;                        // minmum number of off source regions (default 3)
     fRE_nMaxoffsource = 7;                        // maximum number of off source regions (default 7)
-    
-    fIsFrogs = false;
     
     // TEMPLATE MODEL
     fTE_mscw_min = 0.;
@@ -156,12 +157,7 @@ VAnaSumRunParameter::VAnaSumRunParameter()
     // length of time intervals in seconds for rate plots and short term histograms
     fTimeIntervall = 4. * 60.;
     
-    fWriteEventTreeForCtools = false ;
     fWriteEventTree = 2;
-    
-    // model3D analysis
-    fModel3D = false; // MODEL3DANALYSIS
-    fDirectionModel3D = false; //USEDIRECTIONMODEL3D
     
     // Binned Likelihood
     fLikelihoodAnalysis = false; 
@@ -172,7 +168,7 @@ VAnaSumRunParameter::VAnaSumRunParameter()
     // use run-wise radial acceptance curve
     fRunWiseRadialAcceptance = false;
     
-    // for deadtime fraction storage CTOOLS
+    // for deadtime fraction storage
     fScalarDeadTimeFrac = 0.0 ;
     
     // set monte carlo zenith angles
@@ -682,14 +678,6 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
                     fReconstructionType = ENERGY_ER;
                     fEnergyReconstructionMethod = 0;
                 }
-                else if( temp2 == "FROGS" )
-                {
-                    fReconstructionType = FROGS;
-                }
-                else if( temp2 == "MODEL3D" )
-                {
-                    fReconstructionType = MODEL3D;
-                }
                 else if( temp2 == "DEEPLEARNER" )
                 {
                     fReconstructionType = DEEPLEARNER;
@@ -749,38 +737,6 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
             else if( temp == "WRITEEVENTTREE" )
             {
                 fWriteEventTree = ( unsigned int )atoi( temp2.c_str() );
-            }
-            
-            ///////////////////////////////////////////////////////////
-            // WRITEEVENTTREEFORCTOOLS
-            // adds an extra tree "run_#####/stereo/TreeWithEventsForCtools" to anasum.#####.root,
-            // containing info for converting veritas data to CTOOLs event list format
-            else if( temp == "WRITEEVENTTREEFORCTOOLS" )
-            {
-                unsigned int tmpWriteAll = ( unsigned int )atoi( temp2.c_str() ) ;
-                if( tmpWriteAll == 1 )
-                {
-                    fWriteEventTreeForCtools = true ;
-                }
-            }
-            
-            /// use Model3D analysis ///
-            else if( temp == "MODEL3DANALYSIS" )
-            {
-                unsigned int tmpModel3D = ( unsigned int )atoi( temp2.c_str() ) ;
-                if( tmpModel3D == 1 )
-                {
-                    fModel3D = true;
-                }
-            }
-            /// use Model3D direction ///
-            else if( temp == "USEDIRECTIONMODEL3D" )
-            {
-                unsigned int tmpDirectionModel3D = ( unsigned int )atoi( temp2.c_str() ) ;
-                if( tmpDirectionModel3D == 1 )
-                {
-                    fDirectionModel3D = true;
-                }
             }
             /// enable likelihood analysis ///
             else if (temp == "ENABLEBINNEDLIKELIHOOD")
@@ -848,7 +804,7 @@ int VAnaSumRunParameter::loadSimpleFileList( string i_listfilename )
     {
         cout << " VAnaSumRunParameter:::loadSimpleFileList error: file with list of runs not found : " << i_listfilename << endl;
         cout << "exiting..." << endl;
-        exit( -1 );
+        exit( EXIT_FAILURE );
     }
     string is_line;
     string temp;
@@ -979,8 +935,6 @@ int VAnaSumRunParameter::loadLongFileList( string i_listfilename, bool bShortLis
                     cout << "invalid source radius " << i_sT.fSourceRadius << endl;
                     exit( EXIT_FAILURE );
                 }
-                // is this a frogs analysis
-                i_sT.fIsFrogs = isFROGSAnalysis( i_sT.fCutFile );
             }
             // background model
             is_stream >> temp;
@@ -1051,7 +1005,7 @@ int VAnaSumRunParameter::loadLongFileList( string i_listfilename, bool bShortLis
                     // (read theta2 cut from cut file)
                     if( !bTotalAnalysisOnly )
                     {
-                        readCutParameter( i_sT.fCutFile, i_sT.fSourceRadius, i_sT.fmaxradius, i_sT.fIsFrogs );
+                        readCutParameter( i_sT.fCutFile, i_sT.fSourceRadius, i_sT.fmaxradius );
                     }
                     else
                     {
@@ -1113,7 +1067,7 @@ int VAnaSumRunParameter::loadLongFileList( string i_listfilename, bool bShortLis
                 is_stream >> temp;
                 i_sT.fTE_mscl_max = atof( temp.c_str() );
                 cout << "DO NOT USE " << endl;
-                exit( 0 );
+                exit( EXIT_SUCCESS );
             }
             else if( i_sT.fBackgroundModel == eONOFF )
             {
@@ -1293,7 +1247,7 @@ void VAnaSumRunParameter::checkNumberOfArguments( int im, int narg, string i_lis
     {
         cout << "VAnaSumRunParameter::checkNumberOfArguments error: unknown background model" << endl;
         cout << "exiting..." << endl;
-        exit( -1 );
+        exit( EXIT_FAILURE );
     }
     
     // wobble offsets removed with version >=3
@@ -1395,26 +1349,6 @@ double VAnaSumRunParameter::getRingWidth( double a_on, double rr, double rat )
     return rat / 4. / TMath::Pi() / rr * a_on * 2.;
 }
 
-/*
- * check if this is a FROGS analysis
- */
-bool VAnaSumRunParameter::isFROGSAnalysis( string ifile )
-{
-    VGammaHadronCuts iC;
-    iC.setNTel( 1 );  // irrelevant - but suppresses some warnings
-    if( !iC.readCuts( ifile, 0 ) )
-    {
-        return -1;
-    }
-    if( iC.useFrogsCuts() )
-    {
-        return true;
-    }
-    
-    return false;
-}
-
-
 double VAnaSumRunParameter::readSourceRadius( string ifile )
 {
     VGammaHadronCuts iC;
@@ -1435,7 +1369,7 @@ double VAnaSumRunParameter::readSourceRadius( string ifile )
  * read some parameters from gamma/hadron cuts (root file)
  *
  */
-bool VAnaSumRunParameter::readCutParameter( string ifile, double& iSourceRadius, double& iMaximumDistance, bool& iIsFrogs )
+bool VAnaSumRunParameter::readCutParameter( string ifile, double& iSourceRadius, double& iMaximumDistance )
 {
     iSourceRadius = -1.;
     iMaximumDistance = -1.;
@@ -1467,9 +1401,6 @@ bool VAnaSumRunParameter::readCutParameter( string ifile, double& iSourceRadius,
         iSourceRadius = iC->getTheta2Cut_max();
     }
     iMaximumDistance = iC->fCut_CameraFiducialSize_max;
-    
-    // frogs cut
-    iIsFrogs = iC->useFrogsCuts();
     
     if( iF )
     {
@@ -1503,6 +1434,22 @@ VGammaHadronCuts* VAnaSumRunParameter::getGammaHadronCuts( string ifile )
         return 0;
     }
     return iC;
+}
+
+bool VAnaSumRunParameter::setRunTimes( unsigned int i, double iMJDStart, double iMJDStopp )
+{
+       if( i >= fRunList.size() )
+       {
+            return false;
+       }
+       fRunList[i].fMJDOnStart = iMJDStart;
+       fRunList[i].fMJDOnStop = iMJDStopp;
+       if( fMapRunList.find( fRunList[i].fRunOn ) != fMapRunList.end() )
+       {
+           fMapRunList[fRunList[i].fRunOn].fMJDOnStart = iMJDStart;
+           fMapRunList[fRunList[i].fRunOn].fMJDOnStop = iMJDStopp;
+       }
+       return true;
 }
 
 /*
@@ -1622,16 +1569,18 @@ bool VAnaSumRunParameter::setSkyMapCentreJ2000( unsigned int i, double ra, doubl
 }
 
 
-bool VAnaSumRunParameter::setTargetRADecJ2000( unsigned int i, double ra, double dec )
+bool VAnaSumRunParameter::setTargetRADecJ2000( unsigned int i, double ra, double dec, string iTargetName )
 {
     if( i < fRunList.size() )
     {
         fRunList[i].fTargetRAJ2000  = ra;
         fRunList[i].fTargetDecJ2000 = dec;
+        fRunList[i].fTarget = iTargetName;
         if( fMapRunList.find( fRunList[i].fRunOn ) != fMapRunList.end() )
         {
             fMapRunList[fRunList[i].fRunOn].fTargetRAJ2000  = ra;
             fMapRunList[fRunList[i].fRunOn].fTargetDecJ2000 = dec;
+            fMapRunList[fRunList[i].fRunOn].fTarget = iTargetName;
         }
         // set centre of stereo maps (if this parameter is not set in the file runparameter.dat)
         if( TMath::Abs( fSkyMapCentreNorth ) < 1.e-8 && TMath::Abs( fSkyMapCentreWest ) < 1.e-8
@@ -1769,13 +1718,14 @@ void VAnaSumRunParameter::getWobbleOffsets( string fDatadir )
         if( i_f->IsZombie() )
         {
             cout << "VAnaSumRunParameter::getWobbleOffset fatal error: file not found, " << i_temp << endl;
-            exit( -1 );
+            exit( EXIT_FAILURE );
         }
         
         TTree* i_tree = ( TTree* )i_f->Get( i_treename.c_str() );
         if( !i_tree )
         {
             cout << "VAnaSumRunParameter::getWobbleOffset tree not found " << i_treename << endl;
+            exit( EXIT_FAILURE );
         }
         i_tree->GetEntry( 1 );
         
@@ -1791,7 +1741,7 @@ void VAnaSumRunParameter::getWobbleOffsets( string fDatadir )
             cout << endl;
             cout << "VAnaSumRunParameter::getWobbleOffset error: cannot determine wobble offset for run " << fRunList[i].fRunOn << " from mscw_energy output file" << endl;
             cout << "\t old file version?" << endl;
-            exit( 0 );
+            exit( EXIT_SUCCESS );
         }
         i_f->Close();
     }

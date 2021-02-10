@@ -76,8 +76,8 @@ class VDeadTime : public TNamed
         {
             return fDeadTimeMS;
         }
-        double getDeadTimeFraction( double iT_run_s = -99., bool iTimeDiffMethod = false, bool iEnforceThisMethod = false );
-        double getDeadTimeFraction( vector< bool > iMask, bool iTimeDiffMethod = false, bool iEnforceThisMethod = false );
+		double getDeadTimeFraction( double iT_run_s = -99., bool iTimeDiffMethod = false, bool iCheckForConsistentDeadTime = true );
+		double getDeadTimeFraction( vector< bool > iMask, bool iTimeDiffMethod = false, bool iCheckForConsistentDeadTime = true );
         TList* getDeadTimeHistograms();
         unsigned int getDeadTimeFraction_status()
         {
@@ -92,6 +92,6 @@ class VDeadTime : public TNamed
         }
         void   writeHistograms( bool iDebug_IO = false );
         
-        ClassDef( VDeadTime, 1 ) ;
+        ClassDef( VDeadTime, 2 ) ;
 };
 #endif

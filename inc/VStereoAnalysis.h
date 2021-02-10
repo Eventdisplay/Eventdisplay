@@ -168,7 +168,7 @@ class VStereoAnalysis
         int    fTreeSelected_MJD;
         double fTreeSelected_Time;
         int    fTreeSelected_NImages;
-        int    fTreeSelected_ImgSel;
+		ULong64_t fTreeSelected_ImgSel;
         double fTreeSelected_theta2;
         double fTreeSelected_Xoff;
         double fTreeSelected_Yoff;
@@ -180,9 +180,9 @@ class VStereoAnalysis
         double fTreeSelected_MSCL;
         double fTreeSelected_MWR;
         double fTreeSelected_MLR;
-        double fTreeSelected_ErecS;
-        double fTreeSelected_EChi2S;
-        double fTreeSelected_dES;
+        double fTreeSelected_Erec;
+        double fTreeSelected_EChi2;
+        double fTreeSelected_dE;
         float  fTreeSelected_EmissionHeight;
         float  fTreeSelected_EmissionHeightChi2;
         double fTreeSelected_SizeSecondMax;
@@ -191,60 +191,37 @@ class VStereoAnalysis
         UInt_t fTreeSelected_IsGamma;
         UInt_t fTreeSelected_DirectionCut;
         
-        TTree* fTreeWithEventsForCtools ;
-        double  fTreeCTOOLS_TargetRA;
-        double  fTreeCTOOLS_TargetDEC;
-        double  fTreeCTOOLS_RA;
-        double  fTreeCTOOLS_DEC;
-        double  fTreeCTOOLS_Az ;
-        double  fTreeCTOOLS_El ;
-        int     fTreeCTOOLS_GregYear  ;
-        int     fTreeCTOOLS_GregMonth ;
-        int     fTreeCTOOLS_GregDay   ;
-        double  fTreeCTOOLS_Acceptance ;
-        VRadialAcceptance* fCTOOLSAcceptance ;
+		TTree* fDL3EventTree;
+		int     fDL3EventTree_runNumber;
+		int     fDL3EventTree_eventNumber;
+		double  fDL3EventTree_Time;
+		int     fDL3EventTree_MJD;
+		double  fDL3EventTree_Xoff;
+		double  fDL3EventTree_Yoff;
+		double  fDL3EventTree_Xderot;
+		double  fDL3EventTree_Yderot;
+		double  fDL3EventTree_RA;
+		double  fDL3EventTree_DEC;
+		double  fDL3EventTree_Erec;
+		double  fDL3EventTree_Erec_Err;
+		double  fDL3EventTree_dE;
+		double  fDL3EventTree_Xcore;
+		double  fDL3EventTree_Ycore;
+		int     fDL3EventTree_NImages;
+		ULong64_t fDL3EventTree_ImgSel;
+		double  fDL3EventTree_MSCW;
+		double  fDL3EventTree_MSCL;
+		double  fDL3EventTree_Az ;
+		double  fDL3EventTree_El ;
+		double  fDL3EventTree_EmissionHeight ;
+		double  fDL3EventTree_Acceptance ;
+		VRadialAcceptance* fDL3_Acceptance;
         
-        TTree* fCDataTreeClone ;
         double  fDeadTimeStorage ;
         //double fullMJD ;
         VSkyCoordinates* fVsky ;  // for RADec to AzimElev conversion
         
         double fTreeSelected_MVA;
-        
-        /// frogs ///
-        int   fTreeSelescted_frogsEventID;
-        int   fTreeSelescted_frogsGSLConStat;
-        int   fTreeSelescted_frogsNB_iter;
-        int   fTreeSelescted_frogsNImages;
-        double fTreeSelescted_frogsXS;
-        double fTreeSelescted_frogsXSerr;
-        double fTreeSelescted_frogsYS;
-        double fTreeSelescted_frogsYSerr;
-        double fTreeSelescted_frogsXP;
-        double fTreeSelescted_frogsXPerr;
-        double fTreeSelescted_frogsYP;
-        double fTreeSelescted_frogsYPerr;
-        double fTreeSelescted_frogsXPGC;
-        double fTreeSelescted_frogsYPGC;
-        double fTreeSelescted_frogsEnergy;
-        double fTreeSelescted_frogsEnergyerr;
-        double fTreeSelescted_frogsLambda;
-        double fTreeSelescted_frogsLambdaerr;
-        double fTreeSelescted_frogsGoodnessImg;
-        int   fTreeSelescted_frogsNpixImg;
-        double fTreeSelescted_frogsGoodnessBkg;
-        int   fTreeSelescted_frogsNpixBkg;
-        double fTreeSelescted_frogsTelGoodnessImg0;
-        double fTreeSelescted_frogsTelGoodnessImg1;
-        double fTreeSelescted_frogsTelGoodnessImg2;
-        double fTreeSelescted_frogsTelGoodnessImg3;
-        double fTreeSelescted_frogsTelGoodnessBkg0;
-        double fTreeSelescted_frogsTelGoodnessBkg1;
-        double fTreeSelescted_frogsTelGoodnessBkg2;
-        double fTreeSelescted_frogsTelGoodnessBkg3;
-        double fTreeSelescted_frogsXS_derot;
-        double fTreeSelescted_frogsYS_derot;
-        double fTreeSelescted_frogs_theta2;
         
         double fTotCount;
         
@@ -256,7 +233,6 @@ class VStereoAnalysis
         
         CData* fDataRun;
         TTree* fDataRunTree;
-        TTree* fDataFrogsTree;
         TFile* fDataFile;
         string fInstrumentEpoch;
         vector< unsigned int > fTelToAnalyze;
@@ -289,9 +265,11 @@ class VStereoAnalysis
         bool init_TreeWithSelectedEvents( int, bool );
         void reset_TreeWithSelectedEvents();
         
-        void fill_TreeWithEventsForCtools( CData* c , double i_xderot, double i_yderot ) ; // WRITEEVENTTREEFORCTOOLS
-        bool init_TreeWithEventsForCtools( int irun ) ; // WRITEEVENTTREEFORCTOOLS
-        void save_TreeWithEventsForCtools() ;           // WRITEEVENTTREEFORCTOOLS
+		void fill_DL3Tree( CData* c , 
+                                   double i_xderot, double i_yderot, 
+                                   unsigned int icounter, double i_UTC );
+		bool init_DL3Tree( int irun, int icounter );
+		void write_DL3Tree();
         
         // derotation and J2000
         void getDerotatedCoordinates( unsigned int, CData* iData, double& x_derot, double& y_derot );

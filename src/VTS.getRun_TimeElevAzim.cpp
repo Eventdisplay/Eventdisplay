@@ -304,72 +304,20 @@ int main( int argc, char* argv[] )
         float lat = blah->getObservatory_Latitude_deg() ;
         //float lon = 110.952 ;
         float lon = blah->getObservatory_Longitude_deg() ;
-        double lon_rad = lon * TMath::DegToRad() ;
-        double lat_rad = lat * TMath::DegToRad() ;
         VSkyCoordinates* vsky = new VSkyCoordinates() ;
         vsky->supressStdoutText( true ) ;
         vsky->setObservatory( lon, lat );
-        int mode = 1 ;
-        int    mjdInt  = 0   ;
-        double mjdFrac = 0.0 ;
-        double iSid    = 0.0 ;
-        double ha      = 0.0 ;
-        double Azim    = 0.0 ;
-        double Elev    = 0.0 ;
-        double ra_rad  = 0.0 ;
-        double de_rad  = 0.0 ;
         for( unsigned int i_row = 0 ; i_row < decl.size() ; i_row++ )
         {
-            if( mode == 1 ) // this is the better way, don't use mode=2
-            {
-                // target's ra and decl in degrees
-                vsky->setTargetJ2000( decl[i_row] * TMath::RadToDeg() , ra[i_row] * TMath::RadToDeg() ) ;
-                // day that you're looking for elev and azimuth on
-                vsky->precessTarget( mjdDay[i_row], telescope ) ;
-                // calculate new param
-                vsky->updatePointing( mjdDay[i_row], mjdSecondsOfDay[i_row] ) ;
-                printf( "RUN%d %f %f %f\n", runnumber, mjd[i_row], vsky->getTargetElevation(), vsky->getTargetAzimuth() ) ;
-                // not sure why mode=1 gives weird answers, mode=2 seems to match up with the values in the database-generated log
-                // e.g. veritasm.sao.arizona.edu/DQM/cgi-bin/loggen/query_night?search=runid&format=html&dqm=1&dqm_inst=&4unid=54679
-            }
-            else if( mode == 2 )  // crappy way, doesn't account for earth precession
-            {
-                mjdInt = floor( mjd[i_row] ) ;
-                mjdFrac = mjd[i_row] - floor( mjd[i_row] ) ;
-                ra_rad = ra[i_row] ;
-                de_rad = decl[i_row] ;
-                iSid = VAstronometry::vlaGmsta( ( double ) mjdInt, mjdFrac ) ;
-                iSid = iSid - lon_rad ;
-                ha   = VAstronometry::vlaDranrm( iSid - ra_rad ) ;
-                VAstronometry::vlaDe2h( ha, de_rad, lat_rad, &Azim, &Elev ) ;
-                Azim *= TMath::RadToDeg() ;
-                Elev *= TMath::RadToDeg() ;
-                cout << "i_row:" << i_row << endl;
-                printf( "  mjd    :%11.5f\n", mjd[i_row] ) ;
-                //cout << "  mjdInt :" << mjdInt << endl;
-                //printf( "  mjdFrac:%13.7f\n", mjdFrac ) ;
-                cout << "  ra     :" << ra[i_row]  *TMath::RadToDeg() << endl;
-                cout << "  dec    :" << decl[i_row]*TMath::RadToDeg() << endl;
-                cout << "  azim   :" << Azim << endl;
-                cout << "  elev   :" << Elev << endl;
-                if( i_row > 10 )
-                {
-                    break ;
-                }
-            }
-            else
-            {
-                cout << "Bad 'mode' variable (mode=" << mode << ")" << endl;
-                return 1 ;
-            }
-            /*
-            if ( i_row < 8 )
-            {
-            	printf( " MJD: %.8f\n", mjd[0] ) ;
-            	printf( " (decl,ra) (%f,%f)\n", decl[i_row]*TMath::RadToDeg(), ra[i_row]*TMath::RadToDeg() ) ;
-            	printf( " (elev,az) (%f,%f)\n", vsky->getTargetElevation(), vsky->getTargetAzimuth() ) ;
-            }
-            */
+            // target's ra and decl in degrees
+            vsky->setTargetJ2000( decl[i_row] * TMath::RadToDeg() , ra[i_row] * TMath::RadToDeg() ) ;
+            // day that you're looking for elev and azimuth on
+            vsky->precessTarget( mjdDay[i_row], telescope ) ;
+            // calculate new param
+            vsky->updatePointing( mjdDay[i_row], mjdSecondsOfDay[i_row] ) ;
+            printf( "RUN%d %f %f %f\n", runnumber, mjd[i_row], vsky->getTargetElevation(), vsky->getTargetAzimuth() ) ;
+            // not sure why mode=1 gives weird answers, mode=2 seems to match up with the values in the database-generated log
+            // e.g. veritasm.sao.arizona.edu/DQM/cgi-bin/loggen/query_night?search=runid&format=html&dqm=1&dqm_inst=&4unid=54679
         }
         
         

@@ -61,6 +61,7 @@ void VInstrumentResponseFunction::setRunParameter( VInstrumentResponseFunctionRu
         cout << "VInstrumentResponseFunction::setRunParameter error: no run parameter given" << endl;
         return;
     }
+    fRunPara = iRunPara;
     fEnergyReconstructionMethod = iRunPara->fEnergyReconstructionMethod;
     setEnergyReconstructionMethod( iRunPara->fEnergyReconstructionMethod );
     setMonteCarloEnergyRange( iRunPara->fMCEnergy_min, iRunPara->fMCEnergy_max, TMath::Abs( iRunPara->fMCEnergy_index ) );
@@ -90,6 +91,11 @@ void VInstrumentResponseFunction::setMonteCarloEnergyRange( double iMin, double 
 bool VInstrumentResponseFunction::initialize( string iName, string iType, unsigned int iNTel, double iMCMaxCoreRadius,
         double iZe, int iNoise, double iPedvars, double iXoff, double iYoff )
 {
+    if( !fRunPara )
+    {
+        cout << "VInstrumentResponseFunction::initialize error: runparameter not set" << endl;
+        return false;
+    }
     fName = iName;
     fType = iType;
     
@@ -117,14 +123,19 @@ bool VInstrumentResponseFunction::initialize( string iName, string iType, unsign
         {
             sprintf( hname, "%s_%d_%d", iName.c_str(), i, j );
             i_irf.push_back( new VInstrumentResponseFunctionData() );
+   	    i_irf.back()->setHistogramLogAngbinning( fRunPara->fLogAngularBin,
+                                                     fRunPara->fhistoAngularBin_min,
+                                                     fRunPara->fhistoAngularBin_max );
+      	    i_irf.back()->setHistogramEbinning( fRunPara->fhistoNEbins,
+                                                fRunPara->fhistoNEbins_logTeV_min,
+                                                fRunPara->fhistoNEbins_logTeV_max );
+            i_irf.back()->setEnergyReconstructionMethod( fEnergyReconstructionMethod );
+
             if( !i_irf.back()->initialize( hname, iType, iNTel, iMCMaxCoreRadius ) )
             {
                 return false;
             }
-            
             i_irf.back()->setData( iZe, ( int )j, fVMinAz[j], fVMaxAz[j], iNoise, iPedvars, fVSpectralIndex[i], iXoff, iYoff );
-            i_irf.back()->setHistogrambinning();
-            i_irf.back()->setEnergyReconstructionMethod( fEnergyReconstructionMethod );
         }
         fIRFData.push_back( i_irf );
     }
@@ -303,7 +314,7 @@ bool VInstrumentResponseFunction::fillResolutionGraphs( vector< vector< VInstrum
         {
             if( fIRFData[i][j] )
             {
-                fIRFData[i][j]->terminate( fContainmentProbability );
+		fIRFData[i][j]->terminate( fContainmentProbability, fContainmentProbabilityError );
             }
         }
     }

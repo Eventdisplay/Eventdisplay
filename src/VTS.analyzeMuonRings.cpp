@@ -171,7 +171,7 @@ int main( int argc, char* argv[] )
             }
             if( ( c->muonValid == CUTmuonValid && c->muonRadius > CUTLOmuonRadius && c->muonRSigma < CUTUPmuonRSigma && ( sqrt( pow( c->muonX0 , 2 ) + pow( c->muonY0 , 2 ) ) + c->muonRadius < CUTUPmuonRadius ) && c->muonSize < CUTUPmuonSize ) || c->houghMuonValid == CUThoughMuonValid )
             {
-                if( j > 10000 )
+                if( j >= 10000 )
                 {
                     cout << "VTS.analyzeMuonRings Warning: Found more than 10000 muon rings. Will ignore the rest of the muons for now" << endl;
                     break;

@@ -136,7 +136,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         bool freadCalibfromDB;                    // if true, calibration information are read in VOFFLINE DB
         int freadCalibfromDB_versionquery;        // require a given version of calibration
         bool freadCalibfromDB_save_file;          // calibration information read from the DB are stored in
-        // VGlobalRunParameter::getDirectory_EVNDISPCalibrationData() +/Tel_?
         bool fNoCalibNoPb;                        // if true, when no information for gain and toff can be found, the analysis is done filling thenm with 1 and 0 respectively (in VCalibrator)
         bool fNextDayGainHack;            //if true, and > 100 channels in one telescope have gain=0, all gains in that tel will be set to 1; gains won't be tested in the dead channel finder.
         bool fWriteExtraCalibTree;        // write additional tree into .gain.root file with channel charges/monitor charge/nHiLo for each event
@@ -174,6 +173,10 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         int    fCalibrationSumWindowAverageTime;  // sumwindow for average arrival time calculation
         float  fCalibrationIntSumMin;             // minimum integrated charge in a channel and event to be taken into account in gain or tzero calibration runs
         string fsetSpecialChannels;               // set channels with L2 channels to correct for FADC crate time offsets (file name of channel settings)
+        string fthroughputCorrectionFile;         // throughput correction (e.g., mirror reflectivity or gain loss) --> applied after pixel integration
+        string ftraceamplitudecorrectionFile;     // throughput correction file (e.g., mirror reflectivity or gain loss) --> applied to FADC values
+        vector< float > fthroughoutCorrectionSFactor; // throughput correction (e.g., mirror reflectivity and gain loss) --> applied to FADC values
+        vector< float > fthroughoutCorrectionGFactor; // throughput correction (e.g., gain loss) --> applied to FADC values
         bool   fL2TimeCorrect;                    // use L2 pulses to correct FADC times (default: on )
         unsigned fCalibrationDataType;            // for DSTs: kind of calibration data available: 1: full (peds, pedvars, etc). 0: (no calibration data)
         
@@ -282,21 +285,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         // Hough transform muon parameters
         bool fhoughmuonmode;                      // Use hough transform muon analysis
         
-        // Frogs parameters
-        bool ffrogsmode;                          // for Frogs template Analysis, GH
-        string ffrogsmscwfile;                      // frogs file for getting table energy
-        int ffrogsRecID;                              // RecID or Cut_ID Frogs Uses - combine with table
-        string ffrogstemplatelist;                // text file containing the elevation and
-        //   elevation-dependant template file names
-        string ffrogsparameterfile;               // parameter file for frogs settings
-        
-        // Model3D
-        bool fUseModel3D;                         // use Model3D analysis, JG
-        bool fUseDisplayModel3D;                  // display Model3D generated images, JG
-        bool fCreateLnLTable;                     // create lookup table for likelihood
-        string fLnLTableFile;                     // read lookup table for likelihood from this file
-        unsigned int fIDstartDirectionModel3D;    // reconstruction ID for starting values
-        
         // write pulse histograms to gain files
         int  fwriteLaserPulseN;                    // number of pulse histogram written to gain file
         bool fwriteAverageLaserPulse;              // write average laser pulse to file
@@ -315,12 +303,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         TString  fIPRdatabase;                    // file to read IPRs from external database
         TString  fIPRdatabaseFile;                // file to write the IPR database
         
-        // Parallaxwidth
-        int fPWmethod;                            // how to make the trigger-map to calculate the trigger-level image parameters
-        int fPWcleanNeighbors;                    // number of neighbors required for a center pixel to survive the cleaning procedure
-        float fPWcleanThreshold;                  // cleaning threshold to use to determine hit pixels from the summed FADC charge (dc)
-        int fPWlimit;                             // limits the number of pixels transmitted per sector, if =0, then the function is ignored and no cut is applied on the generation of the trigger map
-        
         // functions
         void print();
         void print( int iEV );
@@ -329,6 +311,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         VEvndispRunParameter( bool bSetGlobalParameter = true );
         ~VEvndispRunParameter();
         
+        string       getInstrumentEpoch(  bool iMajor = false );
         bool         isMC()
         {
             return fIsMC;
@@ -341,6 +324,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
             return fuseDB;
         }
         
-        ClassDef( VEvndispRunParameter, 188 ); //(increase this number)
+        ClassDef( VEvndispRunParameter, 190 ); //(increase this number)
 };
 #endif

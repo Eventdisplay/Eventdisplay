@@ -66,7 +66,11 @@ int main( int argc, char* argv[] )
         cout << endl;
         if( gSystem->Getenv( "EVNDISPSYS" ) )
         {
-            system( "cat $EVNDISPSYS/README/README.EFFECTIVEAREA" );
+            int i_s = system( "cat $EVNDISPSYS/README/README.EFFECTIVEAREA" );
+            if( i_s == -1 )
+            {
+                cout << "error: README/README.EFFECTIVEAREA not found" << endl;
+            }
         }
         else
         {
@@ -104,7 +108,7 @@ int main( int argc, char* argv[] )
     VGammaHadronCuts* fCuts = new VGammaHadronCuts();
     fCuts->initialize();
     fCuts->setNTel( fRunPara->telconfig_ntel, fRunPara->telconfig_arraycentre_X, fRunPara->telconfig_arraycentre_Y );
-    fCuts->setInstrumentEpoch( fRunPara->fInstrumentEpoch );
+    fCuts->setInstrumentEpoch( fRunPara->getInstrumentEpoch( true ) );
     fCuts->setTelToAnalyze( fRunPara->fTelToAnalyse );
     fCuts->setReconstructionType( fRunPara->fReconstructionType );
     if( !fCuts->readCuts( fRunPara->fCutFileName, 2 ) )
@@ -140,7 +144,6 @@ int main( int argc, char* argv[] )
     vector< string > f_IRF_Name;
     vector< string > f_IRF_Type;
     vector< float >  f_IRF_ContainmentProbability;
-    string fCuts_AngularResolutionName = "";
     vector< unsigned int > f_IRF_DuplicationID;
     if( fRunPara->fFillingMode != 3 )
     {
@@ -184,15 +187,7 @@ int main( int argc, char* argv[] )
         cout << endl;
         f_IRF.push_back( new VInstrumentResponseFunction() );
         f_IRF.back()->setRunParameter( fRunPara );
-        if( fCuts_AngularResolutionName.size() > 0 && f_IRF_Name[i] == fCuts_AngularResolutionName )
-        {
-            f_IRF.back()->setContainmentProbability( ( ( double )fCuts->getAngularResolutionContainmentRadius() ) / 100. );
-            cout << "setting containment probability to " << f_IRF.back()->getContainmentProbability() << endl;
-        }
-        else
-        {
-            f_IRF.back()->setContainmentProbability( f_IRF_ContainmentProbability[i] );
-        }
+        f_IRF.back()->setContainmentProbability( f_IRF_ContainmentProbability[i] );
         f_IRF.back()->initialize( f_IRF_Name[i], f_IRF_Type[i],
                                   fRunPara->telconfig_ntel, fRunPara->fCoreScatterRadius,
                                   fRunPara->fze, fRunPara->fnoise, fRunPara->fpedvar, fRunPara->fXoff, fRunPara->fYoff );
@@ -231,14 +226,6 @@ int main( int argc, char* argv[] )
                      && f_IRF[f_IRF[i]->getDuplicationID()] )
             {
                 f_IRF[i]->fillResolutionGraphs( f_IRF[f_IRF[i]->getDuplicationID()]->getIRFData() );
-            }
-            if( fCuts_AngularResolutionName.size() > 0 && f_IRF_Name[i] == fCuts_AngularResolutionName )
-            {
-                if( fCuts->getDirectionCutSelector() == 2 )
-                {
-                    fCuts->setIRFGraph( f_IRF[i]->getAngularResolutionGraph( 0, 0 ) );
-                    f_IRF[i]->getAngularResolutionGraph( 0, 0 )->Print();
-                }
             }
         }
     }
@@ -303,7 +290,7 @@ int main( int argc, char* argv[] )
             fMC_histo = new VEffectiveAreaCalculatorMCHistograms();
             fMC_histo->setMonteCarloEnergyRange( fRunPara->fMCEnergy_min, fRunPara->fMCEnergy_max, TMath::Abs( fRunPara->fMCEnergy_index ) );
             fMC_histo->initializeHistograms( fRunPara->fAzMin, fRunPara->fAzMax, fRunPara->fSpectralIndex,
-                                             fRunPara->fEnergyAxisBins_log10,
+					     fEffectiveAreaCalculator.getEnergyAxis_nbins_defaultValue(),
                                              fEffectiveAreaCalculator.getEnergyAxis_minimum_defaultValue(),
                                              fEffectiveAreaCalculator.getEnergyAxis_maximum_defaultValue() );
             fMC_histo->fill( fRunPara->fze, c2, fRunPara->fAzimuthBins );

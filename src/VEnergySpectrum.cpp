@@ -1191,7 +1191,7 @@ TCanvas* VEnergySpectrum::plot( TCanvas* c )
         plot_nullHistogram( c, hNull, fPlottingLogEnergyAxis, true, hNull->GetYaxis()->GetTitleOffset(), fPlottingMinEnergy, fPlottingMaxEnergy );
         c->SetLogy( 1 );
     }
-    c->cd();
+    if( c ) c->cd();
     
     // plot the spectral energy points
     plot_energySpectrum();

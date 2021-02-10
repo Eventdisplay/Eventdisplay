@@ -14,7 +14,6 @@
      3: apply cuts on probabilities given by a friend to the data tree already at the level of
         the event quality level
      4: TMVA gamma/hadron separation
-     5: apply frogs cut
 
   ID1:
 
@@ -233,9 +232,6 @@ bool VGammaHadronCuts::readCuts( string i_cutfilename, int iPrint )
     // reset trigger vector
     fNLTrigs = 0;
     fCut_ImgSelect.clear();
-    // frogs cuts
-    string iFileNameFrogsCut;
-    vector< string > iVariableNameFrogsCut;
     
     // open text file
     ifstream is;
@@ -609,25 +605,6 @@ bool VGammaHadronCuts::readCuts( string i_cutfilename, int iPrint )
                 }
                 fNTelTypeCut.back()->purgeTelTypeIDs();
             }
-            
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // FROGS values
-            else if( iCutVariable == "frogscutsfile" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iFileNameFrogsCut;
-                }
-            }
-            else if( iCutVariable == "energydependentcuts" )
-            {
-                while( !(is_stream>>std::ws).eof() )
-                {
-                    string iT;
-                    is_stream >> iT;
-                    iVariableNameFrogsCut.push_back( iT );
-                }
-            }
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // TMVA values
             else if( iCutVariable == "TMVAPARAMETER" )
@@ -891,20 +868,10 @@ bool VGammaHadronCuts::readCuts( string i_cutfilename, int iPrint )
             ////////////////////////////////////////////////////////////////////////////////////////////////////
         }
     }
-    // read energy dependent gamma/hadron cuts
-    for( unsigned int i = 0; i < iVariableNameFrogsCut.size(); i++ )
-    {
-        getEnergyDependentCutFromFile( iFileNameFrogsCut, iVariableNameFrogsCut[i] );
-    }
-    
     // check cut selection
     if( fReconstructionType == NOT_SET )
     {
-        if( fGammaHadronCutSelector / 10 == 5 )
-        {
-            fReconstructionType = FROGS;
-        }
-        else if( fGammaHadronCutSelector / 10 == 7 )
+        if( fGammaHadronCutSelector / 10 == 7 )
         {
             fReconstructionType = DEEPLEARNER;
         }
@@ -1553,19 +1520,6 @@ bool VGammaHadronCuts::isGamma( int i, bool bCount, bool fIsOn )
         }
     }
     /////////////////////////////////////////////////////////////////////////////
-    // apply Frogs Cuts
-    else if( useFrogsCuts() )
-    {
-        if( !applyFrogsCut() )
-        {
-            if( bCount && fStats )
-            {
-                fStats->updateCutCounter( VGammaHadronCutsStatistics::eIsGamma );
-            }
-            return false;
-        }
-    }
-    /////////////////////////////////////////////////////////////////////////////
     // apply deep learner cuts 
     // (using data_DL tree for cuts)
     else if( useDeepLearnerCuts() )
@@ -1607,76 +1561,6 @@ bool VGammaHadronCuts::applyTMVACut( int i )
     }
     
     return false;
-}
-
-/*
-   apply Cuts to frogs data.
-*/
-
-bool VGammaHadronCuts::applyFrogsCut()
-{
-    if( fData->fReconstructionType != FROGS )
-    {
-        cout << "VGammaHadronCuts::applyFrogsCut() warning: applying frogs cuts but using eventdisplay energy!" << endl;
-    }
-    if( fData->getEnergy_Log10() < -99. || fabs( fData->getEnergy_Log10() ) < 1E-18 || fData->frogsNImages < 1 )
-    {
-        return false;
-    }
-    
-    double ShowerGoodnessCut_max = -99.;
-    if( getEnergyDependentCut( "ShowerGoodness" ) && getEnergyDependentCut( "ShowerGoodness" )->GetN() > 0 )
-    {
-        ShowerGoodnessCut_max = getEnergyDependentCut( fData->getEnergy_Log10(), getEnergyDependentCut( "ShowerGoodness" ), false, true );
-        
-        double fMeanShowerGoodness = getMeanGoodness( fData->frogsTelGoodnessImg0,
-                                     fData->frogsTelGoodnessImg1,
-                                     fData->frogsTelGoodnessImg2,
-                                     fData->frogsTelGoodnessImg3,
-                                     fData->frogsEventID );
-        if( fMeanShowerGoodness > ShowerGoodnessCut_max )
-        {
-            return false;
-        }
-    }
-    
-    double BackgroundGoodnessCut_max = -99.;
-    if( getEnergyDependentCut( "BackgroundGoodness" ) && getEnergyDependentCut( "BackgroundGoodness" )->GetN() > 0 )
-    {
-        BackgroundGoodnessCut_max = getEnergyDependentCut( fData->getEnergy_Log10(), getEnergyDependentCut( "BackgroundGoodness" ), false, true );
-        double fMeanBackgroundGoodness = getMeanGoodness( fData->frogsTelGoodnessBkg0,
-                                         fData->frogsTelGoodnessBkg1,
-                                         fData->frogsTelGoodnessBkg2,
-                                         fData->frogsTelGoodnessBkg3,
-                                         fData->frogsEventID );
-        if( fMeanBackgroundGoodness > BackgroundGoodnessCut_max )
-        {
-            return false;
-        }
-    }
-    
-    double MSCWCut_max = -99.;
-    if( getEnergyDependentCut( "MSCW" ) && getEnergyDependentCut( "MSCW" )->GetN() > 0 )
-    {
-        MSCWCut_max = getEnergyDependentCut( fData->getEnergy_Log10(), getEnergyDependentCut( "MSCW" ), false, true );
-        if( fData->MSCW > MSCWCut_max )
-        {
-            return false;
-        }
-    }
-    
-    double MSCLCut_max = -99.;
-    if( getEnergyDependentCut( "MSCL" ) && getEnergyDependentCut( "MSCL" )->GetN() > 0 )
-    {
-        MSCLCut_max = getEnergyDependentCut( fData->getEnergy_Log10(), getEnergyDependentCut( "MSCL" ), false, true );
-        if( fData->MSCL > MSCLCut_max )
-        {
-            return false;
-        }
-    }
-    
-    return true;
-    
 }
 
 /*
@@ -2243,7 +2127,7 @@ bool VGammaHadronCuts::applyTelTypeTest( bool bCount )
   x0, y0:   calculate theta2 relative to these points (-99999. if relative to MCx/yoff)
 
 */
-bool VGammaHadronCuts::applyDirectionCuts( unsigned int fEnergyReconstructionMethod, bool bCount, double x0, double y0 )
+bool VGammaHadronCuts::applyDirectionCuts( bool bCount, double x0, double y0 )
 {
     double theta2 = 0.;
     
@@ -2382,7 +2266,7 @@ double VGammaHadronCuts::getTheta2Cut_max( double e )
         else if( ( fDirectionCutSelector == 1 || fDirectionCutSelector == 2 ) && getTheta2Cut_IRF_Max() )
         {
             // get theta2 cut
-            theta_cut_max  = getEnergyDependentCut( e, getTheta2Cut_IRF_Max(), !useFrogsCuts() );
+            theta_cut_max  = getEnergyDependentCut( e, getTheta2Cut_IRF_Max(), true );
         }
         /////////////////////////////////////////////
         // use TMVA determined cut
@@ -2482,10 +2366,14 @@ bool VGammaHadronCuts::initAngularResolutionFile()
     else if( fF1AngResName == "IRF" )
     {
         char iTreeName[200];
-        sprintf( iTreeName, "t_angular_resolution" );
         if( getAngularResolutionContainmentRadius() - 68 != 0 )
         {
-            sprintf( iTreeName, "%s_%03dp", iTreeName, getAngularResolutionContainmentRadius() );
+            sprintf( iTreeName, "t_angular_resolution_%03dp", getAngularResolutionContainmentRadius() );
+
+        }
+        else
+        {
+           sprintf( iTreeName, "t_angular_resolution" );
         }
         
         cout << "VGammaHadronCuts::initAngularResolutionFile: reading angular resolution graph from file (" << iTreeName << "):" << endl;
@@ -2711,41 +2599,6 @@ void VGammaHadronCuts::printEnergyDependentCuts()
     }
 }
 
-double VGammaHadronCuts::getMeanGoodness( double G0, double G1, double G2, double G3, int iFrogsEventID )
-{
-    int N = 0;
-    double sum = 0.;
-    double goodFrogsNumber = -99.;
-    if( G0 > goodFrogsNumber )
-    {
-        sum += G0;
-        N++;
-    }
-    if( G1 > goodFrogsNumber )
-    {
-        sum += G1;
-        N++;
-    }
-    if( G2 > goodFrogsNumber )
-    {
-        sum += G2;
-        N++;
-    }
-    if( G3 > goodFrogsNumber )
-    {
-        sum += G3;
-        N++;
-    }
-    if( N == 0 )
-    {
-        cout << "VGammaHadronCuts::getMeanGoodness error: none of the goodness-of-fit values have a good number (good number means > -99) " << endl;
-        cout << "\t failure at frogs event ID " << iFrogsEventID << endl;
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE );
-    }
-    return sum / N;
-}
-
 string VGammaHadronCuts::getTelToAnalyzeString()
 {
     stringstream iTemp;
@@ -2820,7 +2673,7 @@ VNTelTypeCut::VNTelTypeCut()
  *   test if this is above the given threshold cut
  *
  */
-bool VNTelTypeCut::test( CData* c, bool iPrint )
+bool VNTelTypeCut::test( CData* c )
 {
     if( !c )
     {
