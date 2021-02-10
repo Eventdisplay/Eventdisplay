@@ -117,6 +117,7 @@ VGammaHadronCuts::VGammaHadronCuts()
     fAngRes_ScalingFactor = 1.;
     fAngRes_AbsoluteMinimum = 0.;
     fAngRes_AbsoluteMaximum = 1.e10;
+    fAngRes_FixedAboveEnergy_TeV = 1.e30;
     fAngResContainmentProbability = 0;
 }
 
@@ -864,6 +865,11 @@ bool VGammaHadronCuts::readCuts( string i_cutfilename, int iPrint )
                     fAngRes_AbsoluteMaximum = atof( temp.c_str() );
                     fCut_Theta2_max = fAngRes_AbsoluteMaximum * fAngRes_AbsoluteMaximum;
                 }
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> temp;
+                    fAngRes_FixedAboveEnergy_TeV = atof( temp.c_str() );
+                }
             }
             ////////////////////////////////////////////////////////////////////////////////////////////////////
         }
@@ -972,7 +978,9 @@ void VGammaHadronCuts::printDirectionCuts()
     }
     cout << "Direction cut scale factor " << fAngRes_ScalingFactor;
     cout << ", minimum : " << fAngRes_AbsoluteMinimum << " [deg] ";
-    cout << ", maximum : " << fAngRes_AbsoluteMaximum << " [deg]" << endl;
+    cout << ", maximum : " << fAngRes_AbsoluteMaximum << " [deg]";
+    cout << " (constant above " << fAngRes_FixedAboveEnergy_TeV << " TeV)";
+    cout << endl;
     
 }
 
@@ -2228,6 +2236,8 @@ double VGammaHadronCuts::getEnergyDependentCut( double energy_TeV, TGraph* iG, b
 double VGammaHadronCuts::getTheta2Cut_max( double e )
 {
     double theta_cut_max = -1.;
+    // theta2 at fAngRes_FixedAboveEnergy_TeV
+    double theta_cut_fixed = -1.;
     
     //////////////////////////////////////////////
     // energy independent theta2 cut
@@ -2235,6 +2245,7 @@ double VGammaHadronCuts::getTheta2Cut_max( double e )
     if( fDirectionCutSelector == 0 )
     {
         theta_cut_max = TMath::Sqrt( fCut_Theta2_max );   // will be squared later
+        theta_cut_fixed = theta_cut_max;
     }
     //////////////////////////////////////////////
     // energy dependent theta2 cut
@@ -2260,19 +2271,30 @@ double VGammaHadronCuts::getTheta2Cut_max( double e )
             
             // get angular resolution and apply scaling factor
             theta_cut_max  = fF1AngRes->Eval( e );
+            if( fAngRes_FixedAboveEnergy_TeV > 0. )
+            {
+                theta_cut_fixed = fF1AngRes->Eval( log10( fAngRes_FixedAboveEnergy_TeV ) );
+            }
         }
         /////////////////////////////////////////////
         // use IRF graph for angular resolution
         else if( ( fDirectionCutSelector == 1 || fDirectionCutSelector == 2 ) && getTheta2Cut_IRF_Max() )
         {
             // get theta2 cut
-            theta_cut_max  = getEnergyDependentCut( e, getTheta2Cut_IRF_Max(), true );
+            theta_cut_max  = getEnergyDependentCut( e, getTheta2Cut_IRF_Max(), !useFrogsCuts() );
+            if( fAngRes_FixedAboveEnergy_TeV > 0. )
+            {
+                theta_cut_fixed = getEnergyDependentCut( log10( fAngRes_FixedAboveEnergy_TeV ), 
+                                                         getTheta2Cut_IRF_Max(), 
+                                                         !useFrogsCuts() );
+            }
         }
         /////////////////////////////////////////////
         // use TMVA determined cut
         else if( fDirectionCutSelector == 3 )
         {
             theta_cut_max = -1.;
+            theta_cut_fixed = -1.;
         }
         // optimal theta2 cut
         else if( fDirectionCutSelector == 4 && fTMVAEvaluator )
@@ -2286,12 +2308,21 @@ double VGammaHadronCuts::getTheta2Cut_max( double e )
             {
                 theta_cut_max = 0.;
             }
+            if( fAngRes_FixedAboveEnergy_TeV > 0. )
+            {
+                theta_cut_fixed = fTMVAEvaluator->getOptimalTheta2Cut( log10( fAngRes_FixedAboveEnergy_TeV ) );
+            }
         }
         /////////////////////////////////////////////
         // use a graph with theta2 cuts
         else if( fDirectionCutSelector == 5 && getTheta2Cut_TMVA_max() )
         {
             theta_cut_max = getEnergyDependentCut( e, getTheta2Cut_TMVA_max(), true, true );
+            if( fAngRes_FixedAboveEnergy_TeV > 0. )
+            {
+                theta_cut_fixed = getEnergyDependentCut( log10(fAngRes_FixedAboveEnergy_TeV),
+                                                         getTheta2Cut_TMVA_max(), true, true );
+            }
             if( theta_cut_max < 0. )
             {
                 theta_cut_max = 0.;
@@ -2306,6 +2337,15 @@ double VGammaHadronCuts::getTheta2Cut_max( double e )
     
     // apply scale factors
     theta_cut_max *= fAngRes_ScalingFactor;
+
+    // check if a fixed theta should be applied above
+    // a certain energy
+    if( fAngRes_FixedAboveEnergy_TeV > 0. && e > log10(fAngRes_FixedAboveEnergy_TeV) && theta_cut_fixed > 0. )
+    {
+        theta_cut_max = theta_cut_fixed;
+    }
+
+    // check if theta2 is below/above absolute min/max
     if( theta_cut_max < fAngRes_AbsoluteMinimum )
     {
         return fAngRes_AbsoluteMinimum * fAngRes_AbsoluteMinimum;
