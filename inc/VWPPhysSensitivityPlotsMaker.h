@@ -67,7 +67,7 @@ class VWPPhysSensitivityPlotsMaker
         ~VWPPhysSensitivityPlotsMaker() {}
         
         void compareDataSets( string iDataSetFile, string iDirectionString = "", bool IntegratedSensitivityForOffAxisPlots = false,
-                              unsigned int iRatioCounter = 0, string iTitlteText = "", string iKPSPrintName = "" );
+                              unsigned int iRatioCounter = 0, string iTitlteText = "" );
         void compareOffAxisSensitivities( string iSubArray, vector< string > iDataSet );
         void compareOffAxisSensitivities( string iSubArray = "", string iDataSet = "" );
         TCanvas* getAllinOneCanvas()

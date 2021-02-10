@@ -15,9 +15,7 @@
 #include "TTree.h"
 
 #include "TMVA/Config.h"
-#ifdef ROOT6
 #include "TMVA/DataLoader.h"
-#endif
 #include "TMVA/Factory.h"
 #include "TMVA/Reader.h"
 #include "TMVA/Tools.h"
@@ -114,13 +112,9 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     train_and_test_conditions << "nTest_Regression="  << ntest  << ":" ;
     train_and_test_conditions << "SplitMode=Random"             << ":" ;
     train_and_test_conditions << "NormMode=NumEvents"           << ":" ;
-#ifdef ROOT6
     train_and_test_conditions << "V=True" << ":" ;
     train_and_test_conditions << "VerboseLevel=Info" << ":" ;
     train_and_test_conditions << "ScaleWithPreselEff=True";
-#else
-    train_and_test_conditions << "!V";
-#endif
     cout << "Train and test condition: " << train_and_test_conditions.str() << endl;
     cout << endl;
     
@@ -143,20 +137,10 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     
     
     // tmva regression
-#ifdef ROOT6
     TMVA::Factory* factory = new TMVA::Factory( iTargetBDT.c_str(), i_tmva, 
                             "V:!DrawProgressBar:!Color:!Silent:AnalysisType=Regression:VerboseLevel=Debug:Correlations=True" );
     factory->SetVerbose( true );
-#else
-    TMVA::Factory* factory = new TMVA::Factory( iTargetBDT.c_str(), i_tmva, 
-                            "V:!DrawProgressBar:!Color:!Silent" );
-#endif
-    
-#ifdef ROOT6
     TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
-#else
-    TMVA::Factory* dataloader = factory;
-#endif
     
     // list of variables used by MVA method
     dataloader->AddVariable( "width" , 'F' );
@@ -257,11 +241,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     cout << "Built MethodStringStream: " << iTMVAOptions << endl;
     cout << endl;
     TString methodTitle( htitle );
-#ifdef ROOT6
     factory->BookMethod( dataloader, TMVA::Types::kBDT, methodTitle, methodstr ) ;
-#else
-    factory->BookMethod( TMVA::Types::kBDT, methodTitle, methodstr ) ;
-#endif
     
     factory->TrainAllMethods();
     

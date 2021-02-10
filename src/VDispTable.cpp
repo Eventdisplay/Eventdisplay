@@ -285,7 +285,7 @@ bool VDispTable::fillTable( string iMCFile, float i_ze, float i_woff, int iNentr
     // get tpars trees (fNTel times)
     for( unsigned int i = 0; i < fNTel; i++ )
     {
-        sprintf( hname, "Tel_%d/tpars", i + 1 );
+        sprintf( hname, "Tel_%d/tpars", u + 1 );
         TTree* t = ( TTree* )iFile.Get( hname );
         if( !t )
         {

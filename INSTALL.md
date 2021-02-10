@@ -27,7 +27,7 @@ Set the following environmental variable:  SOFASYS=$EVNDISPSYS/sofa
 
 (3.0) for all FITS related output, cfitsio is needed (see [http://heasarc.gsfc.nasa.gov/fitsio/])
 
-(3.1) GSL libraries (needed for FROGS image template method; ROOT included gsl is fine)
+(3.1) GSL libraries (ROOT included gsl is fine)
       [http://www.gnu.org/software/gsl/]
 
 ## Environmental Variables
@@ -47,7 +47,7 @@ VBSYS :     (optional) VBF libraries (for VERITAS analysis only); add $VBFSYS/bi
 
 FITSSYS :   (optional) FITS libraries (optional, not needed in most cases)
 
-GSLSYS :    (optional) GSL libraries (needed for FROGS image template method)
+GSLSYS :    (optional) GSL libraries
 
 ### Analysis
 

@@ -155,23 +155,26 @@ void VDisplayBirdsEye::drawEventText()
                  fData->getShowerParameters()->MCxcore, fData->getShowerParameters()->MCycore );
     }
     // shower reconstruction text
-    sprintf( iText, "%u tel in reco (ID%d):", fData->getShowerParameters()->fShowerNumImages[iM], iM );
+    stringstream i_stext;
+    i_stext << fData->getShowerParameters()->fShowerNumImages[iM];
+    i_stext << " tel in reco (ID" << iM << "):";
     for( unsigned int i = 0; i < fData->getNTel(); i++ )
     {
         if( fData->getShowerParameters()->fTelIDImageSelected_list[iM][i] )
         {
-            sprintf( iText, "%s %d", iText, ( int )( i + 1 ) );
+	    i_stext << " " << ( int )( i + 1 );
         }
     }
-    fTextRec.push_back( new TText( 0.02, 0.09, iText ) );
+    fTextRec.push_back( new TText( 0.02, 0.09, i_stext.str().c_str() ) );
     // triggered events
     // (any trigger condition)
-    sprintf( iText, "%u tel triggered: ", fData->getShowerParameters()->fNTrig );
+    i_stext.str("");
+    i_stext << fData->getShowerParameters()->fNTrig << " tel triggered: ";
     for( unsigned int i = 0; i < fData->getShowerParameters()->fNTrig; i++ )
     {
-        sprintf( iText, "%s %d", iText, fData->getShowerParameters()->fTrig_list[i] + 1 );
+        i_stext << " " << fData->getShowerParameters()->fTrig_list[i] + 1;
     }
-    fTextRec.push_back( new TText( 0.02, 0.06, iText ) );
+    fTextRec.push_back( new TText( 0.02, 0.06, i_stext.str().c_str() ) );
     
     sprintf( iText, "Ze, Az: [%.1f, %.1f] deg, X/Yoff: [%.2f, %.2f] deg, X/Ycore: [%.0f, %.0f ] m",
              fData->getShowerParameters()->fShowerZe[iM], fData->getShowerParameters()->fShowerAz[iM],
@@ -453,14 +456,6 @@ void VDisplayBirdsEye::drawImageLines_and_Corepositions()
     if( fData->getShowerParameters()->fShower_Chi2[iM] >= 0. )
     {
         fMarkerCore.back()->Draw();
-    }
-    //Draw FROGS reconstruction
-    if( fData->getRunParameter()->ffrogsmode  && fData->getFrogsParameters() )
-    {
-        fMarkerFrogsCore = new TMarker( convertX( fData->getFrogsParameters()->frogsXP ), convertY( fData->getFrogsParameters()->frogsYP ), 29 );
-        fMarkerFrogsCore->SetMarkerColor( 7 );
-        fMarkerFrogsCore->SetMarkerSize( 2. );
-        fMarkerFrogsCore->Draw();
     }
     // draw coordinate system
     // two arrow somewhere in the lower left corner of the canvas

@@ -354,7 +354,6 @@ class VCameraRead : public VGlobalRunParameter
             return fEdgePixel[fTelID];
         }
         bool                 makeNeighbourList( vector< float > iNeighbourSearchScaleFactor,
-                                                vector< unsigned int > iNeighbourMultiplicity,
                                                 vector< bool > iSquarePixels );
         void                 print( bool bDetailed = true );             //!< print all data vectors to stdout
         //!< read in camera geometry

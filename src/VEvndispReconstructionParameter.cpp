@@ -234,7 +234,7 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
     add a new cut method
 
 */
-void VEvndispReconstructionParameter::addNewMethod( unsigned int iRecordID, unsigned int iMethodID )
+void VEvndispReconstructionParameter::addNewMethod( unsigned int iMethodID )
 {
     // new reconstruction parameter data element and fill with default values
     fReconstructionParameterData.push_back( new VEvndispReconstructionParameterData( fNTel_type, fTel_type ) );
@@ -290,6 +290,11 @@ void VEvndispReconstructionParameter::print_arrayAnalysisCuts()
         }
         cout << endl;
         cout << "\t\t minimum angle between image axes [deg]: " << fReconstructionParameterData[m]->fAxesAngles_min << endl;
+        cout << "\t\t minimum number of images: " << fReconstructionParameterData[m]->fNImages_min << endl;
+        if( fReconstructionParameterData[m]->fNImages_max < VDST_MAXTELESCOPES )
+        {
+            cout << "\t\t maximum number of images: " << fReconstructionParameterData[m]->fNImages_max << endl;
+        }
         // loop over all telescope types
         for( unsigned int t = 0; t < fReconstructionParameterData[m]->fTelescopeType.size(); t++ )
         {
@@ -650,7 +655,7 @@ bool VEvndispReconstructionParameter::readKeyWord_CLEANING( vector< string > iTe
     return true;
 }
 
-bool VEvndispReconstructionParameter::readKeyWord_BRIGHTSTARS( vector< string > iTemp, int t_temp )
+bool VEvndispReconstructionParameter::readKeyWord_BRIGHTSTARS( vector< string > iTemp )
 {
     if( !fRunPara || iTemp.size() < 5 )
     {
@@ -772,7 +777,7 @@ bool VEvndispReconstructionParameter::readKeyWord_LLEDGEFIT( vector< string > iT
    If option is set to 0 or is not present, will behave normally
   (i.e. LL image fit on edges, hillas ellipse in middle of camera)
 */
-bool VEvndispReconstructionParameter::readKeyWord_FORCELL( vector< string > iTemp, int t_temp )
+bool VEvndispReconstructionParameter::readKeyWord_FORCELL( vector< string > iTemp )
 {
     if( !fRunPara || iTemp.size() < 2 )
     {
@@ -799,7 +804,7 @@ bool VEvndispReconstructionParameter::readKeyWord_FORCELL( vector< string > iTem
    If set to TRUE,
    create IPR database from DST file containing ped charge histos (hpedPerTelescopeType) and write it to the IPRdatabaseFile
 */
-bool VEvndispReconstructionParameter::readKeyWord_CreateIPRdatabase( vector< string > iTemp, int t_temp )
+bool VEvndispReconstructionParameter::readKeyWord_CreateIPRdatabase( vector< string > iTemp )
 {
     if( !fRunPara || iTemp.size() < 2 )
     {
@@ -826,7 +831,7 @@ bool VEvndispReconstructionParameter::readKeyWord_CreateIPRdatabase( vector< str
     Usually set to EVNDISP_ANALYSIS_DIRECTORY so it will be written to this directory
     with output file <runnumber>.IPR.root)
 */
-bool VEvndispReconstructionParameter::readKeyWord_IPRdatabaseFile( vector< string > iTemp, int t_temp )
+bool VEvndispReconstructionParameter::readKeyWord_IPRdatabaseFile( vector< string > iTemp )
 {
     if( !fRunPara || iTemp.size() < 2 )
     {
@@ -869,7 +874,7 @@ bool VEvndispReconstructionParameter::readKeyWord_IPRdatabaseFile( vector< strin
    If set to TRUE,
    read IPRs from DST file
 */
-bool VEvndispReconstructionParameter::readKeyWord_ReadIPRfromDST( vector< string > iTemp, int t_temp )
+bool VEvndispReconstructionParameter::readKeyWord_ReadIPRfromDST( vector< string > iTemp )
 {
     if( !fRunPara || iTemp.size() < 2 )
     {
@@ -895,7 +900,7 @@ bool VEvndispReconstructionParameter::readKeyWord_ReadIPRfromDST( vector< string
    If set to TRUE,
    read IPRs from IPRdatabase (overrides CreateIPRdatabase)
 */
-bool VEvndispReconstructionParameter::readKeyWord_ReadIPRfromDatabase( vector< string > iTemp, int t_temp )
+bool VEvndispReconstructionParameter::readKeyWord_ReadIPRfromDatabase( vector< string > iTemp )
 {
     if( !fRunPara || iTemp.size() < 2 )
     {
@@ -920,7 +925,7 @@ bool VEvndispReconstructionParameter::readKeyWord_ReadIPRfromDatabase( vector< s
    Usually set to EVNDISP_ANALYSIS_DIRECTORY so it will be written to this directory
    with output file <runnumber>.IPR.root)
 */
-bool VEvndispReconstructionParameter::readKeyWord_IPRdatabase( vector< string > iTemp, int t_temp )
+bool VEvndispReconstructionParameter::readKeyWord_IPRdatabase( vector< string > iTemp )
 {
     if( !fRunPara || iTemp.size() < 2 )
     {
@@ -957,7 +962,7 @@ bool VEvndispReconstructionParameter::readKeyWord_IPRdatabase( vector< string > 
    * -1 WriteGraphsToFile TRUE
    If set to TRUE, write NN Image cleaning graphs (prob. curves, IPR graphs, etc..) to a GraphsFile file
 */
-bool VEvndispReconstructionParameter::readKeyWord_WriteGraphsToFile( vector< string > iTemp, int t_temp )
+bool VEvndispReconstructionParameter::readKeyWord_WriteGraphsToFile( vector< string > iTemp )
 {
     if( !fRunPara || iTemp.size() < 2 )
     {
@@ -982,7 +987,7 @@ bool VEvndispReconstructionParameter::readKeyWord_WriteGraphsToFile( vector< str
     Usually set to EVNDISP_ANALYSIS_DIRECTORY so it will be written to this directory
     with output file <runnumber>.IPR.root)
 */
-bool VEvndispReconstructionParameter::readKeyWord_GraphsFile( vector< string > iTemp, int t_temp )
+bool VEvndispReconstructionParameter::readKeyWord_GraphsFile( vector< string > iTemp )
 {
     if( !fRunPara || iTemp.size() < 2 )
     {
@@ -1034,6 +1039,11 @@ bool VEvndispReconstructionParameter::readKeyWord_RECMETHOD( vector< string > iT
     else if( iTemp[0] == "MNIMAGE" && iTemp[1].size() > 0 )
     {
         fReconstructionParameterData.back()->fNImages_min = atoi( iTemp[1].c_str() );
+        return true;
+    }
+    else if( iTemp[0] == "MXIMAGE" && iTemp[1].size() > 0 )
+    {
+        fReconstructionParameterData.back()->fNImages_max = atoi( iTemp[1].c_str() );
         return true;
     }
     else if( iTemp[0] == "MINANGLE" && iTemp[1].size() > 0 )
@@ -1288,7 +1298,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
             }
             else if( iTemp[0] == "BRIGHTSTARS" && fRunPara )
             {
-                readKeyWord_BRIGHTSTARS( iTemp, t_temp );
+                readKeyWord_BRIGHTSTARS( iTemp );
                 continue;
             }
             else if( iTemp[0] == "LLEDGEFIT" && fRunPara )
@@ -1308,53 +1318,47 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
             }
             else if( iTemp[0] == "FORCELL" && fRunPara )
             {
-                readKeyWord_FORCELL( iTemp, t_temp );
+                readKeyWord_FORCELL( iTemp );
                 continue;
             }
             else if( iTemp[0] == "CREATEIPRDATABASE" && fRunPara )
             {
-                readKeyWord_CreateIPRdatabase( iTemp, t_temp );
+                readKeyWord_CreateIPRdatabase( iTemp );
                 continue;
             }
             else if( iTemp[0] == "IPRDATABASEFILE" && fRunPara )
             {
-                readKeyWord_IPRdatabaseFile( iTemp, t_temp );
+                readKeyWord_IPRdatabaseFile( iTemp );
                 continue;
             }
             else if( iTemp[0] == "READIPRFROMDST" && fRunPara )
             {
-                readKeyWord_ReadIPRfromDST( iTemp, t_temp );
+                readKeyWord_ReadIPRfromDST( iTemp );
                 continue;
             }
             else if( iTemp[0] == "READIPRFROMDATABASE" && fRunPara )
             {
-                readKeyWord_ReadIPRfromDatabase( iTemp, t_temp );
+                readKeyWord_ReadIPRfromDatabase( iTemp );
                 continue;
             }
             else if( iTemp[0] == "IPRDATABASE" && fRunPara )
             {
-                readKeyWord_IPRdatabase( iTemp, t_temp );
+                readKeyWord_IPRdatabase( iTemp );
                 continue;
             }
             else if( iTemp[0] == "WRITEGRAPHSTOFILE" && fRunPara )
             {
-                readKeyWord_WriteGraphsToFile( iTemp, t_temp );
+                readKeyWord_WriteGraphsToFile( iTemp );
                 continue;
             }
             else if( iTemp[0] == "GRAPHSFILE" && fRunPara )
             {
-                readKeyWord_GraphsFile( iTemp, t_temp );
-                continue;
-            }
-            // Model3D: reconstruction ID for starting values
-            else if( iTemp[0] == "MODEL3DSTARTID" && fRunPara && iTemp[1].size() > 0 )
-            {
-                fRunPara->fIDstartDirectionModel3D = atoi( iTemp[1].c_str() );
+                readKeyWord_GraphsFile( iTemp );
                 continue;
             }
             else if( iTemp[0] == "CreateIPRdatabase" && fRunPara )
             {
-                readKeyWord_FORCELL( iTemp, t_temp );
+                readKeyWord_FORCELL( iTemp );
                 continue;
             }
             
@@ -1387,7 +1391,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
             {
                 m_temp = fReconstructionParameterData.size();
                 // reset all parameters for this method number
-                addNewMethod( m_temp, ( unsigned int )atoi( iTemp[1].c_str() ) );
+                addNewMethod( ( unsigned int )atoi( iTemp[1].c_str() ) );
                 continue;
             }
             // check if a first record was created
@@ -1939,6 +1943,7 @@ VEvndispReconstructionParameterData::VEvndispReconstructionParameterData( unsign
     fMethodID       = 0;
     
     fNImages_min    = 0.;
+    fNImages_max    = VDST_MAXTELESCOPES;
     fAxesAngles_min = 0.;
     
     // cut parameters: set default parameters
@@ -2227,7 +2232,7 @@ void  VEvndispReconstructionCut::print( unsigned int telType, string iCutName )
 
 void  VEvndispReconstructionCut::setCutValues( bool iCutSet )
 {
-    fCutSet = false;
+    fCutSet = iCutSet;
 }
 
 /*

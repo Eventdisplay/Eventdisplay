@@ -386,7 +386,7 @@ bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
 bool VSimpleStereoReconstructor::fillShowerCore( float ximp, float yimp )
 {
     // check validity
-    if( !isnormal( ximp ) || !isnormal( ximp ) )
+    if( !isnormal( ximp ) || !isnormal( yimp ) )
     {
         ximp = -99999.;
         yimp = -99999.;

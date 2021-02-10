@@ -128,7 +128,7 @@ class VTableCalculator
         
         bool    fWriteTables;
         
-        bool   create1DHistogram( int i, int j, double w_first_event );
+        bool   create1DHistogram( int i, int j );
         bool   createMedianApprox( int i, int j );
         double getWeightMeanBinContent( TH2F*, int, int, double, double );
         void   fillMPV( TH2F*, int, int, TH1F*, double, double );

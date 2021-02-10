@@ -71,7 +71,6 @@ class VPlotCompareDataWithMC : public VHistogramUtilities
         void mwr_vs_energy_plots( int iRebin = 1, double xmin =  0.7, double xmax = 1.3, double iSystematicCutCheck = -99. );
         void widthlength_vs_energy_plots( int iTelescope = 1, int iRebin = 1, double xmin =  0., double xmax = 0.2 );
         void mva_vs_energy_plots( int iRebin = 1, double xmin = -1.0, double xmax = 1.0, double iSystematicCutCheck = -99. );
-        void model3D_vs_energy_plots();
         void multiplicity_plots();
         bool openDataFile( string ifile );
         bool isZombie()
@@ -90,8 +89,8 @@ class VPlotCompareDataWithMC : public VHistogramUtilities
                 double y_min = -99., bool iPlotLogY = false );
         TCanvas* single_telescope( int telid = -1 );
         TCanvas* single_telescope( int telid, string iPlot, bool iOneCanvas = true, int iScalingMethod = 1, int i_rebin = 1 );
-        TCanvas* stereo_parameter( int msc_rebin = 1 );
-        void mva_parameter( int mva_rebin = 1 );
+        TCanvas* stereo_parameter();
+        void mva_parameter();
         
         void setDebug( bool iB = false )
         {

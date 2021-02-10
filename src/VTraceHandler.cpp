@@ -641,7 +641,7 @@ double VTraceHandler::calculateTraceSum_slidingWindow( unsigned int iSearchStart
         FADC[i - 1] = ( float )fpTrace.at( i - 1 ) - ped;
     }
     
-    if( n <= 0 )
+    if( n == 0 )
     {
         fTraceAverageTime = muxBINS[1];
         return 0.;
@@ -745,7 +745,7 @@ double VTraceHandler::getMaxSumAutoWindow( float AmplThresh, unsigned int iSearc
     tcharge = 0, tcharge2 = 0;
     //maxbin   = LocMax(ampl);
     
-    if( n <= 0 )
+    if( n == 0 )
     {
         return -1;
     }

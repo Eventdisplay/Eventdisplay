@@ -51,7 +51,7 @@ bool fRemoveTargetRegionFromAcceptanceFilling = true;
 
 int main( int argc, char* argv[] )
 {
-    // print program version only
+    // print version only
     if( argc == 2 )
     {
         string fCommandLine = argv[1];
@@ -100,8 +100,8 @@ int main( int argc, char* argv[] )
     // find telescopes to analyse
     for( unsigned int i = 0; i < teltoanastring.length(); i++ )
     {
-        char tel = teltoanastring.at( i );
-        teltoana.push_back( atoi( &tel ) - 1 );
+        string i_tel = teltoanastring.substr( i, 1 );
+		teltoana.push_back(atoi( i_tel.c_str()) - 1 );
     }
     
     ///////////////////////////////////////////
@@ -156,7 +156,7 @@ int main( int argc, char* argv[] )
         fCuts->setInstrumentEpoch( fInstrumentEpoch );
         fCuts->setTelToAnalyze( teltoana );
         fCuts->setNTel( ntel );
-        // set reconstruction type (e.g. GEO, DISP, FROGS, ...
+        // set reconstruction type (e.g. GEO, DISP, ...
         fCuts->setReconstructionType( fRunPara->fReconstructionType );
         fCuts->readCuts( cutfilename );
     }
@@ -294,6 +294,7 @@ int main( int argc, char* argv[] )
         if( iParV2 )
         {
             ostringstream iTel_temp;
+            cout << "Testing telescope multiplicity " << teltoanastring << endl;
             for( unsigned int i = 0; i < iParV2->fTelToAnalyze.size(); i++ )
             {
                 iTel_temp << iParV2->fTelToAnalyze[i] + 1;
@@ -381,10 +382,7 @@ int main( int argc, char* argv[] )
             }
         }
         
-        if( fCuts )
-        {
-            fCuts->printCutSummary();
-        }
+        fCuts->printCutSummary();
         
         int neventStats = 0;
         int i_entries_after_cuts = 0;
@@ -570,7 +568,7 @@ int parseOptions( int argc, char* argv[] )
                 break;
             case 'c':
                 cutfilename = optarg;
-                cout << "Cuts are taken from " << cutfilename << endl;
+				cout << "Cut File Name is " << cutfilename << endl;
                 if( cutfilename == "IGNOREEFFECTIVEAREA" )
                 {
                      cout << "error: cannot read cuts (IGNOREEFFECTIVEAREA given)" << endl;
@@ -580,9 +578,12 @@ int parseOptions( int argc, char* argv[] )
                 break;
             case 'm':
                 fMaxDistanceAllowed = atof( optarg );
+				cout << "Maximum allowed distance from camera centre: " << fMaxDistanceAllowed << endl;
                 break;
             case 'i':
                 fInstrumentEpoch = optarg;
+                fInstrumentEpoch = fInstrumentEpoch.substr( 0, fInstrumentEpoch.find( "_" ) );
+                cout << "(Major) instrument epoch is " << fInstrumentEpoch << endl;
                 break;
             case 'e':
                 entries = ( int )atoi( optarg );
@@ -593,6 +594,7 @@ int parseOptions( int argc, char* argv[] )
                 break;
             case 't':
                 teltoanastring = optarg;
+				cout << "Telescopes to analyse: " << teltoanastring << endl;
                 break;
             case 'p':
                 production_shortIO = ( int )atoi( optarg );

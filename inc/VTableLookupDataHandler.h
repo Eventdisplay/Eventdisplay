@@ -27,7 +27,6 @@
 #include "TKey.h"
 
 #include "Cshowerpars.h"
-#include "Cmodel3Dpars.h"
 #include "Ctelconfig.h"
 #include "Ctpars.h"
 
@@ -94,15 +93,11 @@ class VTableLookupDataHandler
         TChain* fTshowerpars;
         TChain* fTshowerpars_QCCut;
         Cshowerpars* fshowerpars;
-        TChain* fTmodel3Dpars;
-        Cmodel3Dpars* fmodel3Dpars;
-        TKey* fKeyModel3D;
         TChain* fTtelconfig;
         Ctelconfig* ftelconfig;
         vector< TChain* > fTtpars;
         vector< Ctpars* > ftpars;
         vector< VPointingCorrectionsTreeReader* > fpointingCorrections;
-        TChain* fFrogspars;
         TChain* fDeepLearnerpars;
         
         double fEventWeight;
@@ -156,7 +151,7 @@ class VTableLookupDataHandler
         unsigned int fNStats_WobbleMinCut;
         unsigned int fNStats_WobbleMaxCut;
         
-        void   calcDistances( int );                //!< calculate distances between telescopes and shower core
+        void   calcDistances();                //!< calculate distances between telescopes and shower core
         void   calcEmissionHeights();
         double calculateMeanNoiseLevel( bool bCurrentNoiseLevel = false );
         bool   checkIfFilesInChainAreRecovered( TChain* c );
@@ -292,9 +287,6 @@ class VTableLookupDataHandler
         float  fcrossO_short[VDST_MAXTELESCOPES];
         float  ftgrad_x_short[VDST_MAXTELESCOPES];
         int    fFitstat_short[VDST_MAXTELESCOPES];
-        double ffrogs_goodness_telType[VDST_MAXTELESCOPES];
-        vector<float>* ffrogs_goodness_vector;
-        
         
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // results
@@ -330,11 +322,6 @@ class VTableLookupDataHandler
         double ftmsct    [VDST_MAXTELESCOPES];    //!< msct assigned to each telescope
         float  ftmsct_sigma[VDST_MAXTELESCOPES];  //!< msct sigma assigned to each telescope
         
-        // FROGS goodness
-        double fmsc_frgo;                             //!< mean scaled frogs goodness
-        double ftmsc_frgo    [VDST_MAXTELESCOPES];    //!< msc_frgo assigned to each telescope
-        float  ftmsc_frgo_sigma[VDST_MAXTELESCOPES];  //!< msc_frgo sigma assigned to each telescope
-        
         // emission height
         unsigned int fNTelPairs;
         float  fEmissionHeightMean;
@@ -365,28 +352,6 @@ class VTableLookupDataHandler
         double dl_gammaness;
         Bool_t dl_isGamma;
 
-        // Model3D parameters
-        bool fUseModel3DStereoParameters; // overwrite geometric Xoff,Yoff,Xcore,Ycore
-        
-        bool fIsModel3D;  // data contains Model3D parameters
-        double fSmax3D;   // height of shower maximum (along the shower axis)
-        double fsigmaL3D; // longitudinal (3D-length)
-        double fsigmaT3D; // transverse (3D-width)
-        double fNc3D;     // total number of Cherenkov photons emitted by the shower
-        double fXcore3D;  // core location
-        double fYcore3D;  // core location
-        double fXoff3D;  // model sky direction
-        double fYoff3D;  // model sky direction
-        double fXoffDeRot3D;  // model sky direction (derotated)
-        double fYoffDeRot3D;  // model sky direction (derotated)
-        double fGoodness3D;   // model goodness of fit
-        double fOmega3D;      // model and hillas: direction difference
-        double fDepth3D;      // model: slant depth of shower maximum
-        double fRWidth3D;     // model: reduced 3D-width
-        double fErrRWidth3D;  // model: error in reduced 3D-width
-        double fErrorsigmaT3D;// model: error in 3D-width
-        bool fConverged3D;   // model: fit converged
-        
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         VTableLookupDataHandler( bool iWrite, VTableLookupRunParameter* iT = 0 );
@@ -459,8 +424,6 @@ class VTableLookupDataHandler
         {
             return fEventCounter;
         }
-        double* getFROGS_goodness();
-        double* getFROGS_goodness( ULong64_t iTelType );
         double* getLength()
         {
             return flength;
@@ -691,15 +654,6 @@ class VTableLookupDataHandler
         {
             ftmsct[i] = iMSTC;
             ftmsct_sigma[i] = iMSTC_T;
-        }
-        void setMSC_FRGO( double iMSW_FRGO )
-        {
-            fmsc_frgo = iMSW_FRGO;
-        }
-        void setMSC_FRGOT( int i, double iMSTC, float iMSTC_T = -99. )
-        {
-            ftmsc_frgo[i] = iMSTC;
-            ftmsc_frgo_sigma[i] = iMSTC_T;
         }
         void setMWR( double iM )
         {

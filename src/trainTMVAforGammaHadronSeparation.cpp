@@ -14,13 +14,12 @@
 #include "TTree.h"
 
 #include "TMVA/Config.h"
-#ifdef ROOT6
 #include "TMVA/DataLoader.h"
-#endif
 #include "TMVA/Factory.h"
 #include "TMVA/Reader.h"
 #include "TMVA/Tools.h"
 
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -34,23 +33,6 @@ using namespace std;
 bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, bool iGammaHadronSeparation );
 bool trainGammaHadronSeparation( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin );
 bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin );
-
-/*
- * get number of requested training events
- *
- */
-Long64_t getNumberOfRequestedTrainingEvents( string a, bool iSignal )
-{
-   string b = "nTrain_Signal=";
-   if( !iSignal )
-   {
-      b = "nTrain_Background=";
-   }
-   // extensive string gymnastics
-   Long64_t nS = (Long64_t)atoi( a.substr( a.find( b ) + b.size(), a.find( ":", a.find( b ) - a.find( b ) - b.size() ) ).c_str() );
-
-   return nS;
-}
 
 /*
  * check settings for number of training events;
@@ -483,11 +465,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
             iRun->fOutputFile[iEnergyBin][iZenithBin],
             "V:!DrawProgressBar" );
-#ifdef ROOT6
     TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
-#else
-    TMVA::Factory* dataloader = factory;
-#endif
     ////////////////////////////
     // train gamma/hadron separation
     if( iTrainGammaHadronSeparation )
@@ -518,7 +496,9 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
                 ostringstream iTempCut;
                 // require at least 2 image per telescope type
                 iTempCut << iTemp.str() << ">1";
-                TCut iCutCC = iTempCut.str().c_str();
+                char *cstr = new char [iTempCut.str().length()+1];
+                std::strcpy (cstr, iTempCut.str().c_str() );
+                TCut iCutCC = cstr;
                 
                 double iSignalMean = 1.;
                 double iBckMean    = -1.;
@@ -539,6 +519,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
                     cout << "warning: removed constant variable " << iTemp.str() << " from training (added to spectators)" << endl;
                     dataloader->AddSpectator( iTemp.str().c_str() );
                 }
+                delete[] cstr;
             }
         }
         else
@@ -616,20 +597,12 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
             }
             if( i < iRun->fMVAMethod_Options.size() )
             {
-#ifdef ROOT6
                 cout << "Booking method " << htitle << endl;
                 factory->BookMethod( dataloader, i_tmva_type, htitle, iRun->fMVAMethod_Options[i].c_str() );
-#else
-                factory->BookMethod( i_tmva_type, htitle, iRun->fMVAMethod_Options[i].c_str() );
-#endif
             }
             else
             {
-#ifdef ROOT6
                 factory->BookMethod( dataloader, i_tmva_type, htitle );
-#else
-                factory->BookMethod( i_tmva_type, htitle );
-#endif
             }
         }
         //////////////////////////
@@ -652,11 +625,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
                 i_opt << ":VarProp[" << i << "]=" << iRun->fTrainingVariable_VarProp[i];
             }
             sprintf( htitle, "BOXCUTS_%u_%u", iEnergyBin, iZenithBin );
-#ifdef ROOT6
             factory->BookMethod( dataloader, TMVA::Types::kCuts, htitle, i_opt.str().c_str() );
-#else
-            factory->BookMethod( TMVA::Types::kCuts, htitle,  i_opt.str().c_str() );
-#endif
         }
     }
     

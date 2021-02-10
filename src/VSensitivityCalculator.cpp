@@ -948,8 +948,13 @@ bool VSensitivityCalculator::calculateSensitivityvsEnergyFromCrabSpectrum( strin
                 noff / fDifferentialFlux[i].ExposureTime * 60., alpha, energy, 4 );
                 
         // fill sensitivity graphs
-        double f1 = i_fFunCrabFlux->Eval( log10( fDifferentialFlux[i].Energy_lowEdge ) );
-        double f2 = i_fFunCrabFlux->Eval( log10( fDifferentialFlux[i].Energy_upEdge ) );
+        double f1 = 0.;
+        double f2 = 0.;
+        if( i_fFunCrabFlux )
+        {
+            f1 = i_fFunCrabFlux->Eval( log10( fDifferentialFlux[i].Energy_lowEdge ) );
+            f2 = i_fFunCrabFlux->Eval( log10( fDifferentialFlux[i].Energy_upEdge ) );
+        }
         
         if( i_fFunCrabFlux != 0 && s > 0.
                 && fDifferentialFlux[i].Energy > iEnergyMin_TeV_lin && fDifferentialFlux[i].Energy < iEnergyMax_TeV_lin
@@ -2631,7 +2636,6 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
     }
     // (end of treatment of effective areas)
     
-    ///////////////////////////////////////////////////////////
     // copy response matrix for energy reconstruction
     if( c->hResponseMatrix )
     {
@@ -2644,7 +2648,7 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
                                            c->hResponseMatrix->GetXaxis()->GetXmin(), c->hResponseMatrix->GetXaxis()->GetXmax(),
                                            c->hResponseMatrix->GetNbinsY(),
                                            c->hResponseMatrix->GetYaxis()->GetXmin(), c->hResponseMatrix->GetYaxis()->GetXmax() );
-        TH2D* i_hResponse = c->hResponseMatrix;
+        TH2D* i_hResponse = (TH2D*)c->hResponseMatrix;
         // for cosmic rays: interpolate response matrix
         if( iMCPara->fParticleID != 1 && iMCPara->fParticleID != 2 )
         {

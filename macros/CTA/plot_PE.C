@@ -21,12 +21,11 @@
 void plot( string iFileDSTFileName )
 {
     TChain* fData = new TChain( "dst" );
-    fData->Add( iFileDSTFileName.c_str() );
-    
     if( !fData )
     {
         return;
     }
+    fData->Add( iFileDSTFileName.c_str() );
     const unsigned int VDST_MAXTELESCOPES = 100;
     const unsigned int VDST_MAXCHANNELS = 12000;
     unsigned int ntel_data = 0;

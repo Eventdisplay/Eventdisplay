@@ -108,18 +108,6 @@ VEventLoop::VEventLoop( VEvndispRunParameter* irunparameter )
     fDeadTime = new VDeadTime();
     fDeadTime->defineHistograms( fRunPar->fRunDuration );
     
-#ifndef NOGSL
-    // FROGS
-    if( fRunPar->ffrogsmode )
-    {
-        fFrogs = new VFrogs();
-    }
-#endif
-    // Model3D
-    if( fRunPar->fUseModel3D )
-    {
-        fModel3D = new VModel3D();
-    }
     // reset cut strings and variables
     resetRunOptions();
 }
@@ -377,6 +365,16 @@ bool VEventLoop::initEventLoop( string iFileName )
             {
                 fRawDataReader->injectGaussianNoise( fRunPar->finjectGaussianNoise, fRunPar->finjectGaussianNoiseSeed );
             }
+            // allow for FADC trace amplitude correction
+            if( fRawDataReader && fRunPar->fthroughoutCorrectionSFactor.size() > 0 )
+            {
+                    if( !fRawDataReader->initThroughputCorrection( fRunPar->fsimu_pedestalfile_DefaultPed,
+                                                              fRunPar->fthroughoutCorrectionSFactor,
+                                                              fRunPar->fthroughoutCorrectionGFactor ) )
+                    {
+                          exit( EXIT_FAILURE );
+                    }
+            }
         }
     }
     // something went wrong, probably wrong filename
@@ -631,27 +629,6 @@ void VEventLoop::initializeAnalyzers()
         fDST->initialize();
     }
     
-    // initialize the model3D analysis
-    if( fRunPar->fUseModel3D && fModel3D )
-    {
-        if( getOutputFile() )
-        {
-            getOutputFile()->cd();
-            fModel3D->initialize();
-            if( fRunPar->fCreateLnLTable )
-            {
-                fModel3D->createLnLTable();
-                fRunPar->fUseModel3D = false;
-                exit( EXIT_FAILURE );
-            }
-        }
-        else
-        {
-            cout << "Error initialzing Model3D trees; no output file available" << endl;
-            exit( EXIT_FAILURE );
-        }
-    }
-    
     // set analysis data storage classes
     // (slight inconsistency, produce VImageAnalyzerData for all telescopes,
     //  not only for the requested ones (in teltoana))
@@ -685,12 +662,14 @@ void VEventLoop::initializeAnalyzers()
             fAnaData.back()->setTraceIntegrationMethod( getRunParameter()->fTraceIntegrationMethod[i] );
         }
         // reading special channels for all requested telescopes
+        // reading throughput correction for all requested telescopes
         for( unsigned int i = 0; i < getTeltoAna().size(); i++ )
         {
             if( getTeltoAna()[i] < fAnaData.size() && fAnaData[getTeltoAna()[i]] )
             {
-                fAnaData[getTeltoAna()[i]]->readSpecialChannels( getRunNumber(),
+                fAnaData[getTeltoAna()[i]]->readSpecialChannels( getRunNumber(),  fRunPar->getInstrumentEpoch(),
                         fRunPar->fsetSpecialChannels,
+                        fRunPar->fthroughputCorrectionFile,
                         getRunParameter()->getDirectory_EVNDISPParameterFiles() );
             }
         }
@@ -827,16 +806,6 @@ void VEventLoop::shutdown()
         {
             fArrayAnalyzer->terminate( fDebug_writing );
         }
-        if( fRunPar->fUseModel3D && fModel3D )
-        {
-            fModel3D->terminate();
-        }
-#ifndef NOGSL
-        if( fRunPar->ffrogsmode )
-        {
-            fFrogs->terminate();
-        }
-#endif
         // write analysis results for each telescope to output file
         if( fAnalyzer )
         {
@@ -899,15 +868,6 @@ void VEventLoop::shutdown()
         {
             cout << endl << "Final checks on result file (seems to be OK): " << fRunPar->foutputfileName << endl;
         }
-        // FROGS finishing here
-        // (GM) not clear why this has to happen at this point in the program
-        // (logically wrong)
-#ifndef NOGSL
-        if( fRunPar->ffrogsmode )
-        {
-            fFrogs->finishFrogs( &f );
-        }
-#endif
         f.Close();
     }
     // end of analysis
@@ -1412,19 +1372,6 @@ int VEventLoop::analyzeEvent()
 #endif
         {
             fArrayAnalyzer->doAnalysis();
-            // Model3D analysis
-            if( fRunPar->fUseModel3D && fReader->hasArrayTrigger() )
-            {
-                fModel3D->doModel3D();
-            }
-            // Frogs Analysis
-#ifndef NOGSL
-            if( fRunPar->ffrogsmode )
-            {
-                string fArrayEpoch = getRunParameter()->fInstrumentEpoch;
-                fFrogs->doFrogsStuff( fEventNumber, fArrayEpoch );
-            }
-#endif
         }
     }
     

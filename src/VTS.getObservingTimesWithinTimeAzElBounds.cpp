@@ -222,7 +222,6 @@ int main( int argc, char* argv[] )
     }
     
     // convert pointing data from ra/dec to elev/azi
-    vector<double> selectedMJD ;
     double tmpelev = 0.0 ;
     double tmpazim = 0.0 ;
     int telescope  = 0   ; // 0-3 for T1-4
@@ -277,18 +276,10 @@ int main( int argc, char* argv[] )
         
         // go through the logic of dealing with each row
         // deal with only getting 0 rows
-        if( decl.size() <= 0 )
+        if( decl.size() == 0 )
         {
             printf( "no runs found, try wider bounds.\n" );
             return 1;
-        }
-        // deal with only getting 1 row, assume a time span of 2 seconds, centered on our only row
-        else if( decl.size() == 1 )
-        {
-            zone += 1 ;
-            printf( "Z%2d %12.6f only one row!\n", zone, mjd[i_row] );
-            timezone_start.push_back( selectedMJD[0] - 0.00001157 ) ;
-            timezone_end.push_back( selectedMJD[0] + 0.00001157 ) ;
         }
         else
         {

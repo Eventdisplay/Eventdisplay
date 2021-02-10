@@ -22,7 +22,7 @@ VArrayAnalyzer::VArrayAnalyzer()
     
     // set up data storage class (all analysis results are stored here)
     fShowerParameters = new VShowerParameters( getNTel(), getRunParameter()->fShortTree,
-            getEvndispReconstructionParameter()->getNReconstructionCuts() );
+         getEvndispReconstructionParameter()->getNReconstructionCuts() );
     // set up MC data storage class
     fMCParameters = new VMCParameters( fDebug );
     // test if number of telescopes exceeds value in fShowerParameters
@@ -425,7 +425,7 @@ void VArrayAnalyzer::initAnalysis()
     // initialize star catalogue
     initializeStarCatalogue( getEventMJD(), getEventTime() );
     
-    // loop over all methods and read in necessary MLPs, TMVAs, tables, etc....
+    // loop over all methods and read in necessary TMVAs, tables, etc....
     for( unsigned int i = 0; i < getEvndispReconstructionParameter()->getNReconstructionCuts(); i++ )
     {
         // set reconstruction method
@@ -501,7 +501,8 @@ void VArrayAnalyzer::initTree()
     // now book the tree (for MC with additional MC block)
     // tree versioning numbers used in mscw_energy
     stringstream i_sst;
-    i_sst << "Shower Parameters (VERSION " << getRunParameter()->getEVNDISP_TREE_VERSION() << ")";
+    i_sst << "Shower Parameters (VERSION ";
+    i_sst << getRunParameter()->getEVNDISP_TREE_VERSION() << ")";
     if( getRunParameter()->fShortTree )
     {
         i_sst << "(short tree)";
@@ -626,7 +627,7 @@ void VArrayAnalyzer::terminate( bool iWriteDebug )
                 // filling of MC histograms -> needed for effective area calculations
                 cout << "filling MC histograms" << endl;
                 VEffectiveAreaCalculatorMCHistograms iMC_histos;
-                double i_ze = 0.;
+                double i_ze = 999.;
                 // set energy range for spectral weighting
                 if( !getReader()->getMonteCarloHeader() )
                 {
@@ -965,7 +966,8 @@ int VArrayAnalyzer::rcs_method_0( unsigned int iMethod )
     num_images = getShowerParameters()->fShowerNumImages[iMethod];
     
     // are there enough images the run an array analysis
-    if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min )
+    if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min &&
+        num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
     {
         prepareforDirectionReconstruction( iMethod, 0 );
     }
@@ -1280,7 +1282,8 @@ int VArrayAnalyzer::rcs_method_3( unsigned int iMethod )
     }
     
     // are there enough images the run an array analysis
-    if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min )
+    if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min &&
+        num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
     {
         prepareforDirectionReconstruction( iMethod, 3 );
     }
@@ -1433,7 +1436,8 @@ int VArrayAnalyzer::rcs_method_4( unsigned int iMethod )
     }
     
     // are there enough images the run an array analysis
-    if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min )
+    if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min &&
+        num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
     {
         prepareforDirectionReconstruction( iMethod, 4 );
     }
@@ -1884,7 +1888,8 @@ int VArrayAnalyzer::rcs_method_5( unsigned int iMethod, unsigned int iDisp )
     float yoff_4 = getShowerParameters()->fShower_Yoffset[iMethod];
     
     // are there enough images the run an array analysis
-    if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min )
+    if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min && 
+        num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
     {
         prepareforDirectionReconstruction( iMethod, 5 );
     }
@@ -1942,8 +1947,8 @@ int VArrayAnalyzer::rcs_method_5( unsigned int iMethod, unsigned int iDisp )
     for( unsigned int ii = 0; ii < m.size(); ii++ )
     {
         getShowerParameters()->addDISPPoint( telID[ii], iMethod,
-                                             fDispAnalyzer[iMethod]->getXcoordinate_disp( ii, x[ii], cosphi[ii] ),
-                                             fDispAnalyzer[iMethod]->getYcoordinate_disp( ii, y[ii], sinphi[ii] ), 1. );
+                                             fDispAnalyzer[iMethod]->getXcoordinate_disp( ii ),
+                                             fDispAnalyzer[iMethod]->getYcoordinate_disp( ii ), 1. );
     }
     if( !fillShowerDirection( iMethod, xs, ys, 0. ) )
     {
@@ -2187,20 +2192,19 @@ string VArrayAnalyzer::getTMVAFileNameForAngularReconstruction( unsigned int iSt
         // simulation file, fInstrumentEpoch is "<epoch>", so we have to
         // only get the epoch number as a string
         string epostr = "V" ;
-        if( getRunParameter()->fInstrumentEpoch.find( "V" ) != string::npos )
+        if( getRunParameter()->getInstrumentEpoch( true ).find( "V" ) != string::npos )
         {
             // if the fInstrumentEpoch has the format "V<epoch>", just use it as the epostr
-            epostr = getRunParameter()->fInstrumentEpoch ;
+            epostr = getRunParameter()->getInstrumentEpoch( true );
         }
         else
         {
             // if the fInstrumentEpoch has the format "<epoch>", add it to the existing "V"
-            epostr.append( getRunParameter()->fInstrumentEpoch ) ;
+            epostr.append( getRunParameter()->getInstrumentEpoch( true )) ;
         }
         
-        cout << "scanned fInstrumentEpoch : converted '" << getRunParameter()->fInstrumentEpoch << "' to '" << epostr << "' ..." << endl;
+        cout << "scanned fInstrumentEpoch : converted '" << getRunParameter()->getInstrumentEpoch( true ) << "' to '" << epostr << "' ..." << endl;
         
-        //string iFullFileName = getRunParameter()->getDirectory_EVNDISPAnaData() + "/DISP_BDTs/V" + getRunParameter()->fInstrumentEpoch + "/";
         string iFullFileName = getRunParameter()->getDirectory_EVNDISPAnaData() + "/DISP_BDTs/" + epostr + "/";
         
         iName = iFullFileName + iName + "/" + iBDTFileName;

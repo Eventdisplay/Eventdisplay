@@ -252,7 +252,7 @@ bool VWPPhysHistograms::fill( int b,
                 && iHistos->fHisto2F[it->first]
                 && it->second )
         {
-            for( unsigned int d = 0; d <= iHistos->fHisto2F[it->first]->GetNbinsY(); d++ )
+            for( int d = 0; d <= iHistos->fHisto2F[it->first]->GetNbinsY(); d++ )
             {
                 it->second->SetBinContent( b, d, iHistos->fHisto2F[it->first]->GetBinContent( b, d ) );
                 it->second->SetBinError( b, d, iHistos->fHisto2F[it->first]->GetBinError( b, d ) );
@@ -270,11 +270,11 @@ bool VWPPhysHistograms::fill( int b,
                 && iHistos->fHisto2D[it->first]
                 && it->second )
         {
-            for( unsigned int x = iHistos->fHisto2D[it->first]->GetXaxis()->FindBin( iBinLowE );
+            for( int x = iHistos->fHisto2D[it->first]->GetXaxis()->FindBin( iBinLowE );
                     x < iHistos->fHisto2D[it->first]->GetXaxis()->FindBin( iBinUpE );
                     x++ )
             {
-                for( unsigned int d = 0; d <= iHistos->fHisto2D[it->first]->GetNbinsY(); d++ )
+                for( int d = 0; d <= iHistos->fHisto2D[it->first]->GetNbinsY(); d++ )
                 {
                     it->second->SetBinContent( x, d, iHistos->fHisto2D[it->first]->GetBinContent( x, d ) );
                     it->second->SetBinError( x, d, iHistos->fHisto2D[it->first]->GetBinError( x, d ) );
@@ -526,7 +526,7 @@ bool VCombineWPPhysFiles::combineWPPhysFiles()
     //////////////////////////////////////////////
     // loop over all energy bins in sensitivity histograms
     // note: all what matters here is sensitivity
-    for( unsigned int b = 0;
+    for( int b = 0;
             b < fPhysFile[0]->fHistos->fHisto1F["DiffSens"]->GetNbinsX();
             b++ )
     {

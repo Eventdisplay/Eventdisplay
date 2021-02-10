@@ -216,6 +216,87 @@ bool VSpecialChannel::readSpecialChannels( int iRun, string ifile, string iDirec
     return true;
 }
 
+/*
+ * read throughput correction from file
+ */
+bool VSpecialChannel::readThroughput( string iEpoch, string ifile, string iDirectory, unsigned int iNChannel )
+{
+       if( ifile.size() == 0 )
+       {
+            return true;
+       }
+       ifile = iDirectory + "/" + ifile;
+       ifstream is;
+        is.open( ifile.c_str(), ifstream::in );
+       if( !is )
+       {
+            cout << "error reading throughput correction for telescope " << getTelID() + 1 << " from " << ifile << endl;
+            return false;
+       }
+       cout << "Telescope " << getTelID() + 1 << ": ";
+       cout << "reading throughput correction from: " << endl;
+       cout << "Telescope " << getTelID() + 1 << ": ";
+       cout << ifile << endl;
+
+       string is_line;
+       string is_temp;
+       while( getline( is, is_line ) )
+       {
+            if( is_line.size() <= 0 )
+            {
+                    continue;
+            }
+            if( is_line.substr( 0, 1 ) != "*" )
+            {
+                    continue;
+            }
+            
+            istringstream is_stream( is_line );
+            is_stream >> is_temp;
+
+            // check epoch
+            is_stream >> is_temp;
+            if( is_temp == "s" )
+            {
+                is_stream >> is_temp;
+                if( is_temp == iEpoch )
+                {
+                    unsigned int t = 0;
+                    double iSFactor = 1.;
+                    do
+                    {
+                        is_stream >> iSFactor;
+                        if( t == getTelID() )
+                        {
+                            break;
+                        }
+                        t++;     
+                    } while( !is_stream.eof() );
+                    if( iSFactor > 0. )
+                    {
+                        for( unsigned int i = 0; i < iNChannel; i++ )
+                        {
+                            if( fHIGHQE_gainfactor.find( i ) != fHIGHQE_gainfactor.end() )
+                            {
+                                 if( fHIGHQE_gainfactor[i] > 0. )
+                                 {
+                                      fHIGHQE_gainfactor[i] /= iSFactor;
+                                 }
+                            }
+                            else
+                            {
+                                 fHIGHQE_gainfactor[i] = 1./iSFactor;
+                            }
+                        }
+                        cout << "Telescope " << getTelID() + 1 << ": ";
+                        cout << "applying throughput correction of " << iSFactor << endl;
+                    }
+                }
+            }
+       }
+       return true;
+}
+
 void VSpecialChannel::reset()
 {
     fFADCstopTrigChannelID.clear();

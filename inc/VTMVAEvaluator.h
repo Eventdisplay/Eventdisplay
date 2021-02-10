@@ -218,7 +218,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
                                      string fTMVAMethodName, int fTMVAMethodCounter,
                                      string iInstrumentEpoch,
                                      string iFileSuffix );
-        void             smoothAndInterpolateMVAValue( TH1D*, TH1D*, unsigned int iE_min, unsigned int iE_max,
+        void             smoothAndInterpolateMVAValue( unsigned int iE_min, unsigned int iE_max,
                 unsigned int iZ_min, unsigned int iZ_max, double iEnergyStepSize );
         TGraphAsymmErrors* fillSmoothedEfficencyGraph( TGraphAsymmErrors* g, unsigned int iZe, bool iSignalEff = true );
         TGraphAsymmErrors* fillSmoothedMVACutGraph( TGraphAsymmErrors* g, unsigned int iZe );
