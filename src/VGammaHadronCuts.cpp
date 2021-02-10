@@ -2281,12 +2281,12 @@ double VGammaHadronCuts::getTheta2Cut_max( double e )
         else if( ( fDirectionCutSelector == 1 || fDirectionCutSelector == 2 ) && getTheta2Cut_IRF_Max() )
         {
             // get theta2 cut
-            theta_cut_max  = getEnergyDependentCut( e, getTheta2Cut_IRF_Max(), !useFrogsCuts() );
+            theta_cut_max  = getEnergyDependentCut( e, getTheta2Cut_IRF_Max(), true );
             if( fAngRes_FixedAboveEnergy_TeV > 0. )
             {
                 theta_cut_fixed = getEnergyDependentCut( log10( fAngRes_FixedAboveEnergy_TeV ), 
                                                          getTheta2Cut_IRF_Max(), 
-                                                         !useFrogsCuts() );
+                                                         true );
             }
         }
         /////////////////////////////////////////////
