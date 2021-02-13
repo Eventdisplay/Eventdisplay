@@ -384,7 +384,8 @@ CTA:	evndisp \
 	writeCTAWPPhysSensitivityTree \
 	writeParticleRateFilesFromEffectiveAreas \
 	smoothLookupTables \
-	logFile
+	logFile \
+	testEvndispOutput
 
 CTAsens:	mscw_energy \
 	makeEffectiveArea \
@@ -1233,6 +1234,19 @@ LOGFILE =		./obj/logFile.o \
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 logFile:	$(LOGFILE)
+	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
+	@echo "$@ done"
+
+########################################################
+# testEvndispOutput
+########################################################
+TESTEFILE =		./obj/testEvndispOutput.o \
+					
+
+./obj/testEvndispOutput.o:	./src/testEvndispOutput.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+testEvndispOutput:	$(TESTEFILE)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
