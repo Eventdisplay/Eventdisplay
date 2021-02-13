@@ -495,25 +495,6 @@ void VCamera::draw( double i_max, int iEventNumber, bool iAllinOne )
 			case C_TRIGGER_EVNDISP:
 				setPMTColorOnOff( fData->getTrigger(), fColorTrigger, fColorTrigger, fFillStylePos );
 				break;
-			case C_TEMPLATE:
-				if( fData->getRunParameter()->ffrogsmode == 1 )
-				{
-				  double minSum = 0;
-				  double maxSum = 0;
-				  getMinMax( fData->getSums(), minSum, maxSum, getDrawingMask( 1, i_va_temp ) );
-				  setPMTColorScheme( fData->getTemplateMu(), getDrawingMask( 1, i_va_temp ), false,  minSum, maxSum, "FROGS signal [d.c.]", false );
-				}
-				break;
-			case C_MODEL3D:
-				if( fData->getRunParameter()->fUseDisplayModel3D )
-				{
-					double minSum = 0;
-					double maxSum = 0;
-					getMinMax( fData->getSums(), minSum, maxSum, getDrawingMask( 1, i_va_temp ) );
-					setPMTColorScheme( fData->getModel3DMu(), getDrawingMask( 1, i_va_temp ), false,  minSum, maxSum, "Model3D signal [d.c.]", false );
-					setPMTColorOff( fData->getModel3DClean() );
-				}
-				break;
 			case C_CLUSTERID:
 				setPMTColorScheme( fData->getClusterID(), getDrawingMask( 1, i_va_temp ), false, 100, 0, "Cluster ID", true, false );	
 				break;
@@ -926,13 +907,15 @@ void VCamera::drawEventText()
 	// big letters for plotpaper options
 	if( fPlotPaper && fTelescope == fData->getTeltoAna()[0] )
 	{
-		sprintf( iText, "Run: %d Event: %d", fData->getRunNumber(), int( fData->getReader()->getEventNumber() ) );
+        stringstream i_stext;
+        i_stext <<  "Run: " << fData->getRunNumber();
+        i_stext << "Event: " << int( fData->getReader()->getEventNumber() );
 		if( fCurrentTimeSlice >= 0 )
 		{
-			sprintf( iText, "%s FADC %d", iText, fCurrentTimeSlice );
+            i_stext << "FADC " << fCurrentTimeSlice;
 		}
 		fTextEventPlotPaper->SetNDC( true );
-		fTextEventPlotPaper->SetTitle( iText );
+		fTextEventPlotPaper->SetTitle( i_stext.str().c_str() );
 		fTextEventPlotPaper->DrawLatex( 0.02, 0.95, fTextEventPlotPaper->GetTitle() );
 	}
 	
@@ -956,22 +939,23 @@ void VCamera::drawEventText()
 #endif
 	fTextEvent[0]->SetTitle( iText );
 	// get local trigger list
+  stringstream i_stext;
 	if( fBoolAllinOne )
 	{
-		sprintf( iText, "local trigger: " );
+        i_stext << "local trigger: ";
 		for( unsigned int t = 0; t < fData->getNTel(); t++ )
 		{
 			if( fData->getReader()->hasLocalTrigger( t ) )
 			{
-				sprintf( iText, "%s %d", iText, t + 1 );
+                i_stext << " " << t+1;
 			}
 		}
 	}
 	else
 	{
-		sprintf( iText, "Max channel %d", int( fData->getReader()->getMaxChannels() ) );
+        i_stext << "Max channel " << int( fData->getReader()->getMaxChannels() ) << endl;
 	}
-	fTextEvent[1]->SetTitle( iText );
+	fTextEvent[1]->SetTitle( i_stext.str().c_str() );
 	sprintf( iText, "Num Samples %d", int( fData->getNSamples() ) );
 	fTextEvent[2]->SetTitle( iText );
 	sprintf( iText, "Num Trigger %d", fData->getReader()->getNumberofFullTrigger() );
@@ -1860,22 +1844,6 @@ void VCamera::drawAnaResults()
 				fMCShowerDir->SetMarkerColor( 1 );
 				fMCShowerDir->SetMarkerSize( 2. );
 				fMCShowerDir->Draw();
-			}
-			// draw Model3D shower
-			if( fData->getRunParameter()->fUseDisplayModel3D )
-			{
-				fModel3DShowerDir = new TMarker( convertX( fData->getModel3DParameters()->fXoffModel3D ), convertY( -1.*fData->getModel3DParameters()->fYoffModel3D ), 29 );
-				fModel3DShowerDir->SetMarkerColor( 3 );
-				fModel3DShowerDir->SetMarkerSize( 2. );
-				fModel3DShowerDir->Draw();
-			}
-			//Draw FROGS reconstruction
-			if( fData->getRunParameter()->ffrogsmode && fData->getFrogsParameters() )
-			{
-				fFrogsShowerDir = new TMarker( convertX( fData->getFrogsParameters()->frogsXS ), convertY( 1.*fData->getFrogsParameters()->frogsYS ), 29 );
-				fFrogsShowerDir->SetMarkerColor( 7 );
-				fFrogsShowerDir->SetMarkerSize( 2. );
-				fFrogsShowerDir->Draw();
 			}
 			// camera center
 			fCameraCentreDir = new TMarker( convertX( 0. ), convertY( 0. ), 5 );

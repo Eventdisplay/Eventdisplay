@@ -19,11 +19,23 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     fReconstructionType = NOT_SET;
     fEnergyReconstructionMethod = 0;
     fEnergyAxisBins_log10 = 60;
+    fEnergyAxis_logTeV_min = -2.;
+    fEnergyAxis_logTeV_max =  4.;
     fIgnoreEnergyReconstructionQuality = false;
     
     fMCEnergy_min = -99.;
     fMCEnergy_max = -99.;
     fMCEnergy_index = 5.;
+
+    // IRF histogram bin definition
+    fBiasBin = 300;                       // Energy bias (bias bins)
+    fLogAngularBin = 100;                 // Angular resolution Log10 (bins)
+    fhistoAngularBin_min = -4.;
+    fhistoAngularBin_max =  1.;
+    fResponseMatricesEbinning = 500;      // bins in the ResponseMatrices 
+    fhistoNEbins = fEnergyAxisBins_log10; // E binning (affects 2D histograms only)
+    fhistoNEbins_logTeV_min = fEnergyAxis_logTeV_min;
+    fhistoNEbins_logTeV_max = fEnergyAxis_logTeV_max;
     
     fCutFileName = "";
     fGammaHadronCutSelector = -1;
@@ -134,10 +146,10 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // write event data tree with cuts 
             else if( temp == "WRITEEVENTDATATREE" )
             {
-                    if( !(is_stream>>std::ws).eof() )
-                    {
-                            is_stream >> fWriteEventdatatrees;
-                    }
+                if( !(is_stream>>std::ws).eof() )
+                {
+                        is_stream >> fWriteEventdatatrees;
+                }
             }
             // fill MC histograms
             else if( temp == "FILLMONTECARLOHISTOS" )
@@ -167,6 +179,44 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                     }
                 }
             }
+            // number of bins on log10 energy axis
+            else if( temp == "ENERGYAXISBINS" )
+            {
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fEnergyAxisBins_log10;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fEnergyAxis_logTeV_min;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fEnergyAxis_logTeV_max;
+            }
+            // number of bins on log10 energy axis - IRF histograms only (allows re-binning)
+            else if( temp == "ENERGYAXISBINHISTOS" )
+            {
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoNEbins;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoNEbins_logTeV_min;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoNEbins_logTeV_max;
+            }
+            // number of bins on energy bias - IRF histograms only
+            else if( temp == "EBIASBINHISTOS" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                        is_stream >> fBiasBin;
+                }
+            }
+            // number of bins on angular resolution - IRF histograms only
+            else if( temp == "ANGULARRESOLUTIONBINHISTOS" )
+            {
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fLogAngularBin;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoAngularBin_min;
+                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoAngularBin_max;
+            }
+            // number of fine-bins for the response matrices (likelihood analysis)
+            else if( temp == "RESPONSEMATRICESEBINS" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                        is_stream >> fResponseMatricesEbinning;
+                }
+            }
+			// energy reconstruction quality
             else if( temp == "RECONSTRUCTIONTYPE" )
             {
                 if( !(is_stream>>std::ws).eof() )
@@ -188,14 +238,6 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                         fReconstructionType = ENERGY_ER;
                         fEnergyReconstructionMethod = 0;
                     }
-                    else if( temp2 == "FROGS" )
-                    {
-                        fReconstructionType = FROGS;
-                    }
-                    else if( temp2 == "MODEL3D" )
-                    {
-                        fReconstructionType = MODEL3D;
-                    }
                     else if( temp2 == "DEEPLEARNER" )
                     {
                         fReconstructionType = DEEPLEARNER;
@@ -214,15 +256,6 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                     cout << " will use GammaHadron cut file to decide." << endl;
                 }
                 
-            }
-            
-            // number of bins on log10 energy axis
-            else if( temp == "ENERGYAXISBINS" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> fEnergyAxisBins_log10;
-                }
             }
             // energy reconstruction quality
             else if( temp == "ENERGYRECONSTRUCTIONQUALITY" )
@@ -459,7 +492,7 @@ VMonteCarloRunHeader* VInstrumentResponseFunctionRunParameter::readMCRunHeader()
     if( !iMC )
     {
         cout << "VInstrumentResponseFunctionRunParameter::readMCRunHeader: no MC run header found in " << fdatafile << endl;
-        cout << "(" << iMC->GetName() << ")" << endl;
+        cout << "(" << iF->GetName() << ")" << endl;
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
@@ -519,6 +552,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameters( string ifilenam
     VEvndispRunParameter* i_runPara = ( VEvndispRunParameter* )iFile->Get( "runparameterV2" );
     if( i_runPara )
     {
+        fObservatory = i_runPara->getObservatory();
         fInstrumentEpoch = i_runPara->fInstrumentEpoch;
         fTelToAnalyse = i_runPara->fTelToAnalyze;
     }
@@ -614,6 +648,8 @@ void VInstrumentResponseFunctionRunParameter::print()
     cout << endl;
     cout << "run parameters for calculation of instrument response functions: " << endl;
     cout << "-----------------------------------------------------------------" << endl;
+    cout << endl;
+    cout << "observatory " << fObservatory << endl;
     cout << endl;
     cout << "filling mode " << fFillingMode;
     if( fFillingMode == 0 )
@@ -736,6 +772,13 @@ void VInstrumentResponseFunctionRunParameter::print()
         cout << "CR energy spectrum used for weighted rate histogram: ";
         cout << fCREnergySpectrumFile << " (ID" << fCREnergySpectrumID << ")" << endl;
     }
+    cout << "IRF histogram binning: " << endl;
+    cout << "\t energy (log TeV; 1D): " << fEnergyAxisBins_log10;
+    cout << " [" << fEnergyAxis_logTeV_min << ", " << fEnergyAxis_logTeV_max << "]" << endl;
+    cout << "\t energy (log TeV; 2D): " << fhistoNEbins;
+    cout << " [" << fhistoNEbins_logTeV_min << ", " << fhistoNEbins_logTeV_max << "]" << endl;
+    cout << "\t angres axis (log): " << fLogAngularBin;
+    cout << " [" << fhistoAngularBin_min << ", " << fhistoAngularBin_max << "]" << endl;
     cout << endl << endl;
 }
 
@@ -755,7 +798,6 @@ bool VInstrumentResponseFunctionRunParameter::readCRSpectralParameters()
     {
         return false;
     }
-    
     // read energy spectrum from literature class
     TF1* i_Ftemp = espec.getEnergySpectrum( fCREnergySpectrumID, false );
     if( i_Ftemp )
@@ -780,3 +822,11 @@ bool VInstrumentResponseFunctionRunParameter::readCRSpectralParameters()
     return true;
 }
 
+string VInstrumentResponseFunctionRunParameter::getInstrumentEpoch( bool iMajor )
+{
+        if( iMajor )
+        {
+             return fInstrumentEpoch.substr( 0, fInstrumentEpoch.find( "_" ) );
+        }
+        return fInstrumentEpoch;
+} 

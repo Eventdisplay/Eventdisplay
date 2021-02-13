@@ -35,15 +35,15 @@ VStereoAnalysis::VStereoAnalysis( bool ion, string i_hsuffix, VAnaSumRunParamete
     fNMeanElevation = 0.;
     
     fTreeSelectedEvents = 0;
-    fCDataTreeClone = 0;
     
     fRunPara = irunpara;
-    fTreeWithEventsForCtools = 0 ; // WRITEEVENTTREEFORCTOOLS
-    fDeadTimeStorage = 0.0 ;
+	fDL3EventTree = 0;
+	fDeadTimeStorage = 0.;
     
     fVsky = new VSkyCoordinates() ;
     fVsky->supressStdoutText( true ) ;
-    fVsky->setObservatory( VGlobalRunParameter::getObservatory_Longitude_deg(), VGlobalRunParameter::getObservatory_Latitude_deg() );
+	fVsky->setObservatory( VGlobalRunParameter::getObservatory_Longitude_deg(),
+						   VGlobalRunParameter::getObservatory_Latitude_deg() );
     
     // calculating run start, end and duration (verifies data trees)
     if( !bTotalAnalysisOnly )
@@ -428,9 +428,9 @@ double VStereoAnalysis::fillHistograms( int icounter, int irun, double iAzMin, d
     // tree with selected events
     init_TreeWithSelectedEvents( irun, fIsOn );
     
-    if( fIsOn && fRunPara->fWriteEventTreeForCtools )  // WRITEEVENTTREEFORCTOOLS
-    {
-        init_TreeWithEventsForCtools( irun );
+	if( fIsOn )
+	{
+		init_DL3Tree( irun, fHisCounter );
     }
     
     // spectral energy reconstruction (effective areas, etc.)
@@ -438,7 +438,8 @@ double VStereoAnalysis::fillHistograms( int icounter, int irun, double iAzMin, d
     VEffectiveAreaCalculator fEnergy( fRunPara->fRunList[fHisCounter].fEffectiveAreaFile, iAzMin, iAzMax, iPedVar,
                                       fRunPara->fEnergyReconstructionSpectralIndex, fRunPara->fMCZe,
                                       fRunPara->fEnergyEffectiveAreaSmoothingIterations,
-                                      fRunPara->fEnergyEffectiveAreaSmoothingThreshold, fRunPara->fEffectiveAreaVsEnergyMC,
+                                      fRunPara->fEnergyEffectiveAreaSmoothingThreshold,
+                                      fRunPara->fEffectiveAreaVsEnergyMC,
                                       fRunPara->fLikelihoodAnalysis,
                                       fIsOn);
     double iEnergyWeighting = 1.;
@@ -595,11 +596,11 @@ double VStereoAnalysis::fillHistograms( int icounter, int irun, double iAzMin, d
             // fill theta for tree with selected events
             if( fMap->getTheta2_length() > 0 )
             {
-                //	fDataRun->theta2 = fMap->getTheta2()[0];
+                fDataRun->theta2 = fMap->getTheta2()[0];
             }
             else
             {
-                //	fDataRun->theta2 = -1;
+                fDataRun->theta2 = -1;
             }
             
             if( fDebugCuts )
@@ -682,10 +683,10 @@ double VStereoAnalysis::fillHistograms( int icounter, int irun, double iAzMin, d
                 }
             }
             
-            // fill a tree with current event for ctools converter
-            if( fIsOn && bIsGamma && fRunPara->fWriteEventTreeForCtools )
+			// fill a tree with current event for DL3 converter
+			if( fIsOn && bIsGamma )
             {
-                fill_TreeWithEventsForCtools( fDataRun, i_xderot, i_yderot );
+				fill_DL3Tree( fDataRun, i_xderot, i_yderot, icounter, i_UTC );
             }
             /////////////////////////////////////////////////////////
             // histograms after gamma and energy reconstruction cuts
@@ -884,7 +885,6 @@ void VStereoAnalysis::writeHistograms( bool bOn )
         fHisto[fHisCounter]->writeHistograms();
         
         // need to grab fScalarDeadTimeFrac while fDeadTime histograms are intact,
-        // fScalarDeadTimeFrac is needed in  save_TreeWithEventsForCtools()
         fRunPara->fScalarDeadTimeFrac = fDeadTime[fHisCounter]->getDeadTimeFraction( fTimeMask->getMask(), fRunPara->fDeadTimeCalculationMethod );
         
         fDeadTime[fHisCounter]->writeHistograms();
@@ -929,14 +929,9 @@ void VStereoAnalysis::writeHistograms( bool bOn )
                 fHisto[fHisCounter]->writeObjects( fRunPara->fRunList[fHisCounter].fEffectiveAreaFile, "EffectiveAreas", gTimeBinnedMeanEffectiveArea );
             }
         }
-        if( fTreeSelectedEvents )
+        if( fDL3EventTree && fIsOn )
         {
-            fTreeSelectedEvents->AutoSave();
-        }
-        
-        if( fTreeWithEventsForCtools && fIsOn && fRunPara->fWriteEventTreeForCtools )  // WRITEEVENTTREEFORCTOOLS
-        {
-            save_TreeWithEventsForCtools() ;
+            write_DL3Tree() ;
         }
     }
 }
@@ -1168,7 +1163,7 @@ double VStereoAnalysis::combineHistograms()
         while( TH1* h1 = ( TH1* )next() )
         {
             TH1* h2 = ( TH1* )nexth();
-            if( !h1 || !h2 )
+            if( !h2 )
             {
                 continue;
             }
@@ -1600,7 +1595,9 @@ void VStereoAnalysis::defineAstroSource()
         fRunPara->fRunList[i].fWobbleWestMod  = i_WobbleJ2000_West  - fRunPara->fRunList[i].fSkyMapCentreWest;
         
         // fill run parameter values
-        fRunPara->setTargetRADecJ2000( i, fRunPara->fRunList[i].fTargetRAJ2000, fRunPara->fRunList[i].fTargetDecJ2000 );
+		fRunPara->setTargetRADecJ2000( i, fRunPara->fRunList[i].fTargetRAJ2000, 
+                                                  fRunPara->fRunList[i].fTargetDecJ2000,
+                                                  fRunPara->fRunList[i].fTarget );
         fRunPara->setTargetShifts( i, fRunPara->fRunList[i].fTargetShiftWest, fRunPara->fRunList[i].fTargetShiftNorth,
                                    fRunPara->fTargetShiftRAJ2000, fRunPara->fTargetShiftDecJ2000 );
         fRunPara->setSkyMapCentreJ2000( i, fRunPara->fRunList[i].fSkyMapCentreRAJ2000, fRunPara->fRunList[i].fSkyMapCentreDecJ2000 );
@@ -1613,7 +1610,7 @@ void VStereoAnalysis::defineAstroSource()
             cout << ",  RA " << i_raDiff << ", Dec " << i_decDiff << endl;
             cout << "\tWobble offsets (J2000): N: " << i_WobbleJ2000_North << " W: " << i_WobbleJ2000_West << endl;
             cout << "\tSky maps centred at (ra,dec (J2000)) (";
-            cout << fRunPara->fRunList[i].fSkyMapCentreRAJ2000 << ", " << fRunPara->fRunList[i].fSkyMapCentreDecJ2000 << ")" << endl;
+			cout << fRunPara->fRunList[i].fSkyMapCentreRAJ2000 << ", " << fRunPara->fRunList[i].fSkyMapCentreDecJ2000 << ")";
             cout << "\tTelescopes pointing to: (ra,dec (J2000)) (" << i_raWobble << ", " << i_decWobble << ")";
             cout << ", N: " << fRunPara->fRunList[i].fWobbleNorthMod << " W: " << fRunPara->fRunList[i].fWobbleWestMod << endl;
             cout << "\t1D-histograms calculated at (x,y): " << fRunPara->fRunList[i].fTargetShiftNorth << ", " << fRunPara->fRunList[i].fTargetShiftWest;
@@ -1880,37 +1877,12 @@ CData* VStereoAnalysis::getDataFromFile( int i_runNumber )
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE );
         }
-        fDataFrogsTree = ( TTree* )fDataFile->Get( "frogspars" );
-        if( fRunPara->fRunList[i].fIsFrogs )
-        {
-            if( !fDataFrogsTree )
-            {
-                cout << "VStereoAnalysis::getDataFromFile() info: cannot find frogspars tree in " << iFileName << endl;
-                cout << "(this will lead to a failure for the frogs analysis, but is otherwise not a problem)" << endl;
-            }
-            else
-            {
-                cout << "VStereoAnalysis::getDataFromFile() info: found frogspars tree" << endl;
-                //check that frogs tree and data tree have same number of events.
-                if( fDataRunTree->GetEntries() == fDataFrogsTree->GetEntries() )
-                {
-                    fDataRunTree->AddFriend( fDataFrogsTree );
-                }
-                else
-                {
-                    cout << "VStereoAnalysis::getDataFromFile() Error: data tree has " << fDataRunTree->GetEntries() ;
-                    cout << " entries; frogs tree has " << fDataFrogsTree->GetEntries() << " entries; that's not good. Exiting now." << endl;
-                    exit( EXIT_FAILURE );
-                }
-                
-            }
-        }
         c = new CData( fDataRunTree );
-        // read current epoch from data file
+		// read current (major) epoch from data file
         VEvndispRunParameter* i_runPara = ( VEvndispRunParameter* )fDataFile->Get( "runparameterV2" );
         if( i_runPara )
         {
-            fInstrumentEpoch = i_runPara->fInstrumentEpoch;
+			fInstrumentEpoch = i_runPara->getInstrumentEpoch( true );
             fTelToAnalyze = i_runPara->fTelToAnalyze;
         }
         else
@@ -1945,7 +1917,6 @@ bool VStereoAnalysis::terminate()
 
 bool VStereoAnalysis::init_TreeWithSelectedEvents( int irun, bool isOn )
 {
-    //NOTE: This tree is currently allways filled with the eventdisplay reconstruction results. If you want to have frogs results, you need to fix that.
     if( fTreeSelectedEvents )
     {
         delete fTreeSelectedEvents;
@@ -1978,7 +1949,7 @@ bool VStereoAnalysis::init_TreeWithSelectedEvents( int irun, bool isOn )
     fTreeSelectedEvents->Branch( "MJD", &fTreeSelected_MJD, "MJD/I" );
     fTreeSelectedEvents->Branch( "Time", &fTreeSelected_Time, "Time/D" );
     fTreeSelectedEvents->Branch( "NImages", &fTreeSelected_NImages, "NImages/I" );
-    fTreeSelectedEvents->Branch( "ImgSel", &fTreeSelected_ImgSel, "ImgSel/I" );
+    fTreeSelectedEvents->Branch( "ImgSel", &fTreeSelected_ImgSel, "ImgSel/l" );
     fTreeSelectedEvents->Branch( "theta2", &fTreeSelected_theta2, "theta2/D" );
     fTreeSelectedEvents->Branch( "Xoff", &fTreeSelected_Xoff, "Xoff/D" );
     fTreeSelectedEvents->Branch( "Yoff", &fTreeSelected_Yoff, "Yoff/D" );
@@ -1990,9 +1961,10 @@ bool VStereoAnalysis::init_TreeWithSelectedEvents( int irun, bool isOn )
     fTreeSelectedEvents->Branch( "MSCL", &fTreeSelected_MSCL, "MSCL/D" );
     fTreeSelectedEvents->Branch( "MWR", &fTreeSelected_MWR, "MWR/D" );
     fTreeSelectedEvents->Branch( "MLR", &fTreeSelected_MLR, "MLR/D" );
-    fTreeSelectedEvents->Branch( "ErecS", &fTreeSelected_ErecS, "ErecS/D" );
-    fTreeSelectedEvents->Branch( "EChi2S", &fTreeSelected_EChi2S, "EChi2S/D" );
-    fTreeSelectedEvents->Branch( "dES", &fTreeSelected_dES, "dES/D" );
+	fTreeSelectedEvents->Branch( "Erec", &fTreeSelected_Erec, "Erec/D" );
+	fTreeSelectedEvents->Branch( "EChi2", &fTreeSelected_EChi2, "EChi2/D" );
+	fTreeSelectedEvents->Branch( "Erec", &fTreeSelected_Erec, "Erec/D" );
+	fTreeSelectedEvents->Branch( "EChi2", &fTreeSelected_EChi2, "EChi2/D" );
     fTreeSelectedEvents->Branch( "EmissionHeight", &fTreeSelected_EmissionHeight, "EmissionHeight/F" );
     fTreeSelectedEvents->Branch( "EmissionHeightChi2", &fTreeSelected_EmissionHeightChi2, "EmissionHeightChi2/F" );
     fTreeSelectedEvents->Branch( "SizeSecondMax", &fTreeSelected_SizeSecondMax, "SizeSecondMax/D" );
@@ -2001,43 +1973,6 @@ bool VStereoAnalysis::init_TreeWithSelectedEvents( int irun, bool isOn )
     fTreeSelectedEvents->Branch( "MVA", &fTreeSelected_MVA, "MVA/D" );
     fTreeSelectedEvents->Branch( "IsGamma", &fTreeSelected_IsGamma, "IsGamma/i" );
     fTreeSelectedEvents->Branch( "passedDirectionCut", &fTreeSelected_DirectionCut, "passedDirectionCut/i" );
-    
-    if( fCuts && fCuts->useFrogsCuts() )
-    {
-        fTreeSelectedEvents->Branch( "frogsEventID", &fTreeSelescted_frogsEventID, "frogsEventID/I" );
-        fTreeSelectedEvents->Branch( "frogsGSLConStat", &fTreeSelescted_frogsGSLConStat, "frogsGSLConStat/I" );
-        fTreeSelectedEvents->Branch( "frogsNB_iter", &fTreeSelescted_frogsNB_iter, "frogsNB_iter/I" );
-        fTreeSelectedEvents->Branch( "frogsNImages", &fTreeSelescted_frogsNImages, "frogsNImages/I" );
-        fTreeSelectedEvents->Branch( "frogsXS", &fTreeSelescted_frogsXS, "frogsXS/D" );
-        fTreeSelectedEvents->Branch( "frogsXSerr", &fTreeSelescted_frogsXSerr, "frogsXSerr/D" );
-        fTreeSelectedEvents->Branch( "frogsYS", &fTreeSelescted_frogsYS, "frogsYS/D" );
-        fTreeSelectedEvents->Branch( "frogsYSerr", &fTreeSelescted_frogsYSerr, "frogsYSerr/D" );
-        fTreeSelectedEvents->Branch( "frogsXP", &fTreeSelescted_frogsXP, "frogsXP/D" );
-        fTreeSelectedEvents->Branch( "frogsXPerr", &fTreeSelescted_frogsXPerr, "frogsXPerr/D" );
-        fTreeSelectedEvents->Branch( "frogsYP", &fTreeSelescted_frogsYP, "frogsYP/D" );
-        fTreeSelectedEvents->Branch( "frogsYPerr", &fTreeSelescted_frogsYPerr, "frogsYPerr/D" );
-        fTreeSelectedEvents->Branch( "frogsXPGC", &fTreeSelescted_frogsXPGC, "frogsXPGC/D" );
-        fTreeSelectedEvents->Branch( "frogsYPYC", &fTreeSelescted_frogsYPGC, "frogsYPGC/D" );
-        fTreeSelectedEvents->Branch( "frogsEnergy", &fTreeSelescted_frogsEnergy, "frogsEnergy/D" );
-        fTreeSelectedEvents->Branch( "frogsEnergyerr", &fTreeSelescted_frogsEnergyerr, "frogsEnergyerr/D" );
-        fTreeSelectedEvents->Branch( "frogsLambda", &fTreeSelescted_frogsLambda, "frogsLambda/D" );
-        fTreeSelectedEvents->Branch( "frogsLambdaerr", &fTreeSelescted_frogsLambdaerr, "frogsLambdaerr/D" );
-        fTreeSelectedEvents->Branch( "frogsGoodnessImg", &fTreeSelescted_frogsGoodnessImg, "frogsGoodnessImg/D" );
-        fTreeSelectedEvents->Branch( "frogsNpixImg", &fTreeSelescted_frogsNpixImg, "frogsNpixImg/I" );
-        fTreeSelectedEvents->Branch( "frogsGoodnessBkg", &fTreeSelescted_frogsGoodnessBkg, "frogsGoodnessBkg/D" );
-        fTreeSelectedEvents->Branch( "frogsNpixBkg", &fTreeSelescted_frogsNpixBkg, "frogsNpixBkg/I" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessImg0", &fTreeSelescted_frogsTelGoodnessImg0, "frogsTelGoodnessImg0/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessImg1", &fTreeSelescted_frogsTelGoodnessImg1, "frogsTelGoodnessImg1/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessImg2", &fTreeSelescted_frogsTelGoodnessImg2, "frogsTelGoodnessImg2/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessImg3", &fTreeSelescted_frogsTelGoodnessImg3, "frogsTelGoodnessImg3/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessBkg0", &fTreeSelescted_frogsTelGoodnessBkg0, "frogsTelGoodnessBkg0/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessBkg1", &fTreeSelescted_frogsTelGoodnessBkg1, "frogsTelGoodnessBkg1/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessBkg2", &fTreeSelescted_frogsTelGoodnessBkg2, "frogsTelGoodnessBkg2/D" );
-        fTreeSelectedEvents->Branch( "frogsTelGoodnessBkg3", &fTreeSelescted_frogsTelGoodnessBkg3, "frogsTelGoodnessBkg3/D" );
-        fTreeSelectedEvents->Branch( "frogsXS_derot", &fTreeSelescted_frogsXS_derot, "frogsXS_derot/D" );
-        fTreeSelectedEvents->Branch( "frogsYS_derot", &fTreeSelescted_frogsYS_derot, "frogsYS_derot/D" );
-        fTreeSelectedEvents->Branch( "frogs_theta2", &fTreeSelescted_frogs_theta2, "frogs_theta2/D" );
-    }
     
     reset_TreeWithSelectedEvents();
     
@@ -2063,9 +1998,9 @@ void VStereoAnalysis::reset_TreeWithSelectedEvents()
     fTreeSelected_MSCL = 0.;
     fTreeSelected_MWR = 0.;
     fTreeSelected_MLR = 0.;
-    fTreeSelected_ErecS = 0.;
-    fTreeSelected_EChi2S = 0.;
-    fTreeSelected_dES = 0.;
+    fTreeSelected_Erec = 0.;
+    fTreeSelected_EChi2 = 0.;
+    fTreeSelected_dE = 0.;
     fTreeSelected_EmissionHeight = 0.;
     fTreeSelected_EmissionHeightChi2 = 0.;
     fTreeSelected_SizeSecondMax = 0.;
@@ -2074,41 +2009,6 @@ void VStereoAnalysis::reset_TreeWithSelectedEvents()
     fTreeSelected_MVA = -99.;
     fTreeSelected_IsGamma = 0;
     fTreeSelected_DirectionCut = 0;
-    
-    /// frogs ///
-    fTreeSelescted_frogsEventID = 0;
-    fTreeSelescted_frogsGSLConStat = 0;
-    fTreeSelescted_frogsNB_iter = 0;
-    fTreeSelescted_frogsNImages = 0;
-    fTreeSelescted_frogsXS = 0.;
-    fTreeSelescted_frogsXSerr = 0.;
-    fTreeSelescted_frogsYS = 0.;
-    fTreeSelescted_frogsYSerr = 0.;
-    fTreeSelescted_frogsXP = 0.;
-    fTreeSelescted_frogsXPerr = 0.;
-    fTreeSelescted_frogsYP = 0.;
-    fTreeSelescted_frogsYPerr = 0.;
-    fTreeSelescted_frogsXPGC = 0.;
-    fTreeSelescted_frogsYPGC = 0.;
-    fTreeSelescted_frogsEnergy = 0.;
-    fTreeSelescted_frogsEnergyerr = 0.;
-    fTreeSelescted_frogsLambda = 0.;
-    fTreeSelescted_frogsLambdaerr = 0.;
-    fTreeSelescted_frogsGoodnessImg = 0.;
-    fTreeSelescted_frogsNpixImg = 0;
-    fTreeSelescted_frogsGoodnessBkg = 0.;
-    fTreeSelescted_frogsNpixBkg = 0;
-    fTreeSelescted_frogsTelGoodnessImg0 = 0.;
-    fTreeSelescted_frogsTelGoodnessImg1 = 0.;
-    fTreeSelescted_frogsTelGoodnessImg2 = 0.;
-    fTreeSelescted_frogsTelGoodnessImg3 = 0.;
-    fTreeSelescted_frogsTelGoodnessBkg0 = 0.;
-    fTreeSelescted_frogsTelGoodnessBkg1 = 0.;
-    fTreeSelescted_frogsTelGoodnessBkg2 = 0.;
-    fTreeSelescted_frogsTelGoodnessBkg3 = 0.;
-    fTreeSelescted_frogsXS_derot = 0.;
-    fTreeSelescted_frogsYS_derot = 0.;
-    fTreeSelescted_frogs_theta2  = 0.;
 }
 
 void VStereoAnalysis::fill_TreeWithSelectedEvents( CData* c, double i_xderot, double i_yderot, double i_theta2, bool i_bDirectionCut )
@@ -2123,8 +2023,8 @@ void VStereoAnalysis::fill_TreeWithSelectedEvents( CData* c, double i_xderot, do
     fTreeSelected_MJD = c->MJD;
     fTreeSelected_Time = c->Time;
     fTreeSelected_NImages = c->NImages;
-    fTreeSelected_ImgSel = ( int )c->ImgSel;
-    fTreeSelected_theta2 = c->theta2;
+    fTreeSelected_ImgSel = c->ImgSel;
+    fTreeSelected_theta2 = i_theta2;
     fTreeSelected_Xoff = c->Xoff;
     fTreeSelected_Yoff = c->Yoff;
     fTreeSelected_Xoff_derot = c->Xoff_derot;
@@ -2135,9 +2035,9 @@ void VStereoAnalysis::fill_TreeWithSelectedEvents( CData* c, double i_xderot, do
     fTreeSelected_MSCL = c->MSCL;
     fTreeSelected_MWR = c->MWR;
     fTreeSelected_MLR = c->MLR;
-    fTreeSelected_ErecS = c->ErecS;
-    fTreeSelected_EChi2S = c->EChi2S;
-    fTreeSelected_dES = c->dES;
+    fTreeSelected_Erec = c->Erec;
+    fTreeSelected_EChi2 = c->EChi2;
+    fTreeSelected_dE = c->dE;
     fTreeSelected_EmissionHeight = c->EmissionHeight;
     fTreeSelected_EmissionHeightChi2 = c->EmissionHeightChi2;
     fTreeSelected_SizeSecondMax = c->SizeSecondMax;
@@ -2168,41 +2068,6 @@ void VStereoAnalysis::fill_TreeWithSelectedEvents( CData* c, double i_xderot, do
     {
         fTreeSelected_DirectionCut = 0;
     }
-    
-    /// frogs ///
-    fTreeSelescted_frogsEventID     = c->frogsEventID;
-    fTreeSelescted_frogsGSLConStat  = c->frogsGSLConStat;
-    fTreeSelescted_frogsNB_iter     = c->frogsNB_iter;
-    fTreeSelescted_frogsNImages     = c->frogsNImages;
-    fTreeSelescted_frogsXS          = c->frogsXS;
-    fTreeSelescted_frogsXSerr       = c->frogsXSerr;
-    fTreeSelescted_frogsYS          = c->frogsYS;
-    fTreeSelescted_frogsYSerr       = c->frogsYSerr;
-    fTreeSelescted_frogsXP          = c->frogsXP;
-    fTreeSelescted_frogsXPerr       = c->frogsXPerr;
-    fTreeSelescted_frogsYP          = c->frogsYP;
-    fTreeSelescted_frogsYPerr       = c->frogsYPerr;
-    fTreeSelescted_frogsXPGC        = c->frogsXPGC;
-    fTreeSelescted_frogsYPGC        = c->frogsYPGC;
-    fTreeSelescted_frogsEnergy      = c->frogsEnergy;
-    fTreeSelescted_frogsEnergyerr   = c->frogsEnergyerr;
-    fTreeSelescted_frogsLambda      = c->frogsLambda;
-    fTreeSelescted_frogsLambdaerr   = c->frogsLambdaerr;
-    fTreeSelescted_frogsGoodnessImg = c->frogsGoodnessImg;
-    fTreeSelescted_frogsNpixImg     = c->frogsNpixImg;
-    fTreeSelescted_frogsGoodnessBkg = c->frogsGoodnessBkg;
-    fTreeSelescted_frogsNpixBkg     = c->frogsNpixBkg;
-    fTreeSelescted_frogsTelGoodnessImg0 = c->frogsTelGoodnessImg0;
-    fTreeSelescted_frogsTelGoodnessImg1 = c->frogsTelGoodnessImg1;
-    fTreeSelescted_frogsTelGoodnessImg2 = c->frogsTelGoodnessImg2;
-    fTreeSelescted_frogsTelGoodnessImg3 = c->frogsTelGoodnessImg3;
-    fTreeSelescted_frogsTelGoodnessBkg0 = c->frogsTelGoodnessBkg0;
-    fTreeSelescted_frogsTelGoodnessBkg1 = c->frogsTelGoodnessBkg1;
-    fTreeSelescted_frogsTelGoodnessBkg2 = c->frogsTelGoodnessBkg2;
-    fTreeSelescted_frogsTelGoodnessBkg3 = c->frogsTelGoodnessBkg3;
-    fTreeSelescted_frogsXS_derot = i_xderot;
-    fTreeSelescted_frogsYS_derot = i_yderot;
-    fTreeSelescted_frogs_theta2  = i_theta2;
     
     if( fTreeSelectedEvents )
     {
@@ -2255,179 +2120,148 @@ double VStereoAnalysis::getWobbleWest()
     return 0.;
 }
 
-bool VStereoAnalysis::init_TreeWithEventsForCtools( int irun ) // WRITEEVENTTREEFORCTOOLS
+/*
+ * initialize event tree for DL3
+*/
+bool VStereoAnalysis::init_DL3Tree( int irun, int icounter )
 {
-    //NOTE: This tree is currently allways filled with the eventdisplay reconstruction results. If you want to have frogs results, you need to fix that.
-    cout << endl;
-    cout << " :: init_TreeWithEventsForCtools( " << irun << " )" << endl;
-    cout << endl;
-    
-    
-    if( fTreeWithEventsForCtools )
+    if( fDL3EventTree )
     {
-        delete fTreeWithEventsForCtools;
+        delete fDL3EventTree;
     }
     if( !fRunPara )
     {
         return false;
     }
     
-    char hname[200];
-    char htitle[200];
-    sprintf( hname, "TreeWithEventsForCtools" );
-    sprintf( htitle, "all gamma events with X,Y and Time for run %d, in a format for CTOOL's Event List format", irun );
-    
-    fTreeWithEventsForCtools = new TTree( hname, htitle );
-    
-    fTreeWithEventsForCtools->Branch( "runNumber",      &fTreeSelected_runNumber,      "runNumber/I" );      // runNumber
-    fTreeWithEventsForCtools->Branch( "eventNumber",    &fTreeSelected_eventNumber,    "eventNumber/I" );    // eventNumber
-    fTreeWithEventsForCtools->Branch( "timeOfDay",      &fTreeSelected_Time,           "timeOfDay/D" );      // Time
-    fTreeWithEventsForCtools->Branch( "dayMJD",         &fTreeSelected_MJD,            "dayMJD/I" );         // MJD
-    fTreeWithEventsForCtools->Branch( "EnergyS",        &fTreeSelected_ErecS,          "ErecS/D" );          // ErecS
-    fTreeWithEventsForCtools->Branch( "EnergyS_Err",    &fTreeSelected_dES,      "ErecS_Err/D" );      // dES
-    fTreeWithEventsForCtools->Branch( "XGroundCore",    &fTreeSelected_Xcore,    "XGroundCore/D" );    // Xcore
-    fTreeWithEventsForCtools->Branch( "YGroundCore",    &fTreeSelected_Ycore,    "YGroundCore/D" );    // Ycore
-    fTreeWithEventsForCtools->Branch( "Xderot",         &fTreeSelected_Xoff_derot,         "Xderot/D" );         // Xoff_derot
-    fTreeWithEventsForCtools->Branch( "Yderot",         &fTreeSelected_Yoff_derot,         "Yderot/D" );         // Yoff_derot
-    fTreeWithEventsForCtools->Branch( "NImages",        &fTreeSelected_NImages,        "NImages/I" );        // NImages
-    fTreeWithEventsForCtools->Branch( "ImgSel",         &fTreeSelected_ImgSel,         "ImgSel/l" );         // ImgSel
-    fTreeWithEventsForCtools->Branch( "MSCW",           &fTreeSelected_MSCW,           "MSCW/D" );           // MSCW
-    fTreeWithEventsForCtools->Branch( "MSCL",           &fTreeSelected_MSCL,           "MSCL/D" );           // MSCL
-    fTreeWithEventsForCtools->Branch( "MWR"           , &fTreeSelected_MWR,            "MWR/D" );            // MWR
-    fTreeWithEventsForCtools->Branch( "MLR"           , &fTreeSelected_MLR,            "MLR/D" );            // MLR
-    //	fTreeWithEventsForCtools->Branch( "TargetRA"      , &fTreeCTOOLS_TargetRA,       "TargetRA/D" );
-    //	fTreeWithEventsForCtools->Branch( "TargetDEC"     , &fTreeCTOOLS_TargetDEC,      "TargetDEC/D" );
-    fTreeWithEventsForCtools->Branch( "RA"            , &fTreeCTOOLS_RA,             "RA/D" );
-    fTreeWithEventsForCtools->Branch( "DEC"           , &fTreeCTOOLS_DEC,            "DEC/D" );
-    fTreeWithEventsForCtools->Branch( "Az"            , &fTreeCTOOLS_Az,             "Az/D" );
-    fTreeWithEventsForCtools->Branch( "El"            , &fTreeCTOOLS_El,             "El/D" );
-    fTreeWithEventsForCtools->Branch( "EmissionHeight", &fTreeSelected_EmissionHeight, "EmissionHeight/D" );   // EmissionHeight
-    fTreeWithEventsForCtools->Branch( "Xoff"          , &fTreeSelected_Xoff, "Xoff/D" );             // Xoff
-    fTreeWithEventsForCtools->Branch( "Yoff"          , &fTreeSelected_Yoff, "Yoff/D" );             // Yoff
-    //	fTreeWithEventsForCtools->Branch( "GregYear"      , &fTreeCTOOLS_GregYear      , "GregYear/D" );
-    //	fTreeWithEventsForCtools->Branch( "GregMonth"     , &fTreeCTOOLS_GregMonth     , "GregMonth/D" );
-    //	fTreeWithEventsForCtools->Branch( "GregDay"       , &fTreeCTOOLS_GregDay       , "GregDay/D" );
-    //	fTreeWithEventsForCtools->Branch( "Acceptance"    , &fTreeCTOOLS_Acceptance    , "Acceptance/D" );
-    cout << endl;
-    
-    // init acceptance critter
-    fCTOOLSAcceptance = new VRadialAcceptance( fRunPara->fRunList[0].fAcceptanceFile ) ;
-    fCTOOLSAcceptance->Set2DAcceptanceMode( fRunPara->fRunList[0].f2DAcceptanceMode ) ;
-    
-    cout << " :: init_TreeWithEventsForCtools()" << endl;
-    cout << endl;
-    
+	char htitle[200];
+	sprintf( htitle, "DL3 event list for run %d", irun );
+	fDL3EventTree = new TTree( "DL3EventTree", htitle );
+
+    fDL3EventTree->Branch( "runNumber",      &fDL3EventTree_runNumber,      "runNumber/I" );
+    fDL3EventTree->Branch( "eventNumber",    &fDL3EventTree_eventNumber,    "eventNumber/I" );
+    fDL3EventTree->Branch( "timeOfDay",      &fDL3EventTree_Time,           "timeOfDay/D" );
+	fDL3EventTree->Branch( "MJD",            &fDL3EventTree_MJD,            "MJD/I" );
+	fDL3EventTree->Branch( "Energy",         &fDL3EventTree_Erec,           "Erec/D" );
+	fDL3EventTree->Branch( "Energy_Err",     &fDL3EventTree_Erec_Err,       "Erec_Err/D" );
+	fDL3EventTree->Branch( "XCore",          &fDL3EventTree_Xcore,          "XCore/D" );
+	fDL3EventTree->Branch( "YCore",          &fDL3EventTree_Ycore,          "YCore/D" );
+	fDL3EventTree->Branch( "Xderot",         &fDL3EventTree_Xderot,         "Xderot/D" );
+	fDL3EventTree->Branch( "Yderot",         &fDL3EventTree_Yderot,         "Yderot/D" );
+	fDL3EventTree->Branch( "NImages",        &fDL3EventTree_NImages,        "NImages/I" );
+	fDL3EventTree->Branch( "ImgSel",         &fDL3EventTree_ImgSel,         "ImgSel/l" );
+	fDL3EventTree->Branch( "MSCW",           &fDL3EventTree_MSCW,           "MSCW/D" );
+	fDL3EventTree->Branch( "MSCL",           &fDL3EventTree_MSCL,           "MSCL/D" );
+	fDL3EventTree->Branch( "RA"            , &fDL3EventTree_RA,             "RA/D" );
+	fDL3EventTree->Branch( "DEC"           , &fDL3EventTree_DEC,            "DEC/D" );
+	fDL3EventTree->Branch( "Az"            , &fDL3EventTree_Az,             "Az/D" );
+	fDL3EventTree->Branch( "El"            , &fDL3EventTree_El,             "El/D" );
+	fDL3EventTree->Branch( "EmissionHeight", &fDL3EventTree_EmissionHeight, "EmissionHeight/D" );
+	fDL3EventTree->Branch( "Xoff"          , &fDL3EventTree_Xoff          , "Xoff/D" );
+	fDL3EventTree->Branch( "Yoff"          , &fDL3EventTree_Yoff          , "Yoff/D" );
+	fDL3EventTree->Branch( "Acceptance"    , &fDL3EventTree_Acceptance    , "Acceptance/D" );
+	cout << endl;
+
+	// init radial acceptance class
+    if( icounter < (int)fRunPara->fRunList.size() )
+    {
+        fDL3_Acceptance = new VRadialAcceptance( fRunPara->fRunList[icounter].fAcceptanceFile ) ;
+        fDL3_Acceptance->Set2DAcceptanceMode( fRunPara->fRunList[icounter].f2DAcceptanceMode ) ;
+    }
+    else
+    {
+        fDL3_Acceptance = 0;
+    }
     return true;
 }
 
-void VStereoAnalysis::fill_TreeWithEventsForCtools( CData* c , double i_xderot, double i_yderot ) // WRITEEVENTTREEFORCTOOLS
+/*
+ *  fill a new event into the DL3 tree
+ */
+void VStereoAnalysis::fill_DL3Tree( CData* c , double i_xderot, double i_yderot, unsigned int icounter, double i_UTC )
 {
     if( !c )
     {
         return;
     }
     
-    fTreeSelected_runNumber    = c->runNumber;    // Run Number
-    fTreeSelected_eventNumber  = c->eventNumber;  // Event Number
-    printf( "filling event %d to TreeWithEventsForCtools...\n", fTreeSelected_eventNumber ) ;
-    fTreeSelected_Time         = c->Time;         // Time of day (seconds) of gamma ray event
-    fTreeSelected_MJD          = c->MJD;          // Day of epoch (days)
-    fTreeSelected_Xoff         = c->getXoff();         // Gamma Point-Of-Origin, in camera coodinates (deg)
-    fTreeSelected_Yoff         = c->getYoff();         // Gamma Point-Of-Origin, in camera coodinates (deg)
-    fTreeSelected_Xoff_derot   = i_xderot;        // Derotated Gamma Point-Of-Origin (deg, RA)
-    fTreeSelected_Yoff_derot   = i_yderot;        // Derotated Gamma Point-Of-Origin (deg, DEC)
-    fTreeSelected_ErecS        = c->getEnergy_TeV();        // Reconstructed Gamma Energy (TeV)
-    fTreeSelected_dES          = c->getEnergyDelta();          // Reconstructed Gamma Energy (TeV) Error
-    fTreeSelected_Xcore        = c->getXcore_M();        // Gamma Ray Core-Ground intersection location (north?)
-    fTreeSelected_Ycore        = c->getYcore_M();        // Gamma Ray Core-Ground intersection location (east?)
-    fTreeSelected_NImages      = c->getNImages();      // Number of images used in reconstruction?
-    fTreeSelected_ImgSel       = c->getImgSel();       // 4-bit binary code describing which telescopes had images
-    fTreeSelected_MSCW         = c->MSCW ;        // mean scaled width
-    fTreeSelected_MSCL         = c->MSCL ;        // mean scaled length
-    fTreeSelected_MWR          = c->MWR ;
-    fTreeSelected_MLR          = c->MLR ;
-    fTreeSelected_EmissionHeight = c->EmissionHeight ; // height of shower maximum (in km) above telescope z-plane
-    fTreeCTOOLS_Acceptance     = fCTOOLSAcceptance->getAcceptance( i_xderot, i_yderot ) ;
-    
-    // pointing target
-    fTreeCTOOLS_TargetRA  = fRunPara->fRunList[0].fTargetRAJ2000  ;
-    fTreeCTOOLS_TargetDEC = fRunPara->fRunList[0].fTargetDecJ2000 ;
-    
-    // get telescope pointing in the current epoch
-    double CenterPoint_RA  = fAstro.back()->getTelRA() ;  // radians
-    double CenterPoint_DEC = fAstro.back()->getTelDec() ; // radians
-    
-    // precess telescope pointing to J2000 epoch
-    VSkyCoordinatesUtilities::precessTarget( 51544., CenterPoint_RA, CenterPoint_DEC, c->MJD, false ) ;
-    
-    // Convert derotated detx/dety/telpointing to spherical RA/Dec
-    double Spherical_RA  = 0.0 ;
-    double Spherical_DEC = 0.0 ;
-    VAstronometry::vlaDtp2s( fTreeSelected_Xoff_derot * TMath::DegToRad(),
-              fTreeSelected_Yoff_derot * TMath::DegToRad(),
-              CenterPoint_RA,   CenterPoint_DEC,
-              &Spherical_RA,    &Spherical_DEC ) ;
-              
-    // at this point, the ra/dec is the unprecessed 'J2000' coordinates,
-    // ctools needs the 'fk5' radec coordinates
-    
-    // Convert from spherical RA and DEC to Azimuth and Zenith
-    double Az_deg = 0.0 ;
-    double El_deg = 0.0 ;
-    
-    // convert to degrees and do calculation
-    double Spherical_RA_deg  = Spherical_RA  * TMath::RadToDeg() ;
-    double Spherical_DEC_deg = Spherical_DEC * TMath::RadToDeg() ;
-    fVsky->setTargetJ2000( Spherical_DEC_deg , Spherical_RA_deg ) ;
-    fVsky->precessTarget( fTreeSelected_MJD, 0 ) ;
-    fVsky->updatePointing( fTreeSelected_MJD, fTreeSelected_Time ) ;
-    
-    // this should be the event's rad/dec coordinates in the precessed 'fk5' system
-    fTreeCTOOLS_RA  = fVsky->getTargetRA()  ;
-    fTreeCTOOLS_DEC = fVsky->getTargetDec() ;
-    
-    // calculate new param
-    Az_deg = fVsky->getTargetAzimuth() ;
-    El_deg = fVsky->getTargetElevation() ;
-    fTreeCTOOLS_Az = Az_deg ;
-    fTreeCTOOLS_El = El_deg ;
-    
-    // Convert MJD to Year, Month, and Day
-    fTreeCTOOLS_GregYear  = 0 ;
-    fTreeCTOOLS_GregMonth = 0 ;
-    fTreeCTOOLS_GregDay   = 0 ;
-    double junk1 = 0.0 ;
-    int junk2 = 0 ;
-    VAstronometry::vlaDjcl( c->MJD, &fTreeCTOOLS_GregYear, &fTreeCTOOLS_GregMonth, &fTreeCTOOLS_GregDay, &junk1, &junk2 ) ;
-    
-    
-    if( fTreeWithEventsForCtools )
+    fDL3EventTree_runNumber    = c->runNumber;    // Run Number
+    fDL3EventTree_eventNumber  = c->eventNumber;  // Event Number
+    fDL3EventTree_Time         = c->Time;         // Time of day (seconds) of gamma ray event
+    fDL3EventTree_MJD          = c->MJD;          // Day of epoch (days)
+    fDL3EventTree_Xoff         = c->getXoff();         // Gamma Point-Of-Origin, in camera coodinates (deg)
+    fDL3EventTree_Yoff         = c->getYoff();         // Gamma Point-Of-Origin, in camera coodinates (deg)
+    fDL3EventTree_Xderot   = i_xderot;        // Derotated Gamma Point-Of-Origin (deg, RA)
+    fDL3EventTree_Yderot   = i_yderot;        // Derotated Gamma Point-Of-Origin (deg, DEC)
+    fDL3EventTree_Erec        = c->getEnergy_TeV();        // Reconstructed Gamma Energy (TeV)
+    fDL3EventTree_dE          = c->getEnergyDelta();          // Reconstructed Gamma Energy (TeV) Error
+    fDL3EventTree_Xcore = c->getXcore_M();        // Gamma Ray Core-Ground intersection location (north?)
+    fDL3EventTree_Ycore = c->getYcore_M();        // Gamma Ray Core-Ground intersection location (east?)
+    fDL3EventTree_NImages      = c->getNImages();      // Number of images used in reconstruction?
+    fDL3EventTree_ImgSel       = c->getImgSel();       // 4-bit binary code describing which telescopes had images
+    fDL3EventTree_MSCW         = c->MSCW ;        // mean scaled width
+    fDL3EventTree_MSCL         = c->MSCL ;        // mean scaled length
+    fDL3EventTree_EmissionHeight = c->EmissionHeight ; // height of shower maximum (in km) above telescope z-plane
+    if( fDL3_Acceptance )
     {
-        fTreeWithEventsForCtools->Fill();
-        printf( "CTOOLS EVENT %d %d %f %f %f %f %f\n",
-                fTreeSelected_runNumber,
-                fTreeSelected_eventNumber,
-                fTreeSelected_Xoff,
-                fTreeSelected_Yoff,
-                fTreeSelected_ErecS,
-                fTreeCTOOLS_RA,
-                fTreeCTOOLS_DEC ) ;
+        fDL3EventTree_Acceptance     = fDL3_Acceptance->getAcceptance( c->Xoff, c->Yoff );
+    }
+    else
+    {
+        fDL3EventTree_Acceptance     = 0.;
+    }
+    // get event ra and dec
+    if( icounter < fRunPara->fRunList.size() )
+    {
+        double i_centerpoint_RA = ( fRunPara->fRunList[icounter].fTargetRAJ2000 + -1.0 * getWobbleWest() );
+        double i_centerpoint_dec = ( fRunPara->fRunList[icounter].fTargetDecJ2000 + getWobbleNorth() );
+        double i_Spherical_RA  = 0.;
+        double i_Spherical_DEC = 0.;
+        VAstronometry::vlaDtp2s( fDL3EventTree_Xderot * TMath::DegToRad(),
+                  fDL3EventTree_Yderot * TMath::DegToRad(),
+                  i_centerpoint_RA * TMath::DegToRad(), 
+                  i_centerpoint_dec * TMath::DegToRad(),
+                  &i_Spherical_RA, &i_Spherical_DEC);
+        fDL3EventTree_RA  = i_Spherical_RA * TMath::RadToDeg();
+        fDL3EventTree_DEC = i_Spherical_DEC * TMath::RadToDeg();
+
+        // Convert from spherical RA and DEC to Azimuth and Zenith
+        // convert to degrees and do calculation
+        fVsky->setTargetJ2000( i_Spherical_DEC * TMath::RadToDeg(), i_Spherical_RA * TMath::RadToDeg() );
+        fVsky->precessTarget( fDL3EventTree_MJD, 0 ) ;
+
+        // calculate new param
+        fVsky->updatePointing( fDL3EventTree_MJD, fDL3EventTree_Time ) ;
+        fDL3EventTree_Az = fVsky->getTargetAzimuth();
+        fDL3EventTree_El = fVsky->getTargetElevation();
+
+    }
+    else
+    {
+        fDL3EventTree_RA = 0.;
+        fDL3EventTree_DEC = 0.;
     }
     
+    if( fDL3EventTree )
+    {
+        fDL3EventTree->Fill();
+    }
 }
 
-void VStereoAnalysis::save_TreeWithEventsForCtools() // WRITEEVENTTREEFORCTOOLS
+/*
+ * write tree with events for DL3 export
+ *
+*/
+void VStereoAnalysis::write_DL3Tree()
 {
-    // save our ctools tree
-    printf( "Preparing to write TreeWithEventsForCtools with %lld events...\n", fTreeWithEventsForCtools->GetEntries() ) ;
-    fTreeWithEventsForCtools->Write() ; // or maybe ->AutoSave() ?
-    
-    fRunPara->SetName( "VAnaSumRunParameter" );
-    fRunPara->Write() ;
-    
-    fCDataTreeClone = fDataRunTree->CloneTree() ;
-    fCDataTreeClone->SetName( "cdatatree" );
-    fCDataTreeClone->Write();
+	fDL3EventTree->Write();
+
+	fRunPara->SetName( "VAnaSumRunParameter" );
+	fRunPara->Write() ;
+
+        // cleanup
+        if( fDL3_Acceptance )
+        {
+            delete fDL3_Acceptance;
+        }
 }
-
-

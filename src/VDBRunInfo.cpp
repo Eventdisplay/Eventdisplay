@@ -623,12 +623,6 @@ vector< unsigned int > VDBRunInfo::getLaserRun( string iDBserver, unsigned int i
     {
         while( TSQLRow* db_row = db_res->Next() )
         {
-            if( !db_row )
-            {
-                cout << "VDBRunInfo: failed reading a row from DB for run " << fRunNumber << endl;
-                fDBStatus = false;
-                return fLaserRunID;
-            }
             iLaserList.push_back( atoi( db_row->GetField( 0 ) ) );
             iLaserExclude.push_back( atoi( db_row->GetField( 1 ) ) );
             iLaserConfigMask.push_back( atoi( db_row->GetField( 2 ) ) );

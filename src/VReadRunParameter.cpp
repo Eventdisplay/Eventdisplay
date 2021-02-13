@@ -126,97 +126,6 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
             fRunPara->fhoughmuonmode = 1;
         }
         /////////////////////////////////////////////////////////
-        // Frogs mode
-        else if( iTemp1 == "-frogs" )
-        {
-            fRunPara->ffrogsmode = 1;
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->ffrogsmscwfile = iTemp2;
-                i++;
-                // setting default parameters for frogs
-                // (might be overwritten by the following command lines)
-                if( fRunPara->ffrogsparameterfile.size() == 0 )
-                {
-                    fRunPara->ffrogsparameterfile = "FROGS.runparameter";
-                }
-                if( fRunPara->ffrogsRecID < 0 )
-                {
-                    fRunPara->ffrogsRecID = 0;
-                }
-            }
-            else
-            {
-                fRunPara->ffrogsmscwfile = "";
-            }
-        }
-        else if( iTemp1 == "-frogsid" )
-        {
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->ffrogsRecID = atoi( iTemp2.c_str() );
-                i++;
-            }
-            else
-            {
-                fRunPara->ffrogsRecID = 0;
-            }
-        }
-        else if( iTemp1 == "-templatelistforfrogs" )
-        {
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->ffrogstemplatelist = iTemp2 ;
-                i++;
-            }
-            else
-            {
-                fRunPara->ffrogstemplatelist = "" ;
-            }
-        }
-        else if( iTemp1 == "-frogsparameterfile" )
-        {
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->ffrogsparameterfile = iTemp2 ;
-                i++;
-            }
-            else
-            {
-                fRunPara->ffrogsparameterfile = "" ;
-            }
-        }
-        /////////////////////////////////////////////////////////
-        // Model3D
-        else if( iTemp.find( "model3d" ) < iTemp.size() )
-        {
-            fRunPara->fUseModel3D = true;
-            fRunPara->fLnLTableFile = "table_LnL.root";
-        }
-        else if( iTemp.find( "plot3d" ) < iTemp.size() )
-        {
-            fRunPara->fUseModel3D = true;
-            fRunPara->fUseDisplayModel3D = true;
-            fRunPara->fLnLTableFile = "table_LnL.root";
-            fRunPara->fdisplaymode = 1;
-        }
-        else if( iTemp.find( "lnlfile" ) < iTemp.size() )
-        {
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->fLnLTableFile = iTemp2;
-                i++;
-            }
-            else
-            {
-                fRunPara->fLnLTableFile = "table_LnL.root";
-            }
-        }
-        else if( iTemp.find( "createlnltablefile" ) < iTemp.size() )
-        {
-            fRunPara->fUseModel3D = true;
-            fRunPara->fCreateLnLTable = true;
-        }
         // source file
         else if( iTemp.find( "sourcefi" ) < iTemp.size() )
         {
@@ -522,7 +431,6 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
         else if( iTemp.find( "-savedeadpixelregistry" ) < iTemp.size() )
         {
             fRunPara->fSaveDeadPixelRegistry = true ;
-            cout << "fSaveDeadPixelRegistry = true" << endl;
         }
         // ignore configuration file versions
         else if( iTemp.find( "ignorecfgversions" ) < iTemp.size() )
@@ -940,6 +848,30 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
                 i++;
             }
         }
+		else if( iTemp.find( "throughputcorrection" ) < iTemp.size() )
+		{
+			if( iTemp2.size() > 0 )
+			{
+				fRunPara->fthroughputCorrectionFile = iTemp2;
+				if( fRunPara->fthroughputCorrectionFile == "nofile" )
+				{
+					fRunPara->fthroughputCorrectionFile = "";
+				}
+				i++;
+			}
+		}
+		else if( iTemp.find( "traceamplitudecorrection" ) < iTemp.size() )
+		{
+			if( iTemp2.size() > 0 )
+			{
+				fRunPara->ftraceamplitudecorrectionFile = iTemp2;
+				if( fRunPara->ftraceamplitudecorrectionFile == "nofile" )
+				{
+					fRunPara->ftraceamplitudecorrectionFile = "";
+				}
+				i++;
+			}
+        }
         else if( iTemp.find( "tracelib" ) < iTemp.size() )
         {
             if( iTemp2.size() > 0 )
@@ -996,22 +928,6 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
         {
             fRunPara->fShortTree = 0;
         }
-        else if( iTemp.find( "pwmethod" ) < iTemp.size() )
-        {
-            fRunPara->fPWmethod = atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
-        }
-        else if( iTemp.find( "pwcleanneighbors" ) < iTemp.size() )
-        {
-            fRunPara->fPWcleanNeighbors = atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
-        }
-        else if( iTemp.find( "pwcleanthreshold" ) < iTemp.size() )
-        {
-            fRunPara->fPWcleanThreshold = atof( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
-        }
-        else if( iTemp.find( "pwlimit" ) < iTemp.size() )
-        {
-            fRunPara->fPWlimit = atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
-        }
         else if( iTemp.rfind( "printgrisuheader" ) < iTemp.size() )
         {
             fRunPara->fPrintGrisuHeader = atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
@@ -1034,6 +950,13 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
     
     // test and adjust some parameters
     test_and_adjustParams();
+
+    // read trace amplitude corrections
+    if( fRunPara->ftraceamplitudecorrectionFile.size() > 0 )
+    {
+            readTraceAmplitudeCorrections( fRunPara->ftraceamplitudecorrectionFile );
+    }
+
     
     return true;
 }
@@ -1100,10 +1023,6 @@ void VReadRunParameter::test_and_adjustParams()
         {
             fRunPara->fLowGainCalibrationFile = "";
         }
-        if( !fRunPara->fUseModel3D )  //gains needed for Model3D
-        {
-            fRunPara->fEpochFile = "";
-        }
     }
     
     // CTA/AGIS adjustments
@@ -1112,6 +1031,7 @@ void VReadRunParameter::test_and_adjustParams()
     {
         // no special channels allowed (e.g. L2 timing channels)
         fRunPara->fsetSpecialChannels = "";
+        fRunPara->fthroughputCorrectionFile = "";
         // no dead channels allowed
         fRunPara->fDeadChannelFile = "";
         // no epochs (e.g. summer and winter) for CTA
@@ -1671,37 +1591,6 @@ void VReadRunParameter::test_and_adjustParams()
         }
     }
     
-    // throws an error if its a simulation file and it was asked to calculate the PW parameters from the CFD hits, since CFDs don't exist in the simulation record
-    if( fRunPara->fIsMC > 0 && ( fRunPara->fPWmethod == 0 || fRunPara->fPWmethod == 1 ) )
-    {
-        cout << " GrISU simulations don't have true CFD hits! PWmethod=" << fRunPara->fPWmethod << " can only be used with data with CFD hits." << endl;
-        cout << " Switching to FADC signals cleaned with PWcleanThreshold!!  " << endl << endl;
-    }
-    
-    if( fRunPara->fPWmethod > 3 )
-    {
-        cout << "Incorrect method for calculating binary-image trigger map: " << fRunPara->fPWmethod << endl;
-        exit( EXIT_FAILURE );
-    }
-    if( fRunPara->fPWcleanNeighbors < 0 )
-    {
-        cout << "Incorrect number of nearest neighbors required for cleaning: " << fRunPara->fPWcleanNeighbors << endl;
-        exit( EXIT_FAILURE );
-    }
-    if( fRunPara->fPWlimit < 0 )
-    {
-        cout << "Can't send less than zero pixels to moment-generating function: " << fRunPara->fPWlimit << endl;
-        exit( EXIT_FAILURE );
-    }
-    
-    // (TMPTMPTMP ) don't start frogs analysis unless it's a 4-Telescope run
-    if( fRunPara->ffrogsmode && fRunPara->fTelToAnalyze.size() != 4 )
-    {
-        cout << "Error: You requested a frogs analysis for " << fRunPara->fTelToAnalyze.size() << " telescopes; will only do frogs analysis for exactly 4 telescopes!" << endl;
-        exit( EXIT_FAILURE );
-    }
-    
-    
     if( fPrintOutputFile )
     {
         cout << fRunPara->foutputfileName << endl;
@@ -1799,10 +1688,15 @@ void VReadRunParameter::setDirectories()
                 cout << "\t creating calibration directory for Telescope " << i + 1 << " : " << i_text << endl;
                 if( gSystem->mkdir( i_text, kTRUE ) != 0 )
                 {
-                    cout << "VReadRunParameter::test_and_adjustParams() error: unable to create calibration directory for Telescope ";
-                    cout << i + 1 << ": " << endl;
-                    cout << i_text << endl;
-                    exit( EXIT_FAILURE );
+                    // possibilitiy that many jobs try to do the same thing; repeat after sleep
+                    gSystem->Sleep( gRandom->Uniform( 10., 60 ) );
+                    if( gSystem->mkdir( i_text, kTRUE ) != 0 )
+                    {
+                        cout << "VReadRunParameter::test_and_adjustParams() error: unable to create calibration directory for Telescope ";
+                        cout << i + 1 << ": " << endl;
+                        cout << i_text << endl;
+                        exit( EXIT_FAILURE );
+                    }
                 }
             }
         }
@@ -1953,6 +1847,86 @@ bool VReadRunParameter::checkSecondArgument( string iPara1, string iPara2, bool 
     return true;
 }
 
+bool VReadRunParameter::readTraceAmplitudeCorrections( string ifile )
+{
+       if( ifile.size() == 0 )
+       {
+            return true;
+       }
+       string iEpoch = fRunPara->getInstrumentEpoch();
+       string iDirectory = fRunPara->getDirectory_EVNDISPParameterFiles();
+       ifile = iDirectory + "/" + ifile;
+       ifstream is;
+       is.open( ifile.c_str(), ifstream::in );
+       if( !is )
+       {
+            cout << "error reading amplitude correction for telescope from " << ifile << endl;
+            return false;
+       }
+       cout << "reading amplitude correction from: ";
+       cout << ifile << endl;
+
+       fRunPara->fthroughoutCorrectionSFactor.clear();
+
+       string is_line;
+       string is_temp;
+       while( getline( is, is_line ) )
+       {
+            if( is_line.size() <= 0 )
+            {
+                    continue;
+            }
+            if( is_line.substr( 0, 1 ) != "*" )
+            {
+                    continue;
+            }
+            
+            istringstream is_stream( is_line );
+            is_stream >> is_temp;
+
+            // check epoch
+            is_stream >> is_temp;
+            if( is_temp == "s" )
+            {
+                is_stream >> is_temp;
+                if( is_temp == iEpoch )
+                {
+                    double iSFactor = 1.;
+                    while( !is_stream.eof() )
+                    {
+                        is_stream >> iSFactor;
+                        fRunPara->fthroughoutCorrectionSFactor.push_back( iSFactor );
+                    };
+                }
+            }
+            else if( is_temp == "G" )
+            {
+                is_stream >> is_temp;
+                if( is_temp == iEpoch )
+                {
+                    double iGFactor = 1.;
+                    while( !is_stream.eof() )
+                    {
+                        is_stream >> iGFactor;
+                        fRunPara->fthroughoutCorrectionGFactor.push_back( iGFactor );
+                    };
+                }
+            }
+       }
+       cout << "\t amplitude scaling s-factors: ";
+       for( unsigned int i = 0; i < fRunPara->fthroughoutCorrectionSFactor.size(); i++ )
+       {
+           cout << "T" << i+1 << ": " << fRunPara->fthroughoutCorrectionSFactor[i] << " ";
+       }
+       cout << endl;
+       cout << "\t amplitude scaling G-factors: ";
+       for( unsigned int i = 0; i < fRunPara->fthroughoutCorrectionGFactor.size(); i++ )
+       {
+           cout << "T" << i+1 << ": " << fRunPara->fthroughoutCorrectionGFactor[i] << " ";
+       }
+       return true;
+}
+
 /*
  *  read instrument epoch and atmospheric ID from a parameter file
  *
@@ -2099,7 +2073,7 @@ bool VReadRunParameter::readEpochsAndAtmospheres()
                 }
                 unsigned int iTelNum = 0;
                 
-                if( iEpoch == fRunPara->fInstrumentEpoch )
+				if( iEpoch == fRunPara->getInstrumentEpoch( true ) )
                 {
                     iTelNum = atoi( iTel.c_str() );
                     for( unsigned int i = 0; i < fRunPara->fNTelescopes; i++ )

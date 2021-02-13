@@ -47,8 +47,6 @@ class VDB_CalibrationInfo
         string please_give_the_password();//needed
         string WriteQuery_to_write_in_DB();//needed
         
-        bool test_file_format( TString file_to_be_copied ); // security TO DO
-        
         //------------------- reading function
         void Create_query_read();
         bool Read_the_DB();
@@ -88,13 +86,6 @@ class VDB_CalibrationInfo
         }
         
         ~VDB_CalibrationInfo() {}
-        
-        
 };
 
 #endif
-
-
-
-
-

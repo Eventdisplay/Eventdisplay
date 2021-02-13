@@ -76,7 +76,6 @@ class VAnalysisUtilities : public TNamed
         bool     closeFile();
         TGraph*  calcCumulativeSig( int iTot = 1, bool iWeightAlphaProperly = true );
         TObject* getHistogram( string, int, string,  double iSlizeY = -9999. );
-        TChain*  getTreeWithSelectedEvents( string iFile, bool iOn );
         double   getNormalisationFactor( int iRun = -1 );
         vector< int > getRunListVector();
         vector< VRunList >& getRunList()

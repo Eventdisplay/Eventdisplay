@@ -39,8 +39,6 @@ class VImageAnalyzerData
         VImageAnalyzerHistograms* fAnaHistos;               //!< analysis test histograms
         
         valarray<double> fTemplateMu;
-        valarray<double> fModel3DMu;              //!< Model3D pixel signal (JG)
-        vector<bool>     fModel3DClean;           //!< Model3D selected pixels (JG)
         valarray<double> fSums;
         valarray<double> fSums2;
         vector<bool> fLLEst;                      //!< true for dead channels with estimated sum from loglikelihood fit
@@ -153,7 +151,9 @@ class VImageAnalyzerData
                                                  unsigned int iTTindex );
         void                     initializeMeanPulseHistograms();
         void                     initializeIntegratedChargeHistograms();
-        bool                     readSpecialChannels( int iRunNumber, string iFile, string iDirectory );
+        bool                     readSpecialChannels( int iRunNumber, string iEpoch,
+                                                      string ispecialchannelfile, 
+                                                      string ithroughputfile, string iDirectory );
         void                     setTraceIntegrationMethod( unsigned iN = 1 )
         {
             fTraceIntegrationMethod = iN;

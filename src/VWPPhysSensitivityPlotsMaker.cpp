@@ -134,7 +134,7 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
         string iDirectionString,
         bool iUseIntegratedSensitivityForOffAxisPlots,
         unsigned int iRatioCounter,
-        string iTitleText, string iKPSPrintName )
+        string iTitleText )
 {
     VPlotWPPhysSensitivity a;
     a.setPlotNoLegend( bPlotNoLegend );
@@ -171,7 +171,7 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
                fEffAreaPad, fAngRes, fERes, false,
                fPlotAngResLogY );
     a.plotSensitivity( fPrintingOptions, fSensitivity_min, fSensitivity_max, fSensitivity_Unit, fSensitivityPad, fBckRatesPad );
-    fPlotProjectedSensitivity = a.plotProjectedSensitivities( 0, 5. );
+    //fPlotProjectedSensitivity = a.plotProjectedSensitivities( 0, 5. );
     if( iRatioCounter == 998 )
     {
         a.plotSensitivityRatio( fPrintingOptions, fSensitivityRatio_min, fSensitivityRatio_max, 0, fSensitivityRatioPad, iRatioCounter );
@@ -236,7 +236,7 @@ void VWPPhysSensitivityPlotsMaker::compareOffAxisSensitivities( string iSubArray
     }
     cout << "Compare " << fListOfArrays.size() << " array(s) in " << fListofDataSets.size() << " data set(s)" << endl;
     
-    TCanvas* c = 0;
+    //TCanvas* c = 0;
     for( unsigned int j = 0; j < fListofDataSets.size(); j++ )
     {
         for( unsigned int i = 0; i < fListOfArrays.size(); i++ )
@@ -257,7 +257,7 @@ void VWPPhysSensitivityPlotsMaker::compareOffAxisSensitivities( string iSubArray
             a.plotIRF( iP );
             a.plotSensitivity( iP, fSensitivity_min, fSensitivity_max, fSensitivity_Unit );
             
-            c = a.plotProjectedSensitivities( c, fOffAxisAngle.back(), j + 1 );
+            // c = a.plotProjectedSensitivities( c, fOffAxisAngle.back(), j + 1 );
         }
     }
 }

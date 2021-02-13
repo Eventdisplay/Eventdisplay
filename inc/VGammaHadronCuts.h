@@ -45,7 +45,7 @@ class VNTelTypeCut : public TNamed
         ~VNTelTypeCut() {}
         void print();
         void purgeTelTypeIDs();
-        bool test( CData*, bool iPrint = false );
+        bool test( CData* );
         
         ClassDef( VNTelTypeCut, 5 );
 };
@@ -168,12 +168,10 @@ class VGammaHadronCuts : public VAnalysisUtilities
         VGammaHadronCutsStatistics* fStats;                       //!
         
         bool   applyProbabilityCut( int i, bool fIsOn );
-        bool   applyFrogsCut();
         bool   applyDeepLearnerCut();
         double getEnergyDependentCut( double energy_TeV, TGraph* iG, bool bUseEvalue = true, bool bMaxCut = true );
         TGraph* getEnergyDependentCut( string iCutName );
         bool   getEnergyDependentCutFromFile( string iFileName, string iVariable );
-        double getMeanGoodness( double, double, double, double, int );
         bool   initAngularResolutionFile();
         bool   initProbabilityCuts( int irun );
         bool   initProbabilityCuts( string iDir );
@@ -244,7 +242,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
         VGammaHadronCuts();
         ~VGammaHadronCuts();
         
-        bool   applyDirectionCuts( unsigned int iEnergyReconstructionMethod = 0, bool bCount = false, double x0 = -99999., double y0 = -99999. );
+        bool   applyDirectionCuts( bool bCount = false, double x0 = -99999., double y0 = -99999. );
         bool   applyEnergyReconstructionQualityCuts( unsigned int iEnergyReconstructionMethod = 0, bool bCount = false );
         bool   applyInsideFiducialAreaCut( bool bCount = false );
         bool   applyInsideFiducialAreaCut( float Xoff, float Yoff, bool bCount = false );
@@ -423,10 +421,6 @@ class VGammaHadronCuts : public VAnalysisUtilities
         bool   useDeepLearnerCuts()
         {
             return ( fReconstructionType == DEEPLEARNER );
-        }
-        bool   useFrogsCuts()
-        {
-            return ( fReconstructionType == FROGS );
         }
         bool   useTMVACuts()
         {

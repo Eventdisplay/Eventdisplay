@@ -112,7 +112,6 @@ void write_calib_DB( TString new_laser_run_list_name );
 //-- Active function
 //------------------------------- used in get_new_laser_run_list():
 unsigned long Check_telmissing_from_VOFFDB( unsigned int VERITAS_DB_LaserRunNumber_i_run, unsigned int VERITAS_DB_LaserConfigMask_i_run, unsigned int VERITAS_DB_LaserExclTel_i_run, vector< vector < unsigned int > > VOFFLINE_DB_LaserRunNumber_Tel );
-void global_look_calibration( vector< unsigned int > VLaserRunNumner, vector< unsigned int > VLaserMaskListTel );
 void check_run_calib( unsigned int RunNumber, int  mask, int excluded_tel_mask );
 void check_run_calib( vector< int >  ListTel , vector< int >& list_of_valid_tel, FILE*& pbFile );
 bool test_gain_toff( TString file_root_name_gain, TString file_root_name_toff , FILE*& pbFile );
@@ -473,6 +472,8 @@ void prepareEVNDanalysis( TString new_laser_run_list_name )
     if( !file_new_laser_run_list_name )
     {
         std::cout << "ERROR: imposible to open file " << new_laser_run_list_name << std::endl;
+        fclose(NEW_laser_list_File_for_EVNDISP_analyse_laser);
+        fclose(NEW_laser_list_File_EVNDISP_analyse_laser_DONE);
         return;
     }
     
@@ -563,16 +564,13 @@ void doEVNDanalysis( TString new_laser_run_list_name )
     //-- launch the analysis if run_list is not empty
     if( !is_file_empty( run_list ) )
     {
-        //char test_string[800];
-        //sprintf(test_string,"echo %s",run_list.Data());
-        //std::cout << "COMMAND: " << test_string << std::endl;
-        //system(test_string);
-        
         char launching_EVNDISP_string_string[800];
         sprintf( launching_EVNDISP_string_string, "$EVNDISPSYS/scripts/VTS/VTS.EVNDISP.sub_analyse_laser.sh %s", run_list.Data() );
         std::cout << "COMMAND " << launching_EVNDISP_string_string << std::endl;
-        system( launching_EVNDISP_string_string );
-        
+        if( system( launching_EVNDISP_string_string ) < 0 )
+        {
+            std::cout << "error launching " << launching_EVNDISP_string_string << endl;
+        }
     }
     else
     {
@@ -617,7 +615,6 @@ void prepare_CalibVOFF_writing( TString new_laser_run_list_name )
     
     // lucie: to do (mais pas dans cette fonction)
     //global vision of the run list
-    //global_look_calibration(VERITAS_DB_LaserRunNumber,VERITAS_DB_LaserConfigMask);
     
     //-- run by run check
     //-- for summary
@@ -865,23 +862,6 @@ void write_calib_DB( TString new_laser_run_list_name )
 
 
 //---------------------------------------------------------------------------
-//-- void global_look_calibration
-//---------------------------------------------------------------------------
-//-- should give the mask, it's global so should see where the telescope are missing from one another
-//-- depend what we want to look at
-//-- Mask can be from VERITAS DB, or it can be the mask describing the list of telescope missing from DB
-//---------------------------------------------------------------------------
-void global_look_calibration( vector< unsigned int > VLaserRunNumner, vector< unsigned int > VLaserMaskListTel )
-{
-
-    //........................
-    //... TO DO
-    //........................
-    
-    return;
-}
-
-//---------------------------------------------------------------------------
 //-- void construct_VOFFLINE_calibration_writing_file
 //-- the list_of_valid_tel correspond to the list of telescope for which the calibration is ok according to check_run_calib
 //-- independent function from checking calib output, clearer to see what is copied in the DB
@@ -976,7 +956,10 @@ int parseOptions( int argc, char* argv[] )
                 ENV = getenv( "OBS_EVNDISP_AUX_DIR" );
                 char readme[500];
                 sprintf( readme, "cat %s/ParameterFiles/EVNDISP.updateDBlaserRUN.runparameter", ENV );
-                system( readme );
+                if( system( readme ) < 0 )
+                {
+                    cout << "error printing readme" << endl;
+                }
                 exit( 0 );
                 break;
             case 'g':
@@ -1302,15 +1285,6 @@ void read_laserRUN_fromVOFFLINE_DB( vector < vector < unsigned int > >& VOFFLINE
     {
         while( TSQLRow* db_row = db_res->Next() )
         {
-            if( !db_row )
-            {
-                cout << "WARNING read_laserRUN_fromVOFFLINE_DB: failed reading a row from DB " << endl;
-                VOFFLINE_DB_LaserRunNumber_Telnum.push_back( i_VOFFLINE_DB_LaserRunNumber_Tel );
-                VOFFLINE_DB_LaserDate_Telnum.push_back( i_VOFFLINE_DB_Laserdate_Tel );
-                VOFFLINE_DB_LaserVersion_Telnum.push_back( i_VOFFLINE_DB_Laserversion_Tel );
-                return;
-            }
-            
             if( atoi( db_row->GetField( 0 ) ) == forget_this_run )
             {
                 continue;
@@ -1370,11 +1344,6 @@ void read_laserRUN_fromVERITAS_DB( vector< unsigned int >& VERITAS_DB_LaserRunNu
     {
         while( TSQLRow* db_row = db_res->Next() )
         {
-            if( !db_row )
-            {
-                cout << "WARNING read_laserRUN_fromVERITAS_DB: failed reading a row from DB " << endl;
-                return;
-            }
             if( db_row->GetField( 0 ) )
             {
                 VERITAS_DB_LaserRunNumber.push_back( atoi( db_row->GetField( 0 ) ) );

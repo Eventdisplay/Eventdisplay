@@ -13,7 +13,6 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
-#include <TMath.h>
 
 #include "VGlobalRunParameter.h"
 
@@ -28,10 +27,9 @@ using namespace std;
 // reconstruction types
 // note: reconstruction types determine which values are written from the mscw root
 //       trees
-//       e.g. for energy, should it be the lookup table energy, or frogs energy
+//       e.g. for energy, should it be the lookup table energy
 //       e.g. for direction, should it be the disp result, or the classical result
-//       FROGS: use energy, direction, core position from FROGS
-//       FROGSDIR: use direction from FROGS
+//       (note that not all reconstruction types are still available today)
 ////////////////////////////////////////////////////////////////////////////////
 enum E_ReconstructionType { NOT_SET = -1, GEO = 0, FROGSDIR = 1, FROGS = 2, MODEL3D = 3, ENERGY_ER = 4, NN = 5, TL = 6, DEEPLEARNER = 7 };
 
@@ -43,8 +41,6 @@ class CData
     
         E_ReconstructionType  fReconstructionType ;
         bool            fMC;
-        bool		fFrogs;
-        bool		fModel3D;
         bool            fDeepLearner;
         
         bool            fShort;
@@ -160,66 +156,9 @@ class CData
         Float_t         EmissionHeightT[VDST_MAXTELESCOPES* VDST_MAXTELESCOPES];
         Double_t        DispDiff;  // from disp method
         UInt_t          DispNImages;
-        /// model3D parameters ///
-        Double_t         Smax3D;
-        Double_t         sigmaL3D;
-        Double_t         sigmaT3D;
-        Double_t         Nc3D;
-        Double_t         Xcore3D;
-        Double_t         Ycore3D;
-        Double_t         Xoff3D;
-        Double_t         Yoff3D;
-        Double_t         XoffDeRot3D;
-        Double_t         YoffDeRot3D;
-        Double_t         Goodness3D;
-        Double_t         Omega3D;
-        Double_t         Depth3D;
-        Double_t         RWidth3D;
-        Double_t         ErrRWidth3D;
-        Double_t         ErrorsigmaT3D;
-        bool            Converged3D;
         // Deep Learner Parameters
         Double_t         dl_gammaness;
         Bool_t         dl_isGamma;
-        
-        //FROGS
-        Int_t   frogsEventID;
-        Int_t   frogsGSLConStat;
-        Int_t   frogsNB_iter;
-        Int_t   frogsNImages;
-        Float_t frogsXS;
-        Float_t frogsXSerr;
-        Float_t frogsYS;
-        Float_t frogsYSerr;
-        Float_t frogsXP;
-        Float_t frogsXPerr;
-        Float_t frogsYP;
-        Float_t frogsYPerr;
-        Float_t frogsXPGC;
-        Float_t frogsYPGC;
-        Float_t frogsEnergy;
-        Float_t frogsEnergyerr;
-        Float_t frogsLambda;
-        Float_t frogsLambdaerr;
-        Float_t frogsGoodnessImg;
-        Int_t   frogsNpixImg;
-        Float_t frogsGoodnessBkg;
-        Int_t   frogsNpixBkg;
-        Float_t frogsTelGoodnessImg0;
-        Float_t frogsTelGoodnessImg1;
-        Float_t frogsTelGoodnessImg2;
-        Float_t frogsTelGoodnessImg3;
-        Float_t frogsTelGoodnessBkg0;
-        Float_t frogsTelGoodnessBkg1;
-        Float_t frogsTelGoodnessBkg2;
-        Float_t frogsTelGoodnessBkg3;
-        ULong64_t frogsSelectedImages;
-        Float_t frogsXS_derot;
-        Float_t frogsYS_derot;
-        Float_t frogsZe;
-        Float_t frogsAz;
-        double frogsR[VDST_MAXTELESCOPES];
-        
         
         // List of branches
         TBranch*        b_runNumber;              //!
@@ -326,64 +265,6 @@ class CData
         // deep learner parameters
         TBranch*        b_dl_gammaness;             //!
         TBranch*        b_dl_isGamma;             //!
-        /// model3D parameters ///
-        TBranch*        b_Smax3D;
-        TBranch*        b_sigmaL3D;
-        TBranch*        b_sigmaT3D;
-        TBranch*        b_Nc3D;
-        TBranch*        b_Xcore3D;
-        TBranch*        b_Ycore3D;
-        TBranch*        b_Xoff3D;
-        TBranch*        b_Yoff3D;
-        TBranch*        b_XoffDeRot3D;
-        TBranch*        b_YoffDeRot3D;
-        TBranch*        b_Goodness3D;
-        TBranch*        b_Omega3D;
-        TBranch*        b_Depth3D;
-        TBranch*        b_RWidth3D;
-        TBranch*        b_ErrRWidth3D;
-        TBranch*        b_ErrorsigmaT3D;
-        TBranch*        b_Converged3D;
-        
-        //FROGS
-        TBranch* b_frogsEventID;
-        TBranch* b_frogsGSLConStat;
-        TBranch* b_frogsNB_iter;
-        TBranch* b_frogsNImages;
-        TBranch* b_frogsXS;
-        TBranch* b_frogsXSerr;
-        TBranch* b_frogsYS;
-        TBranch* b_frogsYSerr;
-        TBranch* b_frogsXP;
-        TBranch* b_frogsXPerr;
-        TBranch* b_frogsYP;
-        TBranch* b_frogsYPerr;
-        TBranch* b_frogsXPGC;
-        TBranch* b_frogsYPGC;
-        TBranch* b_frogsEnergy;
-        TBranch* b_frogsEnergyerr;
-        TBranch* b_frogsLambda;
-        TBranch* b_frogsLambdaerr;
-        TBranch* b_frogsGoodnessImg;
-        TBranch* b_frogsNpixImg;
-        TBranch* b_frogsGoodnessBkg;
-        TBranch* b_frogsNpixBkg;
-        TBranch* b_frogsTelGoodnessImg0;
-        TBranch* b_frogsTelGoodnessImg1;
-        TBranch* b_frogsTelGoodnessImg2;
-        TBranch* b_frogsTelGoodnessImg3;
-        TBranch* b_frogsTelGoodnessBkg0;
-        TBranch* b_frogsTelGoodnessBkg1;
-        TBranch* b_frogsTelGoodnessBkg2;
-        TBranch* b_frogsTelGoodnessBkg3;
-        
-        TBranch* b_frogsSelectedImages;
-        TBranch* b_frogsXS_derot;
-        TBranch* b_frogsYS_derot;
-        TBranch* b_frogsZe;
-        TBranch* b_frogsAz;
-        TBranch* b_frogsR[VDST_MAXTELESCOPES];
-        
         
         CData( TTree* tree = 0, bool bMC = false, bool bShort = false );
         virtual ~CData();
@@ -394,14 +275,6 @@ class CData
         virtual void     Loop();
         virtual Bool_t   Notify();
         virtual void     Show( Long64_t entry = -1 );
-        bool             isFrogs()
-        {
-            return fFrogs;
-        }
-        bool             isModel3D()
-        {
-            return fModel3D;
-        }
         bool             isDeepLearner()
         {
             return fDeepLearner;
@@ -418,9 +291,6 @@ class CData
             if( fReconstructionType != GEO
                     && fReconstructionType != NN
                     && fReconstructionType != TL
-                    && fReconstructionType != FROGSDIR
-                    && fReconstructionType != FROGS
-                    && fReconstructionType != MODEL3D
                     && fReconstructionType != ENERGY_ER
                     && fReconstructionType != DEEPLEARNER )
             {
@@ -428,28 +298,9 @@ class CData
                 cout << fReconstructionType << endl;
                 exit( EXIT_FAILURE );
             }
-            
-            if( ( fReconstructionType  == FROGS || fReconstructionType  == FROGSDIR ) && !fFrogs )
-            {
-                cout << "CData::setReconstructionType error: ";
-                cout << "Frogs reconstruction requested, but no frogs results found; please check input files." << endl;
-                exit( EXIT_FAILURE );
-            }
-            
-            if( fReconstructionType  == MODEL3D && !fModel3D )
-            {
-                cout << "CData::setReconstructionType Error: ";
-                cout << "3D model reconstruction requested, but no 3D model results found; please check input files." << endl;
-                exit( EXIT_FAILURE );
-            }
         }
         double getEnergy_TeV()
         {
-            if( fReconstructionType  == FROGS )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return TMath::Power( 10., frogsEnergy );
-            }
             if( fReconstructionType  == ENERGY_ER )
             {
                 return Erec;
@@ -458,10 +309,6 @@ class CData
             {
                 return ErecS;
             }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return ErecS;    //eventually we might have 3D energy
-            }
             else
             {
                 return ErecS;
@@ -469,11 +316,6 @@ class CData
         }
         double getEnergy_Log10()
         {
-            if( fReconstructionType  == FROGS )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return frogsEnergy;
-            }
             if( fReconstructionType  == ENERGY_ER )
             {
                 if( Erec <= 0 )
@@ -485,213 +327,83 @@ class CData
                     return log10( Erec );
                 }
             }
-            if( fReconstructionType  == MODEL3D ) //eventually we might have 3D energy
+            if( ErecS <= 0 )
             {
-                if( ErecS <= 0 )
-                {
-                    return -99;
-                }
-                else
-                {
-                    return log10( ErecS );
-                }
+                return -99;
             }
             else
             {
-                if( ErecS <= 0 )
-                {
-                    return -99;
-                }
-                else
-                {
-                    return log10( ErecS );
-                }
+                return log10( ErecS );
             }
-            
         }
         double getXcore_M()
         {
-            if( fReconstructionType  == FROGS )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return frogsXPGC;
-            }
             if( fReconstructionType  == ENERGY_ER )
             {
                 return Xcore;
             }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return Xcore3D;
-            }
-            else
-            {
-                return Xcore;
-            }
+            return Xcore;
         }
         double getYcore_M()
         {
-            if( fReconstructionType  == FROGS )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return frogsYPGC;
-            }
             if( fReconstructionType  == ENERGY_ER )
             {
                 return Ycore;
             }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return Ycore3D;
-            }
-            else
-            {
-                return Ycore;
-            }
+            return Ycore;
         }
         double getXoff()
         {
-            if( fReconstructionType  == FROGS || fReconstructionType  == FROGSDIR )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return frogsXS;
-            }
             if( fReconstructionType  == ENERGY_ER )
             {
                 return Xoff;
             }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return Xoff3D;
-            }
-            else
-            {
-                return Xoff;
-            }
+            return Xoff;
         }
         double getYoff()
         {
-            if( fReconstructionType  == FROGS || fReconstructionType  == FROGSDIR )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return -frogsYS; //frogs uses a different coordinate system
-            }
             if( fReconstructionType  == ENERGY_ER )
             {
                 return Yoff;
             }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return Yoff3D;
-            }
-            else
-            {
-                return Yoff;
-            }
+            return Yoff;
         }
         double getXoff_derot()
         {
-            if( fReconstructionType  == FROGS || fReconstructionType  == FROGSDIR )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return frogsXS_derot;
-            }
             if( fReconstructionType  == ENERGY_ER )
             {
                 return Xoff_derot;
             }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return XoffDeRot3D;
-            }
-            else
-            {
-                return Xoff_derot;
-            }
+            return Xoff_derot;
         }
         double getYoff_derot()
         {
-            if( fReconstructionType  == FROGS || fReconstructionType  == FROGSDIR )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return -frogsYS_derot; //frogs uses a different coordinate system
-            }
             if( fReconstructionType  == ENERGY_ER )
             {
                 return Yoff_derot;
             }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return YoffDeRot3D;
-            }
-            else
-            {
-                return Yoff_derot;
-            }
+            return Yoff_derot;
         }
         double getEnergyChi2()
         {
-            if( fReconstructionType  == FROGS )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return frogsEnergy > -99 ? 1 : -99 ;
-            }
             if( fReconstructionType  == ENERGY_ER )
             {
                 return EChi2;
             }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return EChi2S;
-            }
-            else
-            {
-                return EChi2S;
-            }
-            
+            return EChi2S;
         }
         
         double getEnergyDelta()
         {
-            if( fReconstructionType  == FROGS )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return frogsEnergy > -99 ? 1 : -99 ;
-            }
             if( fReconstructionType  == ENERGY_ER )
             {
                 return dE;
             }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return dES;
-            }
-            else
-            {
-                return dES;
-            }
-            
+            return dES;
         }
         double getChi2()
         {
-            if( fReconstructionType  == FROGS )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return frogsEnergy > -99 ? 1 : -99 ;
-            }
-            if( fReconstructionType  == ENERGY_ER )
-            {
-                return Chi2;
-            }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return 0;    //preliminary
-            }
-            else
-            {
-                return Chi2;
-            }
-            
+            return Chi2;
         }
         float getDirectionReconstructionDifference()
         {
@@ -706,78 +418,29 @@ class CData
         }
         int getNImages()
         {
-            if( fReconstructionType  == FROGS || fReconstructionType  == FROGSDIR )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return frogsNImages ;
-            }
-            if( fReconstructionType  == ENERGY_ER )
-            {
-                return NImages ;
-            }
-            if( fReconstructionType  == MODEL3D )
-            {
-                return NImages;    //preliminary
-            }
-            else
-            {
-                return NImages;
-            }
+            return NImages ;
         }
         ULong64_t getImgSel()
         {
-            if( fReconstructionType  == FROGS || fReconstructionType  == FROGSDIR )
-            {
-                assert( frogsEventID == eventNumber ) ;
-                return frogsSelectedImages ;
-            }
-            else
-            {
-                return ImgSel;
-            }
+            return ImgSel;
         }
         
         UInt_t* getImgSel_list()
         {
-            if( fReconstructionType  == FROGS )
-            {
-                return 0;
-            }
             return ImgSel_list; //preliminary
         }
         
         double getZe()
         {
-            if( fReconstructionType  == FROGS || fReconstructionType  == FROGSDIR )
-            {
-                return frogsZe;
-            }
-            else
-            {
-                return Ze;
-            }
+            return Ze;
         }
         double getAz()
         {
-            if( fReconstructionType  == FROGS || fReconstructionType  == FROGSDIR )
-            {
-                return frogsAz ;
-            }
-            else
-            {
-                return Az;
-            }
+            return Az;
         }
         double* getR()
         {
-            if( fReconstructionType  == FROGS )
-            {
-                return frogsR ;
-            }
-            else
-            {
                 return R;
-            }
         }
         double* getEnergy_per_telescope()
         {
@@ -806,8 +469,6 @@ CData::CData( TTree* tree, bool bMC, bool bShort )
 {
     fMC = bMC;
     fShort = bShort;
-    fFrogs = false;
-    fModel3D = false;
     fDeepLearner = false;
     fReconstructionType = GEO;
     Init( tree );
@@ -877,16 +538,6 @@ void CData::Init( TTree* tree )
     if( tree->GetBranchStatus( "MCe0" ) )
     {
         fMC = true;
-    }
-    // test if frogs stuff exists
-    if( tree->GetBranch( "frogsEventID" ) )
-    {
-        fFrogs = true;
-    }
-    // test if model3D goodness exists
-    if( tree->GetBranchStatus( "Goodness3D" ) )
-    {
-        fModel3D = true;
     }
     // test if deep learner variables exists
     if( tree->GetBranchStatus( "dl_gammaness" ) )
@@ -1357,46 +1008,6 @@ void CData::Init( TTree* tree )
         dl_gammaness = 0.;
         dl_isGamma = 0;
     }
-    if( fModel3D )
-    {
-        fChain->SetBranchAddress( "Smax3D", &Smax3D );
-        fChain->SetBranchAddress( "sigmaL3D", &sigmaL3D );
-        fChain->SetBranchAddress( "sigmaT3D", &sigmaT3D );
-        fChain->SetBranchAddress( "Nc3D", &Nc3D );
-        fChain->SetBranchAddress( "Xcore3D", &Xcore3D );
-        fChain->SetBranchAddress( "Ycore3D", &Ycore3D );
-        fChain->SetBranchAddress( "Xoff3D", &Xoff3D );
-        fChain->SetBranchAddress( "Yoff3D", &Yoff3D );
-        fChain->SetBranchAddress( "XoffDeRot3D", &XoffDeRot3D );
-        fChain->SetBranchAddress( "YoffDeRot3D", &YoffDeRot3D );
-        fChain->SetBranchAddress( "Goodness3D", &Goodness3D );
-        fChain->SetBranchAddress( "Omega3D", &Omega3D );
-        fChain->SetBranchAddress( "Depth3D", &Depth3D );
-        fChain->SetBranchAddress( "RWidth3D", &RWidth3D );
-        fChain->SetBranchAddress( "ErrRWidth3D", &ErrRWidth3D );
-        fChain->SetBranchAddress( "ErrorsigmaT3D", &ErrorsigmaT3D );
-        fChain->SetBranchAddress( "Converged3D", &Converged3D );
-    }
-    else
-    {
-        Smax3D = 0.;
-        sigmaL3D = 0.;
-        sigmaT3D = 0.;
-        Nc3D = 0.;
-        Xcore3D = 0.;
-        Ycore3D = 0.;
-        Xoff3D = 0.;
-        Yoff3D = 0.;
-        XoffDeRot3D = 0.;
-        YoffDeRot3D = 0.;
-        Goodness3D = 0.;
-        Omega3D = 0.;
-        Depth3D = 0.;
-        RWidth3D = 0.;
-        ErrRWidth3D = 0.;
-        ErrorsigmaT3D = 0.;
-        Converged3D = false;
-    }
     
     Notify();
 }
@@ -1540,134 +1151,6 @@ Bool_t CData::Notify()
         b_dl_isGamma = 0;
     }
 
-    if( fModel3D )
-    {
-        b_Smax3D = fChain->GetBranch( "Smax3D" );
-        b_sigmaL3D = fChain->GetBranch( "sigmaL3D" );
-        b_sigmaT3D = fChain->GetBranch( "sigmaT3D" );
-        b_Nc3D = fChain->GetBranch( "Nc3D" );
-        b_Xcore3D = fChain->GetBranch( "Xcore3D" );
-        b_Ycore3D = fChain->GetBranch( "Ycore3D" );
-        b_Xoff3D = fChain->GetBranch( "Xoff3D" );
-        b_Yoff3D = fChain->GetBranch( "Yoff3D" );
-        b_XoffDeRot3D = fChain->GetBranch( "XoffDeRot3D" );
-        b_YoffDeRot3D = fChain->GetBranch( "YoffDeRot3D" );
-        b_Goodness3D = fChain->GetBranch( "Goodness3D" );
-        b_Omega3D  = fChain->GetBranch( "Omega3D" );
-        b_Depth3D  = fChain->GetBranch( "Depth3D" );
-        b_RWidth3D = fChain->GetBranch( "RWidth3D" );
-        b_ErrRWidth3D = fChain->GetBranch( "ErrRWidth3D" );
-        b_ErrorsigmaT3D = fChain->GetBranch( "ErrorsigmaT3D" );
-        b_Converged3D = fChain->GetBranch( "Converged3D" );
-    }
-    else
-    {
-        b_Smax3D = 0;
-        b_sigmaL3D = 0;
-        b_sigmaT3D = 0;
-        b_Nc3D = 0;
-        b_Xcore3D = 0;
-        b_Ycore3D = 0;
-        b_Xoff3D = 0;
-        b_Yoff3D = 0;
-        b_XoffDeRot3D = 0;
-        b_YoffDeRot3D = 0;
-        b_Goodness3D = 0;
-        b_Omega3D  = 0;
-        b_Depth3D  = 0;
-        b_RWidth3D = 0;
-        b_ErrRWidth3D = 0;
-        b_ErrorsigmaT3D = 0;
-        b_Converged3D = 0;
-    }
-    
-    if( fFrogs )
-    {
-        //FROGS
-        fChain->SetBranchAddress( "frogsEventID", &frogsEventID );
-        fChain->SetBranchAddress( "frogsGSLConStat", &frogsGSLConStat );
-        fChain->SetBranchAddress( "frogsNB_iter", &frogsNB_iter );
-        fChain->SetBranchAddress( "frogsNImages", &frogsNImages );
-        fChain->SetBranchAddress( "frogsXS", &frogsXS );
-        fChain->SetBranchAddress( "frogsXSerr", &frogsXSerr );
-        fChain->SetBranchAddress( "frogsYS", &frogsYS );
-        fChain->SetBranchAddress( "frogsYSerr", &frogsYSerr );
-        fChain->SetBranchAddress( "frogsXP", &frogsXP );
-        fChain->SetBranchAddress( "frogsXPerr", &frogsXPerr );
-        fChain->SetBranchAddress( "frogsYP", &frogsYP );
-        fChain->SetBranchAddress( "frogsYPerr", &frogsYPerr );
-        fChain->SetBranchAddress( "frogsXPGC", &frogsXPGC );
-        fChain->SetBranchAddress( "frogsYPGC", &frogsYPGC );
-        fChain->SetBranchAddress( "frogsEnergy", &frogsEnergy );
-        fChain->SetBranchAddress( "frogsEnergyerr", &frogsEnergyerr );
-        fChain->SetBranchAddress( "frogsLambda", &frogsLambda );
-        fChain->SetBranchAddress( "frogsLambdaerr", &frogsLambdaerr );
-        fChain->SetBranchAddress( "frogsGoodnessImg", &frogsGoodnessImg );
-        fChain->SetBranchAddress( "frogsNpixImg", &frogsNpixImg );
-        fChain->SetBranchAddress( "frogsGoodnessBkg", &frogsGoodnessBkg );
-        fChain->SetBranchAddress( "frogsNpixBkg", &frogsNpixBkg );
-        fChain->SetBranchAddress( "frogsTelGoodnessImg0", &frogsTelGoodnessImg0 );
-        fChain->SetBranchAddress( "frogsTelGoodnessImg1", &frogsTelGoodnessImg1 );
-        fChain->SetBranchAddress( "frogsTelGoodnessImg2", &frogsTelGoodnessImg2 );
-        fChain->SetBranchAddress( "frogsTelGoodnessImg3", &frogsTelGoodnessImg3 );
-        fChain->SetBranchAddress( "frogsTelGoodnessBkg0", &frogsTelGoodnessBkg0 );
-        fChain->SetBranchAddress( "frogsTelGoodnessBkg1", &frogsTelGoodnessBkg1 );
-        fChain->SetBranchAddress( "frogsTelGoodnessBkg2", &frogsTelGoodnessBkg2 );
-        fChain->SetBranchAddress( "frogsTelGoodnessBkg3", &frogsTelGoodnessBkg3 );
-        
-        fChain->SetBranchAddress( "frogsSelectedImages", &frogsSelectedImages );
-        fChain->SetBranchAddress( "frogsXS_derot", &frogsXS_derot );
-        fChain->SetBranchAddress( "frogsYS_derot", &frogsYS_derot );
-        fChain->SetBranchAddress( "frogsZe", &frogsZe );
-        fChain->SetBranchAddress( "frogsAz", &frogsAz );
-        fChain->SetBranchAddress( "frogsR", &frogsR );
-        
-        
-    }
-    else
-    {
-        frogsEventID = 0;
-        frogsGSLConStat = 0;
-        frogsNB_iter = 0;
-        frogsNImages = 0;
-        frogsXS = 0.;
-        frogsXSerr = 0.;
-        frogsYS = 0.;
-        frogsYSerr = 0.;
-        frogsXP = 0.;
-        frogsXPerr = 0.;
-        frogsYP = 0.;
-        frogsYPerr = 0.;
-        frogsXPGC = 0.;
-        frogsYPGC = 0.;
-        frogsEnergy = 0.;
-        frogsEnergyerr = 0.;
-        frogsLambda = 0.;
-        frogsLambdaerr = 0.;
-        frogsGoodnessImg = 0.;
-        frogsNpixImg = 0;
-        frogsGoodnessBkg = 0.;
-        frogsNpixBkg = 0;
-        frogsTelGoodnessImg0 = 0.;
-        frogsTelGoodnessImg1 = 0.;
-        frogsTelGoodnessImg2 = 0.;
-        frogsTelGoodnessImg3 = 0.;
-        frogsTelGoodnessBkg1 = 0.;
-        frogsTelGoodnessBkg2 = 0.;
-        frogsTelGoodnessBkg3 = 0.;
-        
-        frogsSelectedImages = 0;
-        frogsXS_derot = 0;
-        frogsYS_derot = 0;
-        frogsZe = 0;
-        frogsAz = 0;
-        
-        for( unsigned int i = 0; i < VDST_MAXTELESCOPES; i++ )
-        {
-            frogsR[i] = 0;
-        }
-    }
-    
     return kTRUE;
 }
 

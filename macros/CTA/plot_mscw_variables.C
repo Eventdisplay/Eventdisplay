@@ -31,8 +31,11 @@ void plot( string iFile1, string iFile2, float iW1 = 1., float iW2 = 1., string 
         cout << "T2 tree not found" << endl;
         T2 = 0;
     }
-    T2->SetLineColor( 2 );
-    T2->SetLineWidth( 2 );
+    else
+    {
+        T2->SetLineColor( 2 );
+        T2->SetLineWidth( 2 );
+    }
     
     vector< string > V;
     vector< float > Vmax;
