@@ -78,6 +78,7 @@ class VTMVARunData : public TNamed
         TCut              fQualityCuts;
         TCut              fQualityCutsBkg;
         TCut              fQualityCutsSignal;
+        TCut              fMultiplicityCuts;
         TCut              fMCxyoffCut;
         bool              fMCxyoffCutSignalOnly;
         TCut              fAzimuthCut;

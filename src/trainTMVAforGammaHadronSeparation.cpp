@@ -94,6 +94,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     // must be at least the variables used for the training
     Double_t MSCW = 0.;
     Double_t MSCL = 0.;
+    Double_t ErecS = 0.;
     Double_t EChi2S = 0.;
     Double_t dES = 0.;
     // fixed max number of telescope types
@@ -107,6 +108,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced = new TTree( iDataTree_reducedName.c_str(), iDataTree_reducedName.c_str() );
     iDataTree_reduced->Branch( "MSCW", &MSCW, "MSCW/D" );
     iDataTree_reduced->Branch( "MSCL", &MSCL, "MSCL/D" );
+    iDataTree_reduced->Branch( "ErecS", &ErecS, "ErecS/D" );
     iDataTree_reduced->Branch( "EChi2S", &EChi2S, "EChi2S/D" );
     iDataTree_reduced->Branch( "dES", &dES, "dES/D" );
     iDataTree_reduced->Branch( "NImages_Ttype", NImages_Ttype, "NImages_Ttype[20]/i" );
@@ -124,6 +126,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
         {
              iTreeVector[i]->SetBranchAddress( "MSCW", &MSCW );
              iTreeVector[i]->SetBranchAddress( "MSCL", &MSCL );
+             iTreeVector[i]->SetBranchAddress( "ErecS", &ErecS );
              iTreeVector[i]->SetBranchAddress( "EChi2S", &EChi2S );
              iTreeVector[i]->SetBranchAddress( "dES", &dES );
              iTreeVector[i]->SetBranchAddress( "NImages_Ttype", NImages_Ttype );
@@ -386,11 +389,13 @@ bool train( VTMVARunData* iRun,
     // quality cuts before training
     TCut iCutSignal = iRun->fQualityCuts && iRun->fQualityCutsSignal 
                    && iRun->fMCxyoffCut && iRun->fAzimuthCut &&
+                   iRun->fMultiplicityCuts &&
                    iRun->fEnergyCutData[iEnergyBin]->fEnergyCut 
                    && iRun->fZenithCutData[iZenithBin]->fZenithCut;
 
     TCut iCutBck = iRun->fQualityCuts && iRun->fQualityCutsBkg 
                 && iRun->fAzimuthCut 
+                && iRun->fMultiplicityCuts
                 && iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
                 && iRun->fZenithCutData[iZenithBin]->fZenithCut;
 
@@ -588,9 +593,15 @@ bool train( VTMVARunData* iRun,
     if( iTrainGammaHadronSeparation )
     {
         cout << "Preparing training and test tree" << endl;
-        TCut sigcut = "";
-        TCut bkgcut = "";
-        dataloader->PrepareTrainingAndTestTree( sigcut, bkgcut, iRun->fPrepareTrainingOptions );
+        // cuts after pre-selection
+        TCut iCutSignal_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
+                            && iRun->fMultiplicityCuts;
+        TCut iCutBck_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
+                            && iRun->fMultiplicityCuts;
+
+        dataloader->PrepareTrainingAndTestTree( iCutSignal_post,
+                                                iCutBck_post, 
+                                                iRun->fPrepareTrainingOptions );
     }
     else
     {
