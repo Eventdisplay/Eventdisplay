@@ -37,6 +37,7 @@ VWPPhysSensitivityPlotsMaker::VWPPhysSensitivityPlotsMaker()
     setObservingTime();
     setAxisUnits();
     setSensitivityRatioLimits();
+    setIRFRatioLimits();
     setEffectiveAreaLimits();
     setResolutionLimits();
     setPrintingOptions();
@@ -44,6 +45,7 @@ VWPPhysSensitivityPlotsMaker::VWPPhysSensitivityPlotsMaker()
     setPlotCrabLines();
     setPlotRequirementsSystematics();
     setMaximumAllowedEnergyBias();
+    setPlotAllInOneCanvasStyle();
     
     fPlotAllInOneCanvas = 0;
     fPlotProjectedSensitivity = 0;
@@ -82,46 +84,177 @@ void VWPPhysSensitivityPlotsMaker::plotAllInOneCanvas( bool iCanvasBatch )
         fPlotAllInOneCanvas->SetBatch();
     }
     
-    fSensitivityTitlePad = new TPad( "cSensitivityTitlePad", "title", 0.01, 0.95, 0.68, 0.99 );
-    fSensitivityTitlePad->SetLeftMargin( 0.15 );
-    fSensitivityTitlePad->SetRightMargin( 0.03 );
-    fSensitivityTitlePad->SetTopMargin( 0.03 );
-    fSensitivityTitlePad->SetBottomMargin( 0.03 );
-    fSensitivityTitlePad->Draw();
-    
-    fSensitivityPad = new TPad( "cSensitivityPad", "sensitivity", 0.01, 0.34, 0.68, 0.95 );
-    fSensitivityPad->SetLeftMargin( 0.15 );
-    fSensitivityPad->SetRightMargin( 0.03 );
-    fSensitivityPad->Draw();
-    
-    fSensitivityRatioPad = new TPad( "cSensitivityPadRatio", "sensitivity ratio", 0.02, 0.01, 0.38, 0.34 );
-    fSensitivityRatioPad->SetBottomMargin( 0.13 );
-    fSensitivityRatioPad->SetTopMargin( 0.05 );
-    fSensitivityRatioPad->Draw();
-    
-    fEffAreaPad = new TPad( "cEffAreaPad", "effective area", 0.69, 0.67, 0.99, 0.99 );
-    fEffAreaPad->SetLeftMargin( 0.15 );
-    fEffAreaPad->SetRightMargin( 0.05 );
-    fEffAreaPad->Draw();
-    
-    fBckRatesPad = new TPad( "cBckRatesPad", "background rates", 0.69, 0.34, 0.99, 0.67 );
-    fBckRatesPad->SetLeftMargin( 0.15 );
-    fBckRatesPad->SetRightMargin( 0.05 );
-    fBckRatesPad->Draw();
-    
-    fERes = new TPad( "cERes", "energy resolution", 0.69, 0.01, 0.99, 0.34 );
-    fERes->SetLeftMargin( 0.15 );
-    fERes->SetRightMargin( 0.05 );
-    fERes->SetBottomMargin( 0.13 );
-    fERes->SetTopMargin( 0.05 );
-    fERes->Draw();
-    
-    fAngRes = new TPad( "cAngRes", "angular resolution", 0.40, 0.01, 0.68, 0.34 );
-    fAngRes->SetLeftMargin( 0.13 );
-    fAngRes->SetRightMargin( 0.05 );
-    fAngRes->SetBottomMargin( 0.13 );
-    fAngRes->SetTopMargin( 0.05 );
-    fAngRes->Draw();
+    // Canvas for eff ratio, background ratio, angular resolution ratio
+    if( fPlotAllInOneCanvasStyle == "AllRatios" )
+    {
+        fSensitivityTitlePad = new TPad( "cSensitivityTitlePad", "title", 0.01, 0.99, 0.68, 1.00 );
+        fSensitivityPad = new TPad( "cSensitivityPad", "sensitivity", 0.01, 0.34, 0.60, 0.99 );
+        fSensitivityRatioPad = new TPad( "cSensitivityPadRatio", "sensitivity ratio", 0.02, 0.01, 0.40, 0.34 );
+        fEffAreaPad = new TPad( "cEffAreaPad", "effective area", 0.60, 0.67, 0.80, 0.99 );
+        fEffAreaRatioPad = new TPad( "cEffAreaRatioPad", "effective area", 0.80, 0.67, 0.99, 0.99 );
+        fBckRatesPad = new TPad( "cBckRatesPad", "background rates", 0.60, 0.34, 0.80, 0.67 );
+        fBckRatesPadRatio = new TPad( "cBckRatesPadRatio", "background rates", 0.80, 0.34, 0.99, 0.67 );
+        fAngRes = new TPad( "cAngRes", "angular resolution", 0.60, 0.01, 0.80, 0.34 );
+        fAngResRatio = new TPad( "cAngResRatio", "angular resolution", 0.80, 0.01, 0.99, 0.34 );
+        fERes = new TPad( "cERes", "energy resolution", 0.40, 0.01, 0.60, 0.34 );
+    }
+    // Six canvas plot (old style, as used before Feb 2021)
+    else if( fPlotAllInOneCanvasStyle == "SensitivityRatioOnly" )
+    {
+        fSensitivityTitlePad = new TPad( "cSensitivityTitlePad", "title",  0.01, 0.95, 0.68, 0.99 );
+        fSensitivityPad = new TPad( "cSensitivityPad", "sensitivity", 0.01, 0.34, 0.68, 0.95 );
+        fSensitivityRatioPad = new TPad( "cSensitivityPadRatio", "sensitivity ratio", 0.02, 0.01, 0.38, 0.34 );
+        fEffAreaPad = new TPad( "cEffAreaPad", "effective area", 0.69, 0.67, 0.99, 0.99 );
+        fEffAreaRatioPad = 0;
+        fBckRatesPad = new TPad( "cBckRatesPad", "background rates", 0.69, 0.34, 0.99, 0.67 );
+        fBckRatesPadRatio = 0;
+        fAngRes = new TPad( "cAngRes", "angular resolution", 0.69, 0.01, 0.99, 0.34 );
+        fAngResRatio = 0;
+        fERes = new TPad( "cERes", "energy resolution", 0.40, 0.01, 0.68, 0.34 );
+    }
+
+
+    if( fSensitivityTitlePad )
+    {
+        fSensitivityTitlePad->SetLeftMargin( 0.15 );
+        fSensitivityTitlePad->SetRightMargin( 0.03 );
+        fSensitivityTitlePad->SetTopMargin( 0.03 );
+        fSensitivityTitlePad->SetBottomMargin( 0.03 );
+        fSensitivityTitlePad->Draw();
+    }
+    if( fSensitivityPad )
+    {
+        fSensitivityPad->SetLeftMargin( 0.15 );
+        fSensitivityPad->SetRightMargin( 0.03 );
+        fSensitivityPad->Draw();
+    }
+    if( fEffAreaPad )
+    {
+        fEffAreaPad->SetLeftMargin( 0.15 );
+        fEffAreaPad->SetRightMargin( 0.05 );
+        fEffAreaPad->Draw();
+    }
+    if( fEffAreaRatioPad )
+    {
+        fEffAreaRatioPad->SetLeftMargin( 0.15 );
+        fEffAreaRatioPad->SetRightMargin( 0.05 );
+        fEffAreaRatioPad->Draw();
+    }
+    if( fBckRatesPad )
+    {
+        fBckRatesPad->SetLeftMargin( 0.15 );
+        fBckRatesPad->SetRightMargin( 0.05 );
+        fBckRatesPad->Draw();
+    }
+    if( fBckRatesPadRatio )
+    {
+        fBckRatesPadRatio->SetLeftMargin( 0.15 );
+        fBckRatesPadRatio->SetRightMargin( 0.05 );
+        fBckRatesPadRatio->Draw();
+    }
+    if( fSensitivityRatioPad )
+    {
+        fSensitivityRatioPad->SetBottomMargin( 0.13 );
+        fSensitivityRatioPad->SetTopMargin( 0.05 );
+        fSensitivityRatioPad->SetRightMargin( 0.05 );
+        fSensitivityRatioPad->Draw();
+    }
+    if( fAngRes )
+    {
+        fAngRes->SetLeftMargin( 0.13 );
+        fAngRes->SetRightMargin( 0.05 );
+        fAngRes->SetBottomMargin( 0.13 );
+        fAngRes->SetTopMargin( 0.05 );
+        fAngRes->Draw();
+    }
+    if( fAngResRatio )
+    {
+        fAngResRatio->SetLeftMargin( 0.13 );
+        fAngResRatio->SetRightMargin( 0.05 );
+        fAngResRatio->SetBottomMargin( 0.13 );
+        fAngResRatio->SetTopMargin( 0.05 );
+        fAngResRatio->Draw();
+    }
+    if( fERes )
+    {
+        fERes->SetLeftMargin( 0.15 );
+        fERes->SetRightMargin( 0.05 );
+        fERes->SetBottomMargin( 0.13 );
+        fERes->SetTopMargin( 0.05 );
+        fERes->Draw();
+    }
+}
+
+/*
+   plot ratios of graphs in a canvas
+
+*/
+void VWPPhysSensitivityPlotsMaker::plotRatioPlot( TPad *corg,
+                                                  TPad *cplot,
+                                                  double ymin,
+                                                  double ymax )
+{
+    if( !corg ) return;
+    if( !cplot ) return;
+    cplot->cd();
+
+    unsigned int z = 0;
+    TGraphAsymmErrors *iNullGraph = 0;
+
+    TIter next(corg->GetListOfPrimitives());
+    while (TObject *obj = next() )
+    {
+        string objname = obj->GetName();
+        string objclass = obj->ClassName();
+        if( objclass == "TH1D" || objclass == "TH1F" )
+        {
+            TH1F *h = (TH1F*)obj;
+            TH1F *hR = new TH1F( (objname+"ratio").c_str(), "",
+                                  h->GetXaxis()->GetNbins(),
+                                  h->GetXaxis()->GetXmin(), 
+                                  h->GetXaxis()->GetXmax() );
+            hR->SetXTitle( h->GetXaxis()->GetTitle() );
+            string iYTitle = h->GetYaxis()->GetTitle();
+            iYTitle = iYTitle.substr( 0, iYTitle.find( "[" ) );
+            hR->SetYTitle( (iYTitle + "ratio" ).c_str() );
+            hR->SetMinimum( ymin );
+            hR->SetMaximum( ymax );
+            hR->SetStats( 0 );
+            hR->Draw( "" );
+            hR->Draw( "AH" );
+            plot_nullHistogram( cplot, hR, 
+                                true, false, 1.2, 
+                                TMath::Power( 10., h->GetXaxis()->GetXmin() ),
+                                TMath::Power( 10., h->GetXaxis()->GetXmax() ) );
+            TLine *iL = new TLine( h->GetXaxis()->GetXmin(), 1., 
+                                   h->GetXaxis()->GetXmax(), 1. );
+            iL->SetLineStyle( 2 );
+            iL->Draw();
+        }
+        else if( objclass == "TGraphAsymmErrors" ||
+                 objclass == "TGraphErrors" )
+        {
+            TGraphAsymmErrors *r = (TGraphAsymmErrors*)obj;
+            if( z == 0 )
+            {
+                iNullGraph = r;
+            }
+            else if( r->GetN() > 1 )
+            {
+                TGraphAsymmErrors *n = new TGraphAsymmErrors( 1 );
+                if( VHistogramUtilities::divide( n, iNullGraph,
+                                                 r ) )
+                {
+                    n->SetLineColor( r->GetLineColor() );
+                    n->SetMarkerColor( r->GetMarkerColor() );
+                    n->SetMarkerStyle( r->GetMarkerStyle() );
+                    n->SetMarkerSize( r->GetMarkerSize() );
+                    n->Draw( "p" );
+                }
+            }
+            z++;
+        }
+    }
 }
 
 /*
@@ -179,6 +312,19 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
     else
     {
         a.plotSensitivityRatio( fPrintingOptions, fSensitivityRatio_min, fSensitivityRatio_max, 2, fSensitivityRatioPad, iRatioCounter );
+    }
+    // background ratio
+    if( fBckRatesPad )
+    {
+        plotRatioPlot( fBckRatesPad, fBckRatesPadRatio, fBackgroundRatio_min, fBackgroundRatio_max );
+    }
+    if( fAngRes )
+    {
+        plotRatioPlot( fAngRes, fAngResRatio, fAngResRatio_min, fAngResRatio_max );
+    }
+    if( fEffAreaPad )
+    {
+        plotRatioPlot( fEffAreaPad, fEffAreaRatioPad, fEffAreaRatio_min, fEffAreaRatio_max );
     }
     
     if( iTitleText.size() > 0 && fSensitivityTitlePad )
