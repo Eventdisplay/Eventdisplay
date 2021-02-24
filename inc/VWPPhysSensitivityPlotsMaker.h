@@ -12,7 +12,7 @@
 
 using namespace std;
 
-class VWPPhysSensitivityPlotsMaker
+class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
 {
     private:
     
@@ -35,6 +35,12 @@ class VWPPhysSensitivityPlotsMaker
         double fEffArea_min;
         double fEffArea_max;
         bool   fPlotAngResLogY;
+        double fBackgroundRatio_min;
+        double fBackgroundRatio_max;
+        double fEffAreaRatio_min;
+        double fEffAreaRatio_max;
+        double fAngResRatio_min;
+        double fAngResRatio_max;
         
         string fPrintingOptions;
         bool bPlotNoLegend;
@@ -49,6 +55,7 @@ class VWPPhysSensitivityPlotsMaker
 
         float  fMaximumAllowedEnergyBias;
  
+        string fPlotAllInOneCanvasStyle;
         // projected off-axis sensitivity
         TCanvas* fPlotProjectedSensitivity;
         // pads for plotAllInOneCanvas()
@@ -57,9 +64,12 @@ class VWPPhysSensitivityPlotsMaker
         TPad* fSensitivityTitlePad;
         TPad* fSensitivityRatioPad;
         TPad* fEffAreaPad;
+        TPad* fEffAreaRatioPad;
         TPad* fBckRatesPad;
+        TPad* fBckRatesPadRatio;
         TPad* fERes;
         TPad* fAngRes;
+        TPad* fAngResRatio;
         
     public:
     
@@ -79,6 +89,7 @@ class VWPPhysSensitivityPlotsMaker
             return fPlotProjectedSensitivity;
         }
         void plotAllInOneCanvas( bool iCanvasBatch = false );
+        void plotRatioPlot( TPad *corg, TPad *ratio, double ymin = 0., double ymax = 2. );
         void printPlotCTARequirementsIDs();
         void resetVectors();
         void setAxisUnits( string iObservationTime );   // set the correct y-axis scale for 50h, 5h, and 0.5h
@@ -96,6 +107,10 @@ class VWPPhysSensitivityPlotsMaker
         {
             bPlotCrabLines = iPlot;
         }
+        void setPlotAllInOneCanvasStyle( string iStyle = "AllRatios" )
+        {
+             fPlotAllInOneCanvasStyle = iStyle;
+        }
         void setResolutionLimits( double iAngularResolutionMax = 1.10, double iEnergyResolutionMax = 0.3,
                                   bool iAngresLogY = true,
                                   double iAngularResolutionMin = 0.8e-2, double iEnergyResolutionMin = 0. )
@@ -111,6 +126,18 @@ class VWPPhysSensitivityPlotsMaker
             fSensitivityRatio_min = iRatio_min;
             fSensitivityRatio_max = iRatio_max;
         }
+        void setIRFRatioLimits( double iRatio_bck_min = 0., double iRatio_bck_max = 2.,
+                                double iRatio_effarea_min = 0., double iRatio_effarea_max = 2.,
+                                double iRatio_angres_min = 0., double iRatio_angres_max = 2. )
+        {
+            fBackgroundRatio_min = iRatio_bck_min;
+            fBackgroundRatio_max = iRatio_bck_max;
+            fEffAreaRatio_min = iRatio_effarea_min;
+            fEffAreaRatio_max = iRatio_effarea_max;
+            fAngResRatio_min = iRatio_angres_min;
+            fAngResRatio_max = iRatio_angres_max;
+        }
+
         void setEnergyRange_Lin_TeV( double iMinEnergy_TeV = 0.01, double iMaxEnergy_TeV = 200. )
         {
             fMinEnergy_TeV = iMinEnergy_TeV;
