@@ -30,9 +30,9 @@
 
 using namespace std;
 
-bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, bool iGammaHadronSeparation );
-bool trainGammaHadronSeparation( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin );
-bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin );
+bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, bool iGammaHadronSeparation, string fRunOption );
+bool trainGammaHadronSeparation( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, string fRunOption );
+bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, string fRunOption );
 
 /*
  * check settings for number of training events;
@@ -58,7 +58,6 @@ string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal, unsigned
    }
    return r_a.str();
 }
-   
 
 /*
  * prepare training / testing trees with reduced number of events
@@ -97,7 +96,9 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Double_t MSCL = 0.;
     Double_t EChi2S = 0.;
     Double_t dES = 0.;
+    // fixed max number of telescope types
     UInt_t NImages_Ttype[20];
+    for( unsigned int i = 0; i < 20; i++ ) NImages_Ttype[i] = 0;
     Float_t EmissionHeight = 0.;
     Float_t EmissionHeightChi2 = 0.;
     Double_t SizeSecondMax = 0.;
@@ -196,7 +197,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    // cleanup all remainng trees
+    // cleanup all remaining trees
     for( unsigned int i = 0; i < iTreeVector.size(); i++ )
     {
         if( iSignal && iRun->fSignalTree[i] )
@@ -347,18 +348,25 @@ double checkIfVariableIsConstant( VTMVARunData* iRun, TCut iCut, string iVariabl
 
 */
 
-bool trainGammaHadronSeparation( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin )
+bool trainGammaHadronSeparation( VTMVARunData* iRun, 
+                                 unsigned int iEnergyBin, unsigned int iZenithBin, 
+                                 string fRunOption )
 {
-    return train( iRun, iEnergyBin, iZenithBin, true );
+    return train( iRun, iEnergyBin, iZenithBin, true, fRunOption );
 }
 
-bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin )
+bool trainReconstructionQuality( VTMVARunData* iRun, 
+                                 unsigned int iEnergyBin, unsigned int iZenithBin, 
+                                 string fRunOption )
 {
-    return train( iRun, iEnergyBin, iZenithBin, false );
+    return train( iRun, iEnergyBin, iZenithBin, false, fRunOption );
 }
 
 
-bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, bool iTrainGammaHadronSeparation )
+bool train( VTMVARunData* iRun, 
+            unsigned int iEnergyBin, unsigned int iZenithBin, 
+            bool iTrainGammaHadronSeparation,
+            string fRunOption )
 {
     // sanity checks
     if( !iRun )
@@ -408,22 +416,44 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
      // prepare trees for training and testing with selected events only
      // this step is necessary to minimise the memory impact for the BDT
      // training
-     //TFile iF("tt.root", "RECREATE" );
-     TTree *iSignalTree_reduced = prepareSelectedEventsTree( iRun,
+     TTree *iSignalTree_reduced = 0;
+     TTree *iBackgroundTree_reduced = 0;
+     if( fRunOption == "WRITETRAININGEVENTS" )
+     {
+         iSignalTree_reduced = prepareSelectedEventsTree( iRun,
                            iCutSignal, true,
                            iRun->fResetNumberOfTrainingEvents );
-     TTree *iBackgroundTree_reduced = prepareSelectedEventsTree( iRun, 
+         iBackgroundTree_reduced = prepareSelectedEventsTree( iRun, 
                            iCutBck, false,
                            iRun->fResetNumberOfTrainingEvents );
+     
+         if( iSignalTree_reduced ) iSignalTree_reduced->Write();
+         if( iBackgroundTree_reduced ) iBackgroundTree_reduced->Write();
+         if( iRun->getTLRunParameter() ) iRun->getTLRunParameter()->Write();
+         cout << "Writing reduced event lists for training: ";
+         cout << gDirectory->GetName() << endl;
+         exit( EXIT_SUCCESS );
+     }
+     else
+     {
+         cout << "Reading training / testing trees from ";
+         cout << iRun->fSelectedEventTreeName << endl;
+         TFile *iF = new TFile( iRun->fSelectedEventTreeName.c_str() );
+         if( iF->IsZombie() )
+         {
+             cout << "Error open file with pre-selected events: ";
+             cout << iRun->fSelectedEventTreeName << endl;
+             exit( EXIT_FAILURE );
+         }
+         iSignalTree_reduced = (TTree*)iF->Get( "data_signal" );
+         iBackgroundTree_reduced = (TTree*)iF->Get( "data_background" );
+     }
      if( !iSignalTree_reduced || !iBackgroundTree_reduced )
      {
          cout << "Error: failed preparing traing / testing trees" << endl;
          cout << "exiting..." << endl;
          exit( EXIT_SUCCESS );
      }
-     //iSignalTree_reduced->Write();
-     //iBackgroundTree_reduced->Write();
-     //iF.Flush();
     // check for number of training and background events
      Long64_t nEventsSignal = iSignalTree_reduced->GetEntries();
      Long64_t nEventsBck = iBackgroundTree_reduced->GetEntries();
@@ -643,7 +673,7 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     factory->EvaluateAllMethods();
     
     factory->Delete();
-    
+
     return true;
 }
 
@@ -666,10 +696,10 @@ int main( int argc, char* argv[] )
     cout << endl;
     cout << "trainTMVAforGammaHadronSeparation " << VGlobalRunParameter::getEVNDISP_VERSION() << endl;
     cout << "----------------------------------------" << endl;
-    if( argc != 2 )
+    if( argc != 2 && argc != 3 )
     {
         cout << endl;
-        cout << "./trainTMVAforGammaHadronSeparation <configuration file>" << endl;
+        cout << "./trainTMVAforGammaHadronSeparation <configuration file> [WRITETRAININGEVENTS]" << endl;
         cout << endl;
         cout << "  (an example for a configuration file can be found in " << endl;
         cout << "   $CTA_EVNDISP_AUX_DIR/ParameterFiles/TMVA.BDT.runparameter )" << endl;
@@ -691,6 +721,11 @@ int main( int argc, char* argv[] )
         cout << argv[1];
         cout << ")" << endl;
         exit( EXIT_FAILURE );
+    }
+    string fRunOption = "TRAIN";
+    if( argc == 3 )
+    {
+       fRunOption = "WRITETRAININGEVENTS";
     }
     // randomize list of input files
     fData->shuffleFileVectors();
@@ -723,11 +758,11 @@ int main( int argc, char* argv[] )
             // training
             if( fData->fTrainGammaHadronSeparation )
             {
-                trainGammaHadronSeparation( fData, i, j );
+                trainGammaHadronSeparation( fData, i, j, fRunOption );
             }
             if( fData->fTrainReconstructionQuality )
             {
-                trainReconstructionQuality( fData, i, j );
+                trainReconstructionQuality( fData, i, j, fRunOption );
             }
             stringstream iTempS;
             stringstream iTempS2;

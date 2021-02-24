@@ -32,6 +32,7 @@ VTMVARunData::VTMVARunData()
     fBackgroundWeight = 1.;
     fMinSignalEvents = 50;
     fMinBackgroundEvents = 0;
+    fSelectedEventTreeName = "";
     
     fNTtype = -1;
     
@@ -115,7 +116,12 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
                     {
                         if( fSignalTree[k] )
                         {
-                            fSignalTree[k]->Draw( ">>+signalList", fQualityCuts && fQualityCutsSignal && fMCxyoffCut && fAzimuthCut && fEnergyCutData[i]->fEnergyCut && fZenithCutData[j]->fZenithCut, "entrylist" );
+                            fSignalTree[k]->Draw( ">>+signalList", 
+                                                  fQualityCuts && fQualityCutsSignal 
+                                                  && fMCxyoffCut && fAzimuthCut && 
+                                                  fEnergyCutData[i]->fEnergyCut && 
+                                                  fZenithCutData[j]->fZenithCut, 
+                                                  "entrylist" );
                             i_j_SignalList = ( TEntryList* )gDirectory->Get( "signalList" );
                         }
                     }
@@ -590,6 +596,14 @@ bool VTMVARunData::readConfigurationFile( char* iC )
                     return false;
                 }
             }
+            // pre-selected traing file
+            if( temp == "PREEVENTLIST" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> fSelectedEventTreeName;
+                }
+            }
             // signal files
             if( temp == "SIGNALFILE" )
             {
@@ -784,4 +798,23 @@ void VTMVARunData::shuffleFileVectors()
     std::mt19937 g(rd());
     std::shuffle( fSignalFileName.begin(), fSignalFileName.end(), g );
     std::shuffle( fBackgroundFileName.begin(), fBackgroundFileName.end(), g );
+}
+
+VTableLookupRunParameter* VTMVARunData::getTLRunParameter()
+{
+   TDirectory* iG_CurrentDirectory = gDirectory;
+   if( fSignalFileName.size() > 0 )
+   {
+      TFile *iF = new TFile( fSignalFileName[0].c_str() );
+      if( iF->IsZombie() )
+      {
+           cout << "Error reading run parameters from ";
+           cout << fSignalFileName[0] << endl;
+           return 0;
+      }
+      VTableLookupRunParameter* iP = (VTableLookupRunParameter*)iF->Get( "TLRunParameter" );
+      iG_CurrentDirectory->cd();
+      return iP;
+   }
+   return 0;
 }
