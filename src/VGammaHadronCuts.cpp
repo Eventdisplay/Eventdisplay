@@ -2166,7 +2166,7 @@ bool VGammaHadronCuts::applyDirectionCuts( bool bCount, double x0, double y0 )
     
     // calculate theta2
     theta2 = ( fData->getXoff() - x0 ) * ( fData->getXoff() - x0 ) + ( fData->getYoff() - y0 ) * ( fData->getYoff() - y0 );
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // fetch theta2 cut (max) (might be energy dependent)
     double i_theta2_cut_max = getTheta2Cut_max( fData->getEnergy_TeV( ) );
