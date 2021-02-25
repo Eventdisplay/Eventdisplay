@@ -202,8 +202,8 @@ class CData
         TBranch*        b_Yoff;                   //!
         TBranch*        b_Xoff_derot;             //!
         TBranch*        b_Yoff_derot;             //!
-		TBranch*        b_Xoff_intersect;             //!
-		TBranch*        b_Yoff_intersect;             //!
+	TBranch*        b_Xoff_intersect;             //!
+	TBranch*        b_Yoff_intersect;             //!
         TBranch*        b_stdS;                   //!
         TBranch*        b_theta2;                 //!
         TBranch*        b_Xcore;                  //!
