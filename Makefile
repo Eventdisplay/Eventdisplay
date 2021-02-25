@@ -791,23 +791,13 @@ makeEffectiveArea:	$(EFFOBJECT) ./obj/makeEffectiveArea.o
 # DL2 writer fillDL2Trees
 ########################################################
 
-DL2OBJECT =	./obj/VGammaHadronCuts.o ./obj/VGammaHadronCuts_Dict.o \
-		./obj/CData.o \
+DL2OBJECT =	./obj/CData.o \
 		./obj/Ctelconfig.o \
-		./obj/VEvndispRunParameter.o ./obj/VEvndispRunParameter_Dict.o \
-		./obj/VImageCleaningRunParameter.o ./obj/VImageCleaningRunParameter_Dict.o \
-		./obj/VGammaHadronCutsStatistics.o ./obj/VGammaHadronCutsStatistics_Dict.o \
-		./obj/VStarCatalogue.o  ./obj/VStarCatalogue_Dict.o \
-                ./obj/VStar.o ./obj/VStar_Dict.o \
-		./obj/VDB_Connection.o \
 		./obj/VSpectralWeight.o ./obj/VSpectralWeight_Dict.o \
 		./obj/VRunList.o ./obj/VRunList_Dict.o ./obj/CRunSummary.o ./obj/CRunSummary_Dict.o \
-		./obj/VEvndispReconstructionParameter.o ./obj/VEvndispReconstructionParameter_Dict.o \
-		./obj/VTableLookupRunParameter.o ./obj/VTableLookupRunParameter_Dict.o \
 		./obj/VMonteCarloRunHeader.o ./obj/VMonteCarloRunHeader_Dict.o \
 		./obj/VAnalysisUtilities.o ./obj/VAnalysisUtilities_Dict.o \
 		./obj/VEffectiveAreaCalculatorMCHistograms.o ./obj/VEffectiveAreaCalculatorMCHistograms_Dict.o \
-		./obj/VInstrumentResponseFunctionRunParameter.o ./obj/VInstrumentResponseFunctionRunParameter_Dict.o \
 		./obj/VTMVAEvaluator.o ./obj/VTMVAEvaluator_Dict.o \
 		./obj/VTMVARunDataEnergyCut.o ./obj/VTMVARunDataEnergyCut_Dict.o \
 		./obj/VTMVARunDataZenithCut.o ./obj/VTMVARunDataZenithCut_Dict.o \
@@ -817,7 +807,6 @@ DL2OBJECT =	./obj/VGammaHadronCuts.o ./obj/VGammaHadronCuts_Dict.o \
 		./obj/VHistogramUtilities.o ./obj/VHistogramUtilities_Dict.o \
 		./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o \
 		./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-		./obj/VEnergySpectrumfromLiterature.o ./obj/VEnergySpectrumfromLiterature_Dict.o \
 		./obj/VDL2Writer.o \
 		./obj/fillDL2Trees.o
 

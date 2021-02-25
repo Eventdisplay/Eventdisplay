@@ -4,14 +4,15 @@
 #define VDL2Writer_H
 
 #include "CData.h"
-#include "VGammaHadronCuts.h"
-#include "VInstrumentResponseFunctionRunParameter.h"
+#include "VTMVAEvaluator.h"
 
 #include "TChain.h"
 #include "TDirectory.h"
 #include "TTree.h"
 
+#include <fstream>
 #include <iomanip>
+#include <sstream>
 #include <string>
 
 using namespace std;
@@ -19,40 +20,37 @@ using namespace std;
 class VDL2Writer
 {
     private:
-        VInstrumentResponseFunctionRunParameter* fRunPara;
-        VGammaHadronCuts* fCuts;
-        bool fIgnoreEnergyReconstruction;
-        bool fIsotropicArrivalDirections;
-        bool fTelescopeTypeCutsSet;
+
+        string fdatafile;
+
+        VTMVAEvaluator *fTMVAEvaluator;
+        string fInstrumentEpoch;
+        string fTMVA_MVAMethod;
+        unsigned int fTMVA_MVAMethodCounter;
+        unsigned int fTMVAWeightFileIndex_Emin;
+        unsigned int fTMVAWeightFileIndex_Emax;
+        unsigned int fTMVAWeightFileIndex_Zmin;
+        unsigned int fTMVAWeightFileIndex_Zmax;
+        double fTMVAEnergyStepSize;
+        string fTMVAWeightFile;
         
         // event data
         TTree *fEventTreeCuts;
-        int fCut_Class;
         float fCut_MVA;
 
-        void               fillEventDataTree( int iCutClass, float iMVA );
+        void fillEventDataTree( float iMVA );
+        bool initializeTMVAEvaluator( CData *d );
+        bool readConfigFile( string iConfigFile );
         
     public:
     
-        VDL2Writer( VInstrumentResponseFunctionRunParameter*, VGammaHadronCuts* );
+        VDL2Writer( string iConfigFile );
        ~VDL2Writer();
-        bool  fill( CData* d, unsigned int iMethod );
-        
+        bool  fill( CData* d );
+        string getDataFile() { return fdatafile; }
         TTree* getEventCutDataTree()
         {
              return fEventTreeCuts;
-        }
-        void setIgnoreEnergyReconstructionCuts( bool iB = false )
-        {
-            fIgnoreEnergyReconstruction = iB;
-        }
-        void setIsotropicArrivalDirections( bool iB = false )
-        {
-            fIsotropicArrivalDirections = iB;
-        }
-        void setTelescopeTypeCuts( bool iB = true )
-        {
-            fTelescopeTypeCutsSet = iB;
         }
 };
 #endif

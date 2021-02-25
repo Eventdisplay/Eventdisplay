@@ -1,5 +1,5 @@
 /*! \class VDLWriter
- *  \brief writes DL2 cut event lists
+ *  \brief DL2 (MVA values) writer
  *
  */
 
@@ -8,28 +8,21 @@
 /*!
  *
  */
-VDL2Writer::VDL2Writer( VInstrumentResponseFunctionRunParameter* iRunPara, 
-                        VGammaHadronCuts* icuts )
+VDL2Writer::VDL2Writer( string iConfigFile )
 {
-    fRunPara = iRunPara;
-    if( !fRunPara )
-    {
-        cout << "VDL2Writer: no run parameters given" << endl;
-        cout << "...exiting..." << endl;
-        exit( EXIT_FAILURE );
-    }
-    // cuts
-    fCuts = icuts;
-    setIgnoreEnergyReconstructionCuts( fRunPara->fIgnoreEnergyReconstructionQuality );
-    setIsotropicArrivalDirections( fRunPara->fIsotropicArrivalDirections );
-    setTelescopeTypeCuts( fRunPara->fTelescopeTypeCuts );
-    
-    ////////////////////////////////////
+    fTMVAEvaluator = 0;
+    fTMVAEnergyStepSize = 0.;
+    fTMVA_MVAMethodCounter = 0;
+    fTMVAWeightFileIndex_Emin = 0;
+    fTMVAWeightFileIndex_Emax = 0;
+    fTMVAWeightFileIndex_Zmin = 0;
+    fTMVAWeightFileIndex_Zmax = 0;
+
+    readConfigFile( iConfigFile );
+
     // tree with cut results for each event
-    fCut_Class = 0;
     fCut_MVA = 0.;
     fEventTreeCuts = new TTree( "fEventTreeCuts", "event cuts" );
-    fEventTreeCuts->Branch( "CutClass", &fCut_Class, "Class/I" );
     fEventTreeCuts->Branch( "MVA", &fCut_MVA, "MVA/F" );
 }
 
@@ -37,6 +30,80 @@ VDL2Writer::VDL2Writer( VInstrumentResponseFunctionRunParameter* iRunPara,
 
 VDL2Writer::~VDL2Writer()
 {
+    if( fTMVAEvaluator )
+    {
+        delete fTMVAEvaluator;
+    }
+}
+
+bool VDL2Writer::readConfigFile( string iConfigFile )
+{
+    ifstream is;
+    is.open( iConfigFile.c_str(), ifstream::in );
+    if( !is )
+    {
+        cout << "error opening run parameter file ";
+        cout << iConfigFile << endl;
+        exit( EXIT_FAILURE );
+    }
+    string is_line;
+    string temp;
+    cout << endl;
+    cout << "run parameter file (" << iConfigFile << ")" << endl;
+    
+    while( getline( is, is_line ) )
+    {
+        if( is_line.size() > 0 )
+        {
+            istringstream is_stream( is_line );
+            is_stream >> temp;
+            if( temp != "*" )
+            {
+                continue;
+            }
+            is_stream >> temp;
+            cout << is_line << endl;
+            if( temp == "SIMULATIONFILE_DATA" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> fdatafile;
+                }
+            }
+            // TMVA values
+            else if( temp == "TMVAPARAMETER" )
+            {
+                is_stream >> fInstrumentEpoch;
+                is_stream >> fTMVA_MVAMethod;
+                is_stream >> fTMVA_MVAMethodCounter;
+                is_stream >> fTMVAWeightFileIndex_Emin;
+                is_stream >> fTMVAWeightFileIndex_Emax;
+                is_stream >> fTMVAWeightFileIndex_Zmin;
+                is_stream >> fTMVAWeightFileIndex_Zmax;
+                is_stream >> fTMVAEnergyStepSize;
+                string iWeightFileDirectory;
+                is_stream >> iWeightFileDirectory;
+                string iWeightFileName;
+                is_stream >> iWeightFileName;
+                fTMVAWeightFile = gSystem->ExpandPathName( iWeightFileDirectory.c_str() );
+                // check if path name is complete
+                // note: this method returns FALSE if one **can** access the file
+                if( gSystem->AccessPathName( fTMVAWeightFile.c_str() ) )
+                {
+                    fTMVAWeightFile = VGlobalRunParameter::getDirectory_EVNDISPAnaData() + "/" + fTMVAWeightFile;
+                    if( gSystem->AccessPathName( fTMVAWeightFile.c_str() ) )
+                    {
+                        cout << "error, weight file directory not found: ";
+                        cout << fTMVAWeightFile << endl;
+                        cout << "exiting..." << endl;
+                        exit( EXIT_FAILURE );
+                    }
+                }
+                fTMVAWeightFile += "/" + iWeightFileName;
+            }
+        }
+    }
+    return true;
 }
 
 /*
@@ -44,195 +111,39 @@ VDL2Writer::~VDL2Writer()
  *  event loop 
  *
  */
-bool VDL2Writer::fill( CData* d, 
-                       unsigned int iMethod )
+bool VDL2Writer::fill( CData* d )
 {
-    // lots of debug output
-    bool bDebugCuts = false;
-    
-    // do not require successfull energy reconstruction
-    if( fIgnoreEnergyReconstruction )
-    {
-        iMethod = 100;
-    }
-    
-    // reset unique event counter
-    //	fUniqueEventCounter.clear();
-    int iSuccessfullEventStatistics = 0;
-    
-    //////////////////////////////////////////////////////////////////
-    // print some run information
-    cout << endl;
-    cout << "DL2 Eventlist filling" << endl;
-    if( fRunPara && fRunPara->fIgnoreFractionOfEvents > 0. )
-    {
-        cout << "\t ignore first " << fRunPara->fIgnoreFractionOfEvents * 100. << " % of events" << endl;
-    }
-    cout << endl;
-    
     // make sure that all data pointers exist
     if( !d )
     {
         cout << "VDL2Writer::fill error: no data tree" << endl;
         return false;
     }
+     
+    if( !initializeTMVAEvaluator( d ) )
+    {
+        return false;
+    }
     
-    ////////////////////////////////////////////////////////////////////////////
-    // reset cut statistics
-    fCuts->resetCutStatistics();
+    //////////////////////////////////////////////////////////////////
+    // print some run information
+    cout << endl;
+    cout << "DL2 Eventlist filling" << endl;
     
     ///////////////////////////////////////////////////////
     // get full data set and loop over all entries
     ///////////////////////////////////////////////////////
     Long64_t d_nentries = d->fChain->GetEntries();
-    Long64_t i_start = 0;
-    if( fRunPara && fRunPara->fIgnoreFractionOfEvents > 0. )
-    {
-        i_start = ( Long64_t )( fRunPara->fIgnoreFractionOfEvents * d_nentries );
-    }
-    cout << "\t total number of data events: " << d_nentries;
-    cout << " (start at event " << i_start << ")" << endl;
+    cout << "\t total number of data events: " << d_nentries << endl;
     
     // loop over all events
-    for( Long64_t i = i_start; i < d_nentries; i++ )
+    for( Long64_t i = 0; i < d_nentries; i++ )
     {
         d->GetEntry( i );
 
-        // update cut statistics
-        fCuts->newEvent();
-        
-        if( bDebugCuts )
-        {
-            cout << "============================== " << endl;
-            cout << "EVENT entry number " << i << endl;
-        }
-        
-        // apply MC cuts
-        if( bDebugCuts )
-        {
-            cout << "#0 CUT MC " << fCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, false ) << endl;
-        }
-        
-        if( !fCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, true ) )
-        {
-            fillEventDataTree( VGammaHadronCutsStatistics::eMC_XYoff, -1. );
-            continue;
-        }
-        
-        ////////////////////////////////
-        // apply general quality and gamma/hadron separation cuts
-        
-        // apply reconstruction cuts
-        if( bDebugCuts )
-        {
-            cout << "#1 CUT applyInsideFiducialAreaCut ";
-            cout << fCuts->applyInsideFiducialAreaCut();
-            cout << "\t" << fCuts->applyStereoQualityCuts( iMethod, false, i, true ) << endl;
-        }
-        
-        // apply fiducial area cuts
-        if( !fCuts->applyInsideFiducialAreaCut( true ) )
-        {
-            fillEventDataTree( 2, -1. );
-            continue;
-        }
-        
-        // apply reconstruction quality cuts
-        if( !fCuts->applyStereoQualityCuts( iMethod, true, i , true ) )
-        {
-            fillEventDataTree( 3, -1. );
-            continue;
-        }
-        
-        // apply telescope type cut (e.g. for CTA simulations)
-        if( fTelescopeTypeCutsSet )
-        {
-            if( bDebugCuts )
-            {
-                cout << "#2 Cut NTELType " << fCuts->applyTelTypeTest( false ) << endl;
-            }
-            if( !fCuts->applyTelTypeTest( true ) )
-            {
-                fillEventDataTree( 4, -1. );
-                continue;
-            }
-        }
-        
-        //////////////////////////////////////
-        // apply direction cut
-        //
-        // bDirectionCut = false: if direction is inside
-        // theta_min and theta_max
-        //
-        // point source cut; use MC shower direction as reference direction
-        bool bDirectionCut = false;
-        if( !fIsotropicArrivalDirections )
-        {
-            if( !fCuts->applyDirectionCuts( true ) )
-            {
-                bDirectionCut = true;
-            }
-        }
-        // background cut; use (0,0) as reference direction
-        // (command line option -d)
-        else
-        {
-            if( !fCuts->applyDirectionCuts( true, 0., 0. ) )
-            {
-                bDirectionCut = true;
-            }
-        }
-        
-        //////////////////////////////////////
-        // apply energy reconstruction quality cut
-        if( !fIgnoreEnergyReconstruction )
-        {
-            if( bDebugCuts )
-            {
-                cout << "#4 EnergyReconstructionQualityCuts";
-                cout << fCuts->applyEnergyReconstructionQualityCuts( iMethod ) << endl;
-            }
-            if( !fCuts->applyEnergyReconstructionQualityCuts( iMethod, true ) )
-            {
-                fillEventDataTree( 6, -1. );
-                continue;
-            }
-        }
-        //////////////////////////////////////
-        // apply gamma hadron cuts
-        if( bDebugCuts )
-        {
-            cout << "#3 CUT ISGAMMA " << fCuts->isGamma( i ) << endl;
-        }
-        if( !fCuts->isGamma( i, true ) )
-        {
-            fillEventDataTree( 7, fCuts->getTMVA_EvaluationResult() );
-            continue;
-        }
-        if( !bDirectionCut )
-        {
-            fillEventDataTree( 5, fCuts->getTMVA_EvaluationResult() );
-        }
-        // remaining events
-        else
-        {
-            fillEventDataTree( 0, fCuts->getTMVA_EvaluationResult() );
-        }
-        
-        // unique event counter
-        // (make sure that map doesn't get too big)
-        if( !bDirectionCut && iSuccessfullEventStatistics >= 0 )
-        {
-            iSuccessfullEventStatistics++;
-        }
-    }  // end of loop
-    /////////////////////////////////////////////////////////////////////////////
-    fCuts->printCutStatistics();
-    if( iSuccessfullEventStatistics < 0 )
-    {
-        iSuccessfullEventStatistics *= -1;
+        fTMVAEvaluator->evaluate();
+        fillEventDataTree( fTMVAEvaluator->getTMVA_EvaluationResult() );
     }
-    cout << "\t total number of events after cuts: " << iSuccessfullEventStatistics << endl;
     
     return true;
 }
@@ -259,13 +170,32 @@ bool VDL2Writer::fill( CData* d,
  *   fEventTreeCuts->Draw("MVA", "Class==0||Class==7||Class==5", "");
  *
  */
-void VDL2Writer::fillEventDataTree( int iCutClass, float iMVA )
+void VDL2Writer::fillEventDataTree( float iMVA )
 {
       if( fEventTreeCuts )
       {
-          fCut_Class = iCutClass;
           fCut_MVA = iMVA;
           fEventTreeCuts->Fill();
       }
 }
 
+bool VDL2Writer::initializeTMVAEvaluator( CData *d )
+{
+    fTMVAEvaluator = new VTMVAEvaluator();
+    fTMVAEvaluator->setTMVAMethod( fTMVA_MVAMethod, fTMVA_MVAMethodCounter );
+   
+    if( !fTMVAEvaluator->initializeWeightFiles( 
+            fTMVAWeightFile, 
+            fTMVAWeightFileIndex_Emin, fTMVAWeightFileIndex_Emax,
+            fTMVAWeightFileIndex_Zmin, fTMVAWeightFileIndex_Zmax, 
+            fTMVAEnergyStepSize, fInstrumentEpoch ) )
+    {
+        cout << "initTMVAEvaluator: error while initializing TMVA weight files" << endl;
+        cout << "exiting... " << endl;
+        exit( EXIT_FAILURE );
+    }
+
+    fTMVAEvaluator->initializeDataStrutures( d );
+
+    return !fTMVAEvaluator->IsZombie();
+}

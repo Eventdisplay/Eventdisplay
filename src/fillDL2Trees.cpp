@@ -14,14 +14,11 @@
 #include "TSystem.h"
 #include "TTree.h"
 
-#include "VGlobalRunParameter.h"
 #include "CData.h"
 #include "VEffectiveAreaCalculatorMCHistograms.h"
-#include "VGammaHadronCuts.h"
 #include "VDL2Writer.h"
-#include "VInstrumentResponseFunctionRunParameter.h"
+#include "VGlobalRunParameter.h"
 #include "VMonteCarloRunHeader.h"
-#include "VTableLookupRunParameter.h"
 
 #include <fstream>
 #include <iostream>
@@ -32,6 +29,7 @@
 using namespace std;
 
 VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c );
+bool writeMCRunHeader( TChain *c, TFile *iOutFile );
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,24 +59,12 @@ int main( int argc, char* argv[] )
     if( argc != 3 )
     {
         cout << endl;
-        cout << "./fillDL2Trees" << endl;
+        cout << "./fillDL2Trees <config file> <output file>" << endl;
         exit( EXIT_SUCCESS );
     }
+    string fConfigFile = argv[1];
     string fOutputfileName = argv[2];
-    
-    /////////////////////////////////////////////////////////////////
-    // read run parameters from file
-    VInstrumentResponseFunctionRunParameter* fRunPara = new VInstrumentResponseFunctionRunParameter();
-    fRunPara->SetName( "fillDL2Tree_runparameter" );
-    if( !fRunPara->readRunParameterFromTextFile( argv[1] ) )
-    {
-        cout << "error reading runparameters from text file" << endl;
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE );
-    }
-    fRunPara->print();
-    
-    /////////////////////////////////////////////////////////////////
+
     // open output file and write results to dist
     TFile* fOutputfile = new TFile( fOutputfileName.c_str(), "RECREATE" );
     if( fOutputfile->IsZombie() )
@@ -88,126 +74,53 @@ int main( int argc, char* argv[] )
         exit( EXIT_FAILURE );
     }
     
-    /////////////////////////////////////////////////////////////////
-    // gamma/hadron cuts
-    VGammaHadronCuts* fCuts = new VGammaHadronCuts();
-    fCuts->initialize();
-    fCuts->setNTel( fRunPara->telconfig_ntel, 
-                    fRunPara->telconfig_arraycentre_X, 
-                    fRunPara->telconfig_arraycentre_Y );
-    fCuts->setInstrumentEpoch( fRunPara->getInstrumentEpoch( true ) );
-    fCuts->setTelToAnalyze( fRunPara->fTelToAnalyse );
-    fCuts->setReconstructionType( fRunPara->fReconstructionType );
-    if( !fCuts->readCuts( fRunPara->fCutFileName, 2 ) )
-    {
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE ) ;
-    }
-    fRunPara->fGammaHadronCutSelector = fCuts->getGammaHadronCutSelector();
-    fRunPara->fDirectionCutSelector   = fCuts->getDirectionCutSelector();
-    fCuts->initializeCuts( -1, fRunPara->fGammaHadronProbabilityFile );
-    fCuts->printCutSummary();
-    
-    /////////////////////////////////////////////////////////////////
-    // read MC header (might not be there, no problem; but depend on right input in runparameter file)
-    VMonteCarloRunHeader* iMonteCarloHeader = fRunPara->readMCRunHeader();
-    
-    /////////////////////////////////////////////////////////////////////////////
     // DL2 writer
-    VDL2Writer fDL2Writer( fRunPara, fCuts );
+    VDL2Writer fDL2Writer( fConfigFile );
     
-    /////////////////////////////////////////////////////////////////////////////
-    // set effective area Monte Carlo histogram class
-    VEffectiveAreaCalculatorMCHistograms* fMC_histo = 0;
-    
-    /////////////////////////////////////////////////////////////////////////////
     // load data chain
     TChain* c = new TChain( "data" );
-    if( !c->Add( fRunPara->fdatafile.c_str(), -1 ) )
+    if( !c->Add( fDL2Writer.getDataFile().c_str(), -1 ) )
     {
-        cout << "Error while trying to add mscw data tree from file " << fRunPara->fdatafile  << endl;
+        cout << "Error while trying to add mscw data tree from file ";
+        cout << fDL2Writer.getDataFile() << endl;
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
     
     CData d( c, true, true );
-    fCuts->setDataTree( &d );
-    d.setReconstructionType( fCuts->fReconstructionType );
     
-    //////////////////////////////////////////////////////////////////////////////
     // MC histograms
-    if( fRunPara->fFillingMode != 1 && fRunPara->fFillingMode != 2 )
+    VEffectiveAreaCalculatorMCHistograms *fMC_histo = copyMCHistograms( c );
+    if( fMC_histo )
     {
-        fMC_histo = copyMCHistograms( c );
-        if( fMC_histo )
-        {
-            fMC_histo->matchDataVectors( fRunPara->fAzMin, 
-                                         fRunPara->fAzMax, 
-                                         fRunPara->fSpectralIndex );
-            fMC_histo->print();
-        }
-        else
-        {
-            cout << "Warning: failed reading MC histograms" << endl;
-        }
+        fMC_histo->print();
+    }
+    else
+    {
+        cout << "Warning: failed reading MC histograms" << endl;
     }
     
-    //////////////////////////////////////////////////////////////////////////////
     // fill DL2 trees
     fOutputfile->cd();
-    fDL2Writer.fill( &d, fRunPara->fEnergyReconstructionMethod );
+    fDL2Writer.fill( &d );
     
-    
-    /////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////
     // write results to disk
     if( fDL2Writer.getEventCutDataTree() )
     {
-           cout << "writing event data trees: (";
-           cout << fDL2Writer.getEventCutDataTree()->GetName();
-           cout << ") to " << fOutputfile->GetName() << endl;
-           fOutputfile->cd();
-           if( fDL2Writer.getEventCutDataTree() )
-           {
-               fDL2Writer.getEventCutDataTree()->Write();
-           }
-           if( c )
-           {
-               c->Merge(fOutputfile, 0, "keep" );
-           }
-    }
-        if( fCuts->getMVACutGraphs().size() > 0 )
+        cout << "writing event data trees: (";
+        cout << fDL2Writer.getEventCutDataTree()->GetName();
+        cout << ") to " << fOutputfile->GetName() << endl;
+        fOutputfile->cd();
+        if( fDL2Writer.getEventCutDataTree() )
         {
-              cout << "writing MVA cut graphs to " << fOutputfile->GetName() << endl;
-              fOutputfile->cd();
-              if( fOutputfile->mkdir( "mvaGraphs" ) )
-              {
-                  fOutputfile->cd( "mvaGraphs" );   
-                  for( unsigned int i = 0; i < fCuts->getMVACutGraphs().size(); i++ )
-                  {
-                      if( fCuts->getMVACutGraphs()[i] )
-                      {
-                          fCuts->getMVACutGraphs()[i]->Write();
-                      }
-                  }
-              }
-              fOutputfile->cd();
+            fDL2Writer.getEventCutDataTree()->Write();
         }
-    // writing cuts to disk
-    if( fCuts )
-    {
-        fCuts->terminate( ( fRunPara->fEffArea_short_writing || fRunPara->fFillingMode == 3 ) );
+        if( c )
+        {
+            c->Merge(fOutputfile, 0, "keep" );
+        }
     }
-    // writing monte carlo header to disk
-    if( iMonteCarloHeader )
-    {
-        iMonteCarloHeader->Write();
-    }
-    // write run parameters to disk
-    if( fRunPara )
-    {
-        fRunPara->Write();
-    }
+    writeMCRunHeader( c, fOutputfile );
     
     fOutputfile->Close();
     cout << "end..." << endl;
@@ -253,4 +166,21 @@ VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c )
     return iMC_his;
 }
 
+bool writeMCRunHeader( TChain *c, 
+                       TFile *iOutFile )
+{
+    if( !c || !iOutFile ) return false;
+
+    // writing monte carlo header to disk
+    TFile* iF = (TFile*)c->GetFile();
+    if( !iF ) return false;
+    VMonteCarloRunHeader* iMC = (VMonteCarloRunHeader*)iF->Get( "MC_runheader" );
+    iOutFile->cd();
+    if( iMC )
+    {
+        iMC->Write();
+        return true;
+    }
+    return false;
+}
 
