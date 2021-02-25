@@ -324,7 +324,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                 {
                     is_stream >> fFillingMode;
                 }
-                if( fFillingMode > 3 )
+                if( fFillingMode > 3 && fFillingMode < 100 )
                 {
                     cout << "readInputFileList: error: invalid filling mode " << fFillingMode << endl;
                     return false;
@@ -656,25 +656,21 @@ void VInstrumentResponseFunctionRunParameter::print()
     {
         cout << " (calculating complete set of response functions (effective areas, energy, core and angular resolution curves))";
     }
-    if( fFillingMode == 1 )
+    else if( fFillingMode == 1 )
     {
         cout << " (calculating core and angular resolution curves)";
     }
-    if( fFillingMode == 2 )
+    else if( fFillingMode == 2 )
     {
         cout << " (calculating angular resolution curves)";
     }
-    if( fFillingMode == 3 )
+    else if( fFillingMode == 3 )
     {
         cout << " (calculating effective areas and energy resolution curves)";
     }
-    if( fEffArea_short_writing )
+    else if( fFillingMode >= 100 )
     {
-        cout << "( short output )";
-    }
-    else
-    {
-        cout << "( long output )";
+        cout << " (filling DL2 trees )";
     }
     cout << endl;
     if( fFillMCHistograms )
