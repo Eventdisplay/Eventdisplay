@@ -16,7 +16,6 @@ VInstrumentResponseFunction::VInstrumentResponseFunction()
     fOutputFile = 0;
     
     fData = 0;
-    fAnaCuts = 0;
     fEnergyReconstructionMethod = 0;
     
     fSpectralWeight = new VSpectralWeight();
@@ -178,9 +177,12 @@ bool VInstrumentResponseFunction::fillEventData()
         return false;
     }
     // cut are needed
-    if( !fAnaCuts )
+    for( unsigned int c = 0; c < fAnaCuts.size(); c++ )
     {
-        return false;
+        if( !fAnaCuts[c] )
+        {
+            return false;
+        }
     }
     
     // spectral weight
@@ -195,11 +197,14 @@ bool VInstrumentResponseFunction::fillEventData()
     for( Long64_t i = 0; i < d_nentries; i++ )
     {
         fData->GetEntry( i );
+
+        VGammaHadronCuts *iAnaCuts = getGammaHadronCuts( fData );
+        if( !iAnaCuts ) continue;
         
-        fAnaCuts->newEvent( false );
+        iAnaCuts->newEvent( false );
         
         // apply MC cuts
-        if( !fAnaCuts->applyMCXYoffCut( fData->MCxoff, fData->MCyoff, true ) )
+        if( !iAnaCuts->applyMCXYoffCut( fData->MCxoff, fData->MCyoff, true ) )
         {
             continue;
         }
@@ -207,13 +212,13 @@ bool VInstrumentResponseFunction::fillEventData()
         ////////////////////////////////
         // apply general quality and gamma/hadron separation cuts
         // apply fiducial area cuts
-        if( !fAnaCuts->applyInsideFiducialAreaCut( true ) )
+        if( !iAnaCuts->applyInsideFiducialAreaCut( true ) )
         {
             continue;
         }
         
         // apply reconstruction quality cuts
-        if( !fAnaCuts->applyStereoQualityCuts( fEnergyReconstructionMethod, true, i , true ) )
+        if( !iAnaCuts->applyStereoQualityCuts( fEnergyReconstructionMethod, true, i , true ) )
         {
             continue;
         }
@@ -221,19 +226,19 @@ bool VInstrumentResponseFunction::fillEventData()
         // apply telescope type cut
         if( fTelescopeTypeCutsSet )
         {
-            if( !fAnaCuts->applyTelTypeTest( true ) )
+            if( !iAnaCuts->applyTelTypeTest( true ) )
             {
                 continue;
             }
         }
         // apply energy quality cuts
-        if( !fAnaCuts->applyEnergyReconstructionQualityCuts( fEnergyReconstructionMethod, true ) )
+        if( !iAnaCuts->applyEnergyReconstructionQualityCuts( fEnergyReconstructionMethod, true ) )
         {
             continue;
         }
         
         // apply gamma/hadron cuts
-        if( !fAnaCuts->isGamma( i, true ) )
+        if( !iAnaCuts->isGamma( i, true ) )
         {
             continue;
         }
@@ -370,11 +375,12 @@ void VInstrumentResponseFunction::setEnergyReconstructionMethod( unsigned int iM
     }
 }
 
-void VInstrumentResponseFunction::setCuts( VGammaHadronCuts* iCuts )
+void VInstrumentResponseFunction::setCuts( vector< VGammaHadronCuts* > iCuts )
 {
     fAnaCuts = iCuts;
-    
-    if( fAnaCuts )
+
+    // all cuts should have the same layout (array) properties)
+    if( fAnaCuts.size() > 0 && fAnaCuts[0] )
     {
         for( unsigned int i = 0; i < fIRFData.size(); i++ )
         {
@@ -382,11 +388,12 @@ void VInstrumentResponseFunction::setCuts( VGammaHadronCuts* iCuts )
             {
                 if( fIRFData[i][j] )
                 {
-                    fIRFData[i][j]->setArrayCentre( fAnaCuts->getArrayCentre_X(), fAnaCuts->getArrayCentre_Y() );
+                    fIRFData[i][j]->setArrayCentre( fAnaCuts[0]->getArrayCentre_X(), 
+                                                    fAnaCuts[0]->getArrayCentre_Y() );
                 }
             }
         }
-    }
+   }
 }
 
 TGraphErrors* VInstrumentResponseFunction::getAngularResolutionGraph( unsigned int iAzBin, unsigned int iSpectralIndexBin )
@@ -481,5 +488,31 @@ void VInstrumentResponseFunction::setDuplicationID( unsigned int iID )
     fDuplicationID = iID;
 }
 
+VGammaHadronCuts* VInstrumentResponseFunction::getGammaHadronCuts( CData* c )
+{
+    if( !c ) return 0;
 
+    if( fAnaCuts.size() == 1 ) 
+    {
+        return fAnaCuts[0];
+    }
+    for( unsigned int i = 0; i < fAnaCuts.size(); i++ )
+    {
+         if( fAnaCuts[i] && fAnaCuts[i]->useThisCut( c ) )
+         {
+             return fAnaCuts[i];
+         }
+    }
+    return 0;
+}
 
+void VInstrumentResponseFunction::printCutStatistics()
+{
+   for( unsigned int i = 0; i < fAnaCuts.size(); i++ )
+   {
+       if( fAnaCuts[i] ) 
+       {
+           fAnaCuts[i]->printCutStatistics();
+       }
+   }
+}

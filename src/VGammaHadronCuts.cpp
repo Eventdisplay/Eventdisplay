@@ -2566,9 +2566,23 @@ double VGammaHadronCuts::getProbabilityCutAlpha( bool fIsOn )
     
 }
 
-void VGammaHadronCuts::terminate( bool iShort )
+/*
+ * check if this cut should be used
+ * in IRF or effective area calculation
+ */
+bool VGammaHadronCuts::useThisCut( CData *c )
 {
-    SetName( "GammaHadronCuts" );
+    if( !c ) return false;
+
+    // TMPTMPTMPTMP
+
+    return true;
+}
+
+void VGammaHadronCuts::terminate( bool iShort,
+                                  string iObjectName )
+{
+    SetName( iObjectName.c_str() );
     
     if( fStats->getDataTree() && !iShort )
     {

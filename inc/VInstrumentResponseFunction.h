@@ -51,7 +51,7 @@ class VInstrumentResponseFunction
         vector< vector< VInstrumentResponseFunctionData* > > fIRFData;
         
         // cuts
-        VGammaHadronCuts* fAnaCuts;
+        vector< VGammaHadronCuts* > fAnaCuts;
         bool              fTelescopeTypeCutsSet;
         
         // effective area calculation
@@ -67,6 +67,7 @@ class VInstrumentResponseFunction
         
         bool    defineHistograms();
         bool    fillEventData();
+        VGammaHadronCuts* getGammaHadronCuts( CData* );
         
     public:
     
@@ -112,20 +113,14 @@ class VInstrumentResponseFunction
         }
         bool   initialize( string iName, string iType, unsigned int iNTel, double iMCMaxCoreRadius,
                            double iZe, int iNoise, double iPedvars, double iXoff, double iYoff );
-        void   printCutStatistics()
-        {
-               if( fAnaCuts ) 
-               {
-                   fAnaCuts->printCutStatistics();
-               }
-        }
+        void   printCutStatistics();
         void   setDuplicationID( unsigned int iDuplicationID = 9999 );
         void   setEnergyReconstructionMethod( unsigned int iMethod );
-        void   setCuts( VGammaHadronCuts* iCuts );
+        void   setCuts( vector< VGammaHadronCuts* > iCuts );
 	void   setContainmentProbability( double iP = 0.68, double iPError = 0.95 )
         {
             fContainmentProbability = iP;
-			fContainmentProbabilityError = iPError;
+     	    fContainmentProbabilityError = iPError;
         }
         void   setDataTree( CData* iData );
         void   setMonteCarloEnergyRange( double iMin, double iMax, double iMCIndex = 2. );

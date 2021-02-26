@@ -37,7 +37,6 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     fhistoNEbins_logTeV_min = fEnergyAxis_logTeV_min;
     fhistoNEbins_logTeV_max = fEnergyAxis_logTeV_max;
     
-    fCutFileName = "";
     fGammaHadronCutSelector = -1;
     fDirectionCutSelector = -1;
     
@@ -301,7 +300,8 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             {
                 if( !(is_stream>>std::ws).eof() )
                 {
-                    is_stream >> fCutFileName;
+                    is_stream >> temp;
+                    fCutFileName.push_back( temp );
                 }
             }
             // * SCATTERMODE <core scatter radius [m]> <type of CORSIKA simulations (FLAT or VIEWCONE)>
@@ -702,8 +702,11 @@ void VInstrumentResponseFunctionRunParameter::print()
     }
     
     cout << endl;
-    cout << "cuts: ";
-    cout << "  " << fCutFileName << endl;
+    cout << "cuts: " << endl;
+    for( unsigned int i = 0; i < fCutFileName.size(); i++ )
+    {
+        cout << "  " << fCutFileName[i] << endl;
+    }
     cout << "cut selectors: ";
     if( fGammaHadronCutSelector >= 0 )
     {

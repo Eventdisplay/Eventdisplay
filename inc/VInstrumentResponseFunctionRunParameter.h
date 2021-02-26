@@ -36,7 +36,7 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         unsigned int    fFillingMode;              // filling mode
         bool            fEffArea_short_writing;    // short/long tree writing
         
-        string          fCutFileName;
+        vector< string > fCutFileName;
         string          fInstrumentEpoch;
         vector< unsigned int > fTelToAnalyse;             // telescopes used in analysis (optional, not always filled)
         int             fGammaHadronCutSelector;
@@ -109,13 +109,14 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         VInstrumentResponseFunctionRunParameter();
         ~VInstrumentResponseFunctionRunParameter() {}
         
+        vector< string >      getCutFileName() { return fCutFileName; }
         string                getInstrumentEpoch( bool iMajor = false );	
         void                  print();
         VMonteCarloRunHeader* readMCRunHeader();
         bool                  readRunParameterFromTextFile( string iFile );
         bool                  testRunparameters();
         
-        ClassDef( VInstrumentResponseFunctionRunParameter, 18 );
+        ClassDef( VInstrumentResponseFunctionRunParameter, 19 );
 };
 
 #endif

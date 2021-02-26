@@ -417,7 +417,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             fCut_Theta2_max = it2;
         }
-        void   terminate( bool iShort = false );
+        void   terminate( bool iShort = false, string iObjectName = "GammaHadronCuts" );
         bool   useDeepLearnerCuts()
         {
             return ( fReconstructionType == DEEPLEARNER );
@@ -426,10 +426,11 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             return ( fGammaHadronCutSelector / 10 == 4 );
         }
+        bool useThisCut( CData *c );
         void setReconstructionType( E_ReconstructionType type )
         {
             fReconstructionType = type;
         }
-        ClassDef( VGammaHadronCuts, 67 );
+        ClassDef( VGammaHadronCuts, 68 );
 };
 #endif
