@@ -121,7 +121,7 @@ VGammaHadronCuts::VGammaHadronCuts()
     fAngResContainmentProbability = 0;
 
     fCutCharacteristicsMCAZ = -999.;
-    fCutCharacteristicsMCAZ_tolerance = 5.;
+    fCutCharacteristicsMCAZ_tolerance = 60.;
 }
 
 void VGammaHadronCuts::initialize()
@@ -2580,6 +2580,11 @@ bool VGammaHadronCuts::useThisCut( CData *c )
     if( fCutCharacteristicsMCAZ < -998. ) return true;
 
     if( TMath::Abs( c->MCaz - fCutCharacteristicsMCAZ )
+       < fCutCharacteristicsMCAZ_tolerance )
+    {
+        return true;
+    }
+    if( TMath::Abs( c->MCaz - fCutCharacteristicsMCAZ - 360. )
        < fCutCharacteristicsMCAZ_tolerance )
     {
         return true;

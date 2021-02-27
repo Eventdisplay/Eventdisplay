@@ -431,7 +431,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
             return ( fGammaHadronCutSelector / 10 == 4 );
         }
         bool useThisCut( CData *c );
-        void setCutCharacteristicsMCAZ( float iZ, float iT = 5. )
+        void setCutCharacteristicsMCAZ( float iZ, float iT = 60. )
         {
             fCutCharacteristicsMCAZ = iZ;
             fCutCharacteristicsMCAZ_tolerance = iT;
