@@ -119,6 +119,9 @@ VGammaHadronCuts::VGammaHadronCuts()
     fAngRes_AbsoluteMaximum = 1.e10;
     fAngRes_FixedAboveEnergy_TeV = 1.e30;
     fAngResContainmentProbability = 0;
+
+    fCutCharacteristicsMCAZ = -999.;
+    fCutCharacteristicsMCAZ_tolerance = 5.;
 }
 
 void VGammaHadronCuts::initialize()
@@ -2574,9 +2577,15 @@ bool VGammaHadronCuts::useThisCut( CData *c )
 {
     if( !c ) return false;
 
-    // TMPTMPTMPTMP
+    if( fCutCharacteristicsMCAZ < -998. ) return true;
 
-    return true;
+    if( TMath::Abs( c->MCaz - fCutCharacteristicsMCAZ )
+       < fCutCharacteristicsMCAZ_tolerance )
+    {
+        return true;
+    }
+
+    return false;
 }
 
 void VGammaHadronCuts::terminate( bool iShort,

@@ -166,6 +166,10 @@ class VGammaHadronCuts : public VAnalysisUtilities
         
         // cut statistics
         VGammaHadronCutsStatistics* fStats;                       //!
+
+        // selection criteria for use this cut
+        float fCutCharacteristicsMCAZ;
+        float fCutCharacteristicsMCAZ_tolerance;
         
         bool   applyProbabilityCut( int i, bool fIsOn );
         bool   applyDeepLearnerCut();
@@ -427,10 +431,15 @@ class VGammaHadronCuts : public VAnalysisUtilities
             return ( fGammaHadronCutSelector / 10 == 4 );
         }
         bool useThisCut( CData *c );
+        void setCutCharacteristicsMCAZ( float iZ, float iT = 5. )
+        {
+            fCutCharacteristicsMCAZ = iZ;
+            fCutCharacteristicsMCAZ_tolerance = iT;
+        }
         void setReconstructionType( E_ReconstructionType type )
         {
             fReconstructionType = type;
         }
-        ClassDef( VGammaHadronCuts, 68 );
+        ClassDef( VGammaHadronCuts, 69 );
 };
 #endif

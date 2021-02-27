@@ -303,6 +303,15 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                     is_stream >> temp;
                     fCutFileName.push_back( temp );
                 }
+                if( !(is_stream>>std::ws).eof() )
+                { 
+                   is_stream >> temp;
+                   fCutCharacteristicMCAZ.push_back( atof( temp.c_str() ) );
+                }
+                else 
+                {
+                   fCutCharacteristicMCAZ.push_back( -999. );
+                }
             }
             // * SCATTERMODE <core scatter radius [m]> <type of CORSIKA simulations (FLAT or VIEWCONE)>
             else if( temp == "SCATTERMODE" )
@@ -705,7 +714,12 @@ void VInstrumentResponseFunctionRunParameter::print()
     cout << "cuts: " << endl;
     for( unsigned int i = 0; i < fCutFileName.size(); i++ )
     {
-        cout << "  " << fCutFileName[i] << endl;
+        cout << "  " << fCutFileName[i];
+        if( i < fCutCharacteristicMCAZ.size() )
+        {
+            cout << " (MCAZ " << fCutCharacteristicMCAZ[i] << ")";
+        }
+        cout << endl;
     }
     cout << "cut selectors: ";
     if( fGammaHadronCutSelector >= 0 )

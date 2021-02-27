@@ -123,6 +123,10 @@ int main( int argc, char* argv[] )
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE ) ;
         }
+        if( i < fRunPara->getCutCharacteristicMCAZ().size() )
+        {
+            fCuts.back()->setCutCharacteristicsMCAZ( fRunPara->getCutCharacteristicMCAZ()[i] );
+        }
         fRunPara->fGammaHadronCutSelector = fCuts.back()->getGammaHadronCutSelector();
         fRunPara->fDirectionCutSelector   = fCuts.back()->getDirectionCutSelector();
         fCuts.back()->initializeCuts( -1, fRunPara->fGammaHadronProbabilityFile );
@@ -139,7 +143,7 @@ int main( int argc, char* argv[] )
     
     /////////////////////////////////////////////////////////////////////////////
     // set effective area class
-    VEffectiveAreaCalculator fEffectiveAreaCalculator( fRunPara, fCuts[0] );
+    VEffectiveAreaCalculator fEffectiveAreaCalculator( fRunPara, fCuts );
     
     /////////////////////////////////////////////////////////////////////////////
     // set effective area Monte Carlo histogram class
@@ -450,10 +454,10 @@ int main( int argc, char* argv[] )
         }
     }
     // writing cuts to disk
-    ostringstream cutsname;
-    cutsname << "GammaHadronCuts";
     for( unsigned int i = 0; i < fCuts.size(); i++ )
     {
+        ostringstream cutsname;
+        cutsname << "GammaHadronCuts";
         if( fCuts.size() > 1 )
         {
             cutsname << "_" << i;

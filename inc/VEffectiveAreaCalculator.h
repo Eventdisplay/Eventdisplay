@@ -105,7 +105,7 @@ class VEffectiveAreaCalculator
         VInstrumentResponseFunctionRunParameter* fRunPara;
         
         // gamma hadron cuts
-        VGammaHadronCuts* fCuts;
+        vector< VGammaHadronCuts* > fCuts;
         bool fIgnoreEnergyReconstruction;
         bool fIsotropicArrivalDirections;
         bool fTelescopeTypeCutsSet;
@@ -251,6 +251,7 @@ class VEffectiveAreaCalculator
         double             getEffectiveAreasFromHistograms( double erec, double ze, double woff, double iPedVar,
                 double iSpectralIndex, bool bAddtoMeanEffectiveArea = true );
         string             getEffectiveAreaNamefromEnumInt( int i, string iType );
+        VGammaHadronCuts*  getGammaHadronCuts( CData* c );
         bool               getMonteCarloSpectra( VEffectiveAreaCalculatorMCHistograms* );
         double             getMCSolidAngleNormalization();
         vector< unsigned int > getUpperLowBins( vector< double > i_values, double d );
@@ -273,10 +274,13 @@ class VEffectiveAreaCalculator
         
     public:
     
+        // constructor for reading
         VEffectiveAreaCalculator( string ieffFile, double azmin, double azmax, double iPedVar, double iIndex,
                                   vector< double> fMCZe, int iSmoothIter = -1, double iSmoothThreshold = 1.,
-				  int iEffectiveAreaVsEnergyMC = 2, bool iLikelihoodAnalysis = false, bool iIsOn = false );          // constructor for reading
-        VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter*, VGammaHadronCuts* );       // constructor for filling
+				  int iEffectiveAreaVsEnergyMC = 2, bool iLikelihoodAnalysis = false, bool iIsOn = false );
+        // constructor for filling
+        VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter*, 
+                                  vector< VGammaHadronCuts* > );
         ~VEffectiveAreaCalculator();
         
         void               cleanup();

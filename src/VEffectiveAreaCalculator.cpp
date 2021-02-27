@@ -19,7 +19,8 @@
  *  (calculation of effective areas)
  *
  */
-VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter* iRunPara, VGammaHadronCuts* icuts )
+VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter* iRunPara, 
+                                                    vector< VGammaHadronCuts* > icuts )
 {
     fRunPara = iRunPara;
     if( !fRunPara )
@@ -1236,8 +1237,6 @@ void VEffectiveAreaCalculator::reset()
     fEnergyAxis_minimum_defaultValue = -2.0;
     fEnergyAxis_maximum_defaultValue = 4.0;
     
-    fCuts = 0;
-    
     fTNoise = 0;
     fTNoisePE = 0.;
     fTPedvar = 0.;
@@ -1302,10 +1301,12 @@ void VEffectiveAreaCalculator::reset()
 double VEffectiveAreaCalculator::getMCSolidAngleNormalization()
 {
     double iSolAngleNorm = 1.;
-    if( fCuts && fRunPara )
+    if( fCuts.size() > 0 && fCuts[0] && fRunPara )
     {
-        if( fRunPara->fViewcone_max > 0. && fCuts->fCut_CameraFiducialSize_MC_max > 0. && fCuts->fCut_CameraFiducialSize_MC_max < 1000.
-                && fCuts->fCut_CameraFiducialSize_MC_max < fRunPara->fViewcone_max )
+        if( fRunPara->fViewcone_max > 0.
+         && fCuts[0]->fCut_CameraFiducialSize_MC_max > 0.
+         && fCuts[0]->fCut_CameraFiducialSize_MC_max < 1000.
+         && fCuts[0]->fCut_CameraFiducialSize_MC_max < fRunPara->fViewcone_max )
         {
             // solid angle of simulated showers
             double iSN_mc = ( 1. - cos( fRunPara->fViewcone_max * TMath::DegToRad() ) );
@@ -1314,10 +1315,10 @@ double VEffectiveAreaCalculator::getMCSolidAngleNormalization()
                 iSN_mc -= ( 1. - cos( fRunPara->fViewcone_min * TMath::DegToRad() ) );
             }
             // solid angle of angular bin
-            double iSN_cu = ( 1. - cos( fCuts->fCut_CameraFiducialSize_MC_max * TMath::DegToRad() ) );
-            if( fCuts->fCut_CameraFiducialSize_MC_min > 0. )
+            double iSN_cu = ( 1. - cos( fCuts[0]->fCut_CameraFiducialSize_MC_max * TMath::DegToRad() ) );
+            if( fCuts[0]->fCut_CameraFiducialSize_MC_min > 0. )
             {
-                iSN_cu -= ( 1. - cos( fCuts->fCut_CameraFiducialSize_MC_min * TMath::DegToRad() ) );
+                iSN_cu -= ( 1. - cos( fCuts[0]->fCut_CameraFiducialSize_MC_min * TMath::DegToRad() ) );
             }
             
             if( iSN_mc > 0. )
@@ -1510,7 +1511,10 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
     
     ////////////////////////////////////////////////////////////////////////////
     // reset cut statistics
-    fCuts->resetCutStatistics();
+    for( unsigned int i = 0; i < fCuts.size(); i++ )
+    {
+        fCuts[i]->resetCutStatistics();
+    }
     
     ///////////////////////////////////////////////////////
     // get full data set and loop over all entries
@@ -1538,7 +1542,9 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         d->GetEntry( i );
 
         // update cut statistics
-        fCuts->newEvent();
+        VGammaHadronCuts *iAnaCuts = getGammaHadronCuts( d );
+        if( !iAnaCuts ) continue;
+        iAnaCuts->newEvent();
         
         if( bDebugCuts )
         {
@@ -1549,10 +1555,10 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         // apply MC cuts
         if( bDebugCuts )
         {
-            cout << "#0 CUT MC " << fCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, false ) << endl;
+            cout << "#0 CUT MC " << iAnaCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, false ) << endl;
         }
         
-        if( !fCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, true ) )
+        if( !iAnaCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, true ) )
         {
             fillEventDataTree( VGammaHadronCutsStatistics::eMC_XYoff, -1. );
             continue;
@@ -1571,12 +1577,12 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         if( bDebugCuts )
         {
             cout << "#1 CUT applyInsideFiducialAreaCut ";
-            cout << fCuts->applyInsideFiducialAreaCut();
-            cout << "\t" << fCuts->applyStereoQualityCuts( iMethod, false, i, true ) << endl;
+            cout << iAnaCuts->applyInsideFiducialAreaCut();
+            cout << "\t" << iAnaCuts->applyStereoQualityCuts( iMethod, false, i, true ) << endl;
         }
         
         // apply fiducial area cuts
-        if( !fCuts->applyInsideFiducialAreaCut( true ) )
+        if( !iAnaCuts->applyInsideFiducialAreaCut( true ) )
         {
             fillEventDataTree( 2, -1. );
             continue;
@@ -1584,7 +1590,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         fillEcutSub( eMC, E_EcutFiducialArea );
         
         // apply reconstruction quality cuts
-        if( !fCuts->applyStereoQualityCuts( iMethod, true, i , true ) )
+        if( !iAnaCuts->applyStereoQualityCuts( iMethod, true, i , true ) )
         {
             fillEventDataTree( 3, -1. );
             continue;
@@ -1596,9 +1602,9 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         {
             if( bDebugCuts )
             {
-                cout << "#2 Cut NTELType " << fCuts->applyTelTypeTest( false ) << endl;
+                cout << "#2 Cut NTELType " << iAnaCuts->applyTelTypeTest( false ) << endl;
             }
-            if( !fCuts->applyTelTypeTest( true ) )
+            if( !iAnaCuts->applyTelTypeTest( true ) )
             {
                 fillEventDataTree( 4, -1. );
                 continue;
@@ -1617,7 +1623,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         bool bDirectionCut = false;
         if( !fIsotropicArrivalDirections )
         {
-            if( !fCuts->applyDirectionCuts( true ) )
+            if( !iAnaCuts->applyDirectionCuts( true ) )
             {
                 bDirectionCut = true;
             }
@@ -1626,7 +1632,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         // (command line option -d)
         else
         {
-            if( !fCuts->applyDirectionCuts( true, 0., 0. ) )
+            if( !iAnaCuts->applyDirectionCuts( true, 0., 0. ) )
             {
                 bDirectionCut = true;
             }
@@ -1642,9 +1648,10 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         {
             if( bDebugCuts )
             {
-                cout << "#4 EnergyReconstructionQualityCuts " << fCuts->applyEnergyReconstructionQualityCuts( iMethod ) << endl;
+                cout << "#4 EnergyReconstructionQualityCuts ";
+                cout << iAnaCuts->applyEnergyReconstructionQualityCuts( iMethod ) << endl;
             }
-            if( !fCuts->applyEnergyReconstructionQualityCuts( iMethod, true ) )
+            if( !iAnaCuts->applyEnergyReconstructionQualityCuts( iMethod, true ) )
             {
                 fillEventDataTree( 6, -1. );
                 continue;
@@ -1698,22 +1705,22 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         // apply gamma hadron cuts
         if( bDebugCuts )
         {
-            cout << "#3 CUT ISGAMMA " << fCuts->isGamma( i ) << endl;
+            cout << "#3 CUT ISGAMMA " << iAnaCuts->isGamma( i ) << endl;
         }
-        if( !fCuts->isGamma( i, true ) )
+        if( !iAnaCuts->isGamma( i, true ) )
         {
-            fillEventDataTree( 7, fCuts->getTMVA_EvaluationResult() );
+            fillEventDataTree( 7, iAnaCuts->getTMVA_EvaluationResult() );
             continue;
         }
         if( !bDirectionCut )
         {
             fillEcutSub( eMC, E_EcutGammaHadron );
-            fillEventDataTree( 5, fCuts->getTMVA_EvaluationResult() );
+            fillEventDataTree( 5, iAnaCuts->getTMVA_EvaluationResult() );
         }
         // remaining events
         else
         {
-            fillEventDataTree( 0, fCuts->getTMVA_EvaluationResult() );
+            fillEventDataTree( 0, iAnaCuts->getTMVA_EvaluationResult() );
         }
         
         // unique event counter
@@ -1958,7 +1965,10 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         }
     }
     
-    fCuts->printCutStatistics();
+    for( unsigned int i = 0; i < fCuts.size(); i++ )
+    {
+        fCuts[i]->printCutStatistics();
+    }
     
     // print out uniqueness of events
     /*    cout << "event statistics: " << endl;
@@ -3712,4 +3722,23 @@ void VEffectiveAreaCalculator::fillHistogram( int iHisType, int iHisN,
      {
           hV_HIS2D[iHisN][s][i_az]->Fill( i_x, i_w, i_w2D );
      }
+}
+
+
+VGammaHadronCuts* VEffectiveAreaCalculator::getGammaHadronCuts( CData* c )
+{
+    if( !c ) return 0;
+
+    if( fCuts.size() == 1 ) 
+    {
+        return fCuts[0];
+    }
+    for( unsigned int i = 0; i < fCuts.size(); i++ )
+    {
+         if( fCuts[i] && fCuts[i]->useThisCut( c ) )
+         {
+             return fCuts[i];
+         }
+    }
+    return 0;
 }
