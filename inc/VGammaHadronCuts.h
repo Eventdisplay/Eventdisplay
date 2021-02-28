@@ -84,6 +84,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
     private:
     
         bool   fDebug;                               // lots of debug output
+        string fCutID;
         
         CData* fData;                                       //! transient
         string fDataDirectory;
@@ -243,7 +244,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
         
         vector< VNTelTypeCut* > fNTelTypeCut;
         
-        VGammaHadronCuts();
+        VGammaHadronCuts( string iCutID = "0" );
         ~VGammaHadronCuts();
         
         bool   applyDirectionCuts( bool bCount = false, double x0 = -99999., double y0 = -99999. );
@@ -440,6 +441,6 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             fReconstructionType = type;
         }
-        ClassDef( VGammaHadronCuts, 69 );
+        ClassDef( VGammaHadronCuts, 70 );
 };
 #endif

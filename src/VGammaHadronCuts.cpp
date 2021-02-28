@@ -45,8 +45,9 @@
 
 #include "VGammaHadronCuts.h"
 
-VGammaHadronCuts::VGammaHadronCuts()
+VGammaHadronCuts::VGammaHadronCuts( string iCutID )
 {
+    fCutID = iCutID;
     setDebug( false );
     
     resetCutValues();
@@ -128,7 +129,7 @@ void VGammaHadronCuts::initialize()
 {
     // statistics
     fStats = new VGammaHadronCutsStatistics();
-    fStats->initialize();
+    fStats->initialize( fCutID );
 }
 
 VGammaHadronCuts::~VGammaHadronCuts()
@@ -1911,8 +1912,12 @@ bool VGammaHadronCuts::initTMVAEvaluator( string iTMVAFile,
     fTMVAEvaluator->setTMVAMethod( fTMVA_MVAMethod, fTMVA_MVAMethodCounter );
     fTMVAEvaluator->setTMVAAngularContainmentThetaFixedMinRadius( fTMVAFixedThetaCutMin );
     // read MVA weight files; set MVA cut values (e.g. find optimal values)
-    if( !fTMVAEvaluator->initializeWeightFiles( iTMVAFile, iTMVAWeightFileIndex_Emin, iTMVAWeightFileIndex_Emax,
-            iTMVAWeightFileIndex_Zmin, iTMVAWeightFileIndex_Zmax, iTMVAEnergy_StepSize, fInstrumentEpoch ) )
+    if( !fTMVAEvaluator->initializeWeightFiles( iTMVAFile,
+                                                iTMVAWeightFileIndex_Emin, iTMVAWeightFileIndex_Emax,
+                                                iTMVAWeightFileIndex_Zmin, iTMVAWeightFileIndex_Zmax,
+                                                iTMVAEnergy_StepSize, fInstrumentEpoch,
+                                                "UseInterpolatedCounts",
+                                                fCutID ) )
     {
         cout << "VGammaHadronCuts::initTMVAEvaluator: error while initializing TMVA weight files" << endl;
         cout << "exiting... " << endl;

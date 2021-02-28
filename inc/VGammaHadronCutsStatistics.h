@@ -41,14 +41,14 @@ class VGammaHadronCutsStatistics : public TNamed
         {
             return fData;
         }
-        void         initialize();
+        void         initialize( string iName );
         void         printCutStatistics();
         void         reset();
         void         setCutCounter( unsigned int iCut, unsigned int iValue );
         void         terminate();
         void         updateCutCounter( unsigned int iCut );
         
-        ClassDef( VGammaHadronCutsStatistics, 2 );
+        ClassDef( VGammaHadronCutsStatistics, 3 );
 };
 
 
