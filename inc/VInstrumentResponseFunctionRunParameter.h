@@ -113,12 +113,13 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         vector< string >      getCutFileName() { return fCutFileName; }
         vector< float >       getCutCharacteristicMCAZ() { return fCutCharacteristicMCAZ; }
         string                getInstrumentEpoch( bool iMajor = false );	
+        TTree*                getTelConfigTree();
         void                  print();
         VMonteCarloRunHeader* readMCRunHeader();
         bool                  readRunParameterFromTextFile( string iFile );
         bool                  testRunparameters();
         
-        ClassDef( VInstrumentResponseFunctionRunParameter, 20 );
+        ClassDef( VInstrumentResponseFunctionRunParameter, 21 );
 };
 
 #endif

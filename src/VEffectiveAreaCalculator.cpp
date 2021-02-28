@@ -1298,6 +1298,10 @@ void VEffectiveAreaCalculator::reset()
     
 }
 
+/* 
+ * solid angle from MC simulations (cone)
+ *
+ */
 double VEffectiveAreaCalculator::getMCSolidAngleNormalization()
 {
     double iSolAngleNorm = 1.;

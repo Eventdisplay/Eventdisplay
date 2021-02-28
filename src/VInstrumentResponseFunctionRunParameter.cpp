@@ -481,6 +481,31 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
     return true;
 }
 
+TTree *VInstrumentResponseFunctionRunParameter::getTelConfigTree()
+{
+    TChain c( "data" );
+    TFile* iF = 0;
+    if( c.Add( fdatafile.c_str() ) )
+    {
+        iF = c.GetFile();
+    }
+    if( !iF )
+    {
+        cout << "VInstrumentResponseFunctionRunParameter::getTelConfigTree: error opening data file: ";
+        cout << fdatafile << endl;
+        cout << "exiting..." << endl;
+        exit( EXIT_FAILURE );
+    }
+    TTree *t = (TTree*)iF->Get( "telconfig" );
+    if( t )
+    {
+       return t->CloneTree( -1 );
+    }
+
+    return 0;
+}
+    
+
 
 VMonteCarloRunHeader* VInstrumentResponseFunctionRunParameter::readMCRunHeader()
 {

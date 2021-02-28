@@ -636,6 +636,10 @@ bool VInstrumentResponseFunctionReader::getDataFromFile()
     
     // read gamma/hadron cuts from disk
     VGammaHadronCuts* i_cuts = ( VGammaHadronCuts* )iFile->Get( "GammaHadronCuts" );
+    if( !i_cuts )
+    {
+        i_cuts = ( VGammaHadronCuts* )iFile->Get( "GammaHadronCuts_0" );
+    }
     if( i_cuts && gEffArea_Rec )
     {
         // check if theta2 graph was used

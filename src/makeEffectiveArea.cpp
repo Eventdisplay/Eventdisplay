@@ -474,6 +474,12 @@ int main( int argc, char* argv[] )
     {
         iMonteCarloHeader->Write();
     }
+    TTree *i_telconfig = fRunPara->getTelConfigTree();
+    fOutputfile->cd();
+    if( i_telconfig )
+    {
+        i_telconfig->Write( "telconfig" );
+    }
     
     // write run parameters to disk
     if( fRunPara )
