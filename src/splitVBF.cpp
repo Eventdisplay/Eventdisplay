@@ -1,4 +1,4 @@
-/*! \file splitSimVBF.cpp
+/*! \file splitVBF.cpp
     \brief split one simulation vbf file into several ones at boundaries compatible with VEGAS
     
 */
@@ -151,18 +151,18 @@ int main(int argc, char **argv){
                 sim->fRunNumber = newRunNumber;
                 sim->fEventNumber=  globalEventCount;
               }
-            } //hasSimulationData
+            } // hasSimulationData
                             
-	    //Want to find the first pedEvent in a group to start the file, so first look for a non-pedEvent
+	    // Want to find the first pedEvent in a group to start the file, so first look for a non-pedEvent
 	    if(ipacket >= endPacket && !pedEvent)prepareNext = true;
 
-	    //Check if it is time to open a new file
+	    // Check if it is time to open a new file
 	    if(prepareNext && pedEvent){
-	      //Found the event with which we want to start the next file
+	      // Found the event with which we want to start the next file
 	      nextStart = ipacket;
-	      //Do not write this packet; it will begin the next file
+	      // Do not write this packet; it will begin the next file
 	      delete packet;
-	      break;  //out of the ipacket loop to finish() this file
+	      break;  // out of the ipacket loop to finish() this file
 	    }
 
 	    writer.writePacket(packet);
