@@ -326,15 +326,32 @@ bool train( VTMVARunData* iRun,
          exit( EXIT_SUCCESS );
      }
     // check for number of training and background events
+     cout << "Reading number of events before / after cuts: " << endl;
      Long64_t nEventsSignal = iSignalTree_reduced->GetEntries();
+     cout << "\t total number of signal events before cuts: ";
+     cout << nEventsSignal << endl;
+     iSignalTree_reduced->Draw( ">>elist", iRun->fEnergyCutData[iEnergyBin]->fEnergyCut && iRun->fMultiplicityCuts, "entrylist" );
+     TEntryList *elist = (TEntryList*)gDirectory->Get("elist");
+     if( elist )
+     {
+         nEventsSignal = elist->GetN();
+         cout << "\t total number of signal events after cuts:  ";
+         cout << elist->GetN();
+         cout << " (required are " << iRun->fMinSignalEvents << ")" << endl;
+     }
      Long64_t nEventsBck = iBackgroundTree_reduced->GetEntries();
-     cout << "Reading number of events after cuts: " << endl;
-     cout << "\t total number of signal events after cuts: ";
-     cout << nEventsSignal;
-     cout << " (required are " << iRun->fMinSignalEvents << ")" << endl;
-     cout << "\t total number of background events after cuts: ";
-     cout << nEventsBck;
-     cout << " (required are " << iRun->fMinBackgroundEvents << ")" << endl;
+     cout << "\t total number of background events before cuts: ";
+     cout << nEventsBck << endl;
+     iBackgroundTree_reduced->Draw( ">>elist", iRun->fEnergyCutData[iEnergyBin]->fEnergyCut && iRun->fMultiplicityCuts, "entrylist" );
+     elist = (TEntryList*)gDirectory->Get("elist");
+     if( elist )
+     {
+         nEventsBck = elist->GetN();
+         cout << "\t total number of background events after cuts:  ";
+         cout << elist->GetN();
+         cout << " (required are " << iRun->fMinSignalEvents << ")" << endl;
+         cout << " (required are " << iRun->fMinBackgroundEvents << ")" << endl;
+     }
      if( nEventsSignal < iRun->fMinSignalEvents || nEventsBck < iRun->fMinBackgroundEvents  )
      {
          cout << "Error: not enough training events" << endl;
