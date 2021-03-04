@@ -96,7 +96,6 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Double_t MSCL = 0.;
     Double_t ErecS = 0.;
     Double_t EChi2S = 0.;
-    Double_t dES = 0.;
     // fixed max number of telescope types
     UInt_t NImages_Ttype[20];
     for( unsigned int i = 0; i < 20; i++ ) NImages_Ttype[i] = 0;
@@ -110,7 +109,6 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "MSCL", &MSCL, "MSCL/D" );
     iDataTree_reduced->Branch( "ErecS", &ErecS, "ErecS/D" );
     iDataTree_reduced->Branch( "EChi2S", &EChi2S, "EChi2S/D" );
-    iDataTree_reduced->Branch( "dES", &dES, "dES/D" );
     iDataTree_reduced->Branch( "NImages_Ttype", NImages_Ttype, "NImages_Ttype[20]/i" );
     iDataTree_reduced->Branch( "EmissionHeight", &EmissionHeight, "EmissionHeight/F" );
     iDataTree_reduced->Branch( "EmissionHeightChi2", &EmissionHeightChi2, "EmissionHeightChi2/F" );
@@ -128,7 +126,6 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
              iTreeVector[i]->SetBranchAddress( "MSCL", &MSCL );
              iTreeVector[i]->SetBranchAddress( "ErecS", &ErecS );
              iTreeVector[i]->SetBranchAddress( "EChi2S", &EChi2S );
-             iTreeVector[i]->SetBranchAddress( "dES", &dES );
              iTreeVector[i]->SetBranchAddress( "NImages_Ttype", NImages_Ttype );
              iTreeVector[i]->SetBranchAddress( "EmissionHeight", &EmissionHeight );
              iTreeVector[i]->SetBranchAddress( "EmissionHeightChi2", &EmissionHeightChi2 );
