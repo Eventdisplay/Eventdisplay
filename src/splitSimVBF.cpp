@@ -1,6 +1,6 @@
-/*! \file splitVBF.cpp
-    \brief split one vbf file into several ones; use splitSimVBF for VERITAS simulations files
-
+/*! \file splitSimVBF.cpp
+    \brief split one simulation vbf file into several ones at boundaries compatible with VEGAS
+    
 */
 
 
@@ -84,6 +84,8 @@ int main(int argc, char **argv){
         } // if packet
       } // ipacket
 
+      int nextStart = 0;
+
       for (int ifile = 0; ifile < numberOfFiles; ifile++) {
         
         stringstream fileNameTmp;
@@ -96,9 +98,9 @@ int main(int argc, char **argv){
         VBankFileWriter writer(fileName, newRunNumber, parseConfigMask("0,1,2,3"));
       
         int globalEventCount = 1;
-        bool writePacket = true;
+	bool prepareNext = false;
 
-        const int startPacket = ifile * numPacketsPerFile;
+	const int startPacket = nextStart;
         const int endPacket = (ifile + 1) * numPacketsPerFile;
 
         if (header) {
@@ -106,19 +108,17 @@ int main(int argc, char **argv){
           writer.writePacket(packetHeader);
         }
 
-        for (int ipacket = startPacket; ipacket < endPacket; ipacket++) {
+        for (int ipacket = startPacket; ipacket < numPackets; ipacket++) {
 
           if (ipacket == ipacketHeader)
             continue;
-
-          writePacket = false;
 
           packet = reader.readPacket(ipacket);
 
           // cout << "Starting ipacket: " << ipacket << endl;
 
           if(packet){
-            writePacket = true;
+	    bool pedEvent = false;
                 
             if(packet->hasArrayEvent()){
               arrayEvent = packet->getArrayEvent();
@@ -138,6 +138,7 @@ int main(int argc, char **argv){
                       
                   if(telEvent){
                     telEvent->setEventNumber(globalEventCount);
+		    if((unsigned)telEvent->getRawEventTypeCode() == 10)pedEvent = true;
                   }
                 } // ievent
               } // arrayEvent
@@ -150,18 +151,29 @@ int main(int argc, char **argv){
                 sim->fRunNumber = newRunNumber;
                 sim->fEventNumber=  globalEventCount;
               }
-            } //hasSimulationData
+            } // hasSimulationData
                             
-            if(writePacket){
-              writer.writePacket(packet);
-              globalEventCount++;
-            }
+	    // Want to find the first pedEvent in a group to start the file, so first look for a non-pedEvent
+	    if(ipacket >= endPacket && !pedEvent)prepareNext = true;
+
+	    // Check if it is time to open a new file
+	    if(prepareNext && pedEvent){
+	      // Found the event with which we want to start the next file
+	      nextStart = ipacket;
+	      // Do not write this packet; it will begin the next file
+	      delete packet;
+	      break;  // out of the ipacket loop to finish() this file
+	    }
+
+	    writer.writePacket(packet);
+	    globalEventCount++;
         
           } // if packet
             
           delete packet;
         } // ipacket
 
+	cout << "Wrote " << (globalEventCount-1) << " events to file" << endl;
         writer.finish();
       } // ifile 
 
