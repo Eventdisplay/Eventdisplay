@@ -2760,7 +2760,17 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // read success of TMVA cut optimization from gamma/hadron cuts
+    // (unfortunately a bit of a miss in naming)
     fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults" );
+    if( !fTMVAEvaluatorResults )
+    {
+       fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults_0" );
+    }
+    if( !fTMVAEvaluatorResults )
+    {
+       fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults0" );
+    }
+
     if( fTMVAEvaluatorResults )
     {
         cout << "reading TMVAEvaluatorResults from effective area file (";
