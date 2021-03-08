@@ -103,6 +103,28 @@ int main( int argc, char* argv[] )
              else if( TelID >= 130 && TelID <= 170 ) checkTelType( TelType, 201409917, fRootFile, TelID );
          }
      }
+     else if( fProduction == "prod5-South-BL-MSTF" )
+     {
+         for( unsigned int i = 0; i < telconfig->GetEntries(); i++ )
+         {
+             telconfig->GetEntry( i );
+
+             if( TelID >= 0 && TelID <= 3 ) checkTelType( TelType, 138704810, fRootFile, TelID );
+             else if( TelID >= 4 && TelID <= 28 ) checkTelType( TelType, 10408618, fRootFile, TelID ); 
+             else if( TelID >= 29 && TelID <= 98 ) checkTelType( TelType, 201409917, fRootFile, TelID );
+          }
+     }
+     else if( fProduction == "prod5-South-BL-MSTN" )
+     {
+         for( unsigned int i = 0; i < telconfig->GetEntries(); i++ )
+         {
+             telconfig->GetEntry( i );
+
+             if( TelID >= 0 && TelID <= 3 ) checkTelType( TelType, 138704810, fRootFile, TelID );
+             else if( TelID >= 4 && TelID <= 73 ) checkTelType( TelType, 201409917, fRootFile, TelID );
+             else if( TelID >= 74 && TelID <= 98 ) checkTelType( TelType, 10608418, fRootFile, TelID ); 
+          }
+     }
      else if( fProduction == "prod5-North" )
      {
          for( unsigned int i = 0; i < telconfig->GetEntries(); i++ )
