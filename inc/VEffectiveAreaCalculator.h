@@ -50,6 +50,7 @@ class VEffectiveAreaCalculator
         
         bool bNOFILE;
         TDirectory* fGDirectory;
+        TFile *fOutputFile;
         
         vector< double > fZe;
         vector< double > fMCZe;
@@ -58,7 +59,7 @@ class VEffectiveAreaCalculator
         vector< vector< vector< vector< double > > > > fEff_SpectralIndex;
         
         // effective areas (reading of effective areas)
-		unsigned int fNBins;                    // bins in the true energy of MC (fEff_E0)
+        unsigned int fNBins;                    // bins in the true energy of MC (fEff_E0)
         unsigned int fBiasBin;                  // bins in the energy bias
         unsigned int fhistoNEbins;              // energy bins for histograms only
         unsigned int fResponseMatricesEbinning; // fine bins for response matrices. Likelihood analysis.
@@ -85,7 +86,7 @@ class VEffectiveAreaCalculator
         
 	// For Binned Likelihood
 	TGraphAsymmErrors* gMeanEffectiveAreaMC;
-	TH2D*			   hMeanResponseMatrix;
+	TH2D*		   hMeanResponseMatrix;
         // unique event counting
         map< unsigned int, unsigned short int> fUniqueEventCounter;
         
@@ -213,10 +214,25 @@ class VEffectiveAreaCalculator
         void Calculate_Bck_solid_angle_norm();
         
         /////////////////////////////
-        // event data
-        TTree *fEventTreeCuts;
-        int fCut_Class;
-        float fCut_MVA;
+        // DL2 event data tree
+        TTree *fDL2EventTree;
+        UInt_t fDL2_runNumber;
+        UInt_t fDL2_eventNumber;
+        float fDL2_MCaz;
+        float fDL2_MCel;
+        float fDL2_MCe0;
+        float fDL2_MCxoff;
+        float fDL2_MCyoff;
+        float fDL2_ArrayPointing_Elevation;
+        float fDL2_ArrayPointing_Azimuth;
+        float fDL2_az;
+        float fDL2_el;
+        float fDL2_xoff;
+        float fDL2_yoff;
+        float fDL2_erec;
+        UChar_t fDL2_nimages;
+        UChar_t fDL2_Cut_Class;
+        float fDL2_Cut_MVA;
 
         // effective area smoothing
         int fSmoothIter;
@@ -241,7 +257,7 @@ class VEffectiveAreaCalculator
         void               copyProfileHistograms( TProfile*,  TProfile* );
         void               copyHistograms( TH1*,  TH1*, bool );
         void               fillAngularResolution( unsigned int i_az, bool iContaintment_80p );
-        void               fillEventDataTree( int iCutClass, float iMVA );
+        void               fillDL2EventDataTree( CData *c, UChar_t iCutClass, float iMVA );
         void               fillEcutSub( double iE, enum E_HIS1D iCutIndex );
         void               fillHistogram( int iHisType, int iHisN, 
                                           unsigned int s, unsigned i_az, 
@@ -280,7 +296,8 @@ class VEffectiveAreaCalculator
 				  int iEffectiveAreaVsEnergyMC = 2, bool iLikelihoodAnalysis = false, bool iIsOn = false );
         // constructor for filling
         VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter*, 
-                                  vector< VGammaHadronCuts* > );
+                                  vector< VGammaHadronCuts* >,
+                                  TFile* );
         ~VEffectiveAreaCalculator();
         
         void               cleanup();
@@ -294,9 +311,9 @@ class VEffectiveAreaCalculator
         {
                 return fhistoNEbins;
         }
-        TTree*             getEventCutDataTree()
+        TTree*             getEventDL2DataTree()
         {
-                return fEventTreeCuts;
+                return fDL2EventTree;
         }
         TTree*             getAcceptance_AfterCuts()
         {

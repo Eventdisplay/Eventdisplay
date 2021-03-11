@@ -143,7 +143,7 @@ int main( int argc, char* argv[] )
     
     /////////////////////////////////////////////////////////////////////////////
     // set effective area class
-    VEffectiveAreaCalculator fEffectiveAreaCalculator( fRunPara, fCuts );
+    VEffectiveAreaCalculator fEffectiveAreaCalculator( fRunPara, fCuts, fOutputfile );
     
     /////////////////////////////////////////////////////////////////////////////
     // set effective area Monte Carlo histogram class
@@ -402,17 +402,19 @@ int main( int argc, char* argv[] )
             fOutputfile->cd();
             fEffectiveAreaCalculator.getAcceptance_AfterCuts()->Write();
         }
-        if( fRunPara->fWriteEventdatatrees 
-        && fEffectiveAreaCalculator.getEventCutDataTree() )
+        if( fEffectiveAreaCalculator.getEventDL2DataTree() )
         {
                cout << "writing event data trees: (";
-               cout << fEffectiveAreaCalculator.getEventCutDataTree()->GetName();
+               cout << fEffectiveAreaCalculator.getEventDL2DataTree()->GetName();
                cout << ") to " << fOutputfile->GetName() << endl;
                fOutputfile->cd();
-               if( fEffectiveAreaCalculator.getEventCutDataTree() )
+               if( fEffectiveAreaCalculator.getEventDL2DataTree() )
                {
-                   fEffectiveAreaCalculator.getEventCutDataTree()->Write();
+                   fEffectiveAreaCalculator.getEventDL2DataTree()->Write();
                }
+       }
+       if( fRunPara->fWriteEventdatatrees )
+       {
                if( c )
                {
                    c->Merge(fOutputfile, 0, "keep" );
