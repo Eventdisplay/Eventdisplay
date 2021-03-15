@@ -654,7 +654,7 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
             v_disp.push_back( disp );
             
             // use estimated uncertainty on disp direction reconstruction as
-            // weight: exponential coefficent add-hoc, not a result of
+            // weight: exponential coefficent ad-hoc, not a result of
             // optimisation
             if( fDispErrorWeighting )
             {
