@@ -557,20 +557,19 @@ void VPlotInstrumentResponseFunction::plotEnergyReconstructionMatrix( unsigned i
         return;
     }
     
-    char hname[200];
-    char htitle[200];
-    
-    sprintf( hname, "cEA_Ematrix_%d_%d_%s_%d", iDataSetID, bFineBinning, iMatrixType.c_str(), bInterPol );
-    sprintf( htitle, "energy reconstruction matrix (%d,%d)", iDataSetID, bInterPol );
+    ostringstream hname;
+    hname << "cEA_Ematrix_" << iDataSetID << "_" << bFineBinning << "_" << iMatrixType << "_" << bInterPol;
+    ostringstream htitle;
+    htitle << "energy reconstruction matrix (" << iDataSetID << "," << bInterPol << ")";
     if( bFineBinning )
     {
-        sprintf( htitle, "%s (fine binning)", htitle );
+        htitle << " (fine binning)";
     }
     if( iMatrixType != "default" )
     {
-        sprintf( htitle, "%s, %s", htitle, iMatrixType.c_str() );
+	htitle << ", " << iMatrixType;
     }
-    TCanvas* iEnergyReconstructionMatrixCanvas = new TCanvas( hname, htitle, 610, 10, fCanvasSize_X, fCanvasSize_Y );
+    TCanvas* iEnergyReconstructionMatrixCanvas = new TCanvas( hname.str().c_str(), htitle.str().c_str(), 610, 10, fCanvasSize_X, fCanvasSize_Y );
     iEnergyReconstructionMatrixCanvas->SetGridx( 0 );
     iEnergyReconstructionMatrixCanvas->SetGridy( 0 );
     iEnergyReconstructionMatrixCanvas->SetLeftMargin( 0.11 );
@@ -1341,15 +1340,6 @@ TCanvas* VPlotInstrumentResponseFunction::plotAngularResolution( string iXaxis, 
     return plotResolution( "angres"  + iProbabilityString, "angular resolution vs " + iXaxis + " (" + iProbabilityString + "%)",
                            "angular resolution [deg]", iMin, iMax,
                            iResolutionTreeName, iXaxis, iResolutionPad, iLogY );
-}
-
-/*
- *  plot ratio of 68 to 95% containment ratio
- *
- */
-TCanvas* VPlotInstrumentResponseFunction::plotAngularResolutionContaintment( string iXaxis )
-{
-    return 0;
 }
 
 TCanvas* VPlotInstrumentResponseFunction::plotCoreResolution( string iXaxis, double iMax )

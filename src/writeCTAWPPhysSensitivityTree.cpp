@@ -5,6 +5,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TTree.h"
 
 #include <algorithm>
@@ -85,6 +86,15 @@ class VSensitivityTree
         vector< string > fVarName;
         vector< float* > fVar;
         vector< float* > fVarError;
+
+        static const int fN2DBins = 10000000;
+        vector< unsigned int > fVar2DNbins;
+        vector< unsigned int > fVar2DNbinsx;
+        vector< unsigned int > fVar2DNbinsy;
+        vector< float* > fVar2DXaxis;
+        vector< float* > fVar2DYaxis;
+        vector< string > fVar2DName;
+        vector< float* > fVar2D;
         
         void reset();
         
@@ -127,6 +137,10 @@ VSensitivityTree::VSensitivityTree()
     fPointingDirection = "_0deg";
     
     // variable name
+    // --> correspond to file names in 
+    //     sensitivity files
+    // --> correspond to branch names in
+    //     output tree
     fVarName.push_back( "DiffSens" );
     fVarName.push_back( "DiffSensCU" );
     fVarName.push_back( "IntSens" );
@@ -145,11 +159,27 @@ VSensitivityTree::VSensitivityTree()
     fVarName.push_back( "EffectiveArea" );
     fVarName.push_back( "EffectiveAreaEtrue" );
     fVarName.push_back( "EffectiveArea80" );
+    fVarName.push_back( "EffectiveAreaEtrueNoTheta2cut" );
     
     for( unsigned int i = 0; i < fVarName.size(); i++ )
     {
         fVar.push_back( new float[fNEnergyBins] );
         fVarError.push_back( new float[fNEnergyBins] );
+    }
+
+    // TH3F histgrams
+    // (tricky, as variable binning: assuming
+    //  a huge value)
+    fVar2DName.push_back( "AngularPSF2DEtrue" );
+    fVar2DName.push_back( "MigMatrixNoTheta2cut" );
+    for( unsigned int i = 0; i < fVar2DName.size(); i++ )
+    {
+        fVar2DNbins.push_back( 0 );
+        fVar2DNbinsx.push_back( 0 );
+        fVar2DNbinsy.push_back( 0 );
+        fVar2D.push_back( new float[fN2DBins] );
+        fVar2DXaxis.push_back( new float[fN2DBins] );
+        fVar2DYaxis.push_back( new float[fN2DBins] );
     }
     
     reset();
@@ -183,6 +213,18 @@ void VSensitivityTree::reset()
         {
             fVar[v][i] = 0.;
             fVarError[v][i] = 0.;
+        }
+    }
+    for( unsigned int v = 0; v < fVar2D.size(); v++ )
+    {
+        fVar2DNbins[v] = 0;
+        fVar2DNbinsx[v] = 0;
+        fVar2DNbinsy[v] = 0;
+        for( int i = 0; i < fN2DBins; i++ )
+        {
+            fVar2D[v][i] = 0.;
+            fVar2DXaxis[v][i] = 0.;
+            fVar2DYaxis[v][i] = 0.;
         }
     }
 }
@@ -233,11 +275,21 @@ bool VSensitivityTree::fillEvent( string iSite,
 
     cout << "reading IRFs from " << iWFile.str() << endl;
 
+    // test if root file exists
+    // (prevents printout of root errors / warnings)
+    FILE *test_file = fopen(iWFile.str().c_str(), "r");
+    if( !test_file )
+    {
+         cout << "File not found: " << iWFile.str() << endl;
+         return false;
+    }
+    fclose(test_file);
+
     // open IRF file
     TFile iP( iWFile.str().c_str() );
     if( iP.IsZombie() )
     {
-        cout << "File does not exist " << iWFile.str() << endl;
+        cout << "File oppening error: " << iWFile.str() << endl;
         return false;
     }
 
@@ -379,7 +431,7 @@ bool VSensitivityTree::fillEvent( string iSite,
     iT.Close();
     
     ////////////////////////
-    // calculate average distance to closest telescope 3 telescopes
+    // calculate average distance to closest telescope
     float i_dist = 0.;
     
     // loop over all telescope types
@@ -398,8 +450,10 @@ bool VSensitivityTree::fillEvent( string iSite,
                 {
                     continue;
                 }
-                i_dist  = ( fTelescopeData[i][j]->fTel_x - fTelescopeData[i][k]->fTel_x ) * ( fTelescopeData[i][j]->fTel_x - fTelescopeData[i][k]->fTel_x );
-                i_dist += ( fTelescopeData[i][j]->fTel_y - fTelescopeData[i][k]->fTel_y ) * ( fTelescopeData[i][j]->fTel_y - fTelescopeData[i][k]->fTel_y );
+                i_dist  = ( fTelescopeData[i][j]->fTel_x - fTelescopeData[i][k]->fTel_x ) 
+                        * ( fTelescopeData[i][j]->fTel_x - fTelescopeData[i][k]->fTel_x );
+                i_dist += ( fTelescopeData[i][j]->fTel_y - fTelescopeData[i][k]->fTel_y )
+                        * ( fTelescopeData[i][j]->fTel_y - fTelescopeData[i][k]->fTel_y );
                 i_dist  = sqrt( i_dist );
                 if( i_dist < i_min )
                 {
@@ -423,7 +477,7 @@ bool VSensitivityTree::fillEvent( string iSite,
             if( iTelescopeDistances.size() % 2 == 0 )
             {
                 fMedianTelescopeDistance[i] = 0.5 * ( iTelescopeDistances[iTelescopeDistances.size() / 2 - 1 ]
-                                                      + iTelescopeDistances[iTelescopeDistances.size() / 2] );
+                                                    + iTelescopeDistances[iTelescopeDistances.size() / 2] );
             }
             else
             {
@@ -446,13 +500,16 @@ bool VSensitivityTree::fillEvent( string iSite,
     fTelMultSST = iTelMultiplicitySST;
     fTelMultSCMST = iTelMultiplicitySCMST;
     
-    // check energy bins
+    // check consistency between energy bins
+    // (energy binning is fixed)
+    // set energies
     TH1F* h = ( TH1F* )iP.Get( "DiffSens" );
     if( h )
     {
         if( h->GetNbinsX() != fNEnergyBins )
         {
-            cout << "error reading IRFs, different number of energy bins: " << fNEnergyBins << "\t" << h->GetNbinsX() << endl;
+            cout << "error reading IRFs, different number of energy bins: ";
+            cout << fNEnergyBins << "\t" << h->GetNbinsX() << endl;
             return false;
         }
         for( int i = 0; i < h->GetNbinsX(); i++ )
@@ -461,7 +518,7 @@ bool VSensitivityTree::fillEvent( string iSite,
         }
     }
     //////////////////////////////////////////////
-    // get on-axis sensitivies
+    // get on-axis performance values
     fOffset_deg = 0.;
     for( unsigned int i = 0; i < fVarName.size(); i++ )
     {
@@ -478,11 +535,36 @@ bool VSensitivityTree::fillEvent( string iSite,
             fVarError[i][e] = h->GetBinError( i_bin );
         }
     }
+    for( unsigned int i = 0; i < fVar2DName.size(); i++ )
+    {
+        TH2F *h2 = ( TH2F* )iP.Get( fVar2DName[i].c_str() );
+        if( !h2 )
+        {
+            cout << "error finding histogram " << fVar2DName[i] << endl;
+            continue;
+        }
+        // fill 2D histogram into 1D array:
+        // e1 + e2 * fxbins
+        fVar2DNbinsx[i] = h2->GetXaxis()->GetNbins();
+        fVar2DNbinsy[i] = h2->GetYaxis()->GetNbins();
+        fVar2DNbins[i] = fVar2DNbinsx[i] * fVar2DNbinsy[i];
+        for( unsigned int e1 = 0; e1 < fVar2DNbinsx[i]; e1++ )
+        {
+            fVar2DXaxis[i][e1] = h2->GetXaxis()->GetBinCenter( e1+1 );
+            for( unsigned int e2 = 0; e2 < fVar2DNbinsy[i]; e2++ )
+            {
+                fVar2DYaxis[i][e2] = h2->GetYaxis()->GetBinCenter( e2+1 );
+
+                fVar2D[i][e1+e2*fVar2DNbinsx[i]] = h2->GetBinContent( e1+1, e2+1 );
+            }
+        }
+    }
+
     // fill results
     fDataTree->Fill();
     
     //////////////////////////////////////////////
-    // get off-axis sensitivies
+    // get off-axis performances
     TH2F* h2 = ( TH2F* )iP.Get( "DiffSens_offaxis" );
     if( h2 )
     {
@@ -503,6 +585,31 @@ bool VSensitivityTree::fillEvent( string iSite,
                     int i_bin = h->GetXaxis()->FindBin( fEnergy_logTeV[e] );
                     fVar[i][e] = h->GetBinContent( i_bin, w );
                     fVarError[i][e] = h->GetBinError( i_bin, w );
+                }
+            }
+            for( unsigned int i = 0; i < fVar2DName.size(); i++ )
+            {
+                string iHName = fVar2DName[i] + "_offaxis";
+                TH3F *h2 = ( TH3F* )iP.Get( iHName.c_str() );
+                if( !h2 )
+                {
+                    cout << "error finding histogram " << fVar2DName[i] << endl;
+                    continue;
+                }
+                // fill 2D histogram into 1D array:
+                // e1 + e2 * fxbins
+                fVar2DNbinsx[i] = h2->GetXaxis()->GetNbins();
+                fVar2DNbinsy[i] = h2->GetYaxis()->GetNbins();
+                fVar2DNbins[i] = fVar2DNbinsx[i] * fVar2DNbinsy[i];
+                for( unsigned int e1 = 0; e1 < fVar2DNbinsx[i]; e1++ )
+                {
+                    fVar2DXaxis[i][e1] = h2->GetXaxis()->GetBinCenter( e1+1 );
+                    for( unsigned int e2 = 0; e2 < fVar2DNbinsy[i]; e2++ )
+                    {
+                        fVar2DYaxis[i][e2] = h2->GetYaxis()->GetBinCenter( e2+1 );
+
+                        fVar2D[i][e1+e2*fVar2DNbinsx[i]] = h2->GetBinContent( e1+1, e2+1, w );
+                    }
                 }
             }
             // fill results
@@ -550,12 +657,13 @@ bool VSensitivityTree::initialize( string iOutputFileName, string iName )
     sprintf( hname, "MedianTelescopeDistance[%d]", fNumTelTypes );
     sprintf( htitle, "MedianTelescopeDistance[%d]/F", fNumTelTypes );
     fDataTree->Branch( hname, fMedianTelescopeDistance, htitle );
-    // observational details
+    // multiplicity cut parameters
     fDataTree->Branch( "TelMult", &fTelMult, "TelMult/i" );
     fDataTree->Branch( "TelMultLST", &fTelMultLST, "TelMultLST/i" );
     fDataTree->Branch( "TelMultMST", &fTelMultMST, "TelMultMST/i" );
     fDataTree->Branch( "TelMultSST", &fTelMultSST, "TelMultSST/i" );
     fDataTree->Branch( "TelMultSCMST", &fTelMultSCMST, "TelMultSCMST/i" );
+    // observational details
     fDataTree->Branch( "ObsTime_s", &fObservingTime_s, "ObsTime_s/I" );
     fDataTree->Branch( "Offset_deg", &fOffset_deg, "Offset_deg/F" );
     // IRFs 
@@ -572,6 +680,32 @@ bool VSensitivityTree::initialize( string iOutputFileName, string iName )
         sprintf( hname, "%sError[%d]", fVarName[i].c_str(), fNEnergyBins );
         sprintf( htitle, "%sError[%d]/F", fVarName[i].c_str(), fNEnergyBins );
         fDataTree->Branch( hname, fVarError[i], htitle );
+    }
+    for( unsigned int i = 0; i < fVar2D.size(); i++ )
+    {
+        sprintf( hname, "Nbins_%s", fVar2DName[i].c_str() );
+        sprintf( htitle, "Nbins_%s/i", fVar2DName[i].c_str() );
+        fDataTree->Branch( hname, &fVar2DNbins[i], htitle );
+
+        sprintf( hname, "Nbins_%s_x", fVar2DName[i].c_str() );
+        sprintf( htitle, "Nbins_%s_x/i", fVar2DName[i].c_str() );
+        fDataTree->Branch( hname, &fVar2DNbinsx[i], htitle );
+
+        sprintf( hname, "Axis_%s_x[Nbins_%s_x]", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
+        sprintf( htitle, "Axis_%s_x[Nbins_%s_x]/F", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
+        fDataTree->Branch( hname, fVar2DXaxis[i], htitle );
+
+        sprintf( hname, "Nbins_%s_y", fVar2DName[i].c_str() );
+        sprintf( htitle, "Nbins_%s_y/i", fVar2DName[i].c_str() );
+        fDataTree->Branch( hname, &fVar2DNbinsy[i], htitle );
+
+        sprintf( hname, "Axis_%s_y[Nbins_%s_y]", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
+        sprintf( htitle, "Axis_%s_y[Nbins_%s_y]/F", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
+        fDataTree->Branch( hname, fVar2DYaxis[i], htitle );
+
+        sprintf( hname, "%s[Nbins_%s]", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
+        sprintf( htitle, "%s[Nbins_%s]/F", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
+        fDataTree->Branch( hname, fVar2D[i], htitle );
     }
     
     return true;
@@ -684,6 +818,8 @@ int main( int argc, char* argv[] )
     iObservingTimeVector.push_back( 1800 );
 
     // hardwired telescope multiplicity
+    //
+    // (LST multiplicity is overwritten below)
     vector< int > iTelMultiplicityLST;
     iTelMultiplicityLST.push_back( 3 );
     vector< int > iTelMultiplicityMST;
@@ -698,9 +834,10 @@ int main( int argc, char* argv[] )
     iTelMultiplicitySST.push_back( 4 );
     iTelMultiplicitySST.push_back( 5 );
     iTelMultiplicitySST.push_back( 6 );
+    // (SCMST multiplicity is overwritten below)
     vector< int > iTelMultiplicitySCMST;
     iTelMultiplicitySCMST.push_back( 3 );
-    
+
     /////////////////////////////////////////////////////////
     // fill events for complete parameter space
     // array loop

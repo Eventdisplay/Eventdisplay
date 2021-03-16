@@ -7,6 +7,7 @@
 
 VStar::VStar()
 {
+        fStarID = 0;
     fStarName = "";
     fDec2000 = 0.;
     fRA2000 = 0.;

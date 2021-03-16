@@ -201,6 +201,8 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fCalibrationIntSumMin = 20.;
     fL2TimeCorrect = true;
     fsetSpecialChannels = "EVNDISP.specialchannels.dat";
+    fthroughputCorrectionFile = "";
+    ftraceamplitudecorrectionFile = "";
     freconstructionparameterfile = "EVNDISP.reconstruction.runparameter";
     
     ////////////////////////////////////////////////////////////////////////////////
@@ -230,19 +232,6 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     // muon parameters
     fmuonmode = false;
     fhoughmuonmode = false;
-    
-    // Frogs parameters
-    ffrogsmscwfile = "";
-    ffrogsmode = false;
-    ffrogsRecID = 0;
-    ffrogstemplatelist = "";
-    
-    // Model3D parameters, JG
-    fUseModel3D = false;
-    fUseDisplayModel3D = false;
-    fCreateLnLTable = false;
-    fLnLTableFile = "";
-    fIDstartDirectionModel3D = 0;
     
     // output parameters
     ffillhistos = false;                          // obsolete
@@ -293,12 +282,6 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     {
         fFADCtoPhe[i] = -1.;
     }
-    
-    // parallaxwidth
-    fPWmethod = -1;            // default is to use cleaned CFD trigger map
-    fPWcleanNeighbors = 2;     // default number of neighbors required for identifying center pixels in the trigger map
-    fPWcleanThreshold = 26.0;  // default is about 5.3 dc/pe for VERITAS (5 sample integration window), i.e. cleaning of ~5 pe
-    fPWlimit = 0;              // default is no restriction on the number of trigger pixels transmitted to moment-generating function
     
     fNNGraphsFile = "";
     fIPRdatabase = "";
@@ -497,7 +480,11 @@ void VEvndispRunParameter::print( int iEv )
             cout << " use database" << endl;
         }
     }
-    cout << "Run type: " << fDBRunType << " Instrument epoch: " << fInstrumentEpoch << "  Atmosphere (corsika ID): " << fAtmosphereID << endl;
+    if( fDBRunType.size() > 0 )
+    {
+        cout << "Run type: " << fDBRunType << endl;
+    }
+    cout << "Instrument epoch: " << fInstrumentEpoch << "  Atmosphere (corsika ID): " << fAtmosphereID << endl;
     if( fEpochFile.size() > 0 )
     {
         cout << "(epochs read from " << fEpochFile << ")" << endl;
@@ -532,6 +519,10 @@ void VEvndispRunParameter::print( int iEv )
     if( fnevents > 0 )
     {
         cout << "number of events to analyse: " << fnevents << endl;
+    }
+    if( fFirstEvent > 0 )
+    {
+           cout << "starting analysis at event:  " << fFirstEvent << endl;
     }
     if( fTimeCutsMin_min > 0 )
     {
@@ -638,6 +629,15 @@ void VEvndispRunParameter::print( int iEv )
         }
         cout << endl;
         cout << "setting special channels (e.g. with L2 signal): " << fsetSpecialChannels << endl;
+        if( fthroughputCorrectionFile.size() > 0 )
+        {
+            cout << "setting throughput correction from file: " << fthroughputCorrectionFile << endl;
+        }
+        if( ftraceamplitudecorrectionFile.size() )
+        {
+            cout << "setting throughput correction from file (FADC): ";
+            cout << ftraceamplitudecorrectionFile << endl;
+        }
         cout << "pulse timing levels: ";
         for( unsigned int i = 0; i < fpulsetiminglevels.size(); i++ )
         {
@@ -733,12 +733,6 @@ void VEvndispRunParameter::print( int iEv )
     if( iEv == 2 )
     {
         cout << endl;
-        if( fPWmethod == 3 )
-        {
-            cout << "Parallaxwidth: trigger map input type: " << fPWmethod << endl;
-            cout << "Parallaxwidth: number of neighbors required for cleaning: " << fPWcleanNeighbors << endl;
-            cout << "Parallaxwidth: FADC cleaning threshold for identifying triggered pixels (for method 3): " << fPWcleanThreshold << endl;
-        }
         for( unsigned int i = 0; i < fTelToAnalyze.size(); i++ )
         {
             cout << "Telescope " << fTelToAnalyze[i] + 1 << endl;
@@ -934,3 +928,20 @@ void VEvndispRunParameter::setSystemParameters()
         fSGE_TASK_ID = atoi( i_sge );
     }
 }
+
+/*
+ * return instrument epoch
+ *
+ * for VTS, expect this to be in the format
+ * MAJOR_MINOR epoch, e.g. V6_2016
+ *
+ */
+string VEvndispRunParameter::getInstrumentEpoch( bool iMajor )
+{
+        if( iMajor )
+        {
+             return fInstrumentEpoch.substr( 0, fInstrumentEpoch.find( "_" ) );
+        }
+        return fInstrumentEpoch;
+}
+

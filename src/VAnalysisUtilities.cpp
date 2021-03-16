@@ -520,53 +520,6 @@ TObject* VAnalysisUtilities::getHistogram( string hisname, int runnumber, string
     return 0;
 }
 
-TChain* VAnalysisUtilities::getTreeWithSelectedEvents( string iFile, bool iOn )
-{
-    if( !fAnasumDataFile )
-    {
-        return 0;
-    }
-    
-    char dname[200];
-    char hname[200];
-    if( iOn )
-    {
-        sprintf( dname, "data_on" );
-    }
-    else
-    {
-        sprintf( dname, "data_off" );
-    }
-    
-    TTree* t = 0;
-    TChain* c = new TChain( dname );
-    TDirectory* iDir = gDirectory;
-    
-    // get some numbers from the run summary tree
-    fAnasumDataFile->cd( "total_1/stereo" );
-    
-    t = ( TTree* )iDir->Get( "tRunSummary" );
-    if( t )
-    {
-        int iRun;
-        t->SetBranchAddress( "runOn", &iRun );
-        for( int i = 0; i < t->GetEntries(); i++ )
-        {
-            t->GetEntry( i );
-            
-            if( iRun != -1 )
-            {
-                sprintf( hname, "%s/run_%d/stereo/%s", iFile.c_str(), iRun, dname );
-                c->Add( hname );
-            }
-        }
-    }
-    
-    return c;
-}
-
-
-
 double VAnalysisUtilities::getNormalisationFactor( int iRun )
 {
 

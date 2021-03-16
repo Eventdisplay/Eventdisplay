@@ -91,7 +91,7 @@ class VPlotAnasumHistograms : public VAnalysisUtilities, public VPlotUtilities, 
         
         void drawPSF( TCanvas* c = 0, string iFile = 0, TH2D* h2 = 0, float iPSF = 0.1 );
         //   void fit_energy(double minE = -0.5, double maxE = 0.5 );
-        bool openDataFile( string ifile, int ion = -1 );
+        bool openDataFile( string ifile );
         
         void help();                                                       // this will print all available functions
         
@@ -125,7 +125,6 @@ class VPlotAnasumHistograms : public VAnalysisUtilities, public VPlotUtilities, 
         void            plot_reflectedRegions( TCanvas* iC, int i, int j, int iColor = 5 );
         void            plot_excludedRegions( TCanvas* c, int iLineColor = 6 );
         TH1D*           plot_triggerpattern( int ntel = 3, bool bPlot = true );
-        void            plot_qfactors( char* varexp, char* selection, char* hisname, int ibin, double xmin, double xmax, char* xtitle = 0, double iSourceStrength = 1. );
         TCanvas*	plot_cumulativeSignificance( bool doSqrtFit = true );
         
         void            setPlottingCorrelatedHistograms( bool iB = false )

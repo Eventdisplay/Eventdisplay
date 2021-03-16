@@ -62,8 +62,6 @@ class VCamera
         TMarker* fAnaShowerDir;                   //!< reconstructed shower direction
         TMarker* fAnaShowerCentroid;              //!< image centroid
         TMarker* fMCShowerDir;                    //!< MC shower direction
-        TMarker* fModel3DShowerDir;               //!< Model3D shower direction
-        TMarker* fFrogsShowerDir;		  //!< Frogs shower direction
         TMarker* fCameraCentreDir;                //!< camera centre
         TEllipse* fCameraCentreEllipse;
         double fmaxPlot;                          //!< relative size of camera (0.5 = full canvas)

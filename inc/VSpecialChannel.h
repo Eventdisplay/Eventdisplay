@@ -49,6 +49,7 @@ class VSpecialChannel
         }
         double                  getHIGHQE_gainfactor( unsigned int );
         bool                    readSpecialChannels( int iRun, string iFile, string iDirectory );
+        bool                    readThroughput( string iEpoch, string iFile, string iDirectory, unsigned int iNChannel );
         void                    reset();
         void                    setDebug( bool iB = true )
         {

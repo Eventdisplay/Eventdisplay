@@ -74,407 +74,429 @@ bool VSimulationDataReader::printSimulationHeader( VPacket* packet, int bPrintCF
         {
             cout << h->fSimConfigFile << endl;
         }
-        // find config file name. The line should look like this: "  (cfg file /path/to/file)\n"
-        if( h->fSimConfigFile.size() && bPrintCFG == 2 )
+    // find config file name. The line should look like this: "  (cfg file /path/to/file)\n"
+    if( h->fSimConfigFile.size() && bPrintCFG == 2 )
+    {
+        size_t index_start = h->fSimConfigFile.find( "(cfg file" );
+        if( index_start != string::npos )
         {
-            size_t index_start = h->fSimConfigFile.find( "(cfg file" );
-            if( index_start != string::npos )
+            size_t index_end = h->fSimConfigFile.find( "\n", index_start );
+            if( index_end != string::npos )
             {
-                size_t index_end = h->fSimConfigFile.find( "\n", index_start );
-                if( index_end != string::npos )
+                string filename = h->fSimConfigFile.substr( index_start + 10, index_end - 1 - index_start - 10 );
+                if( filename.size() )
                 {
-                    string filename = h->fSimConfigFile.substr( index_start + 10, index_end - 1 - index_start - 10 );
-                    if( filename.size() )
-                    {
-                        cout << "Grisu configuration file: " << filename << endl;
-                    }
+                    cout << "Grisu configuration file: " << filename << endl;
                 }
             }
         }
-        cout << "================================================================================" << endl;
     }
-    
-    return true;
+    cout << "================================================================================" << endl;
+}
+
+return true;
 }
 
 VMonteCarloRunHeader* VSimulationDataReader::fillSimulationHeader( VPacket* packet )
 {
-    if( !packet )
-    {
-        return 0;
-    }
+if( !packet )
+{
+    return 0;
+}
+
+VSimulationHeader* h = packet->getSimulationHeader();
+if( !h )
+{
+    return 0;
+}
+
+// new MC run header
+VMonteCarloRunHeader* iMCRunHeader = new VMonteCarloRunHeader();
+iMCRunHeader->SetName( "MC_runheader" );
+
+iMCRunHeader->runnumber = h->fRunNumber;
+iMCRunHeader->detector_Simulator = h->fSimulator;
+iMCRunHeader->detector_date = h->fDateOfSimsUTC;
+// CORSIKA/grisudet
+if( ( int )h->fSimulationPackage == 1 )
+{
+    iMCRunHeader->shower_prog_id = 1;
+    iMCRunHeader->detector_prog_id = 2;
+}
+iMCRunHeader->atmosphere = ( int )h->fAtmosphericModel;
+iMCRunHeader->obsheight = ( double )h->fObsAltitudeM;
+
+// read long string of fSimConfigFile and extract all the necessary information
+// (very dependent on structure of string)
+if( h->fSimConfigFile.size() > 0 )
+{
+    istringstream is_stream( h->fSimConfigFile );
+    string iTemp = "";
     
-    VSimulationHeader* h = packet->getSimulationHeader();
-    if( !h )
+    while( !(is_stream>>std::ws).eof() )
     {
-        return 0;
-    }
-    
-    // new MC run header
-    VMonteCarloRunHeader* iMCRunHeader = new VMonteCarloRunHeader();
-    iMCRunHeader->SetName( "MC_runheader" );
-    
-    iMCRunHeader->runnumber = h->fRunNumber;
-    iMCRunHeader->detector_Simulator = h->fSimulator;
-    iMCRunHeader->detector_date = h->fDateOfSimsUTC;
-    // CORSIKA/grisudet
-    if( ( int )h->fSimulationPackage == 1 )
-    {
-        iMCRunHeader->shower_prog_id = 1;
-        iMCRunHeader->detector_prog_id = 2;
-    }
-    iMCRunHeader->atmosphere = ( int )h->fAtmosphericModel;
-    iMCRunHeader->obsheight = ( double )h->fObsAltitudeM;
-    
-    // read long string of fSimConfigFile and extract all the necessary information
-    // (very dependent on structure of string)
-    if( h->fSimConfigFile.size() > 0 )
-    {
-        istringstream is_stream( h->fSimConfigFile );
-        string iTemp = "";
+        if( !(is_stream>>std::ws).eof() )
+        {
+            is_stream >> iTemp;
+        }
         
-        while( !(is_stream>>std::ws).eof() )
+        if( iTemp == "corsikaIOreader" )
         {
             if( !(is_stream>>std::ws).eof() )
             {
                 is_stream >> iTemp;
             }
-            
-            if( iTemp == "corsikaIOreader" )
+            if( !(is_stream>>std::ws).eof() )
             {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iTemp;
-                }
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iTemp;
-                }
-                iMCRunHeader->converter_prog_vers = ( int )( atof( iTemp.substr( 0, iTemp.size() - 1 ).c_str() ) * 1000. );
+                is_stream >> iTemp;
             }
-            else if( iTemp == "DATE" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->shower_date;
-                }
-            }
-            else if( iTemp == "CORSIKAVERSION" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iTemp;
-                }
-                iMCRunHeader->shower_prog_vers = atoi( iTemp.c_str() ) * 1000;
-            }
-            else if( iTemp == "PARTICLEID" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->primary_id;
-                }
-            }
-            else if( iTemp == "OBSLEVEL" )
-            {
-                float i_f = 0.;
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> i_f;
-                }
-                if( TMath::Abs( i_f - iMCRunHeader->obsheight ) > 10. )
-                {
-                    cout << "VSimulationDataReader::fillSimulationHeader warning: different observation level in runheader and simconfig string ";
-                    cout << fixed << iMCRunHeader->obsheight << "\t" << i_f << endl;
-                }
-            }
-            else if( iTemp == "ALTITUDE" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->injection_height;
-                }
-            }
-            else if( iTemp == "TSTART" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->fixed_int_depth;
-                }
-            }
-            else if( iTemp == "E_SLOPE" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->spectral_index;
-                }
-            }
-            else if( iTemp == "E_MIN" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->E_range[0];
-                }
-            }
-            else if( iTemp == "E_MAX" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->E_range[1];
-                }
-            }
-            else if( iTemp == "ZENITH_MIN" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->alt_range[0];
-                }
-                iMCRunHeader->alt_range[0] = ( 90. - iMCRunHeader->alt_range[0] ) / ( 45. / atan( 1. ) );
-            }
-            else if( iTemp == "ZENITH_MAX" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->alt_range[1];
-                }
-                iMCRunHeader->alt_range[1] = ( 90. - iMCRunHeader->alt_range[1] ) / ( 45. / atan( 1. ) );
-            }
-            else if( iTemp == "AZIMUTH_MIN" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->az_range[0];
-                }
-                iMCRunHeader->az_range[0] /= ( 45. / atan( 1. ) );
-            }
-            else if( iTemp == "AZIMUTH_MAX" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->az_range[1];
-                }
-                iMCRunHeader->az_range[1] /= ( 45. / atan( 1. ) );
-            }
-            else if( iTemp == "VIEWCONE_MIN" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->viewcone[0];
-                }
-                iMCRunHeader->viewcone[0] /= ( 45. / atan( 1. ) );
-            }
-            else if( iTemp == "VIEWCONE_MAX" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->viewcone[1];
-                }
-                iMCRunHeader->viewcone[1] /= ( 45. / atan( 1. ) );
-            }
-            else if( iTemp == "NSCATT" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->num_use;
-                }
-            }
-            else if( iTemp == "XSCATT" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->core_range[0];
-                }
-            }
-            else if( iTemp == "YSCATT" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->core_range[1];
-                }
-            }
-            else if( iTemp == "CBUNCH" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->corsika_bunchsize;
-                }
-            }
-            else if( iTemp == "C_WMIN" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->corsika_wlen_min;
-                }
-            }
-            else if( iTemp == "C_WMAX" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->corsika_wlen_max;
-                }
-            }
-            else if( iTemp == "GEO_X" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->B_inclination;    // entry will be corrected later
-                }
-            }
-            else if( iTemp == "GEO_Z" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->B_total;    // entry will be corrected later
-                }
-            }
-            else if( iTemp == "GEO_A" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->B_declination;
-                }
-                iMCRunHeader->B_declination /= ( 45. / atan( 1. ) );
-            }
-            else if( iTemp == "HAD_LOW" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->corsika_low_E_model;
-                }
-            }
-            else if( iTemp == "HAD_HIGH" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->corsika_high_E_model;
-                }
-            }
-            else if( iTemp == "HAD_TRANS" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->corsika_low_high_E;
-                }
-            }
-            else if( iTemp == "CFLAG" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iMCRunHeader->corsika_iact_options;
-                }
-            }
-            else if( iTemp == "ATM" )
-            {
-                int iATM = 0;
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iTemp;
-                }
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iATM;
-                }
-                // simulation header in MC vbf file is not filled properly (yet)
-                if( iATM != 0 )
-                {
-                    iMCRunHeader->atmosphere = iATM;
-                }
-            }
-            else if( iTemp == "*" )
-            {
-                if( !(is_stream>>std::ws).eof() )
-                {
-                    is_stream >> iTemp;
-                }
-                if( iTemp == "SOURC" )
-                {
-                    if( !(is_stream>>std::ws).eof() )
-                    {
-                        is_stream >> iTemp;
-                    }
-                    if( !(is_stream>>std::ws).eof() )
-                    {
-                        is_stream >> iTemp;
-                    }
-                    if( !(is_stream>>std::ws).eof() )
-                    {
-                        is_stream >> iTemp;
-                    }
-                    if( atof( iTemp.c_str() ) > 0. )
-                    {
-                        iMCRunHeader->diffuse = 1;
-                        iMCRunHeader->viewcone[0] = 0.;
-                        iMCRunHeader->viewcone[1] = atof( iTemp.c_str() );
-                    }
-                }
-                // read low gain multiplier
-                else if( iTemp == "FADCS" )
-                {
-                    for( int kk = 0; kk < 7; kk ++ )
-                    {
-                        if( !(is_stream>>std::ws).eof() )
-                        {
-                            is_stream >> iTemp;
-                        }
-                    }
-                    if( !(is_stream>>std::ws).eof() )
-                    {
-                        is_stream >> iTemp;
-                        iMCRunHeader->fFADC_hilo_multipler = atof( iTemp.c_str() );
-                    }
-                    else
-                    {
-                        iMCRunHeader->fFADC_hilo_multipler = -999.;
-                    }
-                }
-            }
-            
+            iMCRunHeader->converter_prog_vers = ( int )( atof( iTemp.substr( 0, iTemp.size() - 1 ).c_str() ) * 1000. );
         }
+        else if( iTemp == "DATE" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->shower_date;
+            }
+        }
+        else if( iTemp == "CORSIKAVERSION" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iTemp;
+            }
+            iMCRunHeader->shower_prog_vers = atoi( iTemp.c_str() ) * 1000;
+        }
+        else if( iTemp == "PARTICLEID" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->primary_id;
+            }
+        }
+        else if( iTemp == "OBSLEVEL" )
+        {
+            float i_f = 0.;
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> i_f;
+            }
+            if( TMath::Abs( i_f - iMCRunHeader->obsheight ) > 10. )
+            {
+                cout << "VSimulationDataReader::fillSimulationHeader warning: different observation level in runheader and simconfig string ";
+                cout << fixed << iMCRunHeader->obsheight << "\t" << i_f << endl;
+            }
+        }
+        else if( iTemp == "ALTITUDE" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->injection_height;
+            }
+        }
+        else if( iTemp == "TSTART" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->fixed_int_depth;
+            }
+        }
+        else if( iTemp == "E_SLOPE" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->spectral_index;
+            }
+        }
+        else if( iTemp == "E_MIN" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->E_range[0];
+            }
+        }
+        else if( iTemp == "E_MAX" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->E_range[1];
+            }
+        }
+        // fudge for very old simulations processed with
+        // corsikaIOreader 1.10 or earlier
+        else if( iTemp == "Primary" )
+        {
+             if( !(is_stream>>std::ws).eof() )
+             {
+                 is_stream >> iTemp;
+                 if( iTemp == "zenith" )
+                 {
+                      string iTemp_ze;
+                      for( unsigned int p = 0; p < 4; p++ )
+                      {
+                          if( !(is_stream>>std::ws).eof() )
+                          {
+                              is_stream >> iTemp_ze;
+                          }
+                      }
+                      iMCRunHeader->alt_range[0] = (90. - atof( iTemp_ze.c_str() )) / ( 45. / atan( 1. ) );
+                      iMCRunHeader->alt_range[1] = (90. - atof( iTemp_ze.c_str() )) / ( 45. / atan( 1. ) );
+                  }
+             }
+        }
+        else if( iTemp == "ZENITH_MIN" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->alt_range[0];
+            }
+            iMCRunHeader->alt_range[0] = ( 90. - iMCRunHeader->alt_range[0] ) / ( 45. / atan( 1. ) );
+        }
+        else if( iTemp == "ZENITH_MAX" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->alt_range[1];
+            }
+            iMCRunHeader->alt_range[1] = ( 90. - iMCRunHeader->alt_range[1] ) / ( 45. / atan( 1. ) );
+        }
+        else if( iTemp == "AZIMUTH_MIN" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->az_range[0];
+            }
+            iMCRunHeader->az_range[0] /= ( 45. / atan( 1. ) );
+        }
+        else if( iTemp == "AZIMUTH_MAX" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->az_range[1];
+            }
+            iMCRunHeader->az_range[1] /= ( 45. / atan( 1. ) );
+        }
+        else if( iTemp == "VIEWCONE_MIN" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->viewcone[0];
+            }
+            iMCRunHeader->viewcone[0] /= ( 45. / atan( 1. ) );
+        }
+        else if( iTemp == "VIEWCONE_MAX" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->viewcone[1];
+            }
+            iMCRunHeader->viewcone[1] /= ( 45. / atan( 1. ) );
+        }
+        else if( iTemp == "NSCATT" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->num_use;
+            }
+        }
+        else if( iTemp == "XSCATT" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->core_range[0];
+            }
+        }
+        else if( iTemp == "YSCATT" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->core_range[1];
+            }
+        }
+        else if( iTemp == "CBUNCH" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->corsika_bunchsize;
+            }
+        }
+        else if( iTemp == "C_WMIN" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->corsika_wlen_min;
+            }
+        }
+        else if( iTemp == "C_WMAX" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->corsika_wlen_max;
+            }
+        }
+        else if( iTemp == "GEO_X" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->B_inclination;    // entry will be corrected later
+            }
+        }
+        else if( iTemp == "GEO_Z" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->B_total;    // entry will be corrected later
+            }
+        }
+        else if( iTemp == "GEO_A" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->B_declination;
+            }
+            iMCRunHeader->B_declination /= ( 45. / atan( 1. ) );
+        }
+        else if( iTemp == "HAD_LOW" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->corsika_low_E_model;
+            }
+        }
+        else if( iTemp == "HAD_HIGH" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->corsika_high_E_model;
+            }
+        }
+        else if( iTemp == "HAD_TRANS" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->corsika_low_high_E;
+            }
+        }
+        else if( iTemp == "CFLAG" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iMCRunHeader->corsika_iact_options;
+            }
+        }
+        else if( iTemp == "ATM" )
+        {
+            int iATM = 0;
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iTemp;
+            }
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iATM;
+            }
+            // simulation header in MC vbf file is not filled properly (yet)
+            if( iATM != 0 )
+            {
+                iMCRunHeader->atmosphere = iATM;
+            }
+        }
+        else if( iTemp == "*" )
+        {
+            if( !(is_stream>>std::ws).eof() )
+            {
+                is_stream >> iTemp;
+            }
+            if( iTemp == "SOURC" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> iTemp;
+                }
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> iTemp;
+                }
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> iTemp;
+                }
+                if( atof( iTemp.c_str() ) > 0. )
+                {
+                    iMCRunHeader->diffuse = 1;
+                    iMCRunHeader->viewcone[0] = 0.;
+                    iMCRunHeader->viewcone[1] = atof( iTemp.c_str() );
+                }
+            }
+            // read low gain multiplier
+            else if( iTemp == "FADCS" )
+            {
+                for( int kk = 0; kk < 7; kk ++ )
+                {
+                    if( !(is_stream>>std::ws).eof() )
+                    {
+                        is_stream >> iTemp;
+                    }
+                }
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> iTemp;
+                    iMCRunHeader->fFADC_hilo_multipler = atof( iTemp.c_str() );
+                }
+                else
+                {
+                    iMCRunHeader->fFADC_hilo_multipler = -999.;
+                }
+            }
+        }
+        
     }
-    // scatter mode (y=0)
-    if( TMath::Abs( iMCRunHeader->core_range[1] ) < 1.e-5 )
-    {
-        iMCRunHeader->core_pos_mode = 1;
-    }
-    // geomagnetic field
-    iMCRunHeader->B_total = sqrt( iMCRunHeader->B_total * iMCRunHeader->B_total + iMCRunHeader->B_inclination * iMCRunHeader->B_inclination );
-    if( iMCRunHeader->B_total > 0. )
-    {
-        iMCRunHeader->B_inclination = acos( iMCRunHeader->B_inclination / iMCRunHeader->B_total );
-    }
-    else
-    {
-        iMCRunHeader->B_inclination = 0.;
-    }
-    
-    return iMCRunHeader;
+}
+// scatter mode (y=0)
+if( TMath::Abs( iMCRunHeader->core_range[1] ) < 1.e-5 )
+{
+    iMCRunHeader->core_pos_mode = 1;
+}
+// geomagnetic field
+iMCRunHeader->B_total = sqrt( iMCRunHeader->B_total * iMCRunHeader->B_total + iMCRunHeader->B_inclination * iMCRunHeader->B_inclination );
+if( iMCRunHeader->B_total > 0. )
+{
+    iMCRunHeader->B_inclination = acos( iMCRunHeader->B_inclination / iMCRunHeader->B_total );
+}
+else
+{
+    iMCRunHeader->B_inclination = 0.;
+}
+
+return iMCRunHeader;
 }
 
 
 /*!
-     read vbf simulation bank directly from a packet
+ read vbf simulation bank directly from a packet
 */
 bool VSimulationDataReader::setSimulationData( VPacket* packet )
 {
-    if( fDebug )
-    {
-        cout << "\t\t VSimulationDataReader::setSimulationData" << endl;
-    }
-    bool iReturn = false;
-    
-    if( !packet )
-    {
-        return iReturn;
-    }
-    
-    fMCprimary = 0;
-    fMCenergy = 0.;
-    fMCX = 0.;
-    fMCY = 0.;
-    fMCXcos = 0.;
-    fMCYcos = 0.;
-    fMCZe = 0.;
-    fMCAz = 0.;
-    fShowerID = 0;
+if( fDebug )
+{
+    cout << "\t\t VSimulationDataReader::setSimulationData" << endl;
+}
+bool iReturn = false;
+
+if( !packet )
+{
+    return iReturn;
+}
+
+fMCprimary = 0;
+fMCenergy = 0.;
+fMCX = 0.;
+fMCY = 0.;
+fMCXcos = 0.;
+fMCYcos = 0.;
+fMCZe = 0.;
+fMCAz = 0.;
+fShowerID = 0;
     fFirstInteractionHeight = 0;
     fFirstInteractionDepth = 0;
     fCorsikaRunID = 0;

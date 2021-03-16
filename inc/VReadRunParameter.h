@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "TFile.h"
+#include "TRandom.h"
 #include "TString.h"
 #include "TSystem.h"
 #include "TTree.h"
@@ -48,6 +49,7 @@ class VReadRunParameter
         void isCompiledWithDB();
         bool getRunParametersFromDST();
         bool readEpochsAndAtmospheres();
+        bool readTraceAmplitudeCorrections( string ifile );
         void setDirectories();
         
     public:

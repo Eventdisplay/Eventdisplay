@@ -197,14 +197,14 @@ void VPlotLookupTable::plotRelativeTables( unsigned int iSetID1, unsigned int iS
     sprintf( hname, "hMM_DIV_median_%d_%d", iSetID1, iSetID2 );
     
     TH2F* hMM_median = divide2DHistograms( fLookupTableData[iSetID1]->hmedian, fLookupTableData[iSetID2]->hmedian, hname );
-    sprintf( hname, "%s (%d/%d)", hMM_median->GetZaxis()->GetTitle(), iSetID1, iSetID2 );
     if( hMM_median )
     {
+        sprintf( hname, "%s (%d/%d)", hMM_median->GetZaxis()->GetTitle(), iSetID1, iSetID2 );
         hMM_median->SetZTitle( hname );
+        sprintf( hname, "median (%d/%d)", iSetID1, iSetID2 );
+        plot2DHistogram( hMM_median, iSetID1, hname, 500, iMin, iMax );
     }
     
-    sprintf( hname, "median (%d/%d)", iSetID1, iSetID2 );
-    plot2DHistogram( hMM_median, iSetID1, hname, 500, iMin, iMax );
     
     // sigma
     sprintf( hname, "hMM_DIV_sigma_%d_%d", iSetID1, iSetID2 );

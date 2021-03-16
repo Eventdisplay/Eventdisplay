@@ -39,7 +39,6 @@ class VDisplayBirdsEye : public VGrIsuAnalyzer, public VPlotUtilities
         vector< TEllipse* > fElTelImage;
         vector< TMarker* > fMarkerCore;
         TMarker* fMarkerMCCore;
-        TMarker* fMarkerFrogsCore;
         TArrow* fAxis_SC_X;
         TArrow* fAxis_SC_Y;
         vector< TLine* > fLiImage;

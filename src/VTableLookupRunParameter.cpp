@@ -26,7 +26,6 @@ VTableLookupRunParameter::VTableLookupRunParameter()
     bShortTree = false;
     bWriteMCPars = false;
     rec_method = 0;
-    bUseModel3DStereoParameters = false;
     fWrite1DHistograms = false;
     fSpectralIndex = 2.0;
     fWobbleOffset = 500;     // integer of wobble offset * 100
@@ -55,7 +54,6 @@ VTableLookupRunParameter::VTableLookupRunParameter()
     fQualityCutLevel = 0;
     
     fUsetimeGradientLookupTables = false;
-    fUsefrogsGoodnessTables = false;
     
     fMC_distance_to_cameracenter_min =  0.;
     fMC_distance_to_cameracenter_max =  1.e10;
@@ -399,10 +397,6 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         {
             fUsetimeGradientLookupTables = true;
         }
-        else if( iTemp.find( "use_frogs_tables" ) < iTemp.size() )
-        {
-            fUsefrogsGoodnessTables = true;
-        }
         else if( iTemp.find( "-short" ) < iTemp.size() )
         {
             bShortTree = true;
@@ -422,10 +416,6 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         else if( iTemp.find( "-write1DHistograms" ) < iTemp.size() )
         {
             fWrite1DHistograms = true;
-        }
-        else if( iTemp.find( "-model3d" ) < iTemp.size() )
-        {
-            bUseModel3DStereoParameters = true;
         }
         else if( iTemp.find( "maxnevents" ) < iTemp.size() )
         {
@@ -506,7 +496,7 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
     // CTA analysis might provide additional a list of telescope to analyse
     else if( fTelescopeList_sim_telarray_Counting.size() > 0 && inputfile[0].find( "*" ) == string::npos )
     {
-        if( !readTelescopeToAnalyze( fTelescopeList_sim_telarray_Counting, inputfile[0], true ) )
+        if( !readTelescopeToAnalyze( fTelescopeList_sim_telarray_Counting, inputfile[0] ) )
         {
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE );
@@ -676,8 +666,7 @@ bool VTableLookupRunParameter::readTelTypeDepdendentWeights( string iFile )
  *
  */
 bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim_telarray_Counting,
-        string iEvndispRootFile,
-        bool iSimTelArrayCounting )
+        string iEvndispRootFile )
 {
     fTelToAnalyzeData.clear();
     // (this vector will have later the length of the number
@@ -809,7 +798,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
     }
     // cross check if one of the has been switched off in the analysis
     VEvndispReconstructionParameter* iRecPar = ( VEvndispReconstructionParameter* )iF->Get( "EvndispReconstructionParameter" );
-    if( iRecPar && iPar )
+    if( iRecPar )
     {
         // this works only if number of telescopes = number of telescope types
         if( iRecPar->getReconstructionParameterData( rec_method )
@@ -980,10 +969,6 @@ void VTableLookupRunParameter::print( int iP )
     if( fSelectRandom > 0. )
     {
         cout << "random event selection: " << fSelectRandom << ", seed:" << fSelectRandomSeed << endl;
-    }
-    if( bUseModel3DStereoParameters )
-    {
-        cout << "\t using Model3D direction and core values" << endl;
     }
     if( fUseSelectedImagesOnly )
     {

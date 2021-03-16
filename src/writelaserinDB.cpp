@@ -370,6 +370,7 @@ TString prepare_CalibVOFF_writing()
         if( list_tel_missing.size() < list_of_valid_tel.size() )
         {
             std::cout << "ERROR: BIG Problem !!!! check what the code is doing (RUN:" << fcurrent_run << ")" << std::endl;
+            fclose(wDB_file);
             return wDB_file_name;
         }
         else if( list_tel_missing.size() == list_of_valid_tel.size() )
@@ -620,7 +621,7 @@ int parseOptions( int argc, char* argv[] )
                 ENV = getenv( "OBS_EVNDISP_AUX_DIR" );
                 char readme[500];
                 sprintf( readme, "cat %s/ParameterFiles/EVNDISP.updateDBlaserRUN.runparameter", ENV );
-                system( readme );
+                if( system( readme ) < 0 ) cout << "error in finding readme" << endl;
                 exit( 0 );
                 break;
             case 'd':
@@ -929,17 +930,6 @@ bool read_one_laserRUN_fromVOFFLINE_DB( unsigned int arg_run, vector < unsigned 
     {
         while( TSQLRow* db_row = db_res->Next() )
         {
-            if( !db_row )
-            {
-                cout << "WARNING read_one_laserRUN_fromVOFFLINE_DB: failed reading a row from DB " << endl;
-                // it's ok to see nothing if the run is not copied yet
-                VOFFLINE_DB_LaserRunNumber_Telnum.push_back( -1 );
-                VOFFLINE_DB_LaserVersion_Telnum.push_back( "toto" ) ;
-                VOFFLINE_DB_LaserDate_Telnum.push_back( "now" ) ;
-                
-                return true ;
-            }
-            
             if( atoi( db_row->GetField( 0 ) ) == forget_this_run )
             {
                 return things_went_well ;
@@ -1013,11 +1003,6 @@ bool read_one_laserRUN_fromVERITAS_DB( unsigned int arg_run, unsigned int& VERIT
         
         while( TSQLRow* db_row = db_res->Next() )
         {
-            if( !db_row )
-            {
-                cout << "WARNING read_one_laserRUN_fromVERITAS_DB: failed reading a row from DB " << endl;
-                return things_went_well;
-            }
             if( db_row->GetField( 0 ) )
             {
                 VERITAS_DB_LaserRunNumber =  atoi( db_row->GetField( 0 ) ) ;

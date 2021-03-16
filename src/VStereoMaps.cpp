@@ -832,7 +832,8 @@ bool VStereoMaps::fill_ReflectedRegionModel( double x, double y, int irun, bool 
                 for( unsigned int p = 0; p < i_nr; p++ )
                 {
                     // apply theta2 cut in background region
-                    double theta2 = ( x - fRE_off[i][j].xoff[p] ) * ( x - fRE_off[i][j].xoff[p] ) + ( y - fRE_off[i][j].yoff[p] ) * ( y - fRE_off[i][j].yoff[p] );
+                    double theta2 = ( x - fRE_off[i][j].xoff[p] ) * ( x - fRE_off[i][j].xoff[p] )
+                                  + ( y - fRE_off[i][j].yoff[p] ) * ( y - fRE_off[i][j].yoff[p] );
                     
                     if( theta2 < fRE_off[i][j].roff[p]*fRE_off[i][j].roff[p] )
                     {
@@ -864,6 +865,7 @@ bool VStereoMaps::fill_ReflectedRegionModel( double x, double y, int irun, bool 
                 double t2temp = fTheta2_All[0];
                 fTheta2_All[0] = ( x - fRE_off[f_RE_WW][f_RE_WN].xoff[p] ) * ( x - fRE_off[f_RE_WW][f_RE_WN].xoff[p] ) +
                                  ( y - fRE_off[f_RE_WW][f_RE_WN].yoff[p] ) * ( y - fRE_off[f_RE_WW][f_RE_WN].yoff[p] );
+                i_theta2 = fTheta2_All[0];
                 fTheta2_All[p] = t2temp;
                 is_inside = true;
             }

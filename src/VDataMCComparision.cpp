@@ -263,23 +263,6 @@ void VDataMCComparision::defineHistograms()
     fHistoArray[EMVA] = new VDataMCComparisionHistogramData( "MVA", fName, 0 );
     fHistoArray[EMVA]->initHistogram( "MVA value #Tau", 100, -1., 1. );
     
-    //these histograms are only filled for Model3D analysis
-    
-    fHistoArray[ESIGMAT3D] = new VDataMCComparisionHistogramData( "sigmaT3D", fName, 0 );
-    fHistoArray[ESIGMAT3D]->initHistogram( "3D width [m]", 100, 0., 50. );
-    
-    fHistoArray[ENC3D] = new VDataMCComparisionHistogramData( "Nc3D", fName, 0 );
-    fHistoArray[ENC3D]->initHistogram( "ln(Nc)", 100, 0., 20. );
-    
-    fHistoArray[EDEPTH3D] = new VDataMCComparisionHistogramData( "Depth3D", fName, 0 );
-    fHistoArray[EDEPTH3D]->initHistogram( "depth of shower (3D) [g cm^{-2}]", 100, 0., 1000. );
-    
-    fHistoArray[ERWIDTH3D] = new VDataMCComparisionHistogramData( "RWidth3D", fName, 0 );
-    fHistoArray[ERWIDTH3D]->initHistogram( "reduced 3D width [m]", 100, 0, 10. );
-    
-    fHistoArray[EERRRWIDTH3D] = new VDataMCComparisionHistogramData( "ErrRWidth3D", fName, 0 );
-    fHistoArray[EERRRWIDTH3D]->initHistogram( "error in reduced 3D width [m]", 100, 0., 0.2 );
-    
     // additional 2D histograms
     sprintf( hname, "hXYcore_%s", fName.c_str() );
     hXYcore = new TH2D( hname, "", 75, -1.*core_max, core_max, 75, -core_max, core_max );
@@ -692,7 +675,6 @@ bool VDataMCComparision::fillHistograms( string ifile, int iSingleTelescopeCuts 
             else
             {
                 cout << "VDataMCComparision::fillHistograms: error reading file for wobbles ";
-                cout << iCurrentFile->GetName() << endl;
                 cout << "exiting..." << endl;
                 exit( EXIT_FAILURE );
             }
@@ -924,28 +906,6 @@ bool VDataMCComparision::fillHistograms( string ifile, int iSingleTelescopeCuts 
             {
                 fHistoArray[EMWR]->fill( fData->MWR, weight, log10( fData->ErecS ) );
             }
-            // model3D variables
-            if( fHistoArray[ESIGMAT3D] )
-            {
-                fHistoArray[ESIGMAT3D]->fill( fData->sigmaT3D, weight, log10( fData->ErecS ) );
-            }
-            if( fHistoArray[ENC3D] )
-            {
-                fHistoArray[ENC3D]->fill( fData->Nc3D, weight, log10( fData->ErecS ) );
-            }
-            if( fHistoArray[EDEPTH3D] )
-            {
-                fHistoArray[EDEPTH3D]->fill( fData->Depth3D, weight, log10( fData->ErecS ) );
-            }
-            if( fHistoArray[ERWIDTH3D] )
-            {
-                fHistoArray[ERWIDTH3D]->fill( fData->RWidth3D, weight, log10( fData->ErecS ) );
-            }
-            if( fHistoArray[EERRRWIDTH3D] )
-            {
-                fHistoArray[EERRRWIDTH3D]->fill( fData->ErrRWidth3D, weight, log10( fData->ErecS ) );
-            }
-            
         }
         if( fSingleTelescopeCuts != -1
                 || ( theta2 >= theta2_min && theta2 < theta2_cut  &&  fData->MSCW < msw_max && fData->MSCW > msw_min ) )
@@ -1074,7 +1034,7 @@ bool VDataMCComparision::fillHistograms( string ifile, int iSingleTelescopeCuts 
                 int j = fData->ImgSel_list[t];
                 
                 // telescope wise quality cuts
-                if( fData->ntubes[t] > ntubes_min && fData->size[t] > 0. && fData->size[t] > 0. && fData->ErecS > 0. )
+                if( fData->ntubes[t] > ntubes_min && fData->size[t] > 0. && fData->ErecS > 0. )
                 {
                     if( fHistoSingleTel[ELENGTH][j] )
                     {

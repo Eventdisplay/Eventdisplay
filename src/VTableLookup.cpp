@@ -126,17 +126,6 @@ void VTableLookup::initializeLookupTableDataVector()
         fTableData[E_TGRA]->fValueNormalizationRange_max =  25.;
     }
     
-    // tables for frogs goodness of fit
-    if( fTLRunParameter && fTLRunParameter->fUsefrogsGoodnessTables )
-    {
-        fTableData[E_FRGO] = new VTableCalculatorData();
-        fTableData[E_FRGO]->fDirectoryName = "mscf";
-        fTableData[E_FRGO]->fFillVariable  = "frogsGoodness";
-        fTableData[E_FRGO]->fEnergy        = false;
-        fTableData[E_FRGO]->fValueNormalizationRange_min = -1.;
-        fTableData[E_FRGO]->fValueNormalizationRange_max =  20.;
-    }
-    
     // print table types
     map< unsigned int, VTableCalculatorData* >::iterator iter_iLT_Data;
     
@@ -831,14 +820,6 @@ void VTableLookup::fillLookupTable()
                                 i_l, i_d, fData->getTimeGradient( t ),
                                 idummy1, iEventWeight, idummy3, idummy1 );
                         }
-                        // optional table: frogs goodness of fit
-                        if( fTableData.find( E_FRGO ) != fTableData.end() )
-                        {
-                            fTableData[E_FRGO]->fTable[i_Tel_type_counter][0][0][w][a]->calc(
-                                iN_type, i_r, i_s2,
-                                i_l, i_d, fData->getFROGS_goodness( t ),
-                                idummy1, iEventWeight, idummy3, idummy1 );
-                        }
                     }
                 }
                 ////////////////////////////////////////////////
@@ -867,14 +848,6 @@ void VTableLookup::fillLookupTable()
                         fTableData[E_TGRA]->fTable[i_Tel_type_counter][0][0][w][a]->calc(
                             iN_type, i_r, i_s2,
                             i_l, i_d, fData->getTimeGradient( t ),
-                            idummy1, iEventWeight, idummy3, idummy1 );
-                    }
-                    // optional table: frogs goodness of fit
-                    if( fTableData.find( E_FRGO ) != fTableData.end() )
-                    {
-                        fTableData[E_FRGO]->fTable[i_Tel_type_counter][0][0][w][a]->calc(
-                            iN_type, i_r, i_s2,
-                            i_l, i_d, fData->getFROGS_goodness( t ),
                             idummy1, iEventWeight, idummy3, idummy1 );
                     }
                 }
@@ -1436,17 +1409,6 @@ void VTableLookup::readLookupTable()
                 }
             }
             
-            /////////////////////////
-            // fill mean scaled frogs goodness (optional)
-            if( s_N->value.find( E_FRGO ) != s_N->value.end() )
-            {
-                fData->setMSC_FRGO( s_N->value[E_FRGO] );
-                for( unsigned int j = 0; j < s_N->fNTel; j++ )
-                {
-                    fData->setMSC_FRGOT( j, s_N->value_T[E_FRGO][j], s_N->value_T_sigma[E_FRGO][j] );
-                }
-            }
-            
             fData->fill();
         }
         fevent++;
@@ -1948,23 +1910,6 @@ void VTableLookup::calculateMSFromTables( VTablesToRead* s )
                            s->value_T[E_TGRA],
                            i_dummy, i_dummy,
                            s->value_T_sigma[E_TGRA] );
-    }
-    
-    ///////////////////
-    // mean scaled frogs goodness of fit
-    if( fTableData.find( E_FRGO ) != fTableData.end() )
-    {
-        fTableCalculator->setCalculateEnergies( false );
-        fTableCalculator->setNormalizeTableValues( fTableData[E_FRGO]->fValueNormalizationRange_min,
-                fTableData[E_FRGO]->fValueNormalizationRange_max );
-        fTableCalculator->setEventSelectionCut();
-        fTableCalculator->setVHistograms( s->hMedian[E_FRGO] );
-        
-        s->value[E_FRGO] = fTableCalculator->calc( ( int )fData->getNTel(), fData->getDistanceToCore(),
-                           i_s2, i_l, i_d, fData->getFROGS_goodness(),
-                           s->value_T[E_FRGO],
-                           i_dummy, i_dummy,
-                           s->value_T_sigma[E_FRGO] );
     }
 }
 

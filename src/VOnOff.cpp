@@ -32,20 +32,18 @@ VOnOff::VOnOff()
 VOnOff::~VOnOff()
 {
     // remove all objects in hList
-    /*        if( hList )
+    if( hList )
+    {
+        TIter next( hList );
+        while (TObject *obj = next())
+        {
+            if( obj->TestBit( kCanDelete ) )
             {
-                TIter next( hList );
-                while( TObject* hon = ( TObject* )next() )
-                {
-                    if( hon )
-                    {
-                        delete hon;
-                    }
-                }
-                // hList->Delete();
-                // remove hList
-                delete hList;
-            } */
+               obj->Delete();
+            }
+        }
+        delete hList;
+    } 
     if( hList )
     {
         delete hList;

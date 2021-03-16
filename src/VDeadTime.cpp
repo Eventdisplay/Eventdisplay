@@ -563,23 +563,37 @@ TList* VDeadTime::getDeadTimeHistograms()
 
    double iT_run_s: time into the run
 */
-double VDeadTime::getDeadTimeFraction( double iT_run_s, bool iTimeDiff, bool iEnforceThisMethod )
+double VDeadTime::getDeadTimeFraction( double iT_run_s, bool iTimeDiff, bool iCheckForConsistentDeadTime )
 {
+    double iDeadTime = 0.;
     // method of time difference: no time dependence (dead times might change during a run)
-    if( iTimeDiff || ( fDeadTimeFrac_status == 0 && !iEnforceThisMethod ) )
+	if( iTimeDiff )
     {
-        return fDeadTimeFrac;
+        iDeadTime = fDeadTimeFrac;
     }
     // dead time fraction from scalars
-    if( hScalarDeadTimeFraction )
+    else
     {
-        int nbin = hScalarDeadTimeFraction->FindBin( iT_run_s );
-        if( nbin > 0 && nbin <= hScalarDeadTimeFraction->GetNbinsX() )
+        if( hScalarDeadTimeFraction )
         {
-            return hScalarDeadTimeFraction->GetBinContent( nbin );
+            int nbin = hScalarDeadTimeFraction->FindBin( iT_run_s );
+            if( nbin > 0 && nbin <= hScalarDeadTimeFraction->GetNbinsX() )
+            {
+                iDeadTime = hScalarDeadTimeFraction->GetBinContent( nbin );
+            }
         }
-    }
-    return fScalarDeadTimeFrac;
+        else
+        {
+                 iDeadTime = fScalarDeadTimeFrac;
+        }
+	}
+        // scalar dead time does not provide consistent values for a very small
+        // number of runs
+        if( iCheckForConsistentDeadTime && iDeadTime > 0.98 )
+        {
+            return fDeadTimeFrac;
+        }
+	return iDeadTime;
 }
 
 /*
@@ -587,7 +601,7 @@ double VDeadTime::getDeadTimeFraction( double iT_run_s, bool iTimeDiff, bool iEn
    get mean dead time fraction assuming that each mask entry corresponds to 1 s
 
 */
-double VDeadTime::getDeadTimeFraction( vector< bool > iMask, bool iTimeDiff, bool iEnforceThisMethod )
+double VDeadTime::getDeadTimeFraction( vector< bool > iMask, bool iTimeDiff, bool iCheckForConsistentDeadTime )
 {
     double iN = 0.;
     double iD = 0.;
@@ -596,7 +610,7 @@ double VDeadTime::getDeadTimeFraction( vector< bool > iMask, bool iTimeDiff, boo
         // only get dead time if mask is open!
         if( iMask[i] )
         {
-            iD += getDeadTimeFraction( ( double )i + 0.5, iTimeDiff, iEnforceThisMethod );
+            iD += getDeadTimeFraction( ( double )i + 0.5, iTimeDiff, iCheckForConsistentDeadTime );
             iN++;
         }
     }
