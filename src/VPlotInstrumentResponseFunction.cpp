@@ -2012,9 +2012,9 @@ TCanvas* VPlotInstrumentResponseFunction::plotPSF( vector< double > i_Energy_TeV
                     }
                     else
                     {
-                        if( h->GetNbinsX() % 4  == 0 )
+                        if( h->GetNbinsX() % 2  == 0 )
                         {
-                            h->Rebin( 4 );
+                            h->Rebin( 2 );
                         }
                         else
                         {
