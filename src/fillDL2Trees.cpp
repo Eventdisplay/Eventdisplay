@@ -105,20 +105,20 @@ int main( int argc, char* argv[] )
     fDL2Writer.fill( &d );
     
     // write results to disk
-    if( fDL2Writer.getEventCutDataTree() )
+    if( fDL2Writer.getEventDataTree() )
     {
         cout << "writing event data trees: (";
-        cout << fDL2Writer.getEventCutDataTree()->GetName();
+        cout << fDL2Writer.getEventDataTree()->GetName();
         cout << ") to " << fOutputfile->GetName() << endl;
         fOutputfile->cd();
-        if( fDL2Writer.getEventCutDataTree() )
+        if( fDL2Writer.getEventDataTree() )
         {
-            fDL2Writer.getEventCutDataTree()->Write();
+            fDL2Writer.getEventDataTree()->Write();
         }
-        if( c )
+/*        if( c )
         {
             c->Merge(fOutputfile, 0, "keep" );
-        }
+        } */
     }
     writeMCRunHeader( c, fOutputfile );
     
