@@ -79,7 +79,7 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     fCREnergySpectrumID = 0;
     fCREnergySpectrum = 0;
 
-    fWriteEventdatatrees = false;
+    fWriteEventdatatrees = "FALSE";
 }
 
 
@@ -148,6 +148,14 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                 if( !(is_stream>>std::ws).eof() )
                 {
                         is_stream >> fWriteEventdatatrees;
+                        if( fWriteEventdatatrees != "DL2"
+                         && fWriteEventdatatrees != "FULLTREES" 
+                         && fWriteEventdatatrees != "FALSE" )
+                        {
+                             cout << "readInputFileList: unknown event data tree option: ";
+                             cout << fWriteEventdatatrees << endl;
+                             exit( EXIT_FAILURE );
+                        }
                 }
             }
             // fill MC histograms

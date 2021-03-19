@@ -374,6 +374,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     
     ////////////////////////////////////
     // tree with DL2 event information (DL2 event) for each event
+    // note adaptions to save disk space
     fDL2_runNumber = 0.;
     fDL2_eventNumber = 0;
     fDL2_MCaz = 0.;
@@ -391,25 +392,35 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     fDL2_nimages = 0;
     fDL2_Cut_Class = 0;
     fDL2_Cut_MVA = 0.;
-    fDL2EventTree = new TTree( "DL2EventTree", "DL2 tree" );
-    fDL2EventTree->Branch( "runNumber", &fDL2_runNumber, "runNumber/i" );
-    fDL2EventTree->Branch( "eventNumber", &fDL2_eventNumber, "eventNumber/i" );
-    fDL2EventTree->Branch( "MCaz", &fDL2_MCaz, "MCaz/F" );
-    fDL2EventTree->Branch( "MCel", &fDL2_MCel, "MCel/F" );
-    fDL2EventTree->Branch( "MCxoff", &fDL2_MCxoff, "MCxoff/F" );
-    fDL2EventTree->Branch( "MCyoff", &fDL2_MCyoff, "MCyoff/F" );
-    fDL2EventTree->Branch( "MCe0", &fDL2_MCe0, "MCe0/F" );
-    fDL2EventTree->Branch( "ArrayPointing_Azimuth", &fDL2_ArrayPointing_Azimuth, "ArrayPointing_Azimuth/F" );
-    fDL2EventTree->Branch( "ArrayPointing_Elevation", &fDL2_ArrayPointing_Elevation, "ArrayPointing_Elevation/F" );
-    fDL2EventTree->Branch( "az", &fDL2_az, "az/F" );
-    fDL2EventTree->Branch( "el", &fDL2_el, "el/F" );
-    fDL2EventTree->Branch( "xoff", &fDL2_xoff, "xoff/F" );
-    fDL2EventTree->Branch( "yoff", &fDL2_yoff, "yoff/F" );
-    fDL2EventTree->Branch( "erec", &fDL2_erec, "erec/F" );
-    fDL2EventTree->Branch( "nimages", &fDL2_nimages, "nimages/b" );
-    fDL2EventTree->Branch( "CutClass", &fDL2_Cut_Class, "Class/b" );
-    fDL2EventTree->Branch( "MVA", &fDL2_Cut_MVA, "MVA/F" );
-    
+    if( fRunPara->fWriteEventdatatrees != "FALSE" )
+    {
+        fDL2EventTree = new TTree( "DL2EventTree", "DL2 tree" );
+        // save disk space: don't write runNumber
+        // fDL2EventTree->Branch( "runNumber", &fDL2_runNumber, "runNumber/i" );
+        // save disk space: don't write eventNumber
+        // fDL2EventTree->Branch( "eventNumber", &fDL2_eventNumber, "eventNumber/i" );
+        fDL2EventTree->Branch( "MCaz", &fDL2_MCaz, "MCaz/F" );
+        fDL2EventTree->Branch( "MCel", &fDL2_MCel, "MCel/F" );
+        // save disk space: don't write Xoff, Yoff
+        // fDL2EventTree->Branch( "MCxoff", &fDL2_MCxoff, "MCxoff/F" );
+        // fDL2EventTree->Branch( "MCyoff", &fDL2_MCyoff, "MCyoff/F" );
+        fDL2EventTree->Branch( "MCe0", &fDL2_MCe0, "MCe0/F" );
+        fDL2EventTree->Branch( "ArrayPointing_Azimuth", &fDL2_ArrayPointing_Azimuth, "ArrayPointing_Azimuth/F" );
+        fDL2EventTree->Branch( "ArrayPointing_Elevation", &fDL2_ArrayPointing_Elevation, "ArrayPointing_Elevation/F" );
+        fDL2EventTree->Branch( "az", &fDL2_az, "az/F" );
+        fDL2EventTree->Branch( "el", &fDL2_el, "el/F" );
+        // save disk space: don't write Xoff, Yoff
+        // fDL2EventTree->Branch( "xoff", &fDL2_xoff, "xoff/F" );
+        // fDL2EventTree->Branch( "yoff", &fDL2_yoff, "yoff/F" );
+        fDL2EventTree->Branch( "erec", &fDL2_erec, "erec/F" );
+        fDL2EventTree->Branch( "nimages", &fDL2_nimages, "nimages/b" );
+        fDL2EventTree->Branch( "CutClass", &fDL2_Cut_Class, "Class/b" );
+        fDL2EventTree->Branch( "MVA", &fDL2_Cut_MVA, "MVA/F" );
+    }
+    else
+    {
+       fDL2EventTree = 0;
+    }
 }
 
 vector< TH1D* > VEffectiveAreaCalculator::initializeHistogramsVectorH1D( TH1D* h, string iName, unsigned int i )
@@ -3503,6 +3514,13 @@ void VEffectiveAreaCalculator::fillEcutSub( double iE, enum E_HIS1D iCutIndex )
  */
 void VEffectiveAreaCalculator::fillDL2EventDataTree( CData *c, UChar_t iCutClass, float iMVA )
 {
+      // apply minimal quality cuts:
+      // - require successful direction and energy reconstruction
+      if( c->Xoff < -90. 
+       || c->Yoff < -90. 
+       || c->Ze < 0.
+       || c->ErecS < 0. ) return;
+
       if( fDL2EventTree && c )
       {
           fDL2_runNumber = (UInt_t)c->runNumber;
@@ -3515,14 +3533,7 @@ void VEffectiveAreaCalculator::fillDL2EventDataTree( CData *c, UChar_t iCutClass
           fDL2_ArrayPointing_Azimuth = c->ArrayPointing_Azimuth;
           fDL2_ArrayPointing_Elevation = c->ArrayPointing_Elevation;
           fDL2_az = c->Az;
-          if( c->Ze > 0. )
-          {
-              fDL2_el = 90. - c->Ze;
-          }
-          else
-          {
-              fDL2_el = -99.;
-          }
+          fDL2_el = 90. - c->Ze;
           fDL2_xoff = c->Xoff;
           fDL2_yoff = c->Yoff;
           fDL2_erec = c->ErecS;
