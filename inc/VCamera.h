@@ -89,6 +89,8 @@ class VCamera
         TGaxis* fCameraXaxis;
         TGaxis* fCameraYaxis;
         TLine* fEllipseLine;
+        TLine* fEllipseLine_minus;
+        TLine* fEllipseLine_plus;
         TLine* fCenterLine;
         
         // stuff need for color scheme mode
@@ -139,6 +141,8 @@ class VCamera
         double         getMin( valarray<double>& );
         //!< get minimum/maximum, exclude dead channels
         void           getMinMax( valarray<double>&, double& imin, double& imax, vector< unsigned int > iPixelDrawMask );
+        // plot ellipse line
+        void plot_ellipseLine( double iSign = 0. );
         //!< recalculate radii for fgraphTubesEntry (normalize radii)
         valarray<double>& rescaleSums( valarray<double>&, bool );
         //!< fill fgraphTubesEntry values

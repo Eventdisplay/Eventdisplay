@@ -203,6 +203,8 @@ void VCamera::setUpCamera()
 	// lines showing the image axis and rotation
 	fCenterLine = new TLine( 0., 0., 0., 0. );
 	fEllipseLine = new TLine( 0., 0., 0., 0. );
+	fEllipseLine_plus = new TLine( 0., 0., 0., 0. );
+	fEllipseLine_minus = new TLine( 0., 0., 0., 0. );
 	// ellipse representing the shower image (log likelihood)
 	fAnaEllipseLL = new TEllipse();
 	fAnaEllipseLL->SetLineColor( 5 );
@@ -562,7 +564,7 @@ void VCamera::draw( double i_max, int iEventNumber, bool iAllinOne )
 				}
 			}
 		}
-/*		// mark pixel used for LL fit
+		// mark pixel used for LL fit
 		if( fData->getImageParameters()->Fitstat >= 0 && !fBoolAllinOne )
 		{
 			for( unsigned int i = 0; i < fgraphMarker.size(); i++ )
@@ -574,16 +576,17 @@ void VCamera::draw( double i_max, int iEventNumber, bool iAllinOne )
 						fgraphMarker[i]->SetMarkerStyle( 2 );
 						fgraphMarker[i]->SetX( fgraphTubesEntry[i]->GetX1() );
 						fgraphMarker[i]->SetY( fgraphTubesEntry[i]->GetY1() );
+                        fgraphMarker[i]->SetMarkerColor( 32 );
 						fgraphMarker[i]->Draw();
 					}
 				}
 			}
 
-		} */
-                // mark pixels with >1 pe
-                // (in PE plot, mark image/border pixels)
-                if( fData->getReader()->getPE().size() > 0 )
-                {
+		} 
+        // mark pixels with >1 pe
+        // (in PE plot, mark image/border pixels)
+        if( fData->getReader()->getPE().size() > 0 )
+        {
 			for( unsigned int i = 0; i < fgraphMarker.size(); i++ )
 			{
                             if( fcameraModus != C_PE )
@@ -1703,44 +1706,13 @@ void VCamera::drawAnaResults()
 				fCenterLine->SetLineWidth( 2 );
 				fCenterLine->Draw();
 			}
-			double i_scale1 = 2.;
-			double i_scale2 = 2.;
-			if( fBoolAllinOne )
-			{
-				i_scale1 = 30.;
-				i_scale2 = 30.;
-			}
-			double i_x1 = convertX( fData->getImageParameters()->cen_x )
-						  + i_scale1 * fAnaEllipse->GetR1() * cos( fAnaEllipse->GetTheta() * TMath::Pi() / 180. );
-			double i_x2 = convertX( fData->getImageParameters()->cen_x )
-						  - i_scale2 * fAnaEllipse->GetR1() * cos( fAnaEllipse->GetTheta() * TMath::Pi() / 180. );
-			double i_y1 = convertY( fData->getImageParameters()->cen_y )
-						  + i_scale1 * fAnaEllipse->GetR1() * sin( fAnaEllipse->GetTheta() * TMath::Pi() / 180. );
-			double i_y2 = convertY( fData->getImageParameters()->cen_y )
-						  - i_scale2 * fAnaEllipse->GetR1() * sin( fAnaEllipse->GetTheta() * TMath::Pi() / 180. );
+            plot_ellipseLine( 0. );
+            if( fData->getImageParameters()->Fitstat >= 0. )
+            {
+                plot_ellipseLine( -1. );
+                plot_ellipseLine( 1. );
+            }
 						  
-			fEllipseLine->SetX1( i_x1 );
-			fEllipseLine->SetY1( i_y1 );
-			fEllipseLine->SetX2( i_x2 );
-			fEllipseLine->SetY2( i_y2 );
-			if( fBoolAllinOne )
-			{
-				fEllipseLine->SetLineColor( fTelescopeEllipseColor );
-			}
-			else
-			{
-				fEllipseLine->SetLineColor( 1 );
-			}
-			if( !fBoolAllinOne )
-			{
-				fEllipseLine->SetLineStyle( 1 );
-			}
-			else
-			{
-				fEllipseLine->SetLineStyle( 1 );
-			}
-			fEllipseLine->SetLineWidth( 1 );
-			fEllipseLine->Draw();
 			// draw image centroids
 			if( !fBoolAllinOne )
 			{
@@ -2210,4 +2182,56 @@ void VCamera::drawStarsInFOV()
 	
 }
 
+// plot image elipse (and errros)
+void VCamera::plot_ellipseLine( double iSign )
+{
+    double i_scale1 = 2.;
+    double i_scale2 = 2.;
+    if( fBoolAllinOne )
+    {
+        i_scale1 = 30.;
+        i_scale2 = 30.;
+    }
+
+    double theta = fAnaEllipse->GetTheta();
+    double cen_x = fData->getImageParameters()->cen_x;
+    double cen_y = fData->getImageParameters()->cen_y;
+    theta *= TMath::Pi() / 180.;
+    if( fData->getImageParameters()->Fitstat >= 0. )
+    {
+        theta = theta + iSign * fData->getImageParameters()->dphi;
+    }
+    double i_x1 = convertX( cen_x )
+                  + i_scale1 * fAnaEllipse->GetR1() * cos( theta );
+    double i_x2 = convertX( cen_x )
+                  - i_scale2 * fAnaEllipse->GetR1() * cos( theta );
+    double i_y1 = convertY( cen_y )
+                  + i_scale1 * fAnaEllipse->GetR1() * sin( theta );
+    double i_y2 = convertY( cen_y )
+                  - i_scale2 * fAnaEllipse->GetR1() * sin( theta );
+
+    TLine *iL = fEllipseLine;
+    if( iSign < -1.e-2 ) iL = fEllipseLine_minus;
+    if( iSign >  1.e-2 ) iL = fEllipseLine_plus;
+
+    iL->SetX1( i_x1 );
+    iL->SetY1( i_y1 );
+    iL->SetX2( i_x2 );
+    iL->SetY2( i_y2 );
+    if( fBoolAllinOne )
+    {
+        iL->SetLineColor( fTelescopeEllipseColor );
+    }
+    else
+    {
+        iL->SetLineColor( 1 );
+    }
+    iL->SetLineStyle( 1 );
+    if( TMath::Abs( iSign ) > 1.e-2 )
+    {
+        iL->SetLineStyle( 2 );
+    }
+    iL->SetLineWidth( 1 );
+    iL->Draw();
+}
 
