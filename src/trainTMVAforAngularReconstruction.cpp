@@ -308,7 +308,7 @@ vector< string > fillInputFile_fromList( string iList )
 
     (a previous training session produced these files
 */
-bool readTrainingFile( string iTargetML, ULong64_t iTelType, const string iDataDirectory )
+bool readTrainingFile( string iTargetML, ULong64_t iTelType, string iDataDirectory )
 {
     fMapOfTrainingTree.clear();
     
