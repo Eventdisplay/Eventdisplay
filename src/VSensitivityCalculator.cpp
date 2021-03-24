@@ -2695,13 +2695,28 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
     // calculate solid angle from analysis cuts (or from input parameter theta2)
     // (independent of energy binning of differential sensitivity curves)
     //////////////////////////////////////////////////////////////////////////////////////
-    VGammaHadronCuts* iCuts = ( VGammaHadronCuts* )fEff.Get( "GammaHadronCuts" );
-    if( iCuts )
+    vector< VGammaHadronCuts* > iCuts;
+    if( fEff.Get( "GammaHadronCuts" ) )
+    {
+        iCuts.push_back( (VGammaHadronCuts*)fEff.Get( "GammaHadronCuts" ) );
+    }
+    else if( fEff.Get( "GammaHadronCuts_0" ) && fEff.Get( "GammaHadronCuts_1" ) )
+    {
+        iCuts.push_back( (VGammaHadronCuts*)fEff.Get( "GammaHadronCuts_0" ) );
+        iCuts.push_back( (VGammaHadronCuts*)fEff.Get( "GammaHadronCuts_1" ) );
+    }
+    if( iCuts.size() > 0 )
     {
         // theta2 might be energy dependent
         cout << "calculating solid angle from analysis cuts (might be energy dependent)" << endl;
-        cout << "\t TMVA CUT " << iCuts->getDirectionCutSelector() << endl;
-        iMCPara->theta2_min = iCuts->getTheta2Cut_min();       // theta2 min assumed to be energy independent
+        cout << "\t TMVA CUT " << iCuts[0]->getDirectionCutSelector() << endl;
+        double theta2_min_average = 0.;
+        for( unsigned int c = 0; c < iCuts.size(); c++ )
+        {
+            theta2_min_average +=  iCuts[c]->getTheta2Cut_min();
+        }
+        // theta2 min assumed to be energy independent
+        iMCPara->theta2_min = theta2_min_average / (double)iCuts.size();
         if( iMCPara->theta2_min < 0. )
         {
             iMCPara->theta2_min = 0.;
@@ -2720,7 +2735,12 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
             e = fEnergy_min_Log + i * ( fEnergy_max_Log - fEnergy_min_Log ) / iMCPara->gSolidAngle_DirectionCut_vs_EnergylgTeV->GetN();
             
             // VGammaHadronCuts::getTheta2Cut_max work with lin E
-            itheta2 = iCuts->getTheta2Cut_max( TMath::Power( 10., e ) );
+            double theta2_max_average = 0.;
+            for( unsigned int c = 0; c < iCuts.size(); c++ )
+            {
+                theta2_max_average += iCuts[c]->getTheta2Cut_max( TMath::Power( 10., e ) );
+            }
+            itheta2 = theta2_max_average / (double)iCuts.size();
             if( itheta2 > 0. )
             {
                 iSolidAngle  = 2. * TMath::Pi() * ( 1. - cos( sqrt( itheta2 ) * TMath::Pi() / 180. ) );
@@ -2740,7 +2760,17 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // read success of TMVA cut optimization from gamma/hadron cuts
+    // (unfortunately a bit of a miss in naming)
     fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults" );
+    if( !fTMVAEvaluatorResults )
+    {
+       fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults_0" );
+    }
+    if( !fTMVAEvaluatorResults )
+    {
+       fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults0" );
+    }
+
     if( fTMVAEvaluatorResults )
     {
         cout << "reading TMVAEvaluatorResults from effective area file (";

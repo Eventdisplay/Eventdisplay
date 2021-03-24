@@ -202,8 +202,8 @@ class CData
         TBranch*        b_Yoff;                   //!
         TBranch*        b_Xoff_derot;             //!
         TBranch*        b_Yoff_derot;             //!
-		TBranch*        b_Xoff_intersect;             //!
-		TBranch*        b_Yoff_intersect;             //!
+	TBranch*        b_Xoff_intersect;             //!
+	TBranch*        b_Yoff_intersect;             //!
         TBranch*        b_stdS;                   //!
         TBranch*        b_theta2;                 //!
         TBranch*        b_Xcore;                  //!
@@ -607,7 +607,14 @@ void CData::Init( TTree* tree )
     // MC tree
     if( fMC )
     {
-        fChain->SetBranchAddress( "MCprimary", &MCprimary );
+        if( fChain->GetBranch( "MCprimary" ) )
+        {
+            fChain->SetBranchAddress( "MCprimary", &MCprimary );
+        }
+        else
+        {
+            MCprimary = 0;
+        }
         fChain->SetBranchAddress( "MCe0", &MCe0 );
         fChain->SetBranchAddress( "MCxcore", &MCxcore );
         fChain->SetBranchAddress( "MCycore", &MCycore );
@@ -731,7 +738,14 @@ void CData::Init( TTree* tree )
               Yoff_intersect = 0.;
         }
     
-    fChain->SetBranchAddress( "stdS", &stdS );
+    if( fChain->GetBranchStatus( "stdS" ) )
+    {
+        fChain->SetBranchAddress( "stdS", &stdS );
+    }
+    else
+    {
+        stdS = 0.;
+    }
     if( !fShort )
     {
         fChain->SetBranchAddress( "theta2", &theta2 );
@@ -761,7 +775,14 @@ void CData::Init( TTree* tree )
     }
     
     fChain->SetBranchAddress( "Chi2", &Chi2 );
-    fChain->SetBranchAddress( "meanPedvar_Image", &meanPedvar_Image );
+    if( fChain->GetBranchStatus( "meanPedvar_Image" ) )
+    {
+        fChain->SetBranchAddress( "meanPedvar_Image", &meanPedvar_Image );
+    }
+    else
+    {
+        meanPedvar_Image = 0.;
+    }
     if( !fShort )
     {
         fChain->SetBranchAddress( "meanPedvar_ImageT", meanPedvar_ImageT );

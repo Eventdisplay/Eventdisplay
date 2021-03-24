@@ -185,7 +185,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
                 double& i_TMVACutValue_AtMaximum );
         TGraph*          getInterpolatedDifferentialRatesfromGraph2D( TObject* i_G, double i_ze_min, double i_ze_max );
         double           getAverageDifferentialRateFromGraph2D( TObject* i_G, double i_e_min, double i_e_max, double i_ze_min, double i_ze_max );
-        void             fillTMVAEvaluatorResults();
+        void             fillTMVAEvaluatorResults( string iCutID = "" );
         unsigned int     getDataBin( double iErec_log10TeV, double iZe );
         unsigned int     getDataBin( double iErec_log10TeV, unsigned int iZeBin );
         vector< double > getDataBinWeights( double iErec_log10TeV, unsigned int iZeBin );
@@ -262,7 +262,8 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
                                       unsigned int iWeightFileIndex_Emin, unsigned int iWeightFileIndex_Emax,
                                       unsigned int iWeightFileIndex_Zmin, unsigned int iWeightFileIndex_Zmax,
                                       double iEnergyStepSize = 0.2, string iInstrumentEpoch = "noepoch",
-                                      string iOptimizationType = "UseInterpolatedCounts" );
+                                      string iOptimizationType = "UseInterpolatedCounts",
+                                      string iCutID = "" );
         bool   initializeDataStrutures( CData* iC );
         bool   IsZombie()
         {
@@ -351,7 +352,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         void   setTMVAMethod( string iMethodName = "BDT", int iMethodCounter = 0 );
         bool   writeOptimizedMVACutValues( string iRootFile );
         
-        ClassDef( VTMVAEvaluator, 50 );
+        ClassDef( VTMVAEvaluator, 51 );
 };
 
 #endif

@@ -19,7 +19,7 @@ VGammaHadronCutsStatistics::VGammaHadronCutsStatistics()
     reset();
 }
 
-void VGammaHadronCutsStatistics::initialize()
+void VGammaHadronCutsStatistics::initialize( string iname )
 {
     fCutName.push_back( "Tot               " );
     fCutName.push_back( "MC_XYoff          " );
@@ -37,8 +37,10 @@ void VGammaHadronCutsStatistics::initialize()
     fCutName.push_back( "IsGamma           " );
     fCutName.push_back( "EnergyRec         " );
     fCutName.push_back( "Unkown cut (problem?) " );
+
+    iname = "GammaHadronCutsStats_" + iname;
     
-    fData = new TTree( "GammaHadronCutsStats", "cut statistics for gamma/hadron cuts" );
+    fData = new TTree( iname.c_str(), "cut statistics for gamma/hadron cuts" );
     fData->Branch( "cut", &fCut_bitset_ulong, "cut/l" );
 }
 

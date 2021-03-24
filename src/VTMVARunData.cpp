@@ -23,6 +23,7 @@ VTMVARunData::VTMVARunData()
     fQualityCuts = "1";
     fQualityCutsBkg = "1";
     fQualityCutsSignal = "1";
+    fMultiplicityCuts = "1";
     fMCxyoffCut = "1";
     fMCxyoffCutSignalOnly = false;
     fAzimuthCut = "1";
@@ -32,6 +33,7 @@ VTMVARunData::VTMVARunData()
     fBackgroundWeight = 1.;
     fMinSignalEvents = 50;
     fMinBackgroundEvents = 0;
+    fSelectedEventTreeName = "";
     
     fNTtype = -1;
     
@@ -115,7 +117,13 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
                     {
                         if( fSignalTree[k] )
                         {
-                            fSignalTree[k]->Draw( ">>+signalList", fQualityCuts && fQualityCutsSignal && fMCxyoffCut && fAzimuthCut && fEnergyCutData[i]->fEnergyCut && fZenithCutData[j]->fZenithCut, "entrylist" );
+                            fSignalTree[k]->Draw( ">>+signalList", 
+                                                  fQualityCuts && fQualityCutsSignal 
+                                                  && fMultiplicityCuts
+                                                  && fMCxyoffCut && fAzimuthCut && 
+                                                  fEnergyCutData[i]->fEnergyCut && 
+                                                  fZenithCutData[j]->fZenithCut, 
+                                                  "entrylist" );
                             i_j_SignalList = ( TEntryList* )gDirectory->Get( "signalList" );
                         }
                     }
@@ -125,7 +133,9 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
                         cout << "number of signal events in energy bin " << i << " zenith bin " << j << ": ";
                         cout << i_j_SignalList->GetN() << "\t required > " << fMinSignalEvents << endl;
                         cout << "  (cuts are " << fQualityCuts << "&&" << fQualityCutsSignal << "&&" << fMCxyoffCut << "&&" << fAzimuthCut;
-                        cout << "&&" << fEnergyCutData[i]->fEnergyCut  << "&&" << fZenithCutData[j]->fZenithCut << ")" << endl;
+                        cout << "&&" << fEnergyCutData[i]->fEnergyCut  << "&&" << fZenithCutData[j]->fZenithCut;
+                        cout << "&&" << fMultiplicityCuts;
+                        cout << ")" << endl;
                         if( i_j_SignalList->GetN() < fMinSignalEvents )
                         {
                             iEnoughEvents = false;
@@ -141,6 +151,7 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
                         if( fMCxyoffCutSignalOnly )
                         {
                             fBackgroundTree[k]->Draw( ">>+BackgroundList", fQualityCuts && fQualityCutsBkg
+                                                      && fMultiplicityCuts
                                                       && fMCxyoffCut && fAzimuthCut && fEnergyCutData[i]->fEnergyCut
                                                       && fZenithCutData[j]->fZenithCut, "entrylist" );
                             i_j_BackgroundList = ( TEntryList* )gDirectory->Get( "BackgroundList" );
@@ -148,6 +159,7 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
                         else if( fBackgroundTree[k] )
                         {
                             fBackgroundTree[k]->Draw( ">>+BackgroundList", fQualityCuts && fQualityCutsBkg
+                                                      && fMultiplicityCuts
                                                       && fMCxyoffCut && fAzimuthCut && fEnergyCutData[i]->fEnergyCut
                                                       && fZenithCutData[j]->fZenithCut, "entrylist" );
                             i_j_BackgroundList = ( TEntryList* )gDirectory->Get( "BackgroundList" );
@@ -159,7 +171,9 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
                         cout << i_j_BackgroundList->GetN();
                         cout << "\t required > " << fMinBackgroundEvents << endl;
                         cout << "  (cuts are " << fQualityCuts << "&&" << fQualityCutsBkg << "&&" << fMCxyoffCut << "&&" << fAzimuthCut;
-                        cout << "&&" << fEnergyCutData[i]->fEnergyCut  << "&&" << fZenithCutData[j]->fZenithCut << ")" << endl;
+                        cout << "&&" << fEnergyCutData[i]->fEnergyCut  << "&&" << fZenithCutData[j]->fZenithCut;
+                        cout << "&&" << fMultiplicityCuts;
+                        cout << ")" << endl;
                         if( i_j_BackgroundList->GetN() < fMinBackgroundEvents )
                         {
                             iEnoughEvents = false;
@@ -302,6 +316,7 @@ void VTMVARunData::print()
     }
     cout << endl;
     cout << "pre-training selection cuts: " << fQualityCuts << endl;
+    cout << "multiplicity cuts: " << fMultiplicityCuts << endl;
     cout << "background specific pre-training selection cuts: " << fQualityCutsBkg << endl;
     cout << "signal specific pre-training selection cuts: " << fQualityCutsSignal << endl;
     cout << "cut on MC arrival directions: " << fMCxyoffCut;
@@ -511,6 +526,19 @@ bool VTMVARunData::readConfigurationFile( char* iC )
                     return false;
                 }
             }
+            // telescope multiplicity cut
+            if( temp == "TELMULTIPLICITY_CUTS" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                   fMultiplicityCuts = is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ).c_str();
+                }
+                else
+                {
+                   cout << "VTMVARunData::readConfigurationFile error while reading input for variable TELMULTIPLICITY_CUTS" << endl;
+                   return false;
+                }
+            }
             // MC arrival direction cut
             if( temp == "MCXYOFF" )
             {
@@ -588,6 +616,14 @@ bool VTMVARunData::readConfigurationFile( char* iC )
                 {
                     cout << "VTMVARunData::readConfigurationFile error while reading input for variable SIGNALWEIGHT" << endl;
                     return false;
+                }
+            }
+            // pre-selected traing file
+            if( temp == "PREEVENTLIST" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> fSelectedEventTreeName;
                 }
             }
             // signal files
@@ -784,4 +820,23 @@ void VTMVARunData::shuffleFileVectors()
     std::mt19937 g(rd());
     std::shuffle( fSignalFileName.begin(), fSignalFileName.end(), g );
     std::shuffle( fBackgroundFileName.begin(), fBackgroundFileName.end(), g );
+}
+
+VTableLookupRunParameter* VTMVARunData::getTLRunParameter()
+{
+   TDirectory* iG_CurrentDirectory = gDirectory;
+   if( fSignalFileName.size() > 0 )
+   {
+      TFile *iF = new TFile( fSignalFileName[0].c_str() );
+      if( iF->IsZombie() )
+      {
+           cout << "Error reading run parameters from ";
+           cout << fSignalFileName[0] << endl;
+           return 0;
+      }
+      VTableLookupRunParameter* iP = (VTableLookupRunParameter*)iF->Get( "TLRunParameter" );
+      iG_CurrentDirectory->cd();
+      return iP;
+   }
+   return 0;
 }

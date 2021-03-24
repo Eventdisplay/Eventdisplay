@@ -37,7 +37,6 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     fhistoNEbins_logTeV_min = fEnergyAxis_logTeV_min;
     fhistoNEbins_logTeV_max = fEnergyAxis_logTeV_max;
     
-    fCutFileName = "";
     fGammaHadronCutSelector = -1;
     fDirectionCutSelector = -1;
     
@@ -301,7 +300,17 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             {
                 if( !(is_stream>>std::ws).eof() )
                 {
-                    is_stream >> fCutFileName;
+                    is_stream >> temp;
+                    fCutFileName.push_back( temp );
+                }
+                if( !(is_stream>>std::ws).eof() )
+                { 
+                   is_stream >> temp;
+                   fCutCharacteristicMCAZ.push_back( atof( temp.c_str() ) );
+                }
+                else 
+                {
+                   fCutCharacteristicMCAZ.push_back( -999. );
                 }
             }
             // * SCATTERMODE <core scatter radius [m]> <type of CORSIKA simulations (FLAT or VIEWCONE)>
@@ -324,7 +333,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                 {
                     is_stream >> fFillingMode;
                 }
-                if( fFillingMode > 3 )
+                if( fFillingMode > 3 && fFillingMode < 100 )
                 {
                     cout << "readInputFileList: error: invalid filling mode " << fFillingMode << endl;
                     return false;
@@ -471,6 +480,31 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
     
     return true;
 }
+
+TTree *VInstrumentResponseFunctionRunParameter::getTelConfigTree()
+{
+    TChain c( "data" );
+    TFile* iF = 0;
+    if( c.Add( fdatafile.c_str() ) )
+    {
+        iF = c.GetFile();
+    }
+    if( !iF )
+    {
+        cout << "VInstrumentResponseFunctionRunParameter::getTelConfigTree: error opening data file: ";
+        cout << fdatafile << endl;
+        cout << "exiting..." << endl;
+        exit( EXIT_FAILURE );
+    }
+    TTree *t = (TTree*)iF->Get( "telconfig" );
+    if( t )
+    {
+       return t->CloneTree( -1 );
+    }
+
+    return 0;
+}
+    
 
 
 VMonteCarloRunHeader* VInstrumentResponseFunctionRunParameter::readMCRunHeader()
@@ -656,25 +690,21 @@ void VInstrumentResponseFunctionRunParameter::print()
     {
         cout << " (calculating complete set of response functions (effective areas, energy, core and angular resolution curves))";
     }
-    if( fFillingMode == 1 )
+    else if( fFillingMode == 1 )
     {
         cout << " (calculating core and angular resolution curves)";
     }
-    if( fFillingMode == 2 )
+    else if( fFillingMode == 2 )
     {
         cout << " (calculating angular resolution curves)";
     }
-    if( fFillingMode == 3 )
+    else if( fFillingMode == 3 )
     {
         cout << " (calculating effective areas and energy resolution curves)";
     }
-    if( fEffArea_short_writing )
+    else if( fFillingMode >= 100 )
     {
-        cout << "( short output )";
-    }
-    else
-    {
-        cout << "( long output )";
+        cout << " (filling DL2 trees )";
     }
     cout << endl;
     if( fFillMCHistograms )
@@ -706,8 +736,16 @@ void VInstrumentResponseFunctionRunParameter::print()
     }
     
     cout << endl;
-    cout << "cuts: ";
-    cout << "  " << fCutFileName << endl;
+    cout << "cuts: " << endl;
+    for( unsigned int i = 0; i < fCutFileName.size(); i++ )
+    {
+        cout << "  " << fCutFileName[i];
+        if( i < fCutCharacteristicMCAZ.size() )
+        {
+            cout << " (MCAZ " << fCutCharacteristicMCAZ[i] << ")";
+        }
+        cout << endl;
+    }
     cout << "cut selectors: ";
     if( fGammaHadronCutSelector >= 0 )
     {

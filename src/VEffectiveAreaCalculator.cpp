@@ -19,7 +19,9 @@
  *  (calculation of effective areas)
  *
  */
-VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter* iRunPara, VGammaHadronCuts* icuts )
+VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter* iRunPara, 
+                                                    vector< VGammaHadronCuts* > icuts,
+                                                    TFile *iFile )
 {
     fRunPara = iRunPara;
     if( !fRunPara )
@@ -29,6 +31,8 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
         exit( EXIT_FAILURE );
     }
     reset();
+    fOutputFile = iFile;
+    if( fOutputFile ) fOutputFile->cd();
     
     // no effective area file present
     bNOFILE = true;
@@ -369,12 +373,42 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     fsolid_angle_norm = 1.;
     
     ////////////////////////////////////
-    // tree with cut results for each event
-    fCut_Class = 0;
-    fCut_MVA = 0.;
-    fEventTreeCuts = new TTree( "fEventTreeCuts", "event cuts" );
-    fEventTreeCuts->Branch( "CutClass", &fCut_Class, "Class/I" );
-    fEventTreeCuts->Branch( "MVA", &fCut_MVA, "MVA/F" );
+    // tree with DL2 event information (DL2 event) for each event
+    fDL2_runNumber = 0.;
+    fDL2_eventNumber = 0;
+    fDL2_MCaz = 0.;
+    fDL2_MCel = 0.;
+    fDL2_MCe0 = 0.;
+    fDL2_MCxoff = 0.;
+    fDL2_MCyoff = 0.;
+    fDL2_ArrayPointing_Elevation = 0.;
+    fDL2_ArrayPointing_Azimuth = 0.;
+    fDL2_az = 0.;
+    fDL2_el = 0.;
+    fDL2_xoff = 0.;
+    fDL2_yoff = 0.;
+    fDL2_erec = 0.;
+    fDL2_nimages = 0;
+    fDL2_Cut_Class = 0;
+    fDL2_Cut_MVA = 0.;
+    fDL2EventTree = new TTree( "DL2EventTree", "DL2 tree" );
+    fDL2EventTree->Branch( "runNumber", &fDL2_runNumber, "runNumber/i" );
+    fDL2EventTree->Branch( "eventNumber", &fDL2_eventNumber, "eventNumber/i" );
+    fDL2EventTree->Branch( "MCaz", &fDL2_MCaz, "MCaz/F" );
+    fDL2EventTree->Branch( "MCel", &fDL2_MCel, "MCel/F" );
+    fDL2EventTree->Branch( "MCxoff", &fDL2_MCxoff, "MCxoff/F" );
+    fDL2EventTree->Branch( "MCyoff", &fDL2_MCyoff, "MCyoff/F" );
+    fDL2EventTree->Branch( "MCe0", &fDL2_MCe0, "MCe0/F" );
+    fDL2EventTree->Branch( "ArrayPointing_Azimuth", &fDL2_ArrayPointing_Azimuth, "ArrayPointing_Azimuth/F" );
+    fDL2EventTree->Branch( "ArrayPointing_Elevation", &fDL2_ArrayPointing_Elevation, "ArrayPointing_Elevation/F" );
+    fDL2EventTree->Branch( "az", &fDL2_az, "az/F" );
+    fDL2EventTree->Branch( "el", &fDL2_el, "el/F" );
+    fDL2EventTree->Branch( "xoff", &fDL2_xoff, "xoff/F" );
+    fDL2EventTree->Branch( "yoff", &fDL2_yoff, "yoff/F" );
+    fDL2EventTree->Branch( "erec", &fDL2_erec, "erec/F" );
+    fDL2EventTree->Branch( "nimages", &fDL2_nimages, "nimages/b" );
+    fDL2EventTree->Branch( "CutClass", &fDL2_Cut_Class, "Class/b" );
+    fDL2EventTree->Branch( "MVA", &fDL2_Cut_MVA, "MVA/F" );
     
 }
 
@@ -1236,8 +1270,6 @@ void VEffectiveAreaCalculator::reset()
     fEnergyAxis_minimum_defaultValue = -2.0;
     fEnergyAxis_maximum_defaultValue = 4.0;
     
-    fCuts = 0;
-    
     fTNoise = 0;
     fTNoisePE = 0.;
     fTPedvar = 0.;
@@ -1299,13 +1331,19 @@ void VEffectiveAreaCalculator::reset()
     
 }
 
+/* 
+ * solid angle from MC simulations (cone)
+ *
+ */
 double VEffectiveAreaCalculator::getMCSolidAngleNormalization()
 {
     double iSolAngleNorm = 1.;
-    if( fCuts && fRunPara )
+    if( fCuts.size() > 0 && fCuts[0] && fRunPara )
     {
-        if( fRunPara->fViewcone_max > 0. && fCuts->fCut_CameraFiducialSize_MC_max > 0. && fCuts->fCut_CameraFiducialSize_MC_max < 1000.
-                && fCuts->fCut_CameraFiducialSize_MC_max < fRunPara->fViewcone_max )
+        if( fRunPara->fViewcone_max > 0.
+         && fCuts[0]->fCut_CameraFiducialSize_MC_max > 0.
+         && fCuts[0]->fCut_CameraFiducialSize_MC_max < 1000.
+         && fCuts[0]->fCut_CameraFiducialSize_MC_max < fRunPara->fViewcone_max )
         {
             // solid angle of simulated showers
             double iSN_mc = ( 1. - cos( fRunPara->fViewcone_max * TMath::DegToRad() ) );
@@ -1314,10 +1352,10 @@ double VEffectiveAreaCalculator::getMCSolidAngleNormalization()
                 iSN_mc -= ( 1. - cos( fRunPara->fViewcone_min * TMath::DegToRad() ) );
             }
             // solid angle of angular bin
-            double iSN_cu = ( 1. - cos( fCuts->fCut_CameraFiducialSize_MC_max * TMath::DegToRad() ) );
-            if( fCuts->fCut_CameraFiducialSize_MC_min > 0. )
+            double iSN_cu = ( 1. - cos( fCuts[0]->fCut_CameraFiducialSize_MC_max * TMath::DegToRad() ) );
+            if( fCuts[0]->fCut_CameraFiducialSize_MC_min > 0. )
             {
-                iSN_cu -= ( 1. - cos( fCuts->fCut_CameraFiducialSize_MC_min * TMath::DegToRad() ) );
+                iSN_cu -= ( 1. - cos( fCuts[0]->fCut_CameraFiducialSize_MC_min * TMath::DegToRad() ) );
             }
             
             if( iSN_mc > 0. )
@@ -1510,7 +1548,10 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
     
     ////////////////////////////////////////////////////////////////////////////
     // reset cut statistics
-    fCuts->resetCutStatistics();
+    for( unsigned int i = 0; i < fCuts.size(); i++ )
+    {
+        fCuts[i]->resetCutStatistics();
+    }
     
     ///////////////////////////////////////////////////////
     // get full data set and loop over all entries
@@ -1538,7 +1579,9 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         d->GetEntry( i );
 
         // update cut statistics
-        fCuts->newEvent();
+        VGammaHadronCuts *iAnaCuts = getGammaHadronCuts( d );
+        if( !iAnaCuts ) continue;
+        iAnaCuts->newEvent();
         
         if( bDebugCuts )
         {
@@ -1549,12 +1592,12 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         // apply MC cuts
         if( bDebugCuts )
         {
-            cout << "#0 CUT MC " << fCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, false ) << endl;
+            cout << "#0 CUT MC " << iAnaCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, false ) << endl;
         }
         
-        if( !fCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, true ) )
+        if( !iAnaCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, true ) )
         {
-            fillEventDataTree( VGammaHadronCutsStatistics::eMC_XYoff, -1. );
+            fillDL2EventDataTree( d, (UChar_t)VGammaHadronCutsStatistics::eMC_XYoff, -1. );
             continue;
         }
         
@@ -1571,22 +1614,22 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         if( bDebugCuts )
         {
             cout << "#1 CUT applyInsideFiducialAreaCut ";
-            cout << fCuts->applyInsideFiducialAreaCut();
-            cout << "\t" << fCuts->applyStereoQualityCuts( iMethod, false, i, true ) << endl;
+            cout << iAnaCuts->applyInsideFiducialAreaCut();
+            cout << "\t" << iAnaCuts->applyStereoQualityCuts( iMethod, false, i, true ) << endl;
         }
         
         // apply fiducial area cuts
-        if( !fCuts->applyInsideFiducialAreaCut( true ) )
+        if( !iAnaCuts->applyInsideFiducialAreaCut( true ) )
         {
-            fillEventDataTree( 2, -1. );
+            fillDL2EventDataTree( d, 2, -1. );
             continue;
         }
         fillEcutSub( eMC, E_EcutFiducialArea );
         
         // apply reconstruction quality cuts
-        if( !fCuts->applyStereoQualityCuts( iMethod, true, i , true ) )
+        if( !iAnaCuts->applyStereoQualityCuts( iMethod, true, i , true ) )
         {
-            fillEventDataTree( 3, -1. );
+            fillDL2EventDataTree( d, 3, -1. );
             continue;
         }
         fillEcutSub( eMC, E_EcutStereoQuality );
@@ -1596,11 +1639,11 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         {
             if( bDebugCuts )
             {
-                cout << "#2 Cut NTELType " << fCuts->applyTelTypeTest( false ) << endl;
+                cout << "#2 Cut NTELType " << iAnaCuts->applyTelTypeTest( false ) << endl;
             }
-            if( !fCuts->applyTelTypeTest( true ) )
+            if( !iAnaCuts->applyTelTypeTest( true ) )
             {
-                fillEventDataTree( 4, -1. );
+                fillDL2EventDataTree( d, 4, -1. );
                 continue;
             }
         }
@@ -1617,7 +1660,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         bool bDirectionCut = false;
         if( !fIsotropicArrivalDirections )
         {
-            if( !fCuts->applyDirectionCuts( true ) )
+            if( !iAnaCuts->applyDirectionCuts( true ) )
             {
                 bDirectionCut = true;
             }
@@ -1626,7 +1669,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         // (command line option -d)
         else
         {
-            if( !fCuts->applyDirectionCuts( true, 0., 0. ) )
+            if( !iAnaCuts->applyDirectionCuts( true, 0., 0. ) )
             {
                 bDirectionCut = true;
             }
@@ -1642,11 +1685,12 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         {
             if( bDebugCuts )
             {
-                cout << "#4 EnergyReconstructionQualityCuts " << fCuts->applyEnergyReconstructionQualityCuts( iMethod ) << endl;
+                cout << "#4 EnergyReconstructionQualityCuts ";
+                cout << iAnaCuts->applyEnergyReconstructionQualityCuts( iMethod ) << endl;
             }
-            if( !fCuts->applyEnergyReconstructionQualityCuts( iMethod, true ) )
+            if( !iAnaCuts->applyEnergyReconstructionQualityCuts( iMethod, true ) )
             {
-                fillEventDataTree( 6, -1. );
+                fillDL2EventDataTree( d, 6, -1. );
                 continue;
             }
         }
@@ -1669,7 +1713,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         }
         else
         {
-            fillEventDataTree( 6, -1. );
+            fillDL2EventDataTree( d, 6, -1. );
             continue;
         }
         
@@ -1698,22 +1742,22 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         // apply gamma hadron cuts
         if( bDebugCuts )
         {
-            cout << "#3 CUT ISGAMMA " << fCuts->isGamma( i ) << endl;
+            cout << "#3 CUT ISGAMMA " << iAnaCuts->isGamma( i ) << endl;
         }
-        if( !fCuts->isGamma( i, true ) )
+        if( !iAnaCuts->isGamma( i, true ) )
         {
-            fillEventDataTree( 7, fCuts->getTMVA_EvaluationResult() );
+            fillDL2EventDataTree( d, 7, iAnaCuts->getTMVA_EvaluationResult() );
             continue;
         }
         if( !bDirectionCut )
         {
             fillEcutSub( eMC, E_EcutGammaHadron );
-            fillEventDataTree( 5, fCuts->getTMVA_EvaluationResult() );
+            fillDL2EventDataTree( d, 5, iAnaCuts->getTMVA_EvaluationResult() );
         }
         // remaining events
         else
         {
-            fillEventDataTree( 0, fCuts->getTMVA_EvaluationResult() );
+            fillDL2EventDataTree( d, 0, iAnaCuts->getTMVA_EvaluationResult() );
         }
         
         // unique event counter
@@ -1728,7 +1772,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         {
             if( !testAzimuthInterval( d, fZe[ize], fVMinAz[i_az], fVMaxAz[i_az] ) )
             {
-                fillEventDataTree( -1, -1 );
+                fillDL2EventDataTree( d, 11, -1 );
                 continue;
             }
             
@@ -1958,7 +2002,10 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         }
     }
     
-    fCuts->printCutStatistics();
+    for( unsigned int i = 0; i < fCuts.size(); i++ )
+    {
+        fCuts[i]->printCutStatistics();
+    }
     
     // print out uniqueness of events
     /*    cout << "event statistics: " << endl;
@@ -3442,24 +3489,48 @@ void VEffectiveAreaCalculator::fillEcutSub( double iE, enum E_HIS1D iCutIndex )
  * 5    hhEcutDirection_R (color: 5, marker: 20)
  * 6    hhEcutEnergyReconstruction_R (color: 6, marker: 20)
  * 7    hhEcutGammaHadron_R (color: 7, marker: 20)
+ * 11   --> removed by testAzimuthInterval cut
  *
  *  1. Events passing gamma/hadron separation cut and direction cut
- *  fEventTreeCuts->Draw("MVA", "Class==5" );
+ *  fDL2EventTree->Draw("MVA", "Class==5" );
  *
  *  2. Events passing gamma/hadron separation cut and not direction cut
- *  fEventTreeCuts->Draw("MVA", "Class==0" );
+ *  fDL2EventTree->Draw("MVA", "Class==0" );
  *
  *  3. Events before gamma/hadron separation cut and before direction cut
- *   fEventTreeCuts->Draw("MVA", "Class==0||Class==7||Class==5", "");
+ *   fDL2EventTree->Draw("MVA", "Class==0||Class==7||Class==5", "");
  *
  */
-void VEffectiveAreaCalculator::fillEventDataTree( int iCutClass, float iMVA )
+void VEffectiveAreaCalculator::fillDL2EventDataTree( CData *c, UChar_t iCutClass, float iMVA )
 {
-      if( fEventTreeCuts )
+      if( fDL2EventTree && c )
       {
-          fCut_Class = iCutClass;
-          fCut_MVA = iMVA;
-          fEventTreeCuts->Fill();
+          fDL2_runNumber = (UInt_t)c->runNumber;
+          fDL2_eventNumber = (UInt_t)c->eventNumber;
+          fDL2_MCaz = c->MCaz;
+          fDL2_MCel = 90. - c->MCze;
+          fDL2_MCxoff = c->MCxoff;
+          fDL2_MCyoff = c->MCyoff;
+          fDL2_MCe0 = c->MCe0;
+          fDL2_ArrayPointing_Azimuth = c->ArrayPointing_Azimuth;
+          fDL2_ArrayPointing_Elevation = c->ArrayPointing_Elevation;
+          fDL2_az = c->Az;
+          if( c->Ze > 0. )
+          {
+              fDL2_el = 90. - c->Ze;
+          }
+          else
+          {
+              fDL2_el = -99.;
+          }
+          fDL2_xoff = c->Xoff;
+          fDL2_yoff = c->Yoff;
+          fDL2_erec = c->ErecS;
+          fDL2_nimages = (UChar_t)c->NImages;
+
+          fDL2_Cut_Class = iCutClass;
+          fDL2_Cut_MVA = iMVA;
+          fDL2EventTree->Fill();
       }
 }
 
@@ -3712,4 +3783,23 @@ void VEffectiveAreaCalculator::fillHistogram( int iHisType, int iHisN,
      {
           hV_HIS2D[iHisN][s][i_az]->Fill( i_x, i_w, i_w2D );
      }
+}
+
+
+VGammaHadronCuts* VEffectiveAreaCalculator::getGammaHadronCuts( CData* c )
+{
+    if( !c ) return 0;
+
+    if( fCuts.size() == 1 ) 
+    {
+        return fCuts[0];
+    }
+    for( unsigned int i = 0; i < fCuts.size(); i++ )
+    {
+         if( fCuts[i] && fCuts[i]->useThisCut( c ) )
+         {
+             return fCuts[i];
+         }
+    }
+    return 0;
 }

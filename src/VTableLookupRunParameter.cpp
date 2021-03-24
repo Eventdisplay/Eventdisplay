@@ -947,7 +947,7 @@ void VTableLookupRunParameter::print( int iP )
             }
             if( fmaxdistfraction > 0. )
             {
-                cout << "\t BDT  TMVA stereo reconstruction distance cut (fraction of FOV) < ";
+                cout << "\t BDT TMVA stereo reconstruction distance cut (fraction of FOV) < ";
                 cout << fmaxdistfraction << endl;
             }
             if( fmaxloss < 1. )

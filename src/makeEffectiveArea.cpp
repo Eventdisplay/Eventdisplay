@@ -105,21 +105,33 @@ int main( int argc, char* argv[] )
     
     /////////////////////////////////////////////////////////////////
     // gamma/hadron cuts
-    VGammaHadronCuts* fCuts = new VGammaHadronCuts();
-    fCuts->initialize();
-    fCuts->setNTel( fRunPara->telconfig_ntel, fRunPara->telconfig_arraycentre_X, fRunPara->telconfig_arraycentre_Y );
-    fCuts->setInstrumentEpoch( fRunPara->getInstrumentEpoch( true ) );
-    fCuts->setTelToAnalyze( fRunPara->fTelToAnalyse );
-    fCuts->setReconstructionType( fRunPara->fReconstructionType );
-    if( !fCuts->readCuts( fRunPara->fCutFileName, 2 ) )
+    // (might be a series of cuts)
+
+    vector< VGammaHadronCuts* > fCuts;
+    for( unsigned int i = 0; i < fRunPara->getCutFileName().size(); i++ )
     {
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE ) ;
+        fCuts.push_back( new VGammaHadronCuts() );
+        fCuts.back()->initialize();
+        fCuts.back()->setNTel( fRunPara->telconfig_ntel, 
+                               fRunPara->telconfig_arraycentre_X, 
+                               fRunPara->telconfig_arraycentre_Y );
+        fCuts.back()->setInstrumentEpoch( fRunPara->getInstrumentEpoch( true ) );
+        fCuts.back()->setTelToAnalyze( fRunPara->fTelToAnalyse );
+        fCuts.back()->setReconstructionType( fRunPara->fReconstructionType );
+        if( !fCuts.back()->readCuts( fRunPara->fCutFileName[i], 2 ) )
+        {
+            cout << "exiting..." << endl;
+            exit( EXIT_FAILURE ) ;
+        }
+        if( i < fRunPara->getCutCharacteristicMCAZ().size() )
+        {
+            fCuts.back()->setCutCharacteristicsMCAZ( fRunPara->getCutCharacteristicMCAZ()[i] );
+        }
+        fRunPara->fGammaHadronCutSelector = fCuts.back()->getGammaHadronCutSelector();
+        fRunPara->fDirectionCutSelector   = fCuts.back()->getDirectionCutSelector();
+        fCuts.back()->initializeCuts( -1, fRunPara->fGammaHadronProbabilityFile );
+        fCuts.back()->printCutSummary();
     }
-    fRunPara->fGammaHadronCutSelector = fCuts->getGammaHadronCutSelector();
-    fRunPara->fDirectionCutSelector   = fCuts->getDirectionCutSelector();
-    fCuts->initializeCuts( -1, fRunPara->fGammaHadronProbabilityFile );
-    fCuts->printCutSummary();
     
     /////////////////////////////////////////////////////////////////
     // read MC header (might not be there, no problem; but depend on right input in runparameter file)
@@ -131,7 +143,7 @@ int main( int argc, char* argv[] )
     
     /////////////////////////////////////////////////////////////////////////////
     // set effective area class
-    VEffectiveAreaCalculator fEffectiveAreaCalculator( fRunPara, fCuts );
+    VEffectiveAreaCalculator fEffectiveAreaCalculator( fRunPara, fCuts, fOutputfile );
     
     /////////////////////////////////////////////////////////////////////////////
     // set effective area Monte Carlo histogram class
@@ -206,8 +218,12 @@ int main( int argc, char* argv[] )
     }
     
     CData d( c, true, true );
-    fCuts->setDataTree( &d );
-    d.setReconstructionType( fCuts->fReconstructionType );
+    for( unsigned int i = 0; i < fCuts.size(); i++ )
+    {
+        fCuts[i]->setDataTree( &d );
+    }
+    // expect all cuts using the same reconstruction type
+    d.setReconstructionType( fCuts[0]->fReconstructionType );
     
     /////////////////////////////////////////////////////////////////////////////
     // fill resolution plots
@@ -386,38 +402,49 @@ int main( int argc, char* argv[] )
             fOutputfile->cd();
             fEffectiveAreaCalculator.getAcceptance_AfterCuts()->Write();
         }
-        if( fRunPara->fWriteEventdatatrees 
-        && fEffectiveAreaCalculator.getEventCutDataTree() )
+        if( fRunPara->fWriteEventdatatrees && fEffectiveAreaCalculator.getEventDL2DataTree() )
         {
                cout << "writing event data trees: (";
-               cout << fEffectiveAreaCalculator.getEventCutDataTree()->GetName();
+               cout << fEffectiveAreaCalculator.getEventDL2DataTree()->GetName();
                cout << ") to " << fOutputfile->GetName() << endl;
                fOutputfile->cd();
-               if( fEffectiveAreaCalculator.getEventCutDataTree() )
+               if( fEffectiveAreaCalculator.getEventDL2DataTree() )
                {
-                   fEffectiveAreaCalculator.getEventCutDataTree()->Write();
+                   fEffectiveAreaCalculator.getEventDL2DataTree()->Write();
                }
+       }
+/*       if( fRunPara->fWriteEventdatatrees )
+       {
                if( c )
                {
                    c->Merge(fOutputfile, 0, "keep" );
                }
-        }
-        if( fCuts->getMVACutGraphs().size() > 0 )
+        } */
+        for( unsigned int c = 0; c < fCuts.size(); c++ )
         {
-              cout << "writing MVA cut graphs to " << fOutputfile->GetName() << endl;
-              fOutputfile->cd();
-              if( fOutputfile->mkdir( "mvaGraphs" ) )
-              {
-                  fOutputfile->cd( "mvaGraphs" );   
-                  for( unsigned int i = 0; i < fCuts->getMVACutGraphs().size(); i++ )
+            if( fCuts[c]->getMVACutGraphs().size() > 0 )
+            {
+                  if( c == 0 )
                   {
-                      if( fCuts->getMVACutGraphs()[i] )
-                      {
-                          fCuts->getMVACutGraphs()[i]->Write();
-                      }
+                      cout << "writing MVA cut graphs to ";
+                      cout << fOutputfile->GetName() << endl;
+                      fOutputfile->cd();
                   }
+                  ostringstream mvaDir;
+                  mvaDir << "mvaGraphs_" << c;
+                  if( fOutputfile->mkdir( mvaDir.str().c_str() ) )
+                  {
+                      fOutputfile->cd( mvaDir.str().c_str() );
+                      for( unsigned int i = 0; i < fCuts[c]->getMVACutGraphs().size(); i++ )
+                      {
+                          if( fCuts[c]->getMVACutGraphs()[i] )
+                          {
+                              fCuts[c]->getMVACutGraphs()[i]->Write();
+                          }
+                      }
               }
               fOutputfile->cd();
+           }
         }
     }
     // write resolution data to disk only for long output
@@ -429,14 +456,32 @@ int main( int argc, char* argv[] )
         }
     }
     // writing cuts to disk
-    if( fCuts )
+    for( unsigned int i = 0; i < fCuts.size(); i++ )
     {
-        fCuts->terminate( ( fRunPara->fEffArea_short_writing || fRunPara->fFillingMode == 3 ) );
+        ostringstream cutsname;
+        cutsname << "GammaHadronCuts";
+        if( fCuts.size() > 1 )
+        {
+            cutsname << "_" << i;
+        }
+        if( fCuts[i] )
+        {
+            fCuts[i]->terminate( ( fRunPara->fEffArea_short_writing 
+                                || fRunPara->fFillingMode == 3 ),
+                                 cutsname.str() );
+        }
     }
     // writing monte carlo header to disk
     if( iMonteCarloHeader )
     {
         iMonteCarloHeader->Write();
+    }
+    TTree *i_telconfig = 0;
+    if( fRunPara ) i_telconfig = fRunPara->getTelConfigTree();
+    fOutputfile->cd();
+    if( i_telconfig )
+    {
+        i_telconfig->Write( "telconfig" );
     }
     
     // write run parameters to disk
