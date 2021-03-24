@@ -476,7 +476,8 @@ int main( int argc, char* argv[] )
     {
         iMonteCarloHeader->Write();
     }
-    TTree *i_telconfig = fRunPara->getTelConfigTree();
+    TTree *i_telconfig = 0;
+    if( fRunPara ) fRunPara->getTelConfigTree();
     fOutputfile->cd();
     if( i_telconfig )
     {
