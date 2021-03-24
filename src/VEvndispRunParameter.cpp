@@ -169,6 +169,10 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fLogLikelihoodLoss_max.push_back( 1.e3 );
     fLogLikelihood_Ntubes_min.push_back( 0 );
     fForceLLImageFit = false;
+    fMinimizeTimeGradient = false;
+    fMinimizeTimeGradient_minGradforFit = 2.5;
+    fMinimizeTimeGradient_minLoss = 0.1;
+    fMinimizeTimeGradient_minNtubes = 15;
     fSquaredImageCalculation = false;
     fImageAnalysisFUIFactor = 2.;
     fFixWindowStart_sumwindow2 = false;
@@ -689,6 +693,14 @@ void VEvndispRunParameter::print( int iEv )
         if( fSquaredImageCalculation )
         {
             cout << "Use squared weighting for image calculation" << endl;
+        }
+        // time gradient fitting
+        if( fMinimizeTimeGradient )
+        {
+            cout << "LL with time gradient fitting (min time grad: ";
+            cout << fMinimizeTimeGradient_minGradforFit << " deg/s, min loss: ";
+            cout << fMinimizeTimeGradient_minLoss << " min ntubes: ";
+            cout << fMinimizeTimeGradient_minNtubes << ")" << endl;
         }
     }
     if( ftracefile.size() > 0 )

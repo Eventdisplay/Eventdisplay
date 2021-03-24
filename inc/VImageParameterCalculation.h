@@ -58,10 +58,6 @@ class VImageParameterCalculation : public TObject
         vector<double> fll_X;                     //!< data vector for minuit function (x-coordinate of pmt)
         vector<double> fll_Y;                     //!< data vector for minuit function (y-coordinate of pmt)
         vector<double> fll_Sums;                  //!< data vector for minuit function
-        bool fMinimizeTimeGradient;               //!< minimize time gradient
-        double fMinimizeTimeGradient_minGradforFit;
-        double fMinimizeTimeGradient_minLoss;
-        int fMinimizeTimeGradient_minNtubes;
         vector<bool> fLLEst;                      //!< true if channel has an estimated sum from the LL fit
         vector<double> fll_T;                     //!< data vector for minuit function (time)
         
@@ -146,7 +142,8 @@ class VImageParameterCalculation : public TObject
         void initMinuit( int );
         bool minimize_time_gradient()
         {
-            return fMinimizeTimeGradient;
+            if( fData && fData->getRunParameter() ) return fData->getRunParameter()->fMinimizeTimeGradient;
+            return false;
         }
         bool minimize_time_gradient_for_this_event();
         //!< set the detector geometry

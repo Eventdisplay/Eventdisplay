@@ -29,12 +29,6 @@ VImageParameterCalculation::VImageParameterCalculation( unsigned int iShortTree,
     fLL_StartingValue_sigma_x = -9999.;
     fLL_StartingValue_cen_y = -9999.;
     fLL_StartingValue_sigma_y = -9999.;
-
-    fMinimizeTimeGradient = false;
-    fMinimizeTimeGradient = true;
-    fMinimizeTimeGradient_minGradforFit = 2.5;
-    fMinimizeTimeGradient_minLoss = 0.1;
-    fMinimizeTimeGradient_minNtubes = 15;
 }
 
 
@@ -61,7 +55,7 @@ void VImageParameterCalculation::initMinuit( int iVmode )
         fLLDebug = true;
     }
     unsigned int iFitParameter = 6;
-    if( fMinimizeTimeGradient ) iFitParameter = 9;
+    if( fData->getRunParameter()->fMinimizeTimeGradient ) iFitParameter = 9;
     fLLFitter = new TMinuit( iFitParameter );
     // no minuit printouts
     if( iVmode == 1 )
@@ -1638,7 +1632,7 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
     fLLFitter->DefineParameter( 5, "signal", signal, step, 0., 1.e6 );
     // time gradient analysis
     double toffset_start = 0.;
-    if( fMinimizeTimeGradient )
+    if( fData->getRunParameter()->fMinimizeTimeGradient )
     {
         if( fData->getXGraph( false ) )
         {
@@ -1723,6 +1717,7 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
             cout << "\t TGRAD " << tgrad << " +- " << dtgrad << "\t" << fParGeo->tgrad_x << endl;
             cout << "\t TCHI2 " << tchi2 << " +- " << dtchi2 << "\t" << fParGeo->tchisq_x << "\t" << sqrt( fParGeo->tchisq_x ) << endl;
         }
+        fParGeo->tgrad_x = tgrad;
     }
     
     if( fLLDebug )
@@ -2272,8 +2267,8 @@ void get_LL_imageParameter_2DGauss( Int_t& npar, Double_t* gin, Double_t& f, Dou
 bool VImageParameterCalculation::minimize_time_gradient_for_this_event()
 {
     if( minimize_time_gradient()
-        && TMath::Abs( fParGeo->tgrad_x ) > fMinimizeTimeGradient_minGradforFit
-        && fParGeo->ntubes >= fMinimizeTimeGradient_minNtubes )
+        && TMath::Abs( fParGeo->tgrad_x ) > fData->getRunParameter()->fMinimizeTimeGradient_minGradforFit
+        && fParGeo->ntubes >= fData->getRunParameter()->fMinimizeTimeGradient_minNtubes )
     {
         return true;
     }
@@ -2329,7 +2324,7 @@ double VImageParameterCalculation::getLL_paramameterlimits_cen( double dist_limi
 {
     // Case 1: image is well inside the camera
     //         assumption is that geo centroids are good values
-    if( fLL_StartingValue_sigma > 0. && fParGeo->loss < fMinimizeTimeGradient_minLoss )
+    if( fLL_StartingValue_sigma > 0. && fParGeo->loss < fData->getRunParameter()->fMinimizeTimeGradient_minLoss )
     {
         double camera_pixel_size = 0.1;
         // assume that zero pixel is a typical pixel
