@@ -180,13 +180,8 @@ void VImageParameter::initTree( string iName, string iTitle, bool iMC, bool iLL,
         tpars->Branch( "Fitedm", &Fitedm, "Fitedm/F" );
         // number of recovered dead channels
         tpars->Branch( "ntRec", &ntRec, "ntRec/I" );
-        tpars->Branch( "dcen_x", &dcen_x, "dcen_x/F" );
-        tpars->Branch( "dcen_y", &dcen_y, "dcen_y/F" );
-        tpars->Branch( "dlength", &dlength, "dlength/F" );
-        tpars->Branch( "dwidth", &dwidth, "dwidth/F" );
         tpars->Branch( "ddist", &ddist, "ddist/F" );
         tpars->Branch( "dmiss", &dmiss, "dmiss/F" );
-        tpars->Branch( "dphi", &dphi, "dphi/F" );
         tpars->Branch( "dalpha", &dalpha, "dalpha/F" );
         tpars->Branch( "dazwidth", &dazwidth, "dazwidth/F" );
         tpars->Branch( "rho", &rho, "rho/F" );
@@ -198,6 +193,11 @@ void VImageParameter::initTree( string iName, string iTitle, bool iMC, bool iLL,
         tpars->Branch( "signal", &signal, "signal/F" );
         tpars->Branch( "dsignal", &dsignal, "dsignal/F" );
     }
+    tpars->Branch( "dcen_x", &dcen_x, "dcen_x/F" );
+    tpars->Branch( "dcen_y", &dcen_y, "dcen_y/F" );
+    tpars->Branch( "dlength", &dlength, "dlength/F" );
+    tpars->Branch( "dwidth", &dwidth, "dwidth/F" );
+    tpars->Branch( "dphi", &dphi, "dphi/F" );
 
     // image / border pixel list
     if( fWriteNImagePixels )

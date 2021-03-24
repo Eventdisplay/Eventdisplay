@@ -23,13 +23,18 @@ VImageParameterCalculation::VImageParameterCalculation( unsigned int iShortTree,
     fDetectorGeometry = 0;
     fHoughTransform = 0;
     
-    
     // starting values for LL
     fLL_StartingValue_rho = -9999.;
     fLL_StartingValue_cen_x = -9999.;
     fLL_StartingValue_sigma_x = -9999.;
     fLL_StartingValue_cen_y = -9999.;
     fLL_StartingValue_sigma_y = -9999.;
+
+    fMinimizeTimeGradient = false;
+    fMinimizeTimeGradient = true;
+    fMinimizeTimeGradient_minGradforFit = 2.5;
+    fMinimizeTimeGradient_minLoss = 0.1;
+    fMinimizeTimeGradient_minNtubes = 15;
 }
 
 
@@ -55,7 +60,9 @@ void VImageParameterCalculation::initMinuit( int iVmode )
     {
         fLLDebug = true;
     }
-    fLLFitter = new TMinuit( 6 );
+    unsigned int iFitParameter = 6;
+    if( fMinimizeTimeGradient ) iFitParameter = 9;
+    fLLFitter = new TMinuit( iFitParameter );
     // no minuit printouts
     if( iVmode == 1 )
     {
@@ -1466,9 +1473,10 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
     fll_X.clear();
     fll_Y.clear();
     fll_Sums.clear();
+    fll_T.clear();
     // will be true if sum in pixel is estimated by fit
     fLLEst.assign( fData->getSums().size(), false );
-    // maximum size of the camera (for fit parameter limits)
+    // for limits of parameter fitting
     double fdistXmin =  1.e99;
     double fdistXmax = -1.e99;
     double fdistYmin =  1.e99;
@@ -1488,27 +1496,14 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
             // pixel position in the camera
             double xi = getDetectorGeo()->getX()[j];
             double yi = getDetectorGeo()->getY()[j];
-            
-            // get an estimate of the distance (limits to the fit)
-            if( xi > fdistXmax )
-            {
-                fdistXmax = xi;
-            }
-            if( xi < fdistXmin )
-            {
-                fdistXmin = xi;
-            }
-            if( yi > fdistYmax )
-            {
-                fdistYmax = yi;
-            }
-            if( yi < fdistYmin )
-            {
-                fdistYmin = yi;
-            }
-            
             fll_X.push_back( xi );
             fll_Y.push_back( yi );
+            
+            // get an estimate of the distance (limits to the fit)
+            if( xi > fdistXmax ) fdistXmax = xi;
+            if( xi < fdistXmin ) fdistXmin = xi;
+            if( yi > fdistYmax ) fdistYmax = yi;
+            if( yi < fdistYmin ) fdistYmin = yi;
             
             if( fData->getImage()[j] || fData->getBorder()[j] )
             {
@@ -1520,10 +1515,21 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
                 {
                     fll_Sums.push_back( fData->getSums()[j] );
                 }
+                // LL fit using time gradient only for image
+                // with GEO detected time gradient
+                if( minimize_time_gradient_for_this_event() )
+                {
+                    fll_T.push_back( fData->getPulseTime()[j] );
+                }
+                else
+                {
+                    fll_T.push_back( -99. );
+                }
             }
             else
             {
                 fll_Sums.push_back( 0.1 );
+                fll_T.push_back( -999. );
             }
             // image weighting with squared intensity
             // (non standard from traditional image calculation!)
@@ -1563,6 +1569,10 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
     double dsigmaY = 0.;
     double signal = i_sumMax;
     double dsignal = 0.;
+    double toffset = 0.;
+    double dtoffset = 0.;
+    double tgrad = 0.;
+    double dtgrad = 0.;
     
     /////////////////////////
     // set start values for LL fit
@@ -1570,23 +1580,13 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
     {
         cout << "FLL FITTER INITIALIZATION: " << fLL_StartingValue_rho << "\t" << i_reInitializeLL << "\t" << fParGeo->phi <<  endl;
     }
+
     if( fLL_StartingValue_rho < -99998 || i_reInitializeLL )
     {
         fLL_StartingValue_cen_x   = fParGeo->cen_x;
         fLL_StartingValue_sigma_x = fParGeo->sigmaX;
         fLL_StartingValue_cen_y   = fParGeo->cen_y;
         fLL_StartingValue_sigma_y = fParGeo->sigmaY;
-        if( fLL_StartingValue_sigma_x > ZeroTolerence && fLL_StartingValue_sigma_y > ZeroTolerence )
-        {
-            fLL_StartingValue_rho  = tan( 2. * fParGeo->phi );
-            fLL_StartingValue_rho *= ( fLL_StartingValue_sigma_x * fLL_StartingValue_sigma_x - fLL_StartingValue_sigma_y * fLL_StartingValue_sigma_y );
-            fLL_StartingValue_rho /= fLL_StartingValue_sigma_x / fLL_StartingValue_sigma_y / 2.;
-        }
-        else
-        {
-            rho = 0.;
-            fLL_StartingValue_rho = 0.;
-        }
         if( fParGeo->width < iFMinWidth )
         {
             fLL_StartingValue_sigma_x = fLL_StartingValue_sigma_y = 0.1;
@@ -1597,102 +1597,68 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
     double step = 1.e-4;
     fLLFitter->Release( 0 );
     fLLFitter->Release( 1 );
+    fLLFitter->Release( 2 );
     fLLFitter->Release( 3 );
+    fLLFitter->Release( 4 );
     // correlation coefficient is restricted to [-1,1]
-    fLLFitter->DefineParameter( 0, "rho", fLL_StartingValue_rho, step, -0.98, 0.98 );
-    if( fLL_StartingValue_sigma_x > 0. )
-    {
-        fdistXmin = fLL_StartingValue_cen_x - 2.*fLL_StartingValue_sigma_x;
-        fdistXmax = fLL_StartingValue_cen_x + 2.*fLL_StartingValue_sigma_x;
-        // make sure that this is inside the FOV (+10%)
-        if( fData->getDetectorGeometry() &&  fData->getTelID() < fData->getDetectorGeometry()->getFieldofView().size() )
-        {
-            if( TMath::Abs( fdistXmin ) > 1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()] )
-            {
-                if( fdistXmin > 0 )
-                {
-                    fdistXmin =  1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-                }
-                else
-                {
-                    fdistXmin = -1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-                }
-            }
-            if( TMath::Abs( fdistXmax ) > 1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()] )
-            {
-                if( fdistXmax > 0 )
-                {
-                    fdistXmax =  1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-                }
-                else
-                {
-                    fdistXmax = -1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-                }
-            }
-        }
-    }
-    else
-    {
-        // image centroid should not be outside of the FOV (by more than 10%)
-        if( fData->getDetectorGeometry() &&  fData->getTelID() < fData->getDetectorGeometry()->getFieldofView().size() )
-        {
-            fdistXmax = 1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-        }
-        // should never land here
-        else
-        {
-            fdistXmax = 5.;
-        }
-    }
-    fLLFitter->DefineParameter( 1, "meanX", fLL_StartingValue_cen_x, step, fdistXmin, fdistXmax );
-    fLLFitter->DefineParameter( 2, "sigmaX", fLL_StartingValue_sigma_x, step, fLL_StartingValue_sigma_x / 4., 2.*fLL_StartingValue_sigma_x + 1. );
-    if( fLL_StartingValue_sigma_y > 0. )
-    {
-        fdistYmin = fLL_StartingValue_cen_y - 2.*fLL_StartingValue_sigma_y;
-        fdistYmax = fLL_StartingValue_cen_y + 2.*fLL_StartingValue_sigma_y;
-        // make sure that this is inside the FOV (+10%)
-        if( fData->getDetectorGeometry() &&  fData->getTelID() < fData->getDetectorGeometry()->getFieldofView().size() )
-        {
-            if( TMath::Abs( fdistYmin ) > 1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()] )
-            {
-                if( fdistYmin > 0 )
-                {
-                    fdistYmin =  1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-                }
-                else
-                {
-                    fdistYmin = -1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-                }
-            }
-            if( TMath::Abs( fdistYmax ) > 1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()] )
-            {
-                if( fdistYmax > 0 )
-                {
-                    fdistYmax =  1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-                }
-                else
-                {
-                    fdistYmax = -1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-                }
-            }
-        }
-    }
-    else
-    {
-        // image centroid should not be outside of the FOV (by more than 10%)
-        if( fData->getDetectorGeometry() &&  fData->getTelID() < fData->getDetectorGeometry()->getFieldofView().size() )
-        {
-            fdistYmax = 1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-        }
-        else
-        {
-            // should never land here
-            fdistYmax = 5.;
-        }
-    }
-    fLLFitter->DefineParameter( 3, "meanY", fLL_StartingValue_cen_y, step, fdistYmin, fdistYmax );
-    fLLFitter->DefineParameter( 4, "sigmaY", fLL_StartingValue_sigma_y, step, fLL_StartingValue_sigma_y / 4., 2.*fLL_StartingValue_sigma_y + 1. );
+    fLL_StartingValue_rho = getLL_startingvalue_rho( ZeroTolerence );
+    fLLFitter->DefineParameter( 0, "rho",
+                                fLL_StartingValue_rho, 
+                                step,
+                                getLL_paramameterlimits_rho( fLL_StartingValue_rho, -1. ),
+                                getLL_paramameterlimits_rho( fLL_StartingValue_rho, 1. ) );
+    double rho_limit_tmp_u = getLL_paramameterlimits_rho( fLL_StartingValue_rho, 1. );
+    double rho_limit_tmp_l = getLL_paramameterlimits_rho( fLL_StartingValue_rho, -1. );
+    // cen_x starting values
+    fLLFitter->DefineParameter( 1, "meanX", 
+                                fLL_StartingValue_cen_x, 
+                                step, 
+                                getLL_paramameterlimits_cen( fdistXmin, fLL_StartingValue_cen_x, fLL_StartingValue_sigma_x, -1. ),
+                                getLL_paramameterlimits_cen( fdistXmin, fLL_StartingValue_cen_x, fLL_StartingValue_sigma_x, 1. ) );
+    // sigma x starting values
+    fLLFitter->DefineParameter( 2, "sigmaX",
+                                fLL_StartingValue_sigma_x,
+                                step, 
+                                fLL_StartingValue_sigma_x / 4.,
+                                2.*fLL_StartingValue_sigma_x + 1. );
+    // cen_y starting values
+    fLLFitter->DefineParameter( 3, "meanY", 
+                                fLL_StartingValue_cen_y, 
+                                step, 
+                                getLL_paramameterlimits_cen( fdistYmin, fLL_StartingValue_cen_y, fLL_StartingValue_sigma_y, -1. ),
+                                getLL_paramameterlimits_cen( fdistYmin, fLL_StartingValue_cen_y, fLL_StartingValue_sigma_y, 1. ) );
+    // sigma x starting values
+    fLLFitter->DefineParameter( 4, "sigmaY", 
+                                fLL_StartingValue_sigma_y, 
+                                step, 
+                                fLL_StartingValue_sigma_y / 4., 
+                                2.*fLL_StartingValue_sigma_y + 1. );
+
+    // signal
     fLLFitter->DefineParameter( 5, "signal", signal, step, 0., 1.e6 );
+    // time gradient analysis
+    double toffset_start = 0.;
+    if( fMinimizeTimeGradient )
+    {
+        if( fData->getXGraph( false ) )
+        {
+             toffset_start = fData->getXGraph( false )->Eval( 0. );
+        }
+        fLLFitter->DefineParameter( 6, "toffset", toffset_start, step, toffset_start-10., toffset_start+10. );
+        fLLFitter->DefineParameter( 7, "tgrad", fParGeo->tgrad_x, step, -1.e3, 1.e3 );
+        fLLFitter->DefineParameter( 8, "tchi2", sqrt( fParGeo->tchisq_x ), step, 0.1, 2.*sqrt( fParGeo->tchisq_x ) );
+        if( minimize_time_gradient_for_this_event() )
+        {
+            fLLFitter->Release( 6 );
+            fLLFitter->Release( 7 );
+        }
+        else
+        {
+            fLLFitter->FixParameter( 6 );
+            fLLFitter->FixParameter( 7 );
+        }
+        fLLFitter->FixParameter( 8 );
+    }
     
     if( fLLDebug )
     {
@@ -1728,6 +1694,36 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
     fLLFitter->GetParameter( 3, cen_y, dcen_y );
     fLLFitter->GetParameter( 4, sigmaY, dsigmaY );
     fLLFitter->GetParameter( 5, signal, dsignal );
+    if( fLLDebug )
+    {
+        cout << "=======================================================================" << endl;
+        cout << "Telescope " << fData->getTelID()+1 << " starting parameters" << endl;
+        cout << "\t FITSTAT " << nstat << endl;
+        cout << "\t rho " << fLL_StartingValue_rho << "\t" << fParGeo->phi << endl;
+        cout << "\t cx " << fLL_StartingValue_cen_x << "\t" << fLL_StartingValue_cen_x - 0.5 << "\t" << fLL_StartingValue_cen_x + 0.5 << endl;
+        cout << "\t cy" << fLL_StartingValue_cen_y << "\t" << fLL_StartingValue_cen_y - 0.5 << "\t" << fLL_StartingValue_cen_y + 0.5 << endl;
+        cout << "\t sx " << fLL_StartingValue_sigma_x << "\t" << fLL_StartingValue_sigma_x / 4. << "\t" << 2.*fLL_StartingValue_sigma_x + 1. << endl;
+        cout << "\t sy " << fLL_StartingValue_sigma_y << "\t" << fLL_StartingValue_sigma_y / 4. << "\t" << 2.*fLL_StartingValue_sigma_y + 1. << endl;
+        cout << "\t CENX " << cen_x << " +- " << dcen_x << endl;
+        cout << "\t CENY " << cen_y << " +- " << dcen_y << endl;
+        cout << "\t SIGX " << sigmaX << " +- " << dsigmaX << endl;
+        cout << "\t SIGY " << sigmaY << " +- " << dsigmaY << endl;
+        cout << "\t F signal " << signal << endl;
+        cout << "\t F rho " << rho << " +- " << drho << "\t" << rho_limit_tmp_l << "\t" << rho_limit_tmp_u << endl;
+    }
+    if( minimize_time_gradient_for_this_event() )
+    {
+        fLLFitter->GetParameter( 6, toffset, dtoffset );
+        fLLFitter->GetParameter( 7, tgrad, dtgrad );
+        double tchi2, dtchi2;
+        fLLFitter->GetParameter( 8, tchi2, dtchi2 );
+        if( fLLDebug )
+        {
+            cout << "\t TOFF " << toffset << " +- " << dtoffset << "\t" << toffset_start << endl;
+            cout << "\t TGRAD " << tgrad << " +- " << dtgrad << "\t" << fParGeo->tgrad_x << endl;
+            cout << "\t TCHI2 " << tchi2 << " +- " << dtchi2 << "\t" << fParGeo->tchisq_x << "\t" << sqrt( fParGeo->tchisq_x ) << endl;
+        }
+    }
     
     if( fLLDebug )
     {
@@ -2184,6 +2180,7 @@ Errors are calculated from this estimator by
 void get_LL_imageParameter_2DGauss( Int_t& npar, Double_t* gin, Double_t& f, Double_t* par, Int_t iflag )
 {
     double LL = 0.;
+    double LL_t = 0.;
     double sum = 0.;
     
     npar = 6;
@@ -2193,11 +2190,24 @@ void get_LL_imageParameter_2DGauss( Int_t& npar, Double_t* gin, Double_t& f, Dou
     double x = 0.;
     double y = 0.;
     double n = 0.;
+    double t = 0.;
+    double tx = 0.;
+    double phi = 0.;
+    double t_sig = 4.;
+    double t_sig_term = 0.;
     
     double rho_1 = -1. / 2. / ( 1. - par[0] * par[0] );
     double rho_s =  1. / 2. / M_PI / par[2] / par[4] / sqrt( 1. - par[0] * par[0] ) * par[5];
     
     VImageParameterCalculation* iImageCalculation = ( VImageParameterCalculation* )fLLFitter->GetObjectFit();
+
+    if( iImageCalculation->minimize_time_gradient_for_this_event() )
+    {
+        t_sig = par[8];
+        phi = atan2( 2.*par[0] * par[2] * par[4], 
+                        par[2] * par[2] - par[4] * par[4] ) / 2.;
+        t_sig_term = log( 1. / sqrt( 2. * M_PI * t_sig ) );
+    }
     
     if( par[0] * par[0] < 1. && par[2] > 0. && par[4] > 0. )
     {
@@ -2227,11 +2237,147 @@ void get_LL_imageParameter_2DGauss( Int_t& npar, Double_t* gin, Double_t& f, Dou
                 //             iVar = sum+pedvars*pedvars;
                 //             iVar = sum;
                 //             LL += -0.5*log(2. * TMath::Pi()) - log(sqrt(iVar)) - (n-sum)*(n-sum)/2./iVar;
+                // time gradient analysis
+                // (line fit to time gradient)
+                // - affects image orientation and centroid position
+                if( iImageCalculation->minimize_time_gradient_for_this_event() )
+                {
+                    t = iImageCalculation->getLLT()[i];
+                    if( t > 0. )
+                    {
+                        // calculate position along long axis
+                        tx = (x-par[1]) * cos(phi) + (y-par[3]) * sin(phi);
+                        LL_t += 
+                            - 1./2./(t_sig*t_sig) 
+                            * (t - par[6] - par[7] * tx )
+                            * (t - par[6] - par[7] * tx );
+                    }
+                }
+
             }
         }
     }
-    f = -1. * LL;
+    LL_t += t_sig_term;
+    f = -1. * ( LL + LL_t );
 }
+
+/*
+    decide if time gradient should be used
+
+    not for
+    - very flat images
+    - small images (should be more pixel values than fit parameters
+
+*/
+bool VImageParameterCalculation::minimize_time_gradient_for_this_event()
+{
+    if( minimize_time_gradient()
+        && TMath::Abs( fParGeo->tgrad_x ) > fMinimizeTimeGradient_minGradforFit
+        && fParGeo->ntubes >= fMinimizeTimeGradient_minNtubes )
+    {
+        return true;
+    }
+    return false;
+}
+
+/*
+   LL optimisation: starting value for rho
+*/
+double VImageParameterCalculation::getLL_startingvalue_rho( double ZeroTolerence )
+{
+    if( fLL_StartingValue_sigma_x > ZeroTolerence && fLL_StartingValue_sigma_y > ZeroTolerence )
+    {
+        fLL_StartingValue_rho  = tan( 2. * fParGeo->phi );
+        fLL_StartingValue_rho *= ( fLL_StartingValue_sigma_x * fLL_StartingValue_sigma_x
+                                 - fLL_StartingValue_sigma_y * fLL_StartingValue_sigma_y );
+        fLL_StartingValue_rho /= fLL_StartingValue_sigma_x / fLL_StartingValue_sigma_y / 2.;
+    }
+    else
+    {
+        fLL_StartingValue_rho = 0.;
+    }
+    return fLL_StartingValue_rho;
+}
+
+/*
+  LL optimisation: parameter limits for rho
+*/
+double VImageParameterCalculation::getLL_paramameterlimits_rho( double rho, double upper_sign )
+{
+    double rho_edge = upper_sign * 0.98;
+    // TMP (this might lead to spurious results otherwise
+    return rho_edge;
+    // Case 1: image is well inside the camera and sufficiently large
+    //         (don't expect large difference in phi)
+    if( minimize_time_gradient_for_this_event() )
+    {
+        rho_edge = rho + upper_sign * 0.1;
+    }
+    if( upper_sign > 0. && rho_edge > 0.98 )  return 0.98;
+    if( upper_sign < 0. && rho_edge < -0.98 ) return -0.98;
+
+    return rho_edge;
+}
+
+/*
+   LL optimisation: starting value for cen(_x or _y)
+*/
+double VImageParameterCalculation::getLL_paramameterlimits_cen( double dist_limit,
+                                                                double centroid, 
+                                                                double fLL_StartingValue_sigma, 
+                                                                double i_sign )
+{
+    // Case 1: image is well inside the camera
+    //         assumption is that geo centroids are good values
+    if( fLL_StartingValue_sigma > 0. && fParGeo->loss < fMinimizeTimeGradient_minLoss )
+    {
+        double camera_pixel_size = 0.1;
+        // assume that zero pixel is a typical pixel
+        if( fData->getDetectorGeometry()->getTubeRadius().size() > 0 )
+        {
+            camera_pixel_size = 5.*fData->getDetectorGeometry()->getTubeRadius()[0];
+            if( camera_pixel_size < 0.1 ) camera_pixel_size = 5.*0.1;
+        }
+        return centroid + i_sign * camera_pixel_size;
+    }
+    // Case 2: image is partly at the edge of the FOV: determine box around image
+    //         to search for centroid
+    if( fLL_StartingValue_sigma > 0. )
+    {
+        dist_limit = centroid + i_sign* 2.*fLL_StartingValue_sigma;
+        // make sure that this is inside the FOV (+10%)
+        if( fData->getDetectorGeometry() &&  fData->getTelID() < fData->getDetectorGeometry()->getFieldofView().size() )
+        {
+            if( TMath::Abs( dist_limit ) > 1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()] )
+            {
+                if( dist_limit > 0 )
+                {
+                    dist_limit =  1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
+                }
+                else
+                {
+                    dist_limit = -1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
+                }
+            }
+        }
+    }
+    else
+    {
+        // image centroid should not be outside of the FOV (by more than 10%)
+        if( fData->getDetectorGeometry() &&  fData->getTelID() < fData->getDetectorGeometry()->getFieldofView().size() )
+        {
+            dist_limit = i_sign *1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
+        }
+        // should never land here
+        else
+        {
+            dist_limit = i_sign * 5.;
+        }
+    }
+    return dist_limit;
+
+}
+
 
 void VImageParameterCalculation::setImageBorderPixelPosition( VImageParameter* iPar )
 {
