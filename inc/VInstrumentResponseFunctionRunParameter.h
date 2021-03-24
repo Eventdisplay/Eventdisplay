@@ -55,7 +55,7 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         double          fMCEnergy_index;
         bool            fFillMCHistograms;
         bool            fgetXoff_Yoff_afterCut;
-        bool            fWriteEventdatatrees;
+        string          fWriteEventdatatrees;
 
         // IRF histogram bin definition
         unsigned int    fEnergyAxisBins_log10;
@@ -119,7 +119,7 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         bool                  readRunParameterFromTextFile( string iFile );
         bool                  testRunparameters();
         
-        ClassDef( VInstrumentResponseFunctionRunParameter, 21 );
+        ClassDef( VInstrumentResponseFunctionRunParameter, 22 );
 };
 
 #endif
