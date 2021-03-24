@@ -9,6 +9,7 @@
 #include "TH3F.h"
 #include "TList.h"
 #include "TPaveText.h"
+#include "TTree.h"
 
 #include <iostream>
 #include <map>
@@ -36,6 +37,7 @@ class VWPPhysSensitivityFile
         
         TFile*       fOutFile;
         string       fDataFile_gamma_onSource;
+        string       fDataFile_gamma_onSource_fullDir;
         string       fDataFile_gamma_cone;
         string       fDataFile_proton;
         string       fDataFile_proton_onSource;
@@ -81,6 +83,7 @@ class VWPPhysSensitivityFile
         TH1F* fTheta2;
         TH1F* fTheta;
         
+        TTree* getTelConfigTree( string );
         void writeHistogramDescription();
         
     public:

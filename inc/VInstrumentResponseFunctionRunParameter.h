@@ -36,7 +36,8 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         unsigned int    fFillingMode;              // filling mode
         bool            fEffArea_short_writing;    // short/long tree writing
         
-        string          fCutFileName;
+        vector< string > fCutFileName;
+        vector< float >  fCutCharacteristicMCAZ;
         string          fInstrumentEpoch;
         vector< unsigned int > fTelToAnalyse;             // telescopes used in analysis (optional, not always filled)
         int             fGammaHadronCutSelector;
@@ -54,7 +55,7 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         double          fMCEnergy_index;
         bool            fFillMCHistograms;
         bool            fgetXoff_Yoff_afterCut;
-        bool            fWriteEventdatatrees;
+        string          fWriteEventdatatrees;
 
         // IRF histogram bin definition
         unsigned int    fEnergyAxisBins_log10;
@@ -109,13 +110,16 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         VInstrumentResponseFunctionRunParameter();
         ~VInstrumentResponseFunctionRunParameter() {}
         
+        vector< string >      getCutFileName() { return fCutFileName; }
+        vector< float >       getCutCharacteristicMCAZ() { return fCutCharacteristicMCAZ; }
         string                getInstrumentEpoch( bool iMajor = false );	
+        TTree*                getTelConfigTree();
         void                  print();
         VMonteCarloRunHeader* readMCRunHeader();
         bool                  readRunParameterFromTextFile( string iFile );
         bool                  testRunparameters();
         
-        ClassDef( VInstrumentResponseFunctionRunParameter, 18 );
+        ClassDef( VInstrumentResponseFunctionRunParameter, 22 );
 };
 
 #endif

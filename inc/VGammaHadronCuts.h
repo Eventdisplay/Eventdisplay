@@ -84,6 +84,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
     private:
     
         bool   fDebug;                               // lots of debug output
+        string fCutID;
         
         CData* fData;                                       //! transient
         string fDataDirectory;
@@ -166,6 +167,10 @@ class VGammaHadronCuts : public VAnalysisUtilities
         
         // cut statistics
         VGammaHadronCutsStatistics* fStats;                       //!
+
+        // selection criteria for use this cut
+        float fCutCharacteristicsMCAZ;
+        float fCutCharacteristicsMCAZ_tolerance;
         
         bool   applyProbabilityCut( int i, bool fIsOn );
         bool   applyDeepLearnerCut();
@@ -239,7 +244,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
         
         vector< VNTelTypeCut* > fNTelTypeCut;
         
-        VGammaHadronCuts();
+        VGammaHadronCuts( string iCutID = "0" );
         ~VGammaHadronCuts();
         
         bool   applyDirectionCuts( bool bCount = false, double x0 = -99999., double y0 = -99999. );
@@ -417,7 +422,7 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             fCut_Theta2_max = it2;
         }
-        void   terminate( bool iShort = false );
+        void   terminate( bool iShort = false, string iObjectName = "GammaHadronCuts" );
         bool   useDeepLearnerCuts()
         {
             return ( fReconstructionType == DEEPLEARNER );
@@ -426,10 +431,16 @@ class VGammaHadronCuts : public VAnalysisUtilities
         {
             return ( fGammaHadronCutSelector / 10 == 4 );
         }
+        bool useThisCut( CData *c );
+        void setCutCharacteristicsMCAZ( float iZ, float iT = 60. )
+        {
+            fCutCharacteristicsMCAZ = iZ;
+            fCutCharacteristicsMCAZ_tolerance = iT;
+        }
         void setReconstructionType( E_ReconstructionType type )
         {
             fReconstructionType = type;
         }
-        ClassDef( VGammaHadronCuts, 67 );
+        ClassDef( VGammaHadronCuts, 70 );
 };
 #endif

@@ -48,22 +48,24 @@ map< ULong64_t, unsigned int > fMapOfNTelescopeType;
 
     one MVA per telescope type
 
-    Allowed target BDTs:
+    Allowed targets for training:
 
     BDTDisp
     BDTDispError
     BDTDispEnergy
     BDTDispCore
 
+    Default is always BDT (but other MLs like MLPs are allowed)
+
 
 */
 bool trainTMVA( string iOutputDir, float iTrainTest,
                 ULong64_t iTelType, TTree* iDataTree,
-                string iTargetBDT, string iTMVAOptions,
+                string iTargetML, string iTMVAOptions,
                 string iQualityCut, bool iSingleTelescopeAnalysis )
 {
     cout << endl;
-    cout << "Starting " << iTargetBDT;
+    cout << "Starting " << iTargetML;
     cout << " training for telescope type " << iTelType << endl;
     cout << "----------------------------------------------------------------" << endl;
     cout << endl;
@@ -121,7 +123,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     
     // output file name
     ostringstream iFileName;
-    iFileName << iOutputDir << "/" << iTargetBDT << "_" << iTelType << ".tmva.root";
+    iFileName << iOutputDir << "/" << iTargetML << "_" << iTelType << ".tmva.root";
     TFile* i_tmva = new TFile( iFileName.str().c_str(), "RECREATE" );
     if( i_tmva->IsZombie() )
     {
@@ -137,7 +139,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     
     
     // tmva regression
-    TMVA::Factory* factory = new TMVA::Factory( iTargetBDT.c_str(), i_tmva, 
+    TMVA::Factory* factory = new TMVA::Factory( iTargetML.c_str(), i_tmva, 
                             "V:!DrawProgressBar:!Color:!Silent:AnalysisType=Regression:VerboseLevel=Debug:Correlations=True" );
     factory->SetVerbose( true );
     TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
@@ -161,7 +163,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     dataloader->AddVariable( "loss"  , 'F' );
     dataloader->AddVariable( "dist"  , 'F' );
     dataloader->AddVariable( "fui"  , 'F' );
-    if( iTargetBDT == "BDTDispEnergy" && !iSingleTelescopeAnalysis )
+    if( iTargetML.find( "DispEnergy" ) != string::npos && !iSingleTelescopeAnalysis )
     {
         dataloader->AddVariable( "EHeight", 'F' );
         dataloader->AddVariable( "Rcore", 'F' );
@@ -179,41 +181,36 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     dataloader->AddSpectator( "MCrcore", 'F' );
     dataloader->AddSpectator( "NImages", 'F' );
     // train for energy reconstruction
-    if( iTargetBDT == "BDTDispEnergy" )
+    if( iTargetML.find( "DispEnergy" ) != string::npos )
     {
         // dispEnergy is log10(E)/log10(size)
         dataloader->AddTarget( "dispEnergy", 'F' );
     }
-    // train for direction reconstruction
-    else if( iTargetBDT == "BDTDisp" )
-    {
-        dataloader->AddSpectator( "dispError", 'F' );
-        dataloader->AddSpectator( "dispPhi", 'F' );
-        dataloader->AddTarget( "disp"  , 'F' );
-    }
     // rotation angle
-    else if( iTargetBDT == "BDTDispPhi" )
+    else if( iTargetML.find( "DispPhi" ) != string::npos )
     {
         dataloader->AddSpectator( "disp", 'F' );
         dataloader->AddSpectator( "dispError", 'F' );
         dataloader->AddTarget( "dispPhi"  , 'F' );
     }
     // train for error on disp reconstruction
-    else if( iTargetBDT == "BDTDispError" )
+    else if( iTargetML.find( "DispError" ) != string::npos )
     {
         dataloader->AddSpectator( "disp", 'F' );
         dataloader->AddSpectator( "dispPhi", 'F' );
         dataloader->AddTarget( "dispError", 'F', "dispError", 0., 10. );
     }
     // train for core reconstruction
-    else if( iTargetBDT == "BDTDispCore" )
+    else if( iTargetML.find( "DispCore" ) != string::npos )
     {
         dataloader->AddTarget( "dispCore"  , 'F', "m", 0., 1.e5 );
     }
+    // train for direction reconstruction
     else
     {
-        cout << "Error: unknown target BDT: " << iTargetBDT << endl;
-        exit( EXIT_FAILURE );
+        dataloader->AddSpectator( "dispError", 'F' );
+        dataloader->AddSpectator( "dispPhi", 'F' );
+        dataloader->AddTarget( "disp"  , 'F' );
     }
     // add weights (optional)
     //    dataloader->SetWeightExpression( "MCe0*MCe0", "Regression" );
@@ -233,7 +230,14 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     dataloader->PrepareTrainingAndTestTree( fQualityCut, train_and_test_conditions.str().c_str() ) ;
     
     ostringstream iMVAName;
-    iMVAName << "BDT_" << iTelType;
+    if( iTargetML.find( "MLP" ) != string::npos )
+    {
+        iMVAName << "MLP_" << iTelType;
+    }
+    else
+    {
+       iMVAName << "BDT_" << iTelType;
+    }
     sprintf( htitle, "%s", iMVAName.str().c_str() );
     
     TString methodstr( iTMVAOptions.c_str() );
@@ -241,7 +245,14 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     cout << "Built MethodStringStream: " << iTMVAOptions << endl;
     cout << endl;
     TString methodTitle( htitle );
-    factory->BookMethod( dataloader, TMVA::Types::kBDT, methodTitle, methodstr ) ;
+    if( iTargetML.find( "MLP" ) != string::npos )
+    {
+        factory->BookMethod( dataloader, TMVA::Types::kMLP,  methodTitle, methodstr );
+    }
+    else
+    {
+        factory->BookMethod( dataloader, TMVA::Types::kBDT, methodTitle, methodstr ) ;
+    }
     
     factory->TrainAllMethods();
     
@@ -297,12 +308,12 @@ vector< string > fillInputFile_fromList( string iList )
 
     (a previous training session produced these files
 */
-bool readTrainingFile( string iTargetBDT, ULong64_t iTelType, const string iDataDirectory )
+bool readTrainingFile( string iTargetML, ULong64_t iTelType, string iDataDirectory )
 {
     fMapOfTrainingTree.clear();
     
     ostringstream iFileName;
-    iFileName << iDataDirectory << "/" << iTargetBDT;
+    iFileName << iDataDirectory << "/" << iTargetML;
     if( iTelType != 0 )
     {
         iFileName << "_" << iTelType;
@@ -892,7 +903,7 @@ int main( int argc, char* argv[] )
     float        fTrainTest  = atof( argv[3] );
     unsigned int iRecID      = atoi( argv[4] );
     ULong64_t    iTelType    = atoi( argv[5] ) ;
-    string       iTargetBDT  = "BDTDisp";
+    string       iTargetML  = "BDTDisp";
     string iTMVAOptions = "VarTransform=N:NTrees=200:BoostType=AdaBoost:MaxDepth=8";
     string       iDataDirectory = "";
     string       iLayoutFile = "";
@@ -900,7 +911,7 @@ int main( int argc, char* argv[] )
     iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&Rcore<2000.";
     if( argc >=  7 )
     {
-        iTargetBDT =       argv[6]   ;
+        iTargetML = argv[6];
     }
     if( argc >=  8 )
     {
@@ -918,6 +929,8 @@ int main( int argc, char* argv[] )
     {
         iQualityCut = argv[10];
     }
+    // TMP BDT
+    //iTMVAOptions = "VarTransform=N:NCycles=500:HiddenLayers=36,6:NeuronType=tanh";
     
     ///////////////////////////
     // print runparameters to screen
@@ -951,7 +964,7 @@ int main( int argc, char* argv[] )
     ///////////////////////////
     // output file
     ostringstream iFileName;
-    iFileName << fOutputDir << "/" << iTargetBDT;
+    iFileName << fOutputDir << "/" << iTargetML;
     if( iTelType != 0 )
     {
         iFileName << "_" << iTelType;
@@ -972,7 +985,7 @@ int main( int argc, char* argv[] )
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    else if( iDataDirectory.size() != 0 && !readTrainingFile( iTargetBDT, iTelType, iDataDirectory ) )
+    else if( iDataDirectory.size() != 0 && !readTrainingFile( iTargetML, iTelType, iDataDirectory ) )
     {
         cout << "error reading training file " << endl;
         cout << "exiting..." << endl;
@@ -1007,7 +1020,7 @@ int main( int argc, char* argv[] )
         trainTMVA( fOutputDir, fTrainTest, 
                 fMapOfTrainingTree_iter->first, 
                 fMapOfTrainingTree_iter->second, 
-                iTargetBDT, iTMVAOptions, iQualityCut, iSingleTel );
+                iTargetML, iTMVAOptions, iQualityCut, iSingleTel );
     }
     
     //////////////////////

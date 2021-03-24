@@ -78,6 +78,44 @@ bool readMeanElevation( TFile *fIn )
     return true;
 }
 
+/*
+ * for CTA: get name of telescope depending on the 
+ * telescope type ID
+ */
+
+string getTelTypeName( ULong64_t ttype )
+{
+
+    if( ttype == 138704810 )
+    {
+        return "LST";
+    }
+    else if( ttype == 201509515
+             || ttype == 201309316
+             || ttype == 909924
+             || ttype == 201511619
+             || ttype == 910224
+             || ttype == 201309316
+             || ttype == 201310418
+             || ttype == 201511619
+             || ttype == 201409917
+             || ttype == 201411019 )
+    {
+        return "SST";
+    }
+    else if( ttype == 10408418
+             || ttype == 10408618
+             || ttype == 10608418 )
+    {
+        return "MST";
+    }
+    else if( ttype == 207308707 )
+    {
+        return "MSCT";
+    }
+    return "NOTELESCOPETYPE";
+}
+
 
 /*
  *  read observing direction and print N (North) or S (South)
@@ -169,7 +207,15 @@ bool readTelescopeTypeNumbers( TFile* fIn, string iPara )
     
     if( iPara == "-nteltypes" )
     {
-        cout << fList_of_Tel_type.size() << endl;
+        cout << fList_of_Tel_type.size();
+        map<ULong64_t, unsigned int >::iterator fList_of_Tel_type_iterator;
+        for( fList_of_Tel_type_iterator = fList_of_Tel_type.begin();
+                fList_of_Tel_type_iterator != fList_of_Tel_type.end();
+                fList_of_Tel_type_iterator++ )
+        {
+            cout << " " << getTelTypeName( fList_of_Tel_type_iterator->first );
+        }
+        cout << endl;
         return true;
     }
     else if( iPara.find( "ntype" ) != string::npos )
@@ -186,37 +232,7 @@ bool readTelescopeTypeNumbers( TFile* fIn, string iPara )
             {
                 if( z == teltypeIndex )
                 {
-                    if( fList_of_Tel_type_iterator->first == 138704810 )
-                    {
-                        cout << "LST" << endl;
-                    }
-                    else if( fList_of_Tel_type_iterator->first == 201509515
-                             || fList_of_Tel_type_iterator->first == 201309316
-                             || fList_of_Tel_type_iterator->first == 909924
-                             || fList_of_Tel_type_iterator->first == 201511619
-                             || fList_of_Tel_type_iterator->first == 910224
-                             || fList_of_Tel_type_iterator->first == 201309316
-                             || fList_of_Tel_type_iterator->first == 201310418
-                             || fList_of_Tel_type_iterator->first == 201511619
-                             || fList_of_Tel_type_iterator->first == 201409917
-                             || fList_of_Tel_type_iterator->first == 201411019 )
-                    {
-                        cout << "SST" << endl;
-                    }
-                    else if( fList_of_Tel_type_iterator->first == 10408418
-                             || fList_of_Tel_type_iterator->first == 10408618
-                             || fList_of_Tel_type_iterator->first == 10608418 )
-                    {
-                        cout << "MST" << endl;
-                    }
-                    else if( fList_of_Tel_type_iterator->first == 207308707 )
-                    {
-                        cout << "MSCT" << endl;
-                    }
-                    else
-                    {
-                        cout << "NOTELESCOPETYPE" << endl;
-                    }
+                    cout << getTelTypeName( fList_of_Tel_type_iterator->first ) << endl;
                     return true;
                 }
                 z++;

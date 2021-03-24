@@ -78,6 +78,12 @@ int main( int argc, char* argv[] )
                 exit( EXIT_FAILURE );
            }
            TMacro *iM = (TMacro*)fF.Get( fLogFileName.c_str() );
+           // xml requires dedicated return if not found
+           if( !iM && fLogFileName.find( "XML" ) != string::npos )
+           {
+               cout << "NOXML" << endl;
+               exit( EXIT_SUCCESS );
+           }
            if( !iM )
            {
                for( unsigned int i = 0; i < logObjectNames.size(); i++ )

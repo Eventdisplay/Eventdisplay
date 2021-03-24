@@ -151,12 +151,18 @@ bool fillBackgroundRateHistograms( TH1F* hBckRate, TH1F* hBckRateDeq, double wof
         /////////////////////////////////
         
         // read gamma/hadron cuts from effective area file
-        // note: assume same gamma/hadron cuts applied for effective area generation
+        // note 1: assume same gamma/hadron cuts applied for effective area generation
         //       as for anasum analysis
+        // note 2: assume that all gamma/hadron cuts instances have the same cuts applied
+        //         in off-axis bins
         TFile iFile_effArea( iEffectiveAreaFile.c_str() );
         if( !iFile_effArea.IsZombie() )
         {
             VGammaHadronCuts* i_GammaHadronCuts = ( VGammaHadronCuts* )iFile_effArea.Get( "GammaHadronCuts" );
+            if( !i_GammaHadronCuts )
+            {
+                i_GammaHadronCuts = ( VGammaHadronCuts* )iFile_effArea.Get( "GammaHadronCuts_0" );
+            }
             if( i_GammaHadronCuts )
             {
                 cout << "found gamma/hadron cuts in effective area file" << endl;

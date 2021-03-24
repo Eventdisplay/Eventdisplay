@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 
+#include "VTableLookupRunParameter.h"
 #include "VTMVARunDataEnergyCut.h"
 #include "VTMVARunDataZenithCut.h"
 #include "VUtilities.h"
@@ -59,6 +60,7 @@ class VTMVARunData : public TNamed
         double            fBackgroundWeight;
         vector< string >  fBackgroundFileName;
         vector< TChain* > fBackgroundTree;
+        string            fSelectedEventTreeName;
         
         // list of training variables
         vector< string >  fTrainingVariable;
@@ -76,6 +78,7 @@ class VTMVARunData : public TNamed
         TCut              fQualityCuts;
         TCut              fQualityCutsBkg;
         TCut              fQualityCutsSignal;
+        TCut              fMultiplicityCuts;
         TCut              fMCxyoffCut;
         bool              fMCxyoffCutSignalOnly;
         TCut              fAzimuthCut;
@@ -97,6 +100,7 @@ class VTMVARunData : public TNamed
         VTMVARunData();
         ~VTMVARunData() {}
         void print();
+        VTableLookupRunParameter* getTLRunParameter();
         bool readConfigurationFile( char* );
         bool openDataFiles( bool iCheckMinEvents = true );
         void setDebug( bool iB = true )
@@ -109,7 +113,7 @@ class VTMVARunData : public TNamed
         }
         void shuffleFileVectors();
         
-        ClassDef( VTMVARunData, 13 );
+        ClassDef( VTMVARunData, 14 );
 };
 
 #endif

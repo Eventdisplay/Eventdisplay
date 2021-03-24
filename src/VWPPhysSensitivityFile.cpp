@@ -622,6 +622,7 @@ bool VWPPhysSensitivityFile::fillHistograms1D( string iDataDirectory, bool iFill
             std::cout << " fDataFile_gamma_onSource " << fDataFile_gamma_onSource << std::endl;
             iEffectiveAreaFile << iDataDirectory << "/" << fDataFile_gamma_onSource  << ".root";
         }
+        fDataFile_gamma_onSource_fullDir = iEffectiveAreaFile.str();
     }
     cout << endl;
     cout << "=================================================================" << endl;
@@ -1093,10 +1094,38 @@ bool VWPPhysSensitivityFile::terminate()
             }
             cout << endl;
         }
+        fOutFile->cd();
         
+        ////////////////////
+        // copy telconfig tree
+        TTree *t = getTelConfigTree( fDataFile_gamma_onSource_fullDir );
+        fOutFile->cd();
+        if( t )
+        { 
+            t->Write( "telconfig" );
+        } 
         fOutFile->Close();
     }
     return true;
+}
+
+/*
+ * read and clone telconfig tree
+ *
+ */
+TTree* VWPPhysSensitivityFile::getTelConfigTree( string iFile )
+{
+    TFile *iF = new TFile( iFile.c_str() );
+    if( iF->IsZombie() )
+    {
+        return 0;
+    }
+    TTree *t = (TTree*)iF->Get( "telconfig" );
+    if( t && fOutFile->cd() )
+    {
+       return t->CloneTree( -1 );
+    }
+    return 0;
 }
 
 void VWPPhysSensitivityFile::setDataFiles( string iArray, int iRecID )

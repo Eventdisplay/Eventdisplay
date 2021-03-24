@@ -159,7 +159,8 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
         unsigned int iWeightFileIndex_Emin, unsigned int iWeightFileIndex_Emax,
         unsigned int iWeightFileIndex_Zmin, unsigned int iWeightFileIndex_Zmax,
         double iEnergyStepSize, string iInstrumentEpoch,
-        string iOptimizationType )
+        string iOptimizationType,
+        string iCutID )
 {
     //////////////////////////////
     // sanity checks
@@ -636,7 +637,7 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
     // print some info to screen
     cout << "VTMVAEvaluator: Initialized " << fTMVAData.size() << " MVA readers " << endl;
     
-    fillTMVAEvaluatorResults();
+    fillTMVAEvaluatorResults( iCutID );
     
     return true;
 }
@@ -647,12 +648,12 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
  * VTMVAEvaluatorResults are written to output files and used in
  * anasum, effective areas code and sensitivity calculation
  */
-void VTMVAEvaluator::fillTMVAEvaluatorResults()
+void VTMVAEvaluator::fillTMVAEvaluatorResults( string iCutID )
 {
     if( !fTMVAEvaluatorResults )
     {
         fTMVAEvaluatorResults = new VTMVAEvaluatorResults;
-        fTMVAEvaluatorResults->SetName( "TMVAEvaluatorResults" );
+        fTMVAEvaluatorResults->SetName( ("TMVAEvaluatorResults"+iCutID).c_str() );
     }
     if( fTMVAEvaluatorResults )
     {

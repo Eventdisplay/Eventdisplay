@@ -45,8 +45,9 @@
 
 #include "VGammaHadronCuts.h"
 
-VGammaHadronCuts::VGammaHadronCuts()
+VGammaHadronCuts::VGammaHadronCuts( string iCutID )
 {
+    fCutID = iCutID;
     setDebug( false );
     
     resetCutValues();
@@ -119,13 +120,16 @@ VGammaHadronCuts::VGammaHadronCuts()
     fAngRes_AbsoluteMaximum = 1.e10;
     fAngRes_FixedAboveEnergy_TeV = 1.e30;
     fAngResContainmentProbability = 0;
+
+    fCutCharacteristicsMCAZ = -999.;
+    fCutCharacteristicsMCAZ_tolerance = 60.;
 }
 
 void VGammaHadronCuts::initialize()
 {
     // statistics
     fStats = new VGammaHadronCutsStatistics();
-    fStats->initialize();
+    fStats->initialize( fCutID );
 }
 
 VGammaHadronCuts::~VGammaHadronCuts()
@@ -1908,8 +1912,12 @@ bool VGammaHadronCuts::initTMVAEvaluator( string iTMVAFile,
     fTMVAEvaluator->setTMVAMethod( fTMVA_MVAMethod, fTMVA_MVAMethodCounter );
     fTMVAEvaluator->setTMVAAngularContainmentThetaFixedMinRadius( fTMVAFixedThetaCutMin );
     // read MVA weight files; set MVA cut values (e.g. find optimal values)
-    if( !fTMVAEvaluator->initializeWeightFiles( iTMVAFile, iTMVAWeightFileIndex_Emin, iTMVAWeightFileIndex_Emax,
-            iTMVAWeightFileIndex_Zmin, iTMVAWeightFileIndex_Zmax, iTMVAEnergy_StepSize, fInstrumentEpoch ) )
+    if( !fTMVAEvaluator->initializeWeightFiles( iTMVAFile,
+                                                iTMVAWeightFileIndex_Emin, iTMVAWeightFileIndex_Emax,
+                                                iTMVAWeightFileIndex_Zmin, iTMVAWeightFileIndex_Zmax,
+                                                iTMVAEnergy_StepSize, fInstrumentEpoch,
+                                                "UseInterpolatedCounts",
+                                                fCutID ) )
     {
         cout << "VGammaHadronCuts::initTMVAEvaluator: error while initializing TMVA weight files" << endl;
         cout << "exiting... " << endl;
@@ -2166,7 +2174,7 @@ bool VGammaHadronCuts::applyDirectionCuts( bool bCount, double x0, double y0 )
     
     // calculate theta2
     theta2 = ( fData->getXoff() - x0 ) * ( fData->getXoff() - x0 ) + ( fData->getYoff() - y0 ) * ( fData->getYoff() - y0 );
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // fetch theta2 cut (max) (might be energy dependent)
     double i_theta2_cut_max = getTheta2Cut_max( fData->getEnergy_TeV( ) );
@@ -2566,9 +2574,34 @@ double VGammaHadronCuts::getProbabilityCutAlpha( bool fIsOn )
     
 }
 
-void VGammaHadronCuts::terminate( bool iShort )
+/*
+ * check if this cut should be used
+ * in IRF or effective area calculation
+ */
+bool VGammaHadronCuts::useThisCut( CData *c )
 {
-    SetName( "GammaHadronCuts" );
+    if( !c ) return false;
+
+    if( fCutCharacteristicsMCAZ < -998. ) return true;
+
+    if( TMath::Abs( c->MCaz - fCutCharacteristicsMCAZ )
+       < fCutCharacteristicsMCAZ_tolerance )
+    {
+        return true;
+    }
+    if( TMath::Abs( c->MCaz - fCutCharacteristicsMCAZ - 360. )
+       < fCutCharacteristicsMCAZ_tolerance )
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void VGammaHadronCuts::terminate( bool iShort,
+                                  string iObjectName )
+{
+    SetName( iObjectName.c_str() );
     
     if( fStats->getDataTree() && !iShort )
     {
