@@ -31,6 +31,7 @@ VTableLookupDataHandler::VTableLookupDataHandler( bool iwrite, VTableLookupRunPa
     fOTree = 0;
     fShortTree = fTLRunParameter->bShortTree;
     bWriteMCPars = fTLRunParameter->bWriteMCPars;
+    fTreeWithParameterErrors = false;
     fNTel = 0;
     fNTelComb = 0;
     fTtelconfig = 0;
@@ -589,6 +590,15 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
                 fcen_y[i] = ftpars[i]->cen_y;
                 fcosphi[i] = ftpars[i]->cosphi;
                 fsinphi[i] = ftpars[i]->sinphi;
+            }
+            if( ftpars[i]->hasParameterErrors() )
+            {
+                fTreeWithParameterErrors = true;
+                fdcen_x[i] = ftpars[i]->dcen_x;
+                fdcen_y[i] = ftpars[i]->dcen_y;
+                fdlength[i] = ftpars[i]->dlength;
+                fdwidth[i] = ftpars[i]->dwidth;
+                fdphi[i] = ftpars[i]->dphi;
             }
             
             if( fsize[i] > SizeSecondMax_temp )
@@ -1696,6 +1706,19 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
         sprintf( iTT, "tchisq_x[%d]/D", fNTel );
         fOTree->Branch( "tchisq_x", ftchisq_x, iTT );
     }
+    if( fTreeWithParameterErrors )
+    {
+       sprintf( iTT, "dcen_x[%d]/D", fNTel );
+       fOTree->Branch( "dcen_x", fdcen_x, iTT );
+       sprintf( iTT, "dcen_y[%d]/D", fNTel );
+       fOTree->Branch( "dcen_y", fdcen_y, iTT );
+       sprintf( iTT, "dlength[%d]/D", fNTel );
+       fOTree->Branch( "dlength", fdlength, iTT );
+       sprintf( iTT, "dwidth[%d]/D", fNTel );
+       fOTree->Branch( "dwidth", fdwidth, iTT );
+       sprintf( iTT, "dphi[%d]/D", fNTel );
+       fOTree->Branch( "dphi", fdphi, iTT );
+    }
     fOTree->Branch( "DispNImages", &fnxyoff, "DispNImages/i" );
     fOTree->Branch( "DispXoff_T", fXoff_T, "DispXoff_T[NImages]/F" );
     fOTree->Branch( "DispYoff_T", fYoff_T, "DispYoff_T[NImages]/F" );
@@ -2419,6 +2442,11 @@ void VTableLookupDataHandler::resetImageParameters( unsigned int i )
     fasym[i] = 0.;
     fcen_x[i] = 0.;
     fcen_y[i] = 0.;
+    fdcen_x[i] = 0.;
+    fdcen_y[i] = 0.;
+    fdwidth[i] = 0.;
+    fdlength[i] = 0.;
+    fdphi[i] = 0.;
     fcosphi[i] = 0.;
     fsinphi[i] = 0.;
     fmax1[i] = 0.;

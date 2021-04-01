@@ -139,6 +139,7 @@ class VTableLookupDataHandler
         TTree* fOTree;
         bool fShortTree;                          //!< use short version of output tree
         bool bWriteMCPars;
+        bool fTreeWithParameterErrors;
         
         // cut statistics
         bool fEventStatus;
@@ -250,8 +251,10 @@ class VTableLookupDataHandler
         int    fmaxindex2     [VDST_MAXTELESCOPES];
         int    fmaxindex3     [VDST_MAXTELESCOPES];
         double fwidth    [VDST_MAXTELESCOPES];
+        double fdwidth    [VDST_MAXTELESCOPES];
         double fwidth_telType[VDST_MAXTELESCOPES];
         double flength   [VDST_MAXTELESCOPES];
+        double fdlength   [VDST_MAXTELESCOPES];
         double flength_telType[VDST_MAXTELESCOPES];
         int    fntubes   [VDST_MAXTELESCOPES];
         unsigned short int fnsat[VDST_MAXTELESCOPES];
@@ -260,7 +263,10 @@ class VTableLookupDataHandler
         double flos      [VDST_MAXTELESCOPES];
         double fasym     [VDST_MAXTELESCOPES];
         double fcen_x    [VDST_MAXTELESCOPES];
+        double fdcen_x    [VDST_MAXTELESCOPES];
         double fcen_y    [VDST_MAXTELESCOPES];
+        double fdcen_y    [VDST_MAXTELESCOPES];
+        double fdphi[VDST_MAXTELESCOPES];
         double fcosphi   [VDST_MAXTELESCOPES];
         double fsinphi   [VDST_MAXTELESCOPES];
         double ftgrad_x  [VDST_MAXTELESCOPES];
