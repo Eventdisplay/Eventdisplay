@@ -62,7 +62,8 @@ map< ULong64_t, unsigned int > fMapOfNTelescopeType;
 bool trainTMVA( string iOutputDir, float iTrainTest,
                 ULong64_t iTelType, TTree* iDataTree,
                 string iTargetML, string iTMVAOptions,
-                string iQualityCut, bool iSingleTelescopeAnalysis )
+                string iQualityCut, bool iSingleTelescopeAnalysis,
+                bool iUseImageParameterErrors )
 {
     cout << endl;
     cout << "Starting " << iTargetML;
@@ -167,6 +168,10 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     {
         dataloader->AddVariable( "EHeight", 'F' );
         dataloader->AddVariable( "Rcore", 'F' );
+    }
+    if( iUseImageParameterErrors )
+    {
+       dataloader->AddVariable( "dispImageError", 'F' );
     }
     // spectators
     dataloader->AddSpectator( "cen_x", 'F' );
@@ -475,14 +480,19 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     unsigned int tel = 0;
     float cen_x = -1.;
     float cen_y = -1.;
+    float dcen_x = -1.;
+    float dcen_y = -1.;
     float sinphi = -1.;
     float cosphi = -1.;
+    float dphi = -1.;
     float size = -1.;    // actually log10(size)
     float ntubes = -1.;
     float loss = -1.;
     float asym = -1.;
     float width = -1.;
+    float dwidth = -1.;
     float length = -1.;
+    float dlength = -1.;
     float wol = -1.;    // width over length
     float MCe0 = -1.;
     float MCxoff = -1.;
@@ -500,6 +510,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     float MCze = -1.;
     float disp = -1.;
     float dispError = -1.;
+    float dispImageError = -1.;
     float NImages = -1.;
     float cross = -1.;
     float dispPhi = -1.;
@@ -559,6 +570,11 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             fMapOfTrainingTree[i_tel.TelType]->Branch( "tgrad_x"    , &tgrad_x    , "tgrad_x/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "meanPedvar_Image"         , &meanPedvar_Image, "meanPedvar_Image/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "Fitstat"    , &Fitstat    , "Fitstat/I" );
+            fMapOfTrainingTree[i_tel.TelType]->Branch( "dcen_x"     , &dcen_x     , "dcen_x/F" );
+            fMapOfTrainingTree[i_tel.TelType]->Branch( "dcen_y"     , &dcen_y     , "dcen_y/F" );
+            fMapOfTrainingTree[i_tel.TelType]->Branch( "dwidth"     , &dwidth     , "dwidth/F" );
+            fMapOfTrainingTree[i_tel.TelType]->Branch( "dlength"    , &dlength    , "dlength/F" );
+            fMapOfTrainingTree[i_tel.TelType]->Branch( "dphi"       , &dphi       , "dphi/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "MCe0"       , &MCe0       , "MCe0/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "MCxoff"     , &MCxoff     , "MCxoff/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "MCyoff"     , &MCyoff     , "MCyoff/F" );
@@ -579,6 +595,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             fMapOfTrainingTree[i_tel.TelType]->Branch( "Az"         , &az         , "Az/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "disp"       , &disp       , "disp/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "dispError"  , &dispError  , "dispError/F" );
+            fMapOfTrainingTree[i_tel.TelType]->Branch( "dispImageError"  , &dispImageError  , "dispImageError/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "cross"      , &cross      , "cross/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "dispPhi"    , &dispPhi    , "dispPhi/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "dispEnergy" , &dispEnergy , "dispEnergy/F" );
@@ -783,6 +800,14 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             tgrad_x     = i_tpars[i]->tgrad_x;
             meanPedvar_Image = i_tpars[i]->meanPedvar_Image;
             Fitstat     = i_tpars[i]->Fitstat;
+            if( i_tpars[i]->hasParameterErrors() )
+            {
+                dcen_x = i_tpars[i]->dcen_x;
+                dcen_y = i_tpars[i]->dcen_y;
+                dwidth = i_tpars[i]->dwidth;
+                dlength = i_tpars[i]->dlength;
+                dphi = i_tpars[i]->dphi;
+            }
             ze          = 90. - i_showerpars.TelElevation[i];
             az          = i_showerpars.TelAzimuth[i];
             MCe0        = i_showerpars.MCe0;
@@ -821,7 +846,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             //             reconstructed direction
             // Note that this is only the error expected due to the mismatch
             // of the image length axis with the true direction, not the error
-            // due to a miscalculation of disp itself
+            // due to a wrong prediction of disp by the BDT
             dispError = 0;
             float x1 = cen_x - disp * cosphi;
             float x2 = cen_x + disp * cosphi;
@@ -835,6 +860,22 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             else
             {
                 dispError = sqrt( ( x2 - MCxoff ) * ( x2 - MCxoff ) + ( y2 + MCyoff ) * ( y2 + MCyoff ) );
+            }
+            // disp uncertainty
+            // - only possible for LL image fitting 
+            // - standard error propagation for disp calculation
+            dispImageError = -1.;
+            if( i_tpars[i]->hasParameterErrors() )
+            {
+                float dx2 = dcen_x*dcen_x;
+                // (disp error now known)
+                //dx2 += cosphi * cosphi * d_disp;
+                dx2 += disp*disp * sinphi * sinphi * dphi * dphi;
+                float dy2 = dcen_y*dcen_y;
+                // (disp error now known)
+                //dy2 += sinphi * sinphi * d_disp;
+                dy2 += disp*disp * cosphi * cosphi * dphi * dphi;
+                dispImageError = sqrt( dx2 + dy2 );
             }
             
             // training target in ratio to size
@@ -885,7 +926,9 @@ int main( int argc, char* argv[] )
     {
         cout << "./trainTMVAforAngularReconstruction <list of input eventdisplay files (MC)> <output directory>";
         cout << " <train vs test fraction> <RecID> <telescope type> [train for angular / energy / core reconstruction]";
-        cout << " [MVA options] [array layout file] [directory with training trees] [quality cut]" << endl;
+        cout << " [MVA options] [array layout file] [directory with training trees] [quality cut]";
+        cout << " [use image parameter errors (default=off=0)]";
+        cout << endl;
         cout << endl;
 
         cout << "     <list of input eventdisplay files (MC)> : test files with input evndisplay files" << endl;
@@ -929,8 +972,11 @@ int main( int argc, char* argv[] )
     {
         iQualityCut = argv[10];
     }
-    // TMP BDT
-    //iTMVAOptions = "VarTransform=N:NCycles=500:HiddenLayers=36,6:NeuronType=tanh";
+    bool iUseImageParameterErrors = false;
+    if( argc >= 12 )
+    {
+        iUseImageParameterErrors = (bool)(argv[11]);
+    }
     
     ///////////////////////////
     // print runparameters to screen
@@ -1020,7 +1066,8 @@ int main( int argc, char* argv[] )
         trainTMVA( fOutputDir, fTrainTest, 
                 fMapOfTrainingTree_iter->first, 
                 fMapOfTrainingTree_iter->second, 
-                iTargetML, iTMVAOptions, iQualityCut, iSingleTel );
+                iTargetML, iTMVAOptions, iQualityCut, 
+                iSingleTel, iUseImageParameterErrors );
     }
     
     //////////////////////
