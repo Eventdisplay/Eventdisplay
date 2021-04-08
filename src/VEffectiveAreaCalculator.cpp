@@ -421,6 +421,8 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     {
        fDL2EventTree = 0;
     }
+    fDL2WriteFullEventTree = false;
+    if( fRunPara->fWriteEventdatatrees == "FULLTREES" ) fDL2WriteFullEventTree = true;
 }
 
 vector< TH1D* > VEffectiveAreaCalculator::initializeHistogramsVectorH1D( TH1D* h, string iName, unsigned int i )
@@ -3516,10 +3518,15 @@ void VEffectiveAreaCalculator::fillDL2EventDataTree( CData *c, UChar_t iCutClass
 {
       // apply minimal quality cuts:
       // - require successful direction and energy reconstruction
-      if( c->Xoff < -90. 
-       || c->Yoff < -90. 
-       || c->Ze < 0.
-       || c->ErecS < 0. ) return;
+      // - only applied for DL2 cases, not when data tree is also 
+      //   copied (otherwise event numbers don't fit)
+      if( !fDL2WriteFullEventTree )
+      {
+          if( c->Xoff < -90. 
+           || c->Yoff < -90. 
+           || c->Ze < 0.
+           || c->ErecS < 0. ) return;
+      }
 
       if( fDL2EventTree && c )
       {
