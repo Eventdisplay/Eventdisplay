@@ -1,8 +1,12 @@
 /*! \file testEvndispOutput.cpp
  *
- * write and read a log files into a root file
+ *  test eventdisplay DL1 file for completeness:
+ *  - telconfig tree: test telescope types and consistency with
+ *    expectation for the given CTA 
+ *  - showerpars tree
+ *  - all expected tpars trees
  *
- *
+ * 
  */
 
 #include <iostream>
