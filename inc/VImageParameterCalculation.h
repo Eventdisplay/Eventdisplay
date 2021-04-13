@@ -59,8 +59,12 @@ class VImageParameterCalculation : public TObject
         vector<double> fll_Y;                     //!< data vector for minuit function (y-coordinate of pmt)
         vector<double> fll_Sums;                  //!< data vector for minuit function
         vector<bool> fLLEst;                      //!< true if channel has an estimated sum from the LL fit
+        vector<double> fll_T;                     //!< data vector for minuit function (time)
         
         double getFractionOfImageBorderPixelUnderImage( double, double, double, double, double, double );
+        double getLL_startingvalue_rho( double );
+        double getLL_paramameterlimits_rho( double, double );
+        double getLL_paramameterlimits_cen( double, double, double, double );
         double redang( double angle, double maxI );  //!< reduce angle to interval [0.,maxI]
         void   setImageBorderPixelPosition( VImageParameter* iPar );
         
@@ -102,6 +106,10 @@ class VImageParameterCalculation : public TObject
         {
             return fll_Y;
         }
+        vector<double>& getLLT()
+        {
+            return fll_T;
+        }
         VImageParameter* getParameters()              //!< get image parameters
         {
             return fParGeo;
@@ -132,6 +140,12 @@ class VImageParameterCalculation : public TObject
         void fillImageBorderPixelTree();
         //!< initialize minuit
         void initMinuit( int );
+        bool minimize_time_gradient()
+        {
+            if( fData && fData->getRunParameter() ) return fData->getRunParameter()->fMinimizeTimeGradient;
+            return false;
+        }
+        bool minimize_time_gradient_for_this_event();
         //!< set the detector geometry
         void setDebug( bool iB = true )
         {

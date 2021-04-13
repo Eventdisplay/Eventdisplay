@@ -84,6 +84,11 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         // edge of the camera or not.  Set in
         // EVNDISP.reconstruction.runparameter
         bool fSquaredImageCalculation;   // use unusual definition of image calculation (weighted by square)
+        // LL fit parameter
+        bool fMinimizeTimeGradient;
+        double fMinimizeTimeGradient_minGradforFit;
+        double fMinimizeTimeGradient_minLoss;
+        double fMinimizeTimeGradient_minNtubes;
         
         string fInstrumentEpoch;                  // Instrumental epoch (e.g. for VTS V5 or V6)
         unsigned int fAtmosphereID;               // corsika ID of atmosphere
@@ -324,6 +329,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
             return fuseDB;
         }
         
-        ClassDef( VEvndispRunParameter, 190 ); //(increase this number)
+        ClassDef( VEvndispRunParameter, 191 ); //(increase this number)
 };
 #endif

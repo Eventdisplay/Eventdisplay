@@ -762,7 +762,6 @@ bool VEvndispReconstructionParameter::readKeyWord_LLEDGEFIT( vector< string > iT
             {
                 fRunPara->fLogLikelihoodLoss_max[i] = atof( iTemp[3].c_str() );
             }
-            
         }
     }
     return true;

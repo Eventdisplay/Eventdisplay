@@ -807,6 +807,10 @@ void VArrayAnalyzer::selectShowerImages( unsigned int iMeth )
         {
             getShowerParameters()->fTelIDImageSelected[iMeth].back() = false;
         }
+        if( getImageParameters()->Fitstat >=0 && getImageParameters()->Fitstat < 3 )
+        {
+            getShowerParameters()->fTelIDImageSelected[iMeth].back() = false;
+        }
         
         // list of selected images
         if( getShowerParameters()->fTelIDImageSelected[iMeth].back() )

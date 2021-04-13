@@ -28,6 +28,7 @@ class Ctpars
     public :
         bool            bMC;
         unsigned int    bShort;
+        bool            bParameterErrors;
         TTree*          fChain;                   //!pointer to the analyzed TTree or TChain
         Int_t           fCurrent;                 //!current Tree number in a TChain
         
@@ -101,6 +102,11 @@ class Ctpars
         Int_t           muonValid;
         Int_t           houghMuonValid;
         Int_t           Fitstat;
+        Float_t         dcen_x;
+        Float_t         dcen_y;
+        Float_t         dlength;
+        Float_t         dwidth;
+        Float_t         dphi;
         
         // List of branches
         TBranch*        b_telID;                  //!
@@ -170,6 +176,11 @@ class Ctpars
         TBranch*        b_tmax;                   //!
         TBranch*        b_tmean;                  //!
         TBranch*        b_Fitstat;                  //!
+        TBranch*        b_dcen_x;                 //!
+        TBranch*        b_dcen_y;                 //!
+        TBranch*        b_dlength;                 //!
+        TBranch*        b_dwidth;                 //!
+        TBranch*        b_dphi;                 //!
         TBranch*        b_muonX0;
         TBranch*        b_muonY0;
         TBranch*        b_muonRadius;
@@ -195,6 +206,10 @@ class Ctpars
         {
             return bShort;
         }
+        bool             hasParameterErrors()
+        {
+           return bParameterErrors;
+        }
 };
 #endif
 
@@ -217,6 +232,7 @@ Ctpars::Ctpars( TTree* tree, bool iMC, unsigned int iShort )
     }
     bMC = iMC;
     bShort = iShort;
+    bParameterErrors = false;
     // forward I/O
     // is supposed to speed up reading significantly
     // problem: large memory consumption (>12 GB for certain cta arrays)
@@ -283,6 +299,11 @@ void Ctpars::Init( TTree* tree )
     }
     fChain = tree;
     fCurrent = -1;
+    bParameterErrors = false;
+    if( fChain->GetBranchStatus( "dcen_x" ) )
+    {
+        bParameterErrors = true;
+    }
     //	fChain->SetMakeClass( 1 );
     /////////////////////////////////////////////////
     //    bShort = 2:  read limited number of branched needed for lookup table filling
@@ -392,6 +413,24 @@ void Ctpars::Init( TTree* tree )
         fChain->SetBranchAddress( "asymmetry", &asymmetry );
         fChain->SetBranchAddress( "tgrad_x", &tgrad_x );
         fChain->SetBranchAddress( "Fitstat", &Fitstat );
+        // errors on variables (only for LL runs)
+        if( fChain->GetBranchStatus( "dcen_x" ) )
+        {
+            fChain->SetBranchAddress( "dcen_x", &dcen_x );
+            fChain->SetBranchAddress( "dcen_y", &dcen_y );
+            fChain->SetBranchAddress( "dlength", &dlength );
+            fChain->SetBranchAddress( "dwidth", &dwidth );
+            fChain->SetBranchAddress( "dphi", &dphi );
+        }
+        else
+        {
+            dcen_x = 0.;
+            dcen_y = 0.;
+            dlength = 0.;
+            dwidth = 0.;
+            dphi = 0.;
+        }
+
         // reset variables which are not read out
         alpha = 0.;
         los = 0.;
@@ -524,6 +563,11 @@ Bool_t Ctpars::Notify()
     b_index_of_max = 0;
     b_tchisq_x = 0;
     b_Fitstat = 0;
+    b_dcen_x = 0;
+    b_dcen_y = 0;
+    b_dlength = 0;
+    b_dwidth = 0;
+    b_dphi = 0;
     b_muonX0 = 0;
     b_muonY0 = 0;
     b_muonRadius = 0;
@@ -641,6 +685,19 @@ Bool_t Ctpars::Notify()
         fChain->AddBranchToCache( b_tgrad_x );
         b_Fitstat = fChain->GetBranch( "Fitstat" );
         fChain->AddBranchToCache( b_Fitstat );
+        if( fChain->GetBranchStatus( "dcen_x" ) )
+        {
+            b_dcen_x = fChain->GetBranch( "dcen_x" );
+            fChain->AddBranchToCache( b_dcen_x );
+            b_dcen_y = fChain->GetBranch( "dcen_y" );
+            fChain->AddBranchToCache( b_dcen_y );
+            b_dlength = fChain->GetBranch( "dlength" );
+            fChain->AddBranchToCache( b_dlength );
+            b_dwidth = fChain->GetBranch( "dwidth" );
+            fChain->AddBranchToCache( b_dwidth );
+            b_dphi = fChain->GetBranch( "dphi" );
+            fChain->AddBranchToCache( b_dphi );
+        }
         //muon
         if( fChain->GetBranchStatus( "muonX0" ) )
         {

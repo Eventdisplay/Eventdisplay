@@ -242,8 +242,11 @@ void VWPPhysSensitivityPlotsMaker::plotRatioPlot( TPad *corg,
             else if( r->GetN() > 1 )
             {
                 TGraphAsymmErrors *n = new TGraphAsymmErrors( 1 );
-                if( VHistogramUtilities::divide( n, iNullGraph,
-                                                 r ) )
+                if( VHistogramUtilities::divide( n,
+                                                 iNullGraph,
+                                                 r,
+                                                 1.e-3,
+                                                 true ) )
                 {
                     n->SetLineColor( r->GetLineColor() );
                     n->SetMarkerColor( r->GetMarkerColor() );

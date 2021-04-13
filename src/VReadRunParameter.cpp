@@ -701,7 +701,11 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
         {
             fRunPara->fSquaredImageCalculation = true;
         }
-        
+        // time gradient fitting
+        else if( iTemp.find( "timegradientfit" ) < iTemp.size() )
+        {
+            fRunPara->fMinimizeTimeGradient = true;
+        }
         
         // source type
         else if( iTemp.find( "type" ) < iTemp.size() )
