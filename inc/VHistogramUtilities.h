@@ -33,7 +33,11 @@ class VHistogramUtilities
         ~VHistogramUtilities() {}
         
         static bool      divide( TGraphAsymmErrors* g, TGraphAsymmErrors* g1, TGraph* g2 );
-        static bool      divide( TGraphAsymmErrors* g, TGraphAsymmErrors* g1, TGraphAsymmErrors* g2, double epsilon = 1.e-3 );
+        static bool      divide( TGraphAsymmErrors* g,
+                                 TGraphAsymmErrors* g1,
+                                 TGraphAsymmErrors* g2,
+                                 double epsilon = 1.e-3,
+                                 bool interpolate = false );
         int              findBinInGraph( TGraph* g, double x );
         void             fill_Graph_in_Histogram( TGraphAsymmErrors* g, TH1* h, bool bRequireYGtZero = false );
         TH1D*            get_Bin_Distribution( TH2D* h, int ion, double rmax, double rSource, bool iDiff, TH2D* hTest,

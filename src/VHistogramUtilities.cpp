@@ -813,14 +813,20 @@ bool VHistogramUtilities::divide( TGraphAsymmErrors* g, TGraphAsymmErrors* g1, T
 
      divide two graphs by each other (take also care of errors)
 
+     Important: interpolate does not interpolate errors!
+
 */
-bool VHistogramUtilities::divide( TGraphAsymmErrors* g, TGraphAsymmErrors* g1, TGraphAsymmErrors* g2, double epsilon )
+bool VHistogramUtilities::divide( TGraphAsymmErrors* g, 
+                                  TGraphAsymmErrors* g1,
+                                  TGraphAsymmErrors* g2,
+                                  double epsilon,
+                                  bool interpolate )
 {
     if( !g || !g1 || !g2 )
     {
         return false;
     }
-    
+
     double x1 = 0.;
     double y1 = 0.;
     double x2 = 0.;
@@ -834,6 +840,12 @@ bool VHistogramUtilities::divide( TGraphAsymmErrors* g, TGraphAsymmErrors* g1, T
         for( int j = 0; j < g2->GetN(); j++ )
         {
             g2->GetPoint( j, x2, y2 );
+
+            if( interpolate )
+            {
+                y2 = g2->Eval( x1 );
+                x2 = x1;
+            }
             
             if( TMath::Abs( x1 - x2 ) < epsilon && y1 != 0. && y2 != 0. )
             {
