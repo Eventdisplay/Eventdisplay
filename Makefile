@@ -404,6 +404,7 @@ EVNOBJECTS =    ./obj/VVirtualDataReader.o \
 		./obj/VDetectorGeometry.o \
 		./obj/VDetectorTree.o \
 	    ./obj/VImageParameterCalculation.o \
+        ./obj/VImageParameterFitter.o \
 		./obj/VImageBaseAnalyzer.o \
 		./obj/VImageCleaning.o \
 		./obj/VDB_CalibrationInfo.o\

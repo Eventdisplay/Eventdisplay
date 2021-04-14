@@ -10,7 +10,6 @@
 VImageParameterCalculation::VImageParameterCalculation( unsigned int iShortTree, VEvndispData* iData )
 {
     fDebug = false;
-    fLLDebug = false;
     if( fDebug )
     {
         cout << "VImageParameterCalculation::VImageParameterCalculation()" << endl;
@@ -22,13 +21,9 @@ VImageParameterCalculation::VImageParameterCalculation( unsigned int iShortTree,
     fboolCalcTiming = false;
     fDetectorGeometry = 0;
     fHoughTransform = 0;
-    
-    // starting values for LL
-    fLL_StartingValue_rho = -9999.;
-    fLL_StartingValue_cen_x = -9999.;
-    fLL_StartingValue_sigma_x = -9999.;
-    fLL_StartingValue_cen_y = -9999.;
-    fLL_StartingValue_sigma_y = -9999.;
+
+    fImageFitter = new VImageParameterFitter( fData,
+                                              fDebug );
 }
 
 
@@ -40,7 +35,7 @@ VImageParameterCalculation::~VImageParameterCalculation()
     }
     delete fParGeo;
     delete fParLL;
-    delete fLLFitter;
+    delete fImageFitter;
 }
 
 
@@ -50,27 +45,7 @@ VImageParameterCalculation::~VImageParameterCalculation()
 */
 void VImageParameterCalculation::initMinuit( int iVmode )
 {
-    if( iVmode == 2 )
-    {
-        fLLDebug = true;
-    }
-    unsigned int iFitParameter = 6;
-    if( fData->getRunParameter()->fMinimizeTimeGradient ) iFitParameter = 9;
-    fLLFitter = new TMinuit( iFitParameter );
-    // no minuit printouts
-    if( iVmode == 1 )
-    {
-        fLLFitter->Command( "SET PRINT -1" );
-    }
-    // minuit printouts
-    else if( iVmode == 2 )
-    {
-        fLLFitter->Command( "SET PRINT 1" );
-    }
-    fLLFitter->Command( "SET NOWA" );             // no warnings
-    fLLFitter->Command( "SET ERR 0.5" );          // loglikelihood -> UP = 0.5  (solves 2*ll = chi2 != 1)
-    fLLFitter->SetObjectFit( this );
-    fLLFitter->SetFCN( get_LL_imageParameter_2DGauss );
+    fImageFitter->initMinuit( iVmode );
 }
 
 /*
@@ -111,8 +86,8 @@ void VImageParameterCalculation::calcTimingParameters( bool iIsSecondPass )
         // if( ( fData->getImage()[i] || fData->getBorder()[i] ) && fData->getPulseTime()[i] > 0. && !fData->getHiLo()[i] )
         if( ( fData->getImage()[i] || fData->getBorder()[i] ) && fData->getPulseTime()[i] > -998 && !fData->getHiLo()[i] )
         {
-            double xi = getDetectorGeo()->getX()[i];
-            double yi = getDetectorGeo()->getY()[i];
+            double xi = getDetectorGeometry()->getX()[i];
+            double yi = getDetectorGeometry()->getY()[i];
             // loop over image tubes
             double xpmt = xi - fParGeo->cen_x;
             double ypmt = yi - fParGeo->cen_y;
@@ -321,7 +296,7 @@ void VImageParameterCalculation::muonRingFinder()
         return;
     }
     
-    if( !getDetectorGeo() )
+    if( !getDetectorGeometry() )
     {
         cout << "VImageParameterCalculation::muonRingFinder error: detector geometry not defined" << endl;
         exit( EXIT_FAILURE );
@@ -354,8 +329,8 @@ void VImageParameterCalculation::muonRingFinder()
         if( fData->getImage()[i] || fData->getBorder()[i] )
         {
             counter++;
-            xi = getDetectorGeo()->getX()[i];
-            yi = getDetectorGeo()->getY()[i];
+            xi = getDetectorGeometry()->getX()[i];
+            yi = getDetectorGeometry()->getY()[i];
             tmp = sqrt( pow( ( xi - x0[0] ), 2 ) + pow( ( yi - y0[0] ) , 2 ) );
             rTotal += tmp;
             rSquaredTotal += tmp * tmp;
@@ -400,8 +375,8 @@ void VImageParameterCalculation::muonRingFinder()
         {
             if( fData->getImage()[i] || fData->getBorder()[i] )
             {
-                xi = getDetectorGeo()->getX()[i];
-                yi = getDetectorGeo()->getY()[i];
+                xi = getDetectorGeometry()->getX()[i];
+                yi = getDetectorGeometry()->getY()[i];
                 tmp = sqrt( pow( ( xi - x0[1] ), 2 ) + pow( ( yi - y0[1] ) , 2 ) );
                 rTotal += tmp;
                 rSquaredTotal += tmp * tmp;
@@ -422,8 +397,8 @@ void VImageParameterCalculation::muonRingFinder()
             {
                 if( fData->getImage()[i] || fData->getBorder()[i] )
                 {
-                    xi = getDetectorGeo()->getX()[i];
-                    yi = getDetectorGeo()->getY()[i];
+                    xi = getDetectorGeometry()->getX()[i];
+                    yi = getDetectorGeometry()->getY()[i];
                     tmp = sqrt( pow( ( xi - x0[1] ), 2 ) + pow( ( yi - y0[1] ) , 2 ) );
                     rTotal += tmp;
                     rSquaredTotal += tmp * tmp;
@@ -462,8 +437,8 @@ void VImageParameterCalculation::muonRingFinder()
         {
             if( fData->getImage()[i] || fData->getBorder()[i] )
             {
-                xi = getDetectorGeo()->getX()[i];
-                yi = getDetectorGeo()->getY()[i];
+                xi = getDetectorGeometry()->getX()[i];
+                yi = getDetectorGeometry()->getY()[i];
                 tmp = sqrt( pow( ( xi - x0[1] ), 2 ) + pow( ( yi - y0[1] ) , 2 ) );
                 rTotal += tmp;
                 rSquaredTotal += tmp * tmp;
@@ -483,8 +458,8 @@ void VImageParameterCalculation::muonRingFinder()
             {
                 if( fData->getImage()[i] || fData->getBorder()[i] )
                 {
-                    xi = getDetectorGeo()->getX()[i];
-                    yi = getDetectorGeo()->getY()[i];
+                    xi = getDetectorGeometry()->getX()[i];
+                    yi = getDetectorGeometry()->getY()[i];
                     tmp = sqrt( pow( ( xi - x0[1] ), 2 ) + pow( ( yi - y0[1] ) , 2 ) );
                     rTotal += tmp;
                     rSquaredTotal += tmp * tmp;
@@ -557,7 +532,7 @@ void VImageParameterCalculation::sizeInMuonRing()
         fParGeo->muonIPCorrectedSize = 0.0;
         return;
     }
-    if( !getDetectorGeo() )
+    if( !getDetectorGeometry() )
     {
         cout << "VImageParameterCalculation::sizeInMuonRing error: detector geometry not defined" << endl;
         exit( 0 );
@@ -575,8 +550,8 @@ void VImageParameterCalculation::sizeInMuonRing()
     
     for( i = 0; i < fData->getSums().size(); i++ )
     {
-        xi = getDetectorGeo()->getX()[i];
-        yi = getDetectorGeo()->getY()[i];
+        xi = getDetectorGeometry()->getX()[i];
+        yi = getDetectorGeometry()->getY()[i];
         double rp = sqrt( pow( xi - x0 , 2 ) + pow( yi - y0, 2 ) );
         
         if( rp > radius - 0.15 && rp < radius + 0.15 )
@@ -646,7 +621,7 @@ void VImageParameterCalculation::muonPixelDistribution()
         fParGeo->muonValid = 0;
         return;
     }
-    if( !getDetectorGeo() )
+    if( !getDetectorGeometry() )
     {
         cout << "VImageParameterCalculation::muonPixelDistribution error: detector geometry not defined" << endl;
         exit( 0 );
@@ -667,8 +642,8 @@ void VImageParameterCalculation::muonPixelDistribution()
         if( fData->getImage()[i] || fData->getBorder()[i] )
         {
             totalPixels++;
-            xi = getDetectorGeo()->getX()[i];
-            yi = getDetectorGeo()->getY()[i];
+            xi = getDetectorGeometry()->getX()[i];
+            yi = getDetectorGeometry()->getY()[i];
             rp = sqrt( pow( xi - x0 , 2 ) + pow( yi - y0, 2 ) );
             phi = 180.0 / TMath::Pi() * atan2( yi - y0 , xi - x0 ) + 180.;
             
@@ -790,32 +765,10 @@ float VImageParameterCalculation::correctSizeInMuonRing()
 void VImageParameterCalculation::houghInitialization()
 {
 
-    fHoughTransform = new VHoughTransform( getDetectorGeo() );
-    
-}
-
-
-//Placeholder for Hough transform based parametrization algorithm
-void VImageParameterCalculation::houghMuonRingFinder()
-{
-
+    fHoughTransform = new VHoughTransform( getDetectorGeometry() );
 
 }
 
-
-//Placeholder for Hough transform based size calculator
-void VImageParameterCalculation::houghSizeInMuonRing()
-{
-
-
-
-
-
-
-
-
-
-}
 
 
 //Hough transform muon identification algorithm.
@@ -839,7 +792,7 @@ void VImageParameterCalculation::houghMuonPixelDistribution()
     }
     
     //Look for detector geometry
-    if( !getDetectorGeo() )
+    if( !getDetectorGeometry() )
     {
     
         cout << "VImageParameterCalculation::houghMuonPixelDistribution error: detector geometry not defined" << endl;
@@ -909,8 +862,8 @@ void VImageParameterCalculation::calcTriggerParameters( vector<bool> fTrigger )
         {
             trig_tubes += 1;
             
-            double xi = getDetectorGeo()->getX()[j];
-            double yi = getDetectorGeo()->getY()[j];
+            double xi = getDetectorGeometry()->getX()[j];
+            double yi = getDetectorGeometry()->getY()[j];
             
             sumx_trig += xi;         
             sumy_trig += yi;         
@@ -967,7 +920,7 @@ void VImageParameterCalculation::calcParameters()
         return;
     }
     
-    if( !getDetectorGeo() )
+    if( !getDetectorGeometry() )
     {
         cout << "VImageParameterCalculation::calcParameters error: detector geometry not defined" << endl;
         exit( EXIT_FAILURE );
@@ -1052,8 +1005,8 @@ void VImageParameterCalculation::calcParameters()
         {
             pntubes += 1;
             
-            double xi = getDetectorGeo()->getX()[j];
-            double yi = getDetectorGeo()->getY()[j];
+            double xi = getDetectorGeometry()->getX()[j];
+            double yi = getDetectorGeometry()->getY()[j];
             
             double si = ( double )fData->getSums()[j]; // charge (dc)
             double si2 = ( double )fData->getSums2()[j];
@@ -1067,17 +1020,17 @@ void VImageParameterCalculation::calcParameters()
             sumsig += si;
             sumsig_2 += si2;
             // sum in outer ring
-            if( getDetectorGeo()->isEdgePixel()[j] )
+            if( getDetectorGeometry()->isEdgePixel()[j] )
             {
                 sumOuterRing += si;
             }
             // sum around dead pixels
-            if( j < getDetectorGeo()->getNeighbours().size() || getDetectorGeo()->getNNeighbours()[j] < getDetectorGeo()->getMaxNeighbour() )
+            if( j < getDetectorGeometry()->getNeighbours().size() || getDetectorGeometry()->getNNeighbours()[j] < getDetectorGeometry()->getMaxNeighbour() )
             {
                 bool iDead = false;
-                for( unsigned int n = 0; n < getDetectorGeo()->getNeighbours()[j].size(); n++ )
+                for( unsigned int n = 0; n < getDetectorGeometry()->getNeighbours()[j].size(); n++ )
                 {
-                    unsigned int k = getDetectorGeo()->getNeighbours()[j][n];
+                    unsigned int k = getDetectorGeometry()->getNeighbours()[j][n];
                     if( k < fData->getDead().size() && fData->getDead( k, fData->getHiLo()[k] ) )
                     {
                         sumDeadRing += si;
@@ -1085,7 +1038,7 @@ void VImageParameterCalculation::calcParameters()
                         break;              // each pixel should only be added once
                     }
                 }
-                if( !iDead && getDetectorGeo()->getNNeighbours()[j] < getDetectorGeo()->getMaxNeighbour() )
+                if( !iDead && getDetectorGeometry()->getNNeighbours()[j] < getDetectorGeometry()->getMaxNeighbour() )
                 {
                     sumDeadRing += si;
                 }
@@ -1419,653 +1372,32 @@ void VImageParameterCalculation::calcParameters()
 /*!
     The loglikelihood fit is fitting a 2D Gaussian to the image/border pixels
 
-    FCN is get_LL_imageParameter_2DGauss()
-
-    Only signals in image/border pixels are taken into account, all other are set to zero.
-
-    Signals are estimated for dead pixels.
-    If estimated signal is above image/border threshold, VEvndispData::getSums()[pixelID] is set to
-    this value and the fLLEst[pixelID] is set true.
-    A new value for the size is calculated.
-    This is the old size from the geometrical calculation  plus the estimated signals from the
-    dead pixels.
-
-   \attention
-
-    Check always in the analysis the status of the fit (FitStat).
-    Values lower than 3 (approximate or no error matrix) should be excluded from the analysis.
-    In this case there is a large probablitity that the parameters are wrong.
-
 */
 vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitializeLL, bool iEqualSummationWindows )
 {
-    if( !fData )
-    {
-        vector< bool > a;
-        cout << "VImageParameterCalculation::calcLL error: data vector is zero" << endl;
-        return a;
-    }
-    fLLDebug = false;
-    if( fLLDebug )
-    {
-        cout << endl;
-        cout << "=================================================================" << endl;
-        cout << "Telescope " << fData->getTelID() + 1 << endl;
-        cout << "=================================================================" << endl;
-        cout << endl;
-    }
-    
-    const double ZeroTolerence = 1e-8;
-    // fit will fail for width < this value
-    const double iFMinWidth = 0.001;
-    
-    /////////////////////////////////////////////////////////////////////////////////
-    // get pixel values, all nonimage/nonborder pixels have fData->getSums()=0.
-    // if there are dead channels, size of these vectors is < fData->getSums().size() !!
-    
-    // pixel list
-    fll_X.clear();
-    fll_Y.clear();
-    fll_Sums.clear();
-    fll_T.clear();
-    // will be true if sum in pixel is estimated by fit
-    fLLEst.assign( fData->getSums().size(), false );
-    // for limits of parameter fitting
-    double fdistXmin =  1.e99;
-    double fdistXmax = -1.e99;
-    double fdistYmin =  1.e99;
-    double fdistYmax = -1.e99;
-    double i_sumMax = -1.e99;
-    // loop over all pixels
-    for( unsigned int j = 0; j < fData->getSums().size(); j++ )
-    {
-        // ignore dead channels
-        if( fData->getDead( j, fData->getHiLo()[j] ) )
-        {
-            continue;
-        }
-        // only image/border pixels and their neighbours are used in the fit
-        if( j < fData->getImageBorderNeighbour().size() && fData->getImageBorderNeighbour()[j] )
-        {
-            // pixel position in the camera
-            double xi = getDetectorGeo()->getX()[j];
-            double yi = getDetectorGeo()->getY()[j];
-            fll_X.push_back( xi );
-            fll_Y.push_back( yi );
-            
-            // get an estimate of the distance (limits to the fit)
-            if( xi > fdistXmax ) fdistXmax = xi;
-            if( xi < fdistXmin ) fdistXmin = xi;
-            if( yi > fdistYmax ) fdistYmax = yi;
-            if( yi < fdistYmin ) fdistYmin = yi;
-            
-            if( fData->getImage()[j] || fData->getBorder()[j] )
-            {
-                if( iUseSums2 )
-                {
-                    fll_Sums.push_back( fData->getSums2()[j] );
-                }
-                else
-                {
-                    fll_Sums.push_back( fData->getSums()[j] );
-                }
-                // LL fit using time gradient only for image
-                // with GEO detected time gradient
-                if( minimize_time_gradient_for_this_event() )
-                {
-                    fll_T.push_back( fData->getPulseTime()[j] );
-                }
-                else
-                {
-                    fll_T.push_back( -99. );
-                }
-            }
-            else
-            {
-                fll_Sums.push_back( 0.1 );
-                fll_T.push_back( -999. );
-            }
-            // image weighting with squared intensity
-            // (non standard from traditional image calculation!)
-            if( fData->getRunParameter() && fData->getRunParameter()->fSquaredImageCalculation )
-            {
-                fll_Sums.back() = fll_Sums.back() * fll_Sums.back();
-            }
-            if( fll_Sums.back() > i_sumMax )
-            {
-                i_sumMax = fll_Sums.back();
-            }
-        }
-    }
-    if( fLLDebug )
-    {
-        cout << "FLL FITTER limits:  xmax: " << fdistXmax << "  xmin: " << fdistXmin;
-        cout << " ymax: " << fdistYmax << " ymin: " << fdistYmin << " #: " << fll_Sums.size() << endl;
-    }
-    
     // take geometrical values as start values (calculate if not already calculated)
     if( !fboolCalcGeo )
     {
         calcParameters();
     }
-    
-    /////////////////////////
-    // define fit variables
-    double rho = 0.;
-    double drho = 0.;
-    double cen_x = fParGeo->cen_x;
-    double dcen_x = 0.;
-    double sigmaX = fParGeo->sigmaX;
-    double dsigmaX = 0.;
-    double cen_y = fParGeo->cen_y;
-    double dcen_y = 0.;
-    double sigmaY = fParGeo->sigmaY;
-    double dsigmaY = 0.;
-    double signal = i_sumMax;
-    double dsignal = 0.;
-    double toffset = 0.;
-    double dtoffset = 0.;
-    double tgrad = 0.;
-    double dtgrad = 0.;
-    
-    /////////////////////////
-    // set start values for LL fit
-    if( fLLDebug )
-    {
-        cout << "FLL FITTER INITIALIZATION: " << fLL_StartingValue_rho << "\t" << i_reInitializeLL << "\t" << fParGeo->phi <<  endl;
-    }
-
-    if( fLL_StartingValue_rho < -99998 || i_reInitializeLL )
-    {
-        fLL_StartingValue_cen_x   = fParGeo->cen_x;
-        fLL_StartingValue_sigma_x = fParGeo->sigmaX;
-        fLL_StartingValue_cen_y   = fParGeo->cen_y;
-        fLL_StartingValue_sigma_y = fParGeo->sigmaY;
-        if( fParGeo->width < iFMinWidth )
-        {
-            fLL_StartingValue_sigma_x = fLL_StartingValue_sigma_y = 0.1;
-        }
-    }
-    
-    // don't know if this step parameter is the best
-    double step = 1.e-4;
-    fLLFitter->Release( 0 );
-    fLLFitter->Release( 1 );
-    fLLFitter->Release( 2 );
-    fLLFitter->Release( 3 );
-    fLLFitter->Release( 4 );
-    // correlation coefficient is restricted to [-1,1]
-    fLL_StartingValue_rho = getLL_startingvalue_rho( ZeroTolerence );
-    fLLFitter->DefineParameter( 0, "rho",
-                                fLL_StartingValue_rho, 
-                                step,
-                                getLL_paramameterlimits_rho( fLL_StartingValue_rho, -1. ),
-                                getLL_paramameterlimits_rho( fLL_StartingValue_rho, 1. ) );
-    double rho_limit_tmp_u = getLL_paramameterlimits_rho( fLL_StartingValue_rho, 1. );
-    double rho_limit_tmp_l = getLL_paramameterlimits_rho( fLL_StartingValue_rho, -1. );
-    // cen_x starting values
-    fLLFitter->DefineParameter( 1, "meanX", 
-                                fLL_StartingValue_cen_x, 
-                                step, 
-                                getLL_paramameterlimits_cen( fdistXmin, fLL_StartingValue_cen_x, fLL_StartingValue_sigma_x, -1. ),
-                                getLL_paramameterlimits_cen( fdistXmin, fLL_StartingValue_cen_x, fLL_StartingValue_sigma_x, 1. ) );
-    // sigma x starting values
-    fLLFitter->DefineParameter( 2, "sigmaX",
-                                fLL_StartingValue_sigma_x,
-                                step, 
-                                fLL_StartingValue_sigma_x / 4.,
-                                2.*fLL_StartingValue_sigma_x + 1. );
-    // cen_y starting values
-    fLLFitter->DefineParameter( 3, "meanY", 
-                                fLL_StartingValue_cen_y, 
-                                step, 
-                                getLL_paramameterlimits_cen( fdistYmin, fLL_StartingValue_cen_y, fLL_StartingValue_sigma_y, -1. ),
-                                getLL_paramameterlimits_cen( fdistYmin, fLL_StartingValue_cen_y, fLL_StartingValue_sigma_y, 1. ) );
-    // sigma x starting values
-    fLLFitter->DefineParameter( 4, "sigmaY", 
-                                fLL_StartingValue_sigma_y, 
-                                step, 
-                                fLL_StartingValue_sigma_y / 4., 
-                                2.*fLL_StartingValue_sigma_y + 1. );
-
-    // signal
-    fLLFitter->DefineParameter( 5, "signal", signal, step, 0., 1.e6 );
-    // time gradient analysis
-    double toffset_start = 0.;
-    if( fData->getRunParameter()->fMinimizeTimeGradient )
-    {
-        if( fData->getXGraph( false ) )
-        {
-             toffset_start = fData->getXGraph( false )->Eval( 0. );
-        }
-        fLLFitter->DefineParameter( 6, "toffset", toffset_start, step, toffset_start-10., toffset_start+10. );
-        fLLFitter->DefineParameter( 7, "tgrad", fParGeo->tgrad_x, step, -1.e3, 1.e3 );
-        fLLFitter->DefineParameter( 8, "tchi2", sqrt( fParGeo->tchisq_x ), step, 0.1, 2.*sqrt( fParGeo->tchisq_x ) );
-        if( minimize_time_gradient_for_this_event() )
-        {
-            fLLFitter->Release( 6 );
-            fLLFitter->Release( 7 );
-        }
-        else
-        {
-            fLLFitter->FixParameter( 6 );
-            fLLFitter->FixParameter( 7 );
-        }
-        fLLFitter->FixParameter( 8 );
-    }
-    
-    if( fLLDebug )
-    {
-        cout << "FLLFITTER START " << fLL_StartingValue_rho << "\t" << fLL_StartingValue_cen_x << "\t";
-        cout << fLL_StartingValue_sigma_x << "\t" << fLL_StartingValue_cen_y << "\t" << fLL_StartingValue_sigma_y;
-        cout << "\t" << signal << endl;
-    }
-    
-    // now do the minimization
-    fLLFitter->Command( "MIGRAD" );
-    // don't call HESS, trouble with migrad in the error calculation means usually to not use the errors and LL results
-    //    fLLFitter->Command( "HESSE" );
-    
-    // get fit statistics
-    double edm = 0.;
-    double amin = 0.;
-    double errdef = 0.;
-    int nvpar = 0;
-    int nparx = 0;
-    int nstat = 0;
-    fLLFitter->mnstat( amin, edm, errdef, nvpar, nparx, nstat );
-    fParLL->Fitstat = nstat;
-    
-    if( fLLDebug )
-    {
-        cout << "FLLFITTER STAT " << nstat << endl;
-    }
-    
-    // get fit results
-    fLLFitter->GetParameter( 0, rho, drho );
-    fLLFitter->GetParameter( 1, cen_x, dcen_x );
-    fLLFitter->GetParameter( 2, sigmaX, dsigmaX );
-    fLLFitter->GetParameter( 3, cen_y, dcen_y );
-    fLLFitter->GetParameter( 4, sigmaY, dsigmaY );
-    fLLFitter->GetParameter( 5, signal, dsignal );
-    if( fLLDebug )
-    {
-        cout << "=======================================================================" << endl;
-        cout << "Telescope " << fData->getTelID()+1 << " starting parameters" << endl;
-        cout << "\t FITSTAT " << nstat << endl;
-        cout << "\t rho " << fLL_StartingValue_rho << "\t" << fParGeo->phi << endl;
-        cout << "\t cx " << fLL_StartingValue_cen_x << "\t" << fLL_StartingValue_cen_x - 0.5 << "\t" << fLL_StartingValue_cen_x + 0.5 << endl;
-        cout << "\t cy" << fLL_StartingValue_cen_y << "\t" << fLL_StartingValue_cen_y - 0.5 << "\t" << fLL_StartingValue_cen_y + 0.5 << endl;
-        cout << "\t sx " << fLL_StartingValue_sigma_x << "\t" << fLL_StartingValue_sigma_x / 4. << "\t" << 2.*fLL_StartingValue_sigma_x + 1. << endl;
-        cout << "\t sy " << fLL_StartingValue_sigma_y << "\t" << fLL_StartingValue_sigma_y / 4. << "\t" << 2.*fLL_StartingValue_sigma_y + 1. << endl;
-        cout << "\t CENX " << cen_x << " +- " << dcen_x << endl;
-        cout << "\t CENY " << cen_y << " +- " << dcen_y << endl;
-        cout << "\t SIGX " << sigmaX << " +- " << dsigmaX << endl;
-        cout << "\t SIGY " << sigmaY << " +- " << dsigmaY << endl;
-        cout << "\t F signal " << signal << endl;
-        cout << "\t F rho " << rho << " +- " << drho << "\t" << rho_limit_tmp_l << "\t" << rho_limit_tmp_u << endl;
-    }
-    if( minimize_time_gradient_for_this_event() )
-    {
-        fLLFitter->GetParameter( 6, toffset, dtoffset );
-        fLLFitter->GetParameter( 7, tgrad, dtgrad );
-        double tchi2, dtchi2;
-        fLLFitter->GetParameter( 8, tchi2, dtchi2 );
-        if( fLLDebug )
-        {
-            cout << "\t TOFF " << toffset << " +- " << dtoffset << "\t" << toffset_start << endl;
-            cout << "\t TGRAD " << tgrad << " +- " << dtgrad << "\t" << fParGeo->tgrad_x << endl;
-            cout << "\t TCHI2 " << tchi2 << " +- " << dtchi2 << "\t" << fParGeo->tchisq_x << "\t" << sqrt( fParGeo->tchisq_x ) << endl;
-        }
-        fParGeo->tgrad_x = tgrad;
-    }
-    
-    if( fLLDebug )
-    {
-        cout << "FLLFITTER FIT " << rho << "\t" << cen_x << "\t" << sigmaX << "\t" << cen_y << "\t" << sigmaY << "\t" << signal << endl;
-    }
-    
-    ////////////////////////////////////////////
-    // estimate shower size
-    // integrate over all bins to get fitted size
-    bool   iWidthResetted = false;
-    float  iSize = fParGeo->size;
-    if( iUseSums2 )
-    {
-        iSize = fParGeo->size2;
-    }
-    // require a successfull fit
-    if( fParLL->Fitstat > 0 )
-    {
-        // assume that all pixel are of the same geometrical size
-        unsigned int iCentreTube = fData->getDetectorGeo()->getCameraCentreTubeIndex();
-        if( iCentreTube < 9999 )
-        {
-            // make sure that width is not close to zero (can happen when all pixels are on a line)
-            if( fData->getDetectorGeo()->getTubeRadius().size() > iCentreTube
-                    && fData->getDetectorGeo()->getTubeRadius()[iCentreTube] > 0. )
-            {
-                if( sigmaX < fData->getDetectorGeo()->getTubeRadius()[iCentreTube] * 0.1 )
-                {
-                    sigmaX = fData->getDetectorGeo()->getTubeRadius()[iCentreTube] * 0.1;
-                    iWidthResetted = true;
-                }
-                if( sigmaY < fData->getDetectorGeo()->getTubeRadius()[iCentreTube] * 0.1 )
-                {
-                    sigmaY = fData->getDetectorGeo()->getTubeRadius()[iCentreTube] * 0.1;
-                    iWidthResetted = true;
-                }
-            }
-            // recentre fitted image to camera centre
-            double cen_x_recentered = 0.;
-            double cen_y_recentered = 0.;
-            if( fData->getDetectorGeo()->getTubeRadius().size() > iCentreTube && fData->getDetectorGeo()->getTubeRadius()[iCentreTube] > 0. )
-            {
-                cen_x_recentered = cen_x - fData->getDetectorGeo()->getTubeRadius()[iCentreTube] * 2.
-                                   * ( int )( cen_x / fData->getDetectorGeo()->getTubeRadius()[iCentreTube] / 2. );
-                cen_y_recentered = cen_y - fData->getDetectorGeo()->getTubeRadius()[iCentreTube] * 2.
-                                   * ( int )( cen_y / fData->getDetectorGeo()->getTubeRadius()[iCentreTube] / 2. );
-            }
-            if( fLLDebug )
-            {
-                cout << "FLLFITTER RECENTERED " << cen_x_recentered << "\t" << cen_y_recentered << endl;
-            }
-            ////////////////////////////////////////////////////////////////////
-            // calculate new size from fit function (not from measured charges!)
-            iSize = 0.;
-            if( fLLDebug )
-            {
-                cout << "FLLFITTER SIZE CALCULATION ";
-                cout << rho << "\t" << cen_x_recentered << "\t" << sigmaX << "\t" << cen_y_recentered << "\t";
-                cout << sigmaY << "\t" << signal << endl;
-            }
-            for( unsigned int i = 0; i < fData->getSums().size(); i++ )
-            {
-                iSize +=  getFitValue( i, rho, cen_x_recentered, sigmaX, cen_y_recentered, sigmaY, signal );
-            }
-        }
-    }
-    // calculate phi, length, width
-    sigmaX = fabs( sigmaX );
-    sigmaY = fabs( sigmaY );
-    if( sigmaX < ZeroTolerence )
-    {
-        sigmaX = 0.;
-    }
-    if( sigmaY < ZeroTolerence )
-    {
-        sigmaY = 0.;
-    }
-    
-    // covariance
-    double sigmaXY = rho * sqrt( sigmaX * sigmaX * sigmaY * sigmaY );
-    double dsx_y2 = sigmaX * sigmaX - sigmaY * sigmaY;
-    double dsxxy2 = sigmaX * sigmaX * sigmaY * sigmaY;
-    
-    double d = sigmaY * sigmaY - sigmaX * sigmaX;
-    double z = sqrt( d * d + 4. * sigmaXY * sigmaXY );
-    fParLL->f_d = d;
-    fParLL->f_s = z;
-    fParLL->f_sdevxy = sigmaXY;
-    double length = sqrt( 0.5 * ( sigmaX * sigmaX + sigmaY * sigmaY + z ) );
-    double width = sigmaX * sigmaX + sigmaY * sigmaY - z;
-    double phi = atan2( 2.*rho * sigmaX * sigmaY, dsx_y2 ) / 2.;
-    if( fLLDebug )
-    {
-        cout << "FLLFITTER IMAGE PARAMETERS:";
-        cout << " width, length, phi, size: " << width << ", " << length;
-        cout << ", " << phi << ", " << iSize << endl;
-    }
-    if( width > ZeroTolerence )
-    {
-        width = sqrt( 0.5 * width );
-    }
-    //  fit was not successfull if width is close to zero -> take pargeo parameters
-    else
-    {
-        if( fLLDebug )
-        {
-            cout << "FLLFITTER: with < zero tolerance (fit not successful) ";
-            cout << width << "\t" << ZeroTolerence << endl;
-        }
-        width  = fParGeo->width;
-        length = fParGeo->length;
-        cen_x  = fParGeo->cen_x;
-        cen_y  = fParGeo->cen_y;
-        phi    = fParGeo->phi;
-        if( iUseSums2 )
-        {
-            iSize  = fParGeo->size2;
-        }
-        else
-        {
-            iSize  = fParGeo->size;
-        }
-    }
-    double cosphi = cos( phi );
-    double sinphi = sin( phi );
-    
-    double dist = 0.;
-    dist = sqrt( cen_x * cen_x + cen_y * cen_y );
-    double miss = 0.;
-    miss = fabs( cen_y * cosphi - cen_x * sinphi );
-    
-    double alpha = 0.;
-    if( dist != 0. )
-    {
-        alpha = asin( miss / dist );
-    }
-    
-    double los;
-    if( iSize != 0. )
-    {
-        los = length / iSize;
-    }
-    else
-    {
-        los = -1.;
-    }
-    
-    // error propagation (uff...)
-    
-    double dsigmaXY2;
-    dsigmaXY2  = dsxxy2 * drho * drho;
-    dsigmaXY2 += rho * rho * sigmaX * sigmaX * sigmaY * sigmaY * sigmaY * sigmaY / dsxxy2 * dsigmaX * dsigmaX;
-    dsigmaXY2 += rho * rho * sigmaX * sigmaX * sigmaX * sigmaX * sigmaY * sigmaY / dsxxy2 * dsigmaY * dsigmaY;
-    
-    double dd2;
-    dd2 = 4.*sigmaY * sigmaY * dsigmaY * dsigmaY + 4.*sigmaX * sigmaX * dsigmaX * dsigmaX;
-    
-    double dz2;
-    dz2  = d * d / ( d * d + 4.*sigmaXY * sigmaXY ) * dd2;
-    dz2 += 16.*sigmaXY * sigmaXY / ( d * d + 4.*sigmaXY * sigmaXY ) * dsigmaXY2;
-    
-    double dlength;
-    dlength  = 4.*sigmaX * sigmaX * dsigmaX * dsigmaX;
-    dlength += 4.*sigmaY * sigmaY * dsigmaY * dsigmaY;
-    dlength += 1. / 2. * dz2;
-    dlength *= 1. / 8. / ( sigmaX * sigmaX + sigmaY * sigmaY + z );
-    if( dlength > 0. )
-    {
-        dlength = sqrt( dlength );
-    }
-    else
-    {
-        dlength = 0.;
-    }
-    
-    double dwidth;
-    dwidth  = 4.*sigmaX * sigmaX * dsigmaX * dsigmaX;
-    dwidth += 4.*sigmaY * sigmaY * dsigmaY * dsigmaY;
-    dwidth += dz2;
-    dwidth *= 1. / 8. / ( sigmaX * sigmaX + sigmaY * sigmaY - z );
-    if( dwidth > 0. )
-    {
-        dwidth  = sqrt( dwidth );
-    }
-    else
-    {
-        dwidth = 0.;
-    }
-    
-    double dphi;
-    if( dsx_y2 == 0. )
-    {
-        dphi = 1000.;
-    }
-    else
-    {
-        dphi  = 4.* dsxxy2 / dsx_y2 / dsx_y2 * drho * drho;
-        dphi += ( 2.*rho * sigmaY * dsx_y2 - 4.*rho * sigmaY * sigmaX * sigmaX ) * ( 2.*rho * sigmaY * dsx_y2 - 4.*rho * sigmaY * sigmaX * sigmaX ) / dsx_y2 / dsx_y2 / dsx_y2 / dsx_y2 * dsigmaX * dsigmaX;
-        dphi += ( 2.*rho * sigmaX * dsx_y2 + 4.*rho * sigmaY * sigmaY * sigmaX ) * ( 2.*rho * sigmaX * dsx_y2 + 4.*rho * sigmaY * sigmaY * sigmaX ) / dsx_y2 / dsx_y2 / dsx_y2 / dsx_y2 * dsigmaY * dsigmaY;
-        dphi *= 1. / ( 1. + 2.*rho * sigmaX * sigmaY / dsx_y2 * 2.*rho * sigmaX * sigmaY / dsx_y2 );
-        dphi *= 1. / ( 1. + 2.*rho * sigmaX * sigmaY / dsx_y2 * 2.*rho * sigmaX * sigmaY / dsx_y2 );
-        dphi  = sqrt( dphi );
-        dphi  = redang( dphi, M_PI / 2. );
-    }
-    
-    double ddist = 0.;
-    if( dist != 0. )
-    {
-        ddist = cen_x * cen_x / dist / dist * dcen_x * dcen_x + cen_y * cen_y / dist / dist * dcen_y * dcen_y;
-    }
-    ddist = sqrt( ddist );
-    double dmiss = 0.;
-    dmiss  = cosphi * cosphi * dcen_x * dcen_x + sinphi * sinphi * dcen_y * dcen_y;
-    dmiss += dphi * dphi * ( sinphi * sinphi * cen_x * cen_x + cosphi * cosphi * cen_y * cen_y );
-    dmiss = sqrt( dmiss );
-    
-    double dalpha = 0.;
-    if( dist != 0. )
-    {
-        dalpha  = dmiss * dmiss / dist / dist + miss * miss / dist / dist / dist / dist * ddist * dist;
-        dalpha *= 1. / sqrt( 1. - miss * miss / dist / dist );
-    }
-    else
-    {
-        dalpha = 0.;
-    }
-    dalpha = redang( sqrt( dalpha ), 2. * M_PI );
-    // (GM) not sure if this can happen
-    // redang reduces angle to < 2xPi
-    if( dalpha > 360. )
-    {
-        fParLL->Fitstat = -1;    //  floating point problem
-    }
-    
-    // filling of VImageParameter
-    
     setImageBorderPixelPosition( fParLL );
-    fParLL->cen_x = cen_x;
-    fParLL->cen_y = cen_y;
-    fParLL->length = length;
-    fParLL->width = width;
-    fParLL->size2LL = fParGeo->size2;
-    fParLL->sizeLL =  fParGeo->size;
-    // set size2 for sums2 or equal summation windows
-    if( iUseSums2 || iEqualSummationWindows )
-    {
-        if( iWidthResetted )
-        {
-            fParLL->size2 = fParGeo->size2;
-        }
-        else
-        {
-            fParLL->size2 = iSize;
-        }
-        fParLL->size = fParGeo->size;
-    }
-    // set size for !sums2
-    if( !iUseSums2 )
-    {
-        if( iWidthResetted )
-        {
-            fParLL->size = fParGeo->size;
-        }
-        else
-        {
-            fParLL->size = iSize;
-        }
-        fParLL->size2 = fParGeo->size2;
-    }
-    fParLL->dist = dist;
-    fParLL->azwidth = -1.;                        // !!!!!!!!!!!!!! to tired for calculation
-    fParLL->alpha = alpha * TMath::RadToDeg();
-    fParLL->los = los;
-    fParLL->miss = miss;
-    fParLL->phi = phi;
-    fParLL->cosphi = cos( fParLL->phi );
-    fParLL->sinphi = sin( fParLL->phi );
-    fParLL->fui = getFractionOfImageBorderPixelUnderImage( cen_x, cen_y, width, length, fParLL->cosphi, fParLL->sinphi );
-    fParLL->dcen_x = dcen_x;
-    fParLL->dcen_y = dcen_y;
-    fParLL->dlength = dlength;
-    fParLL->dwidth = dwidth;
-    fParLL->ddist = ddist;
-    fParLL->dmiss = dmiss;
-    fParLL->dphi = dphi;
-    fParLL->dalpha = dalpha * TMath::RadToDeg();
-    fParLL->dazwidth = 0.;
-    // all the fit parameters
-    fParLL->Fitmin = amin;
-    fParLL->Fitedm = edm;
-    fParLL->ntRec = 0;
-    fParLL->rho = rho;
-    fParLL->sigmaX = sigmaX;
-    fParLL->sigmaY = sigmaY;
-    fParLL->signal = signal;
-    fParLL->drho = drho;
-    fParLL->dsigmaX = dsigmaX;
-    fParLL->dsigmaY = dsigmaY;
-    fParLL->dsignal = dsignal;
-    
-    fParLL->ntubes = fParGeo->ntubes;
-    fParLL->bad = fParGeo->bad;
-    
-    return fLLEst;
+
+    // fit image
+    vector< bool > imageList = fImageFitter->calcLL( fParGeo,
+                                                     fParLL,
+                                                     iUseSums2, 
+                                                     i_reInitializeLL, 
+                                                     iEqualSummationWindows );
+
+    // calculate same reamining parameters
+    fParLL->fui = getFractionOfImageBorderPixelUnderImage( fParLL->cen_x, fParLL->cen_y, 
+                                                           fParLL->width, fParLL->length, 
+                                                           fParLL->cosphi, fParLL->sinphi );
+
+    return imageList;
 }
 
-
-double VImageParameterCalculation::getFitValue( unsigned int iChannel, double rho, double meanX, double sigmaX, double meanY, double sigmaY, double signal )
-{
-    double f = 0;
-    // get channel coordinates
-    double x = getDetectorGeo()->getX()[iChannel];
-    double y = getDetectorGeo()->getY()[iChannel];
-    // calculate 2D-gauss
-    f  = ( x - meanX ) * ( x - meanX ) / sigmaX / sigmaX;
-    f += ( y - meanY ) * ( y - meanY ) / sigmaY / sigmaY;
-    f += -2. * rho * ( x - meanX ) / sigmaX * ( y - meanY ) / sigmaY;
-    f *= -1. / 2. / ( 1. - rho * rho );
-    f  = exp( f );
-    f *= 1. / 2. / TMath::Pi() / sigmaX / sigmaY / sqrt( 1. - rho * rho );
-    f *= signal;
     
-    return f;
-}
-
-
-/*!
-   reduce angles to values in [0.,iMax]
-*/
-double VImageParameterCalculation::redang( double iangle, double iMax )
-{
-    if( iMax == 0. )
-    {
-        return 0.;
-    }
-    if( iangle >= 0 )
-    {
-        iangle = iangle - int( iangle / iMax ) * iMax;
-    }
-    else
-    {
-        iangle = iMax + iangle + int( iangle / iMax ) * iMax;
-    }
-    
-    return iangle;
-}
-
 
 /*!
     calculate the fraction of image/border pixels which are located under the image ellipse.
@@ -2095,8 +1427,8 @@ double VImageParameterCalculation::getFractionOfImageBorderPixelUnderImage( doub
         for( unsigned int i = 0; i < fData->getImage().size(); i++ )
         {
             // pixel coordinates rotated into frame of image ellipse
-            double xi =     cosphi * ( getDetectorGeo()->getX()[i] - cen_x ) + sinphi * ( getDetectorGeo()->getY()[i] - cen_y );
-            double yi = -1.*sinphi * ( getDetectorGeo()->getX()[i] - cen_x ) + cosphi * ( getDetectorGeo()->getY()[i] - cen_y );
+            double xi =     cosphi * ( getDetectorGeometry()->getX()[i] - cen_x ) + sinphi * ( getDetectorGeometry()->getY()[i] - cen_y );
+            double yi = -1.*sinphi * ( getDetectorGeometry()->getX()[i] - cen_x ) + cosphi * ( getDetectorGeometry()->getY()[i] - cen_y );
             
             // check if these pixels are inside the image ellipse
             if( xi * xi / length / length / i_ImageCoverFactor / i_ImageCoverFactor + yi * yi / width / width / i_ImageCoverFactor / i_ImageCoverFactor < 1. )
@@ -2133,244 +1465,6 @@ double VImageParameterCalculation::getFractionOfImageBorderPixelUnderImage( doub
     }
     
     return 0.;
-}
-
-
-/*! \fn get_LL_imageParameter_2DGauss( Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
-    \brief function for the loglikelihood calculation of image parameters in minuit (2dim-Gaus)
-
-   gives same parameters as geometrical analysis, but with errors
-
-   log likelihood: see Blobel p.195
-
-   The image is described by a 2d-Gaussian. The signal in each tube is therefore:
-   \f[
-           S(x,y)=\frac{C}{2\pi\sigma_{x}\sigma_{y}\sqrt{1-\rho^{2}}}
-              \exp\left\{-\frac{1}{2(1-\rho^{2})}
-\left[\left(\frac{x-c_{x}}{\sigma_{x}}\right)^{2}
--2\rho\left(\frac{x-c_{x}}{\sigma_{x}}\right)\left(\frac{y-c_{y}}{\sigma_{y}}\right)
-+\left(\frac{y-c_{y}}{\sigma_{y}}\right)^{2}\right]\right\}
-
-\f]
-
-Assume Poissonian (ignoring NSB) for measuring amplitude:
-
-\f[
-P(n_{i}; S ) = \frac{S^{n}}{n!}\exp^{-S}
-\f]
-
-This gives the extented log likelihood estimator:
-
-\f[
-LL = - \sum (n_{i}\ln S_{i} - S_{i} - n_{i}\ln n_{i} + n_{i})
-\f]
-
-Errors are calculated from this estimator by
-
-\f[
-2 LL \approx \chi^{2}
-\f]
-
-*/
-void get_LL_imageParameter_2DGauss( Int_t& npar, Double_t* gin, Double_t& f, Double_t* par, Int_t iflag )
-{
-    double LL = 0.;
-    double LL_t = 0.;
-    double sum = 0.;
-    
-    npar = 6;
-    gin = 0;
-    iflag = 0;
-    
-    double x = 0.;
-    double y = 0.;
-    double n = 0.;
-    double t = 0.;
-    double tx = 0.;
-    double phi = 0.;
-    double t_sig = 4.;
-    double t_sig_term = 0.;
-    
-    double rho_1 = -1. / 2. / ( 1. - par[0] * par[0] );
-    double rho_s =  1. / 2. / M_PI / par[2] / par[4] / sqrt( 1. - par[0] * par[0] ) * par[5];
-    
-    VImageParameterCalculation* iImageCalculation = ( VImageParameterCalculation* )fLLFitter->GetObjectFit();
-
-    if( iImageCalculation->minimize_time_gradient_for_this_event() )
-    {
-        t_sig = par[8];
-        phi = atan2( 2.*par[0] * par[2] * par[4], 
-                        par[2] * par[2] - par[4] * par[4] ) / 2.;
-        t_sig_term = log( 1. / sqrt( 2. * M_PI * t_sig ) );
-    }
-    
-    if( par[0] * par[0] < 1. && par[2] > 0. && par[4] > 0. )
-    {
-        unsigned int nSums = iImageCalculation->getLLSums().size();
-        for( unsigned int i = 0; i < nSums; i++ )
-        {
-            n = iImageCalculation->getLLSums()[i];
-            if( n > -999. )
-            {
-                x = iImageCalculation->getLLX()[i];
-                y = iImageCalculation->getLLY()[i];
-                sum  = ( x - par[1] ) * ( x - par[1] ) / par[2] / par[2];
-                sum += ( y - par[3] ) * ( y - par[3] ) / par[4] / par[4];
-                sum += -2. * par[0] * ( x - par[1] ) / par[2] * ( y - par[3] ) / par[4];
-                sum  = rho_s * exp( sum * rho_1 );
-                
-                // assume Poisson fluctuations (neglecting background noise)
-                if( n > 0. && sum > 0. )
-                {
-                    LL += n * log( sum ) - sum - n * log( n ) + n;
-                }
-                else
-                {
-                    LL += -1. * sum;
-                }
-                // Gauss with background noise
-                //             iVar = sum+pedvars*pedvars;
-                //             iVar = sum;
-                //             LL += -0.5*log(2. * TMath::Pi()) - log(sqrt(iVar)) - (n-sum)*(n-sum)/2./iVar;
-                // time gradient analysis
-                // (line fit to time gradient)
-                // - affects image orientation and centroid position
-                if( iImageCalculation->minimize_time_gradient_for_this_event() )
-                {
-                    t = iImageCalculation->getLLT()[i];
-                    if( t > 0. )
-                    {
-                        // calculate position along long axis
-                        tx = (x-par[1]) * cos(phi) + (y-par[3]) * sin(phi);
-                        LL_t += 
-                            - 1./2./(t_sig*t_sig) 
-                            * (t - par[6] - par[7] * tx )
-                            * (t - par[6] - par[7] * tx );
-                    }
-                }
-
-            }
-        }
-    }
-    LL_t += t_sig_term;
-    f = -1. * ( LL + LL_t );
-}
-
-/*
-    decide if time gradient should be used
-
-    not for
-    - very flat images
-    - small images (should be more pixel values than fit parameters
-
-*/
-bool VImageParameterCalculation::minimize_time_gradient_for_this_event()
-{
-    if( minimize_time_gradient()
-        && TMath::Abs( fParGeo->tgrad_x ) > fData->getRunParameter()->fMinimizeTimeGradient_minGradforFit
-        && fParGeo->ntubes >= fData->getRunParameter()->fMinimizeTimeGradient_minNtubes )
-    {
-        return true;
-    }
-    return false;
-}
-
-/*
-   LL optimisation: starting value for rho
-*/
-double VImageParameterCalculation::getLL_startingvalue_rho( double ZeroTolerence )
-{
-    if( fLL_StartingValue_sigma_x > ZeroTolerence && fLL_StartingValue_sigma_y > ZeroTolerence )
-    {
-        fLL_StartingValue_rho  = tan( 2. * fParGeo->phi );
-        fLL_StartingValue_rho *= ( fLL_StartingValue_sigma_x * fLL_StartingValue_sigma_x
-                                 - fLL_StartingValue_sigma_y * fLL_StartingValue_sigma_y );
-        fLL_StartingValue_rho /= fLL_StartingValue_sigma_x / fLL_StartingValue_sigma_y / 2.;
-    }
-    else
-    {
-        fLL_StartingValue_rho = 0.;
-    }
-    return fLL_StartingValue_rho;
-}
-
-/*
-  LL optimisation: parameter limits for rho
-*/
-double VImageParameterCalculation::getLL_paramameterlimits_rho( double rho, double upper_sign )
-{
-    double rho_edge = upper_sign * 0.98;
-    // TMP (this might lead to spurious results otherwise
-    return rho_edge;
-    // Case 1: image is well inside the camera and sufficiently large
-    //         (don't expect large difference in phi)
-    if( minimize_time_gradient_for_this_event() )
-    {
-        rho_edge = rho + upper_sign * 0.1;
-    }
-    if( upper_sign > 0. && rho_edge > 0.98 )  return 0.98;
-    if( upper_sign < 0. && rho_edge < -0.98 ) return -0.98;
-
-    return rho_edge;
-}
-
-/*
-   LL optimisation: starting value for cen(_x or _y)
-*/
-double VImageParameterCalculation::getLL_paramameterlimits_cen( double dist_limit,
-                                                                double centroid, 
-                                                                double fLL_StartingValue_sigma, 
-                                                                double i_sign )
-{
-    // Case 1: image is well inside the camera
-    //         assumption is that geo centroids are good values
-    if( fLL_StartingValue_sigma > 0. && fParGeo->loss < fData->getRunParameter()->fMinimizeTimeGradient_minLoss )
-    {
-        double camera_pixel_size = 0.1;
-        // assume that zero pixel is a typical pixel
-        if( fData->getDetectorGeometry()->getTubeRadius().size() > 0 )
-        {
-            camera_pixel_size = 5.*fData->getDetectorGeometry()->getTubeRadius()[0];
-            if( camera_pixel_size < 0.1 ) camera_pixel_size = 5.*0.1;
-        }
-        return centroid + i_sign * camera_pixel_size;
-    }
-    // Case 2: image is partly at the edge of the FOV: determine box around image
-    //         to search for centroid
-    if( fLL_StartingValue_sigma > 0. )
-    {
-        dist_limit = centroid + i_sign* 2.*fLL_StartingValue_sigma;
-        // make sure that this is inside the FOV (+10%)
-        if( fData->getDetectorGeometry() &&  fData->getTelID() < fData->getDetectorGeometry()->getFieldofView().size() )
-        {
-            if( TMath::Abs( dist_limit ) > 1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()] )
-            {
-                if( dist_limit > 0 )
-                {
-                    dist_limit =  1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-                }
-                else
-                {
-                    dist_limit = -1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-                }
-            }
-        }
-    }
-    else
-    {
-        // image centroid should not be outside of the FOV (by more than 10%)
-        if( fData->getDetectorGeometry() &&  fData->getTelID() < fData->getDetectorGeometry()->getFieldofView().size() )
-        {
-            dist_limit = i_sign *1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
-        }
-        // should never land here
-        else
-        {
-            dist_limit = i_sign * 5.;
-        }
-    }
-    return dist_limit;
-
 }
 
 
