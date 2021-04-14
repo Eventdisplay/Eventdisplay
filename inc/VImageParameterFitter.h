@@ -31,6 +31,9 @@ class VImageParameterFitter : public TObject
       // tolerance value - usually not to be modified
       double ZeroTolerence;
 
+      // image fitting function
+      bool bRotatedNormalDistributionFit;
+
       //  starting values for fit
       double fdistXmin;
       double fdistXmax;
@@ -89,6 +92,7 @@ class VImageParameterFitter : public TObject
       void calculate_image_size( bool iUseSums2, bool iEqualSummationWindows );
       void calculate_image_length( double z, double dz2 );
       void calculate_image_phi( double dsxxy2 );
+      void calculate_image_rho();
       void calculate_image_width( double z, double dz2 );
       double calculatePixelBrightness( unsigned int iChannel, double, double, double, double, double, double );
 

@@ -25,6 +25,9 @@ VImageParameterFitter::VImageParameterFitter( VEvndispData* iData,
     fData = iData;
     fParLL = 0;
     fParGeo = 0;
+
+    bRotatedNormalDistributionFit = false;
+    bRotatedNormalDistributionFit = true;
   
     resetFitParameters();
 }
@@ -61,10 +64,18 @@ void VImageParameterFitter::initMinuit( int iVmode )
     {
         fLLFitter->Command( "SET PRINT 1" );
     }
+    fLLFitter->Command( "SET PRINT 1" );
     fLLFitter->Command( "SET NOWA" );             // no warnings
     fLLFitter->Command( "SET ERR 0.5" );          // loglikelihood -> UP = 0.5  (solves 2*ll = chi2 != 1)
     fLLFitter->SetObjectFit( this );
-    fLLFitter->SetFCN( get_LL_imageParameter_2DGauss );
+    if( bRotatedNormalDistributionFit )
+    {
+        fLLFitter->SetFCN( get_LL_imageParameter_2DGaussRotated );
+    }
+    else
+    {
+        fLLFitter->SetFCN( get_LL_imageParameter_2DGauss );
+    }
 }
 
 
@@ -356,7 +367,7 @@ double VImageParameterFitter::getLL_startingvalue_rho()
 */
 double VImageParameterFitter::getLL_paramameterlimits_rho( double rho, double upper_sign )
 {
-    double rho_edge = upper_sign * 0.98;
+    double rho_edge = upper_sign * 0.998;
     // TMP (this might lead to spurious results otherwise
     return rho_edge;
     // Case 1: image is well inside the camera and sufficiently large
@@ -365,8 +376,8 @@ double VImageParameterFitter::getLL_paramameterlimits_rho( double rho, double up
     {
         rho_edge = rho + upper_sign * 0.1;
     }
-    if( upper_sign > 0. && rho_edge > 0.98 )  return 0.98;
-    if( upper_sign < 0. && rho_edge < -0.98 ) return -0.98;
+    if( upper_sign > 0. && rho_edge > 0.998 )  return 0.998;
+    if( upper_sign < 0. && rho_edge < -0.998 ) return -0.998;
 
     return rho_edge;
 }
@@ -375,10 +386,15 @@ double VImageParameterFitter::getLL_paramameterlimits_rho( double rho, double up
    LL optimisation: starting value for cen(_x or _y)
 */
 double VImageParameterFitter::getLL_paramameterlimits_cen( double dist_limit,
-                                                                double centroid, 
-                                                                double fLL_StartingValue_sigma, 
-                                                                double i_sign )
+                                                           double centroid, 
+                                                           double fLL_StartingValue_sigma, 
+                                                           double i_sign )
 {
+    // temporary settings for rotated normal distribution
+/*    if( bRotatedNormalDistributionFit )
+    {
+        return i_sign * 5.;
+    } */
     // Case 1: image is well inside the camera
     //         assumption is that geo centroids are good values
     if( fLL_StartingValue_sigma > 0. && fParGeo->loss < fData->getRunParameter()->fMinimizeTimeGradient_minLoss )
@@ -438,11 +454,10 @@ double VImageParameterFitter::getLL_paramameterlimits_cen( double dist_limit,
 
    The image is described by a 2d-Gaussian. The signal in each tube is therefore:
    \f[
-           S(x,y)=\frac{C}{2\pi\sigma_{x}\sigma_{y}\sqrt{1-\rho^{2}}}
-              \exp\left\{-\frac{1}{2(1-\rho^{2})}
-\left[\left(\frac{x-c_{x}}{\sigma_{x}}\right)^{2}
--2\rho\left(\frac{x-c_{x}}{\sigma_{x}}\right)\left(\frac{y-c_{y}}{\sigma_{y}}\right)
-+\left(\frac{y-c_{y}}{\sigma_{y}}\right)^{2}\right]\right\}
+           S(x,y)=\frac{C}{2\pi\sigma_{x}\sigma_{y}}}}
+              \exp\left\{-\frac{1}{2}
+            \left[\left(\frac{x-c_{x}}{\sigma_{x}}\right)^{2}
+            +\left(\frac{y-c_{y}}{\sigma_{y}}\right)^{2}\right]\right\}
 
 \f]
 
@@ -477,27 +492,28 @@ void get_LL_imageParameter_2DGaussRotated( Int_t& npar, Double_t* gin, Double_t&
     
     double x = 0.;
     double y = 0.;
+    double x_p = 0.;
+    double y_p = 0.;
+    double cx_p = 0.;
+    double cy_p = 0.;
     double n = 0.;
     double t = 0.;
     double tx = 0.;
-    double phi = 0.;
     double t_sig = 4.;
     double t_sig_term = 0.;
-    
-    double rho_1 = -1. / 2. / ( 1. - par[0] * par[0] );
-    double rho_s =  1. / 2. / M_PI / par[2] / par[4] / sqrt( 1. - par[0] * par[0] ) * par[5];
-    
+
+    // normalisation factor
+    double rho_1 = -1. / 2.; 
+
     VImageParameterFitter* iImageCalculation = (VImageParameterFitter*)fLLFitter->GetObjectFit();
 
     if( iImageCalculation->minimize_time_gradient_for_this_event() )
     {
         t_sig = par[8];
-        phi = atan2( 2.*par[0] * par[2] * par[4], 
-                        par[2] * par[2] - par[4] * par[4] ) / 2.;
         t_sig_term = log( 1. / sqrt( 2. * M_PI * t_sig ) );
     }
     
-    if( par[0] * par[0] < 1. && par[2] > 0. && par[4] > 0. )
+    if( par[2] > 0. && par[4] > 0. )
     {
         unsigned int nSums = iImageCalculation->getLLSums().size();
         for( unsigned int i = 0; i < nSums; i++ )
@@ -508,10 +524,19 @@ void get_LL_imageParameter_2DGaussRotated( Int_t& npar, Double_t* gin, Double_t&
                 // work in rotated space
                 x = iImageCalculation->getLLX()[i];
                 y = iImageCalculation->getLLY()[i];
-                sum  = ( x - par[1] ) * ( x - par[1] ) / par[2] / par[2];
-                sum += ( y - par[3] ) * ( y - par[3] ) / par[4] / par[4];
-                sum += -2. * par[0] * ( x - par[1] ) / par[2] * ( y - par[3] ) / par[4];
-                sum  = rho_s * exp( sum * rho_1 );
+
+                // rotated coordinate system
+                x_p = x*cos(par[0]) + y*sin(par[0]);
+                cx_p = par[1]*cos(par[0]) + par[3]*sin(par[0]);
+
+                y_p = -1.*x*sin(par[0]) + y*cos(par[0]);
+                cy_p = -1.*par[1]*sin(par[0]) + par[3]*cos(par[0]);
+
+                sum  = (x_p-cx_p)*(x_p-cx_p) / par[2] / par[2]
+                     + (y_p-cy_p)*(y_p-cy_p) / par[4] / par[4];
+
+                sum  = 1. / 2. / M_PI / par[2] / par[4] * par[5] 
+                     * exp( sum * rho_1 );
                 
                 // assume Poisson fluctuations (neglecting background noise)
                 if( n > 0. && sum > 0. )
@@ -535,7 +560,7 @@ void get_LL_imageParameter_2DGaussRotated( Int_t& npar, Double_t* gin, Double_t&
                     if( t > 0. )
                     {
                         // calculate position along long axis
-                        tx = (x-par[1]) * cos(phi) + (y-par[3]) * sin(phi);
+                        tx = (x-par[1]) * cos(par[0]) + (y-par[3]) * sin(par[0]);
                         LL_t += 
                             - 1./2./(t_sig*t_sig) 
                             * (t - par[6] - par[7] * tx )
@@ -688,11 +713,22 @@ void VImageParameterFitter::defineFitParameters()
     fLLFitter->Release( 2 );
     fLLFitter->Release( 3 );
     fLLFitter->Release( 4 );
-    fLLFitter->DefineParameter( 0, "rho",
-                                rho,
-                                step,
-                                getLL_paramameterlimits_rho( rho, -1. ),
-                                getLL_paramameterlimits_rho( rho, 1. ) );
+    if( bRotatedNormalDistributionFit )
+    {
+        fLLFitter->DefineParameter( 0, "phi",
+                                    phi,
+                                    step,
+                                   -4.*M_PI,
+                                    4.*M_PI );
+    }
+    else
+    {
+        fLLFitter->DefineParameter( 0, "rho",
+                                    rho,
+                                    step,
+                                    getLL_paramameterlimits_rho( rho, -1. ),
+                                    getLL_paramameterlimits_rho( rho, 1. ) );
+    }
     // cen_x starting values
     fLLFitter->DefineParameter( 1, "meanX", 
                                 cen_x,
@@ -700,22 +736,26 @@ void VImageParameterFitter::defineFitParameters()
                                 getLL_paramameterlimits_cen( fdistXmin, cen_x, sigmaX, -1. ),
                                 getLL_paramameterlimits_cen( fdistXmin, cen_x, sigmaX, 1. ) );
     // sigma x starting values
+    double sigma_x_L = sigmaX / 4.;
+    if( bRotatedNormalDistributionFit ) sigma_x_L = 0.;
     fLLFitter->DefineParameter( 2, "sigmaX",
                                 sigmaX,
                                 step, 
-                                sigmaX / 4.,
+                                sigma_x_L,
                                 2.*sigmaX+ 1. );
     // cen_y starting values
     fLLFitter->DefineParameter( 3, "meanY", 
-                                cen_y, 
+                                cen_y,
                                 step, 
                                 getLL_paramameterlimits_cen( fdistYmin, cen_y, sigmaY, -1. ),
                                 getLL_paramameterlimits_cen( fdistYmin, cen_y, sigmaY, 1. ) );
     // sigma x starting values
+    double sigma_y_L = sigmaY / 4.;
+    if( bRotatedNormalDistributionFit ) sigma_y_L = 0.;
     fLLFitter->DefineParameter( 4, "sigmaY", 
                                 sigmaY, 
                                 step, 
-                                sigmaY / 4., 
+                                sigma_y_L,
                                 2.*sigmaY + 1. );
 
     // signal
@@ -766,7 +806,14 @@ void VImageParameterFitter::getFitStatistics()
 
 void VImageParameterFitter::getFitResults()
 {
-    fLLFitter->GetParameter( 0, rho, drho );
+    if( bRotatedNormalDistributionFit )
+    {
+        fLLFitter->GetParameter( 0, phi, dphi );
+    }
+    else
+    {
+        fLLFitter->GetParameter( 0, rho, drho );
+    }
     fLLFitter->GetParameter( 1, cen_x, dcen_x );
     fLLFitter->GetParameter( 2, sigmaX, dsigmaX );
     fLLFitter->GetParameter( 3, cen_y, dcen_y );
@@ -807,12 +854,14 @@ void VImageParameterFitter::getFitResults()
     }
     // copy parameters to output tree
     fParLL->rho = rho;
+    fParLL->phi = phi;
     fParLL->cen_x = cen_x;
     fParLL->sigmaX = sigmaX;
     fParLL->cen_y = cen_y;
     fParLL->sigmaY = sigmaY;
     fParLL->signal = signal;
     fParLL->drho = drho;
+    fParLL->dphi = dphi;
     fParLL->dcen_x = dcen_x;
     fParLL->dsigmaX = dsigmaX;
     fParLL->dsigmaY = dsigmaY;
@@ -825,6 +874,11 @@ void VImageParameterFitter::calculateImageParameters( bool iUseSums2,
 {
     // image size
     calculate_image_size( iUseSums2, iEqualSummationWindows );
+
+    if( bRotatedNormalDistributionFit )
+    {
+        calculate_image_rho();
+    }
 
     // covariance
     double sigmaXY = rho * sqrt( sigmaX * sigmaX * sigmaY * sigmaY );
@@ -844,9 +898,30 @@ void VImageParameterFitter::calculateImageParameters( bool iUseSums2,
     double dz2 = d * d / ( d * d + 4.*sigmaXY * sigmaXY ) * dd2
               + 16.*sigmaXY * sigmaXY / ( d * d + 4.*sigmaXY * sigmaXY ) * dsigmaXY2;
 
-    calculate_image_length( z, dz2 );
-    calculate_image_width( z, dz2 );
-    calculate_image_phi( dsxxy2 );
+    if( bRotatedNormalDistributionFit )
+    {
+        if( sigmaX < sigmaY )
+        {
+            fParLL->width = sigmaX;
+            fParLL->dwidth = dsigmaX;
+            fParLL->length = sigmaY;
+            fParLL->dlength = dsigmaY;
+            fParLL->phi = redang( fParLL->phi + M_PI/2.,  2. * M_PI );
+        }
+        else
+        {
+            fParLL->width = sigmaY;
+            fParLL->dwidth = dsigmaY;
+            fParLL->length = sigmaX;
+            fParLL->dlength = dsigmaX;
+        }
+    }
+    else
+    {
+        calculate_image_length( z, dz2 );
+        calculate_image_width( z, dz2 );
+        calculate_image_phi( dsxxy2 );
+    }
     calculate_image_distance();
 
     //  fit was not successfull if width is close to zero -> take pargeo parameters
@@ -1064,4 +1139,18 @@ void VImageParameterFitter::calculate_image_distance()
 
     fParLL->dist = dist;
     fParLL->ddist = ddist;
+}
+
+void VImageParameterFitter::calculate_image_rho()
+{
+    rho = 0.;
+    if( sigmaY > 0. && sigmaX > 0. )
+    {
+        rho =  tan(2.*phi) * (sigmaX*sigmaX+sigmaY*sigmaY);
+        rho /= 2. / sigmaY / sigmaX;
+    }
+    drho = 0.;
+
+    fParLL->rho = rho;
+    fParLL->drho = drho;
 }
