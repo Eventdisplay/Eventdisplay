@@ -42,6 +42,7 @@ class VImageParameterFitter : public TObject
 
       vector<double> fll_X;                     //!< data vector for minuit function (x-coordinate of pmt)
       vector<double> fll_Y;                     //!< data vector for minuit function (y-coordinate of pmt)
+      vector<double> fll_R;                     //!< tube radius of pmt
       vector<double> fll_Sums;                  //!< data vector for minuit function
       vector<bool> fLLEst;                      //!< true if channel has an estimated sum from the LL fit
       vector<double> fll_T;                     //!< data vector for minuit function (time)
@@ -94,7 +95,7 @@ class VImageParameterFitter : public TObject
       void calculate_image_phi( double dsxxy2 );
       void calculate_image_rho();
       void calculate_image_width( double z, double dz2 );
-      double calculatePixelBrightness( unsigned int iChannel, double, double, double, double, double, double );
+      double calculatePixelBrightness( unsigned int iChannel, double, double, double, double, double, double, double );
 
     public:
 
@@ -128,6 +129,10 @@ class VImageParameterFitter : public TObject
      vector<double>& getLLY()                    //!< return data vector for minuit function
      {
         return fll_Y;
+     }
+     vector<double>& getLLR()
+     {
+        return fll_R;
      }
      vector<double>& getLLT()
      {
