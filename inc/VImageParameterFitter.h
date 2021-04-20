@@ -8,6 +8,7 @@
 
 #include <VEvndispData.h>
 
+#include "TF2.h"
 #include "TMinuit.h"
 
 using namespace std;
@@ -15,6 +16,7 @@ using namespace std;
 // global functions and pointers for fitting
 extern void get_LL_imageParameter_2DGauss( Int_t&, Double_t*, Double_t&, Double_t*, Int_t );
 extern void get_LL_imageParameter_2DGaussRotated( Int_t&, Double_t*, Double_t&, Double_t*, Int_t );
+Double_t normal2DRotated( Double_t *x, Double_t *par );
 extern TMinuit* fLLFitter;
 
 class VImageParameterFitter : public TObject
@@ -24,6 +26,7 @@ class VImageParameterFitter : public TObject
       VEvndispData* fData;
       VImageParameter* fParLL;
       VImageParameter* fParGeo;
+      TF2 *fNormal2D;
 
       bool fDebug;
       bool fLLDebug;
@@ -109,6 +112,7 @@ class VImageParameterFitter : public TObject
                           bool iUseSums2 = false, 
                           bool i_reInitializeLL = false, 
                           bool iEqualSummationWindows = false );          //!< calculate image parameters (log like)
+     TF2* getNormal2D() { return fNormal2D; }
      void initMinuit( int );
      
      VDetectorGeometry* getDetectorGeometry()

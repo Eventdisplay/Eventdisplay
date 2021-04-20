@@ -25,6 +25,7 @@ VImageParameterFitter::VImageParameterFitter( VEvndispData* iData,
     fData = iData;
     fParLL = 0;
     fParGeo = 0;
+    fNormal2D = 0;
 
     bRotatedNormalDistributionFit = false;
     bRotatedNormalDistributionFit = true;
@@ -76,6 +77,12 @@ void VImageParameterFitter::initMinuit( int iVmode )
     {
         fLLFitter->SetFCN( get_LL_imageParameter_2DGauss );
     }
+    // 2D function for integrated probability
+    // - range is changed before calling
+    // - number of parameters does not include charge normalisation
+    // (optional and in testing only)
+    fNormal2D = 0;
+    //fNormal2D = new TF2( "normal2D", normal2DRotated, -20., 20., -20., 20., iFitParameter - 2 );
 }
 
 
@@ -143,11 +150,16 @@ vector<bool> VImageParameterFitter::calcLL( VImageParameter *iParGeo,
 
     // now do the minimization
     fLLFitter->Command( "MIGRAD" );
-    // don't call HESS, trouble with migrad in the error calculation means usually to not use the errors and LL results
-    //    fLLFitter->Command( "HESSE" );
 
     // fit statistics
     getFitStatistics();
+
+    // call HESSE in case error calculation failed
+    if( fParLL->Fitstat < 3 )
+    {
+        fLLFitter->Command( "HESSE" );
+        getFitStatistics();
+    }
     
     // fit results
     getFitResults();
@@ -180,7 +192,7 @@ double VImageParameterFitter::calculatePixelBrightness( unsigned int iChannel,
         double cy_p = -1.*meanX*sin(phi) + meanY*cos(phi);
 
         f  = (x_p - cx_p) * (x_p - cx_p) / sigmaX / sigmaX;
-        f += (y_p - cy_p) * (y_p - cx_p) / sigmaY / sigmaY;
+        f += (y_p - cy_p) * (y_p - cy_p) / sigmaY / sigmaY;
         f *= -1. / 2.;
         f  = exp( f );
         f *= 1. / 2. / TMath::Pi() / sigmaX / sigmaY;
@@ -509,10 +521,11 @@ void get_LL_imageParameter_2DGaussRotated( Int_t& npar, Double_t* gin, Double_t&
     
     double x = 0.;
     double y = 0.;
+    double r = 0.;
     double x_p = 0.;
     double y_p = 0.;
-    double cx_p = 0.;
-    double cy_p = 0.;
+    double cx_p =     par[1]*cos(par[0]) + par[3]*sin(par[0]);
+    double cy_p = -1.*par[1]*sin(par[0]) + par[3]*cos(par[0]);
     double n = 0.;
     double t = 0.;
     double tx = 0.;
@@ -529,7 +542,20 @@ void get_LL_imageParameter_2DGaussRotated( Int_t& npar, Double_t* gin, Double_t&
         t_sig = par[8];
         t_sig_term = log( 1. / sqrt( 2. * M_PI * t_sig ) );
     }
-    
+
+    // for probability densitivity integration
+    // (optional)
+    TF2 *fNormal2D = iImageCalculation->getNormal2D();
+    if( fNormal2D )
+    {
+        fNormal2D->SetParameter( 0, cx_p );
+        fNormal2D->SetParameter( 1, par[2] );
+        fNormal2D->SetParameter( 2, cy_p );
+        fNormal2D->SetParameter( 3, par[4] );
+        fNormal2D->SetRange( par[1] - 2., par[3] - 2., par[1] + 2., par[3] + 2. );
+    }
+
+
     if( par[2] > 0. && par[4] > 0. )
     {
         unsigned int nSums = iImageCalculation->getLLSums().size();
@@ -544,18 +570,32 @@ void get_LL_imageParameter_2DGaussRotated( Int_t& npar, Double_t* gin, Double_t&
 
                 // rotated coordinate system
                 x_p = x*cos(par[0]) + y*sin(par[0]);
-                cx_p = par[1]*cos(par[0]) + par[3]*sin(par[0]);
-
                 y_p = -1.*x*sin(par[0]) + y*cos(par[0]);
-                cy_p = -1.*par[1]*sin(par[0]) + par[3]*cos(par[0]);
+                r = iImageCalculation->getLLR()[i] / 2.;
 
-                sum  = (x_p-cx_p)*(x_p-cx_p) / par[2] / par[2]
-                     + (y_p-cy_p)*(y_p-cy_p) / par[4] / par[4];
+                // use integral of probability distribution
+                // (integrate over pixels)
+                // - test show that this method is inferior 
+                //   to all others
+                if( fNormal2D )
+                {
+                    sum = fNormal2D->Integral( x_p - r, x_p + r, 
+                                               y_p - r, y_p + r );
+                }
+                // use probability densitiy at centre of 
+                // pixel position
+                else
+                {
+                    sum  = (x_p-cx_p)*(x_p-cx_p) / par[2] / par[2]
+                         + (y_p-cy_p)*(y_p-cy_p) / par[4] / par[4];
 
-                sum  = 1. / 2. / M_PI / par[2] / par[4] * par[5] 
-                     * exp( sum * rho_1 );
+                    sum  = 1. / 2. / M_PI / par[2] / par[4]
+                         * exp( sum * rho_1 );
+                }
+                sum *= par[5];
                 
                 // assume Poisson fluctuations (neglecting background noise)
+                // (Blobel p.196)
                 if( n > 0. && sum > 0. )
                 {
                     LL += n * log( sum ) - sum - n * log( n ) + n;
@@ -662,14 +702,7 @@ double VImageParameterFitter::fill_pixel_sums( bool iUseSums2 )
             }
             else
             {
-                if( fData->getSums()[j] > 0. )
-                {
-                    fll_Sums.push_back( fData->getSums()[j] );
-                }
-                else
-                {
-                    fll_Sums.push_back( 0.1 );
-                }
+                fll_Sums.push_back( 0.1 );
                 fll_T.push_back( -999. );
             }
             // image weighting with squared intensity
@@ -1070,7 +1103,7 @@ void VImageParameterFitter::calculate_image_size( bool iUseSums2,
         {
             fParLL->size2 = iSize;
         }
-        fParLL->size = fParGeo->size;
+        fParLL->size = fParLL->size2;
     }
     // set size for !sums2
     else
@@ -1085,6 +1118,8 @@ void VImageParameterFitter::calculate_image_size( bool iUseSums2,
         }
         fParLL->size2 = fParGeo->size2;
     }
+    cout << "SIZE " << fParLL->size << "\t" << fParLL->size2 << "\t" << iUseSums2 << "\t" << iEqualSummationWindows << endl;
+    cout << "\t" <<  fParGeo->size << "\t" <<  fParGeo->size2 << endl;
 }      
 
 void VImageParameterFitter::calculate_image_length( double z, double dz2 )
@@ -1197,4 +1232,28 @@ void VImageParameterFitter::calculate_image_rho()
 
     fParLL->rho = rho;
     fParLL->drho = drho;
+}
+
+
+/*
+    2D Normal distribution
+
+    function used to integrate probability density
+    over size of pixel
+
+    optional, used only if fNormal2D != 0
+
+*/
+Double_t normal2DRotated( Double_t *x, Double_t *par )
+{
+    double f  = 0.;
+    if( par[1] > 0. && par[3] > 0. )
+    {
+        f += (x[0] - par[0]) * (x[0] - par[0]) / par[1] / par[1];
+        f += (x[1] - par[2]) * (x[1] - par[2]) / par[3] / par[3];
+        f *= -1. / 2.;
+        f  = exp( f );
+        f *= 1. / 2. / TMath::Pi() / par[1] / par[3];
+    }
+    return f;
 }
