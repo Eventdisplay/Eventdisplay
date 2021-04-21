@@ -27,7 +27,10 @@ VImageParameterFitter::VImageParameterFitter( VEvndispData* iData,
     fParGeo = 0;
     fNormal2D = 0;
 
-    bRotatedNormalDistributionFit = false;
+    // fit function: 
+    // rotated normal distribution provides
+    // with errors which are less correlated
+    // bRotatedNormalDistributionFit = false;
     bRotatedNormalDistributionFit = true;
   
     resetFitParameters();
