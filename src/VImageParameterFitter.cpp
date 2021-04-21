@@ -65,7 +65,6 @@ void VImageParameterFitter::initMinuit( int iVmode )
     {
         fLLFitter->Command( "SET PRINT 1" );
     }
-    fLLFitter->Command( "SET PRINT 1" );
     fLLFitter->Command( "SET NOWA" );             // no warnings
     fLLFitter->Command( "SET ERR 0.5" );          // loglikelihood -> UP = 0.5  (solves 2*ll = chi2 != 1)
     fLLFitter->SetObjectFit( this );
@@ -128,7 +127,6 @@ vector<bool> VImageParameterFitter::calcLL( VImageParameter *iParGeo,
         return a;
     }
     fLLDebug = false;
-    fLLDebug = true;
     if( fLLDebug )
     {
         cout << endl;
@@ -963,7 +961,6 @@ void VImageParameterFitter::calculateImageParameters( bool iUseSums2,
             fParLL->length = sigmaX;
             fParLL->dlength = dsigmaX;
         }
-        cout << "IMAGE LENGTH and WIDTH: " << fParLL->length << "\t" << fParLL->width << endl;
         sigmaX *= cos(phi);
         sigmaY *= sin(phi);
         calculate_image_rho();
@@ -1118,8 +1115,6 @@ void VImageParameterFitter::calculate_image_size( bool iUseSums2,
         }
         fParLL->size2 = fParGeo->size2;
     }
-    cout << "SIZE " << fParLL->size << "\t" << fParLL->size2 << "\t" << iUseSums2 << "\t" << iEqualSummationWindows << endl;
-    cout << "\t" <<  fParGeo->size << "\t" <<  fParGeo->size2 << endl;
 }      
 
 void VImageParameterFitter::calculate_image_length( double z, double dz2 )
