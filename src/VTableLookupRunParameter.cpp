@@ -962,7 +962,7 @@ void VTableLookupRunParameter::print( int iP )
     }
     cout << "\t maximum loss for energy calculation: " << fEventSelectionCut_lossCutMax << endl;
     cout << "\t maximum distance for energy calculation: " << fEventSelectionCut_distanceCutMax << endl;
-    if( iP == 2 )
+    if( iP == 2 && isMC )
     {
         cout << "zenith angle " << ze << " [deg], wobble offset " << fWobbleOffset / 100. << " [deg], noise level " << fNoiseLevel << endl;
     }
