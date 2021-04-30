@@ -216,6 +216,7 @@ class VEffectiveAreaCalculator
         /////////////////////////////
         // DL2 event data tree
         TTree *fDL2EventTree;
+        bool   fDL2WriteFullEventTree;
         UInt_t fDL2_runNumber;
         UInt_t fDL2_eventNumber;
         float fDL2_MCaz;

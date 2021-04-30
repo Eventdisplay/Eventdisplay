@@ -402,7 +402,8 @@ int main( int argc, char* argv[] )
             fOutputfile->cd();
             fEffectiveAreaCalculator.getAcceptance_AfterCuts()->Write();
         }
-        if( fRunPara->fWriteEventdatatrees == "DL2" && fEffectiveAreaCalculator.getEventDL2DataTree() )
+        if( (fRunPara->fWriteEventdatatrees == "DL2" || fRunPara->fWriteEventdatatrees == "FULLTREES" )
+          && fEffectiveAreaCalculator.getEventDL2DataTree() )
         {
                cout << "writing event data trees: (";
                cout << fEffectiveAreaCalculator.getEventDL2DataTree()->GetName();
@@ -419,9 +420,9 @@ int main( int argc, char* argv[] )
                {
                    c->Merge(fOutputfile, 0, "keep" );
                }
-        }
-        for( unsigned int c = 0; c < fCuts.size(); c++ )
-        {
+       }
+       for( unsigned int c = 0; c < fCuts.size(); c++ )
+       {
             if( fCuts[c]->getMVACutGraphs().size() > 0 )
             {
                   if( c == 0 )
