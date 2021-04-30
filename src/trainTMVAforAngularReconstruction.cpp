@@ -411,6 +411,8 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     // telescope configuration
     TChain i_telChain( "telconfig" );
     i_telChain.Add( iInputFileList[0].c_str(), 0 );
+    cout << "reading telescope list from ";
+    cout << iInputFileList[0] << endl;
     
     Ctelconfig i_tel( &i_telChain );
     i_tel.GetEntry( 0 );
@@ -455,7 +457,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         fTelY.push_back( i_tel.TelY );
         fTelZ.push_back( i_tel.TelZ );
         fTelType.push_back( i_tel.TelType );
-        
+
         if( i < fUseTelescope.size() && !fUseTelescope[i] )
         {
             continue;
