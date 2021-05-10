@@ -1211,19 +1211,19 @@ vector< TGraph* > VPlotWPPhysSensitivity::plotCurrentInstruments( TCanvas* c )
                         } */
             if( c )
             {
+                iG.back()->SetLineColorAlpha( iG.back()->GetLineColor(), 0.5 );
                 iG.back()->Draw( "l" );
             }
         }
-/*        if( c )
+        if( c && fPlotCurrentInstrumentVectorLabel )
         {
             string i_text = fCurrentInstrumentVector[i] + "_text";
             TText* i_t = ( TText* )iF->Get( i_text.c_str() );
-            // TMPTMP: plot only KSP...
-            if( i_t && fPlotCTARequirementsID == 3 )
+            if( i_t )
             {
                 i_t->Draw();
            } 
-        } */
+        }
     }
     iF->Close();
     return iG;

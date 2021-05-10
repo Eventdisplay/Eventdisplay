@@ -52,6 +52,7 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
         bool   fRequirementsSystematics;
 
         vector< string > fCurrentInstrumentVector;
+	    bool fPlotCurrentInstrumentVectorLabel;
 
         float  fMaximumAllowedEnergyBias;
  
@@ -94,9 +95,10 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
         void resetVectors();
         void setAxisUnits( string iObservationTime );   // set the correct y-axis scale for 50h, 5h, and 0.5h
         void setAxisUnits( double iMinSensitivity = 4.e-14, double iMaxSensitivity = 1.5e-10, string iUnit = "ENERGY" );
-        void setCurrentInstrumentPlotVector( vector< string > iV )
+        void setCurrentInstrumentPlotVector( vector< string > iV, bool iPlotLabels = false )
         {
             fCurrentInstrumentVector = iV;
+	        fPlotCurrentInstrumentVectorLabel = iPlotLabels;
         }
         void setEffectiveAreaLimits( double iEffArea_min = 5.e2, double iEffArea_max = 7.e6 )
         {
