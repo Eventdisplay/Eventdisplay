@@ -56,6 +56,7 @@ VWPPhysSensitivityPlotsMaker::VWPPhysSensitivityPlotsMaker()
     fBckRatesPad = 0;
     fERes = 0;
     fAngRes = 0;
+    fPlotCurrentInstrumentVectorLabel = false;
 
     setPlotNoLegend();
     
@@ -277,7 +278,8 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
     a.setPlotCrabLines( bPlotCrabLines );
     if( fCurrentInstrumentVector.size() > 0 )
     {
-        a.setCurrentInstrumentPlotVector( fCurrentInstrumentVector );
+        a.setCurrentInstrumentPlotVector( fCurrentInstrumentVector,
+		                          fPlotCurrentInstrumentVectorLabel );
     }
     if( iRatioCounter == 9999 )
     {

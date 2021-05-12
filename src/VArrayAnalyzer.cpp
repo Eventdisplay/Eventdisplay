@@ -803,11 +803,11 @@ void VArrayAnalyzer::selectShowerImages( unsigned int iMeth )
         ///////////////////////////
         
         // check if fit was successfull
-        if( getRunParameter()->fImageLL && getImageParametersLogL()->Fitstat < 3 )
+        if( getRunParameter()->fImageLL && getImageParametersLogL()->Fitstat < 2 )
         {
             getShowerParameters()->fTelIDImageSelected[iMeth].back() = false;
         }
-        if( getImageParameters()->Fitstat >=0 && getImageParameters()->Fitstat < 3 )
+        if( getImageParameters()->Fitstat >=0 && getImageParameters()->Fitstat < 2 )
         {
             getShowerParameters()->fTelIDImageSelected[iMeth].back() = false;
         }
@@ -1226,10 +1226,13 @@ float VArrayAnalyzer::recalculateImagePhi( double iDeltaX, double iDeltaY )
     float i_phi = 0.;
     // LL: fits without good error matrix
     // LL: f_d, s_s and f_sdevxy depend on the state of the error matrix
-    if( getImageParameters( getRunParameter()->fImageLL )->Fitstat == 1 )
+    if( getImageParameters( getRunParameter()->fImageLL )->Fitstat == 1
+       || (TMath::Abs(iDeltaX) < 1.e-7 && TMath::Abs(iDeltaY) < 1.e-7) )
     {
-        i_phi = getImageParameters( getRunParameter()->fImageLL )->phi;
+        return getImageParameters( getRunParameter()->fImageLL )->phi;
     }
+    //! Important! (TEMP) for real data with offsets, this will not work
+    //                    as f_d, f_s, f_z is not calculated correctly
     else
     {
         double xmean = getImageParameters( getRunParameter()->fImageLL )->cen_x + iDeltaX;

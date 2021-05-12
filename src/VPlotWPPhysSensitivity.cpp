@@ -805,7 +805,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             a->setPlotCrabLines( bPlotCrabLines );
             a->setEnergyRange_Lin( fMinEnergy_TeV, fMaxEnergy_TeV );
             a->setPlotCanvasSize( 900, 600 );
-            a->setPlottingStyle( fData[i]->fPlottingColor[j], fData[i]->fPlottingLineStyle[j], 1., 21, 0.75, fData[i]->fPlottingFillStyle[j] );
+            a->setPlottingStyle( fData[i]->fPlottingColor[j], fData[i]->fPlottingLineStyle[j], 1., 21, 1., fData[i]->fPlottingFillStyle[j] );
             if( iUnit == "ENERGY" )
             {
                 a->setFluxRange_ENERG( iMinSensitivity, iMaxSensitivity );
@@ -857,7 +857,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             if( fData[i]->fPlottingColor.size() > 0 )
             {
                 b->setPlottingStyle( fData[i]->fPlottingColor[0], fData[i]->fPlottingLineStyle[0], 1.,
-                                     fData[i]->fPlottingMarkerStyle[0], 0.75, fData[i]->fPlottingFillStyle[0] );
+                                     fData[i]->fPlottingMarkerStyle[0], 1., fData[i]->fPlottingFillStyle[0] );
             }
             cSensInter = b->plotSensitivityvsEnergyFromCrabSpectrum( cSensInter, iUnit, 0.2, ( i == 0 ) );
             if( fRequirementsString.size() > 0 )
@@ -1211,19 +1211,19 @@ vector< TGraph* > VPlotWPPhysSensitivity::plotCurrentInstruments( TCanvas* c )
                         } */
             if( c )
             {
+                iG.back()->SetLineColorAlpha( iG.back()->GetLineColor(), 0.5 );
                 iG.back()->Draw( "l" );
             }
         }
-/*        if( c )
+        if( c && fPlotCurrentInstrumentVectorLabel )
         {
             string i_text = fCurrentInstrumentVector[i] + "_text";
             TText* i_t = ( TText* )iF->Get( i_text.c_str() );
-            // TMPTMP: plot only KSP...
-            if( i_t && fPlotCTARequirementsID == 3 )
+            if( i_t )
             {
                 i_t->Draw();
            } 
-        } */
+        }
     }
     iF->Close();
     return iG;

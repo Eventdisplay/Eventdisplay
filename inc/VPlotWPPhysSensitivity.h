@@ -101,6 +101,7 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
 
         string fCurrentInstrumentRootFile;
         vector< string > fCurrentInstrumentVector;
+	    bool fPlotCurrentInstrumentVectorLabel;
         
         // FOM variables
         double fSensitivityFOM;
@@ -166,9 +167,11 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
             fCurrentInstrumentRootFile = iCurrentInstrumentRootFile;
         }
         void setCurrentInstrumentPlotVector();
-        void setCurrentInstrumentPlotVector( vector< string > iV )
+        void setCurrentInstrumentPlotVector( vector< string > iV,
+	                                     bool iPlotCurrentInstrumentVectorLabel )
         {
             fCurrentInstrumentVector = iV;
+	        fPlotCurrentInstrumentVectorLabel = iPlotCurrentInstrumentVectorLabel;
         }
         void setCrabSpectraFile( string iFile = "$CTA_EVNDISP_AUX_DIR/AstroData/TeV_data/EnergySpectrum_literatureValues_CrabNebula.dat",
                                  unsigned int iSpectraID = 5 )
