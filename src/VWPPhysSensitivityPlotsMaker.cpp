@@ -193,7 +193,8 @@ void VWPPhysSensitivityPlotsMaker::plotAllInOneCanvas( bool iCanvasBatch )
 void VWPPhysSensitivityPlotsMaker::plotRatioPlot( TPad *corg,
                                                   TPad *cplot,
                                                   double ymin,
-                                                  double ymax )
+                                                  double ymax,
+	                                          bool revert_ratio )
 {
     if( !corg ) return;
     if( !cplot ) return;
@@ -207,6 +208,7 @@ void VWPPhysSensitivityPlotsMaker::plotRatioPlot( TPad *corg,
     {
         string objname = obj->GetName();
         string objclass = obj->ClassName();
+	string iYTitle;
         if( objclass == "TH1D" || objclass == "TH1F" )
         {
             TH1F *h = (TH1F*)obj;
@@ -215,7 +217,7 @@ void VWPPhysSensitivityPlotsMaker::plotRatioPlot( TPad *corg,
                                   h->GetXaxis()->GetXmin(), 
                                   h->GetXaxis()->GetXmax() );
             hR->SetXTitle( h->GetXaxis()->GetTitle() );
-            string iYTitle = h->GetYaxis()->GetTitle();
+            iYTitle = h->GetYaxis()->GetTitle();
             iYTitle = iYTitle.substr( 0, iYTitle.find( "[" ) );
             hR->SetYTitle( (iYTitle + "ratio" ).c_str() );
             hR->SetMinimum( ymin );
@@ -243,11 +245,24 @@ void VWPPhysSensitivityPlotsMaker::plotRatioPlot( TPad *corg,
             else if( r->GetN() > 1 )
             {
                 TGraphAsymmErrors *n = new TGraphAsymmErrors( 1 );
-                if( VHistogramUtilities::divide( n,
-                                                 iNullGraph,
-                                                 r,
-                                                 1.e-3,
-                                                 true ) )
+                bool divide_success = false;
+                if( revert_ratio )
+                {
+                    divide_success = VHistogramUtilities::divide( n,
+                                          r,
+                                          iNullGraph,
+                                          1.e-3,
+                                          true );
+                        }
+                else
+                {
+                    divide_success = VHistogramUtilities::divide( n,
+                                          iNullGraph,
+                                          r,
+                                          1.e-3,
+                                          true );
+                        }
+                if( divide_success )
                 {
                     n->SetLineColor( r->GetLineColor() );
                     n->SetMarkerColor( r->GetMarkerColor() );
@@ -325,7 +340,7 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
     }
     if( fAngRes )
     {
-        plotRatioPlot( fAngRes, fAngResRatio, fAngResRatio_min, fAngResRatio_max );
+        plotRatioPlot( fAngRes, fAngResRatio, fAngResRatio_min, fAngResRatio_max, true );
     }
     if( fEffAreaPad )
     {

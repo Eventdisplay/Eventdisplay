@@ -49,6 +49,8 @@ class VDispAnalyzer
         vector< float > fdisp_xs_T;
         vector< float > fdisp_ys_T;
         vector< float > fdisp_xy_weight_T;
+        vector< float > fdisp_T;
+        vector< unsigned int > fdisplist_T;
         
         // disp direction error
         vector< float > fdisp_error_T;
@@ -182,6 +184,26 @@ class VDispAnalyzer
         vector< float >& getXYWeight_disp()
         {
             return fdisp_xy_weight_T;
+        }
+        vector< float >& get_disp()
+        {
+            return fdisp_T;
+        }
+        float get_disp( unsigned int i )
+        {
+            if( i < fdisp_T.size() )
+            {
+               return fdisp_T[i];
+            }
+            return -999.;
+        }
+        unsigned int get_disp_tel_list( unsigned i )
+        {
+            if( i < fdisplist_T.size() )
+            {
+                return fdisplist_T[i];
+            }
+            return 0;
         }
         float getXYWeight_disp( unsigned int i )
         {

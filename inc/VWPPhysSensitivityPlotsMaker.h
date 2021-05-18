@@ -90,7 +90,7 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
             return fPlotProjectedSensitivity;
         }
         void plotAllInOneCanvas( bool iCanvasBatch = false );
-        void plotRatioPlot( TPad *corg, TPad *ratio, double ymin = 0., double ymax = 2. );
+        void plotRatioPlot( TPad *corg, TPad *ratio, double ymin = 0., double ymax = 2., bool revert_ratio = false );
         void printPlotCTARequirementsIDs();
         void resetVectors();
         void setAxisUnits( string iObservationTime );   // set the correct y-axis scale for 50h, 5h, and 0.5h

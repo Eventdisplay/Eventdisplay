@@ -176,7 +176,16 @@ void VTableLookupDataHandler::fill()
                                       + ( fcen_x[i] - fXoff_edisp ) * ( fcen_x[i] - fXoff_edisp ) );
             fdist_short[ii]   = fdist[i];
             fwidth_short[ii]  = fwidth[i];
+            fdwidth_short[ii]  = fdwidth[i];
             flength_short[ii] = flength[i];
+            fdlength_short[ii] = fdlength[i];
+            fcen_x_short[ii] = fcen_x[i];
+            fdcen_x_short[ii] = fdcen_x[i];
+            fcen_y_short[ii] = fcen_y[i];
+            fdcen_y_short[ii] = fdcen_y[i];
+            fcosphi_short[ii] = fcosphi[i];
+            fsinphi_short[ii] = fsinphi[i];
+            fdphi_short[ii] = fdphi[i];
             floss_short[ii]   = floss[i];
             ffui_short[ii]    = ffui[i];
             fsize_short[ii]   = fsize[i];
@@ -880,6 +889,8 @@ void VTableLookupDataHandler::doStereoReconstruction()
             fXoff_T[t] = fDispAnalyzerDirection->getXcoordinate_disp( t );
             fYoff_T[t] = fDispAnalyzerDirection->getYcoordinate_disp( t );
             fWoff_T[t] = fDispAnalyzerDirection->getXYWeight_disp( t );
+            fDoff_T[t] = fDispAnalyzerDirection->get_disp( t );
+            fToff_T[t] = fDispAnalyzerDirection->get_disp_tel_list( t );
         }
     }
     ////////////////////////////////////////////////////////////////////
@@ -1661,7 +1672,16 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     fOTree->Branch( "size", fsize_short, "size[NImages]/F" );
     fOTree->Branch( "loss", floss_short, "loss[NImages]/F" );
     fOTree->Branch( "width", fwidth_short, "width[NImages]/F" );
+    fOTree->Branch( "dwidth", fdwidth_short, "dwidth[NImages]/F" );
     fOTree->Branch( "length", flength_short, "length[NImages]/F" );
+    fOTree->Branch( "dlength", fdlength_short, "dlength[NImages]/F" );
+    fOTree->Branch( "cen_x", fcen_x_short, "cen_x[NImages]/F" );
+    fOTree->Branch( "dcen_x", fdcen_x_short, "dcen_x[NImages]/F" );
+    fOTree->Branch( "cen_y", fcen_y_short, "cen_y[NImages]/F" );
+    fOTree->Branch( "dcen_y", fdcen_y_short, "dcen_y[NImages]/F" );
+    fOTree->Branch( "cosphi", fcosphi_short, "cosphi[NImages]/F" );
+    fOTree->Branch( "sinphi", fsinphi_short, "sinphi[NImages]/F" );
+    fOTree->Branch( "dphi", fdphi_short, "dphi[NImages]/F" );
     fOTree->Branch( "tgrad_x", ftgrad_x_short, "tgrad_x[NImages]/F" );
     fOTree->Branch( "asym", fasym_short, "asym[NImages]/F" );
     fOTree->Branch( "Fitstat", fFitstat_short, "Fitstat[NImages]/I" );
@@ -1706,7 +1726,7 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
         sprintf( iTT, "tchisq_x[%d]/D", fNTel );
         fOTree->Branch( "tchisq_x", ftchisq_x, iTT );
     }
-    if( fTreeWithParameterErrors )
+//    if( fTreeWithParameterErrors )
     {
        sprintf( iTT, "dcen_x[%d]/D", fNTel );
        fOTree->Branch( "dcen_x", fdcen_x, iTT );
@@ -1723,6 +1743,8 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     fOTree->Branch( "DispXoff_T", fXoff_T, "DispXoff_T[NImages]/F" );
     fOTree->Branch( "DispYoff_T", fYoff_T, "DispYoff_T[NImages]/F" );
     fOTree->Branch( "DispWoff_T", fWoff_T, "DispWoff_T[NImages]/F" );
+    fOTree->Branch( "Disp_T", fDoff_T, "Disp_T[NImages]/F" );
+    fOTree->Branch( "DispTelList_T", fToff_T, "DispTelList_T[NImages]/i" );
     fOTree->Branch( "DispDiff", &fDispDiff, "DispDiff/D" );
     fOTree->Branch( "Xoff_intersect", &fXoff_intersect, "Xoff_intersect/F" );
     fOTree->Branch( "Yoff_intersect", &fYoff_intersect, "Yoff_intersect/F" );
@@ -2326,7 +2348,16 @@ void VTableLookupDataHandler::reset()
         fsize_short[i] = -99.;
         floss_short[i] = -99.;
         fwidth_short[i] = -99.;
+        fdwidth_short[i] = -99.;
         flength_short[i] = -99.;
+        fdlength_short[i] = -99.;
+        fcen_x_short[i] = -99.;
+        fcen_y_short[i] = -99.;
+        fdcen_x_short[i] = -99.;
+        fdcen_y_short[i] = -99.;
+        fcosphi_short[i] = -99.;
+        fsinphi_short[i] = -99.;
+        fdphi_short[i] = -99.;
         ftgrad_x_short[i] = -99.;
         fasym_short[i] = -99.;
         fFitstat_short[i] = -99;
@@ -2343,6 +2374,8 @@ void VTableLookupDataHandler::reset()
         fXoff_T[i] = -99.;
         fYoff_T[i] = -99.;
         fWoff_T[i] = -99.;
+        fDoff_T[i] = -99.;
+        fToff_T[i] = 0;
     }
     fnxyoff = 0;
     fnmscw = 0;
@@ -2680,7 +2713,16 @@ void VTableLookupDataHandler::resetAll()
         fsize_short[i] = -99.;
         floss_short[i] = -99.;
         fwidth_short[i] = -99.;
+        fdwidth_short[i] = -99.;
         flength_short[i] = -99.;
+        fdlength_short[i] = -99.;
+        fcen_x_short[i] = -99.;
+        fcen_y_short[i] = -99.;
+        fdcen_x_short[i] = -99.;
+        fdcen_y_short[i] = -99.;
+        fcosphi_short[i] = -99.;
+        fsinphi_short[i] = -99.;
+        fdphi_short[i] = -99.;
         ftgrad_x_short[i] = -99.;
         fasym_short[i] = -99.;
         fFitstat_short[i] = -99;
@@ -2693,6 +2735,8 @@ void VTableLookupDataHandler::resetAll()
         fXoff_T[i] = 0.;
         fYoff_T[i] = 0.;
         fWoff_T[i] = 0.;
+        fDoff_T[i] = 0.;
+        fToff_T[i] = 0;
         ftmscw[i] = 0.;
         ftmscl[i] = 0.;
         ftmsct[i] = 0.;

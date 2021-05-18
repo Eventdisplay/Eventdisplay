@@ -284,8 +284,17 @@ class VTableLookupDataHandler
         int    fntubes_short[VDST_MAXTELESCOPES];
         float  fdist_short[VDST_MAXTELESCOPES];
         float  fwidth_short[VDST_MAXTELESCOPES];
+        float  fdwidth_short[VDST_MAXTELESCOPES];
         float  fasym_short[VDST_MAXTELESCOPES];
         float  flength_short[VDST_MAXTELESCOPES];
+        float  fdlength_short[VDST_MAXTELESCOPES];
+        float  fcen_x_short[VDST_MAXTELESCOPES];
+        float  fcen_y_short[VDST_MAXTELESCOPES];
+        float  fdcen_x_short[VDST_MAXTELESCOPES];
+        float  fdcen_y_short[VDST_MAXTELESCOPES];
+        float  fcosphi_short[VDST_MAXTELESCOPES];
+        float  fsinphi_short[VDST_MAXTELESCOPES];
+        float  fdphi_short[VDST_MAXTELESCOPES];
         float  floss_short[VDST_MAXTELESCOPES];
         float  ffui_short[VDST_MAXTELESCOPES];
         float  fsize_short[VDST_MAXTELESCOPES];
@@ -346,6 +355,8 @@ class VTableLookupDataHandler
         float fXoff_T[VDST_MAXTELESCOPES];      //! direction reconstructed for each telescope
         float fYoff_T[VDST_MAXTELESCOPES];      //! direction reconstructed for each telescope
         float fWoff_T[VDST_MAXTELESCOPES];      //! direction reconstructed for each telescope (weight)
+        float fDoff_T[VDST_MAXTELESCOPES];      //! (disp value)
+        unsigned int fToff_T[VDST_MAXTELESCOPES]; //! list of telescope participating in disp
         unsigned int fnxyoff;                   //! number of images used for disp direction reconstruction
         // difference in disp event direction between telescopes
         double fDispDiff;
