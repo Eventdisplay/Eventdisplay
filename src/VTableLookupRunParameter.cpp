@@ -686,6 +686,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim
     if( !iT )
     {
         cout << "VTableLookupRunParameter::readTelescopeToAnalyze error reading telconfig tree" << endl;
+        cout << "\t " << iEvndispRootFile << endl;
         return false;
     }
     cout << "reading telescope configuration from " << iEvndispRootFile << endl;
