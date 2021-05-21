@@ -24,6 +24,7 @@ VTableLookupRunParameter::VTableLookupRunParameter()
     fUseSelectedImagesOnly = true;
     bWriteReconstructedEventsOnly = 1;
     bShortTree = false;
+    fWritePixelLists = false;
     bWriteMCPars = false;
     rec_method = 0;
     fWrite1DHistograms = false;
@@ -400,6 +401,10 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         else if( iTemp.find( "-short" ) < iTemp.size() )
         {
             bShortTree = true;
+        }
+        else if( iTemp.find( "-pixellist" ) < iTemp.size() )
+        {
+            fWritePixelLists = true;
         }
         else if( iTemp.find( "-pe" ) < iTemp.size() )
         {

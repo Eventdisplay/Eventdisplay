@@ -536,6 +536,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     
     Double_t SizeFirstMax_temp = -1000.;
     Double_t SizeSecondMax_temp = -100.;
+    ii = 0;
     for( unsigned int i = 0; i < fNTel; i++ )
     {
         bool fReadTPars = false;
@@ -608,6 +609,19 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
                 fdlength[i] = ftpars[i]->dlength;
                 fdwidth[i] = ftpars[i]->dwidth;
                 fdphi[i] = ftpars[i]->dphi;
+            }
+            if( ftpars[i]->hasPixelList() && fTLRunParameter->fWritePixelLists )
+            {
+                PixelListN[ii] = ftpars[i]->PixelListN;
+                for( unsigned int p = 0; p < PixelListN[ii]; p++ )
+                {
+                    PixelID[ii][p] = ftpars[i]->PixelID[p];
+                    PixelType[ii][p] = ftpars[i]->PixelType[p];
+                    PixelIntensity[ii][p] = ftpars[i]->PixelIntensity[p];
+                    PixelTimingT0[ii][p] = ftpars[i]->PixelTimingT0[p];
+                    PixelPE[ii][p] = ftpars[i]->PixelPE[p];
+                }
+                ii++;
             }
             
             if( fsize[i] > SizeSecondMax_temp )
@@ -1824,6 +1838,20 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     {
         fEmissionHeightT[i] = -99.;
     }
+    if( fTLRunParameter->fWritePixelLists )
+    {
+        fOTree->Branch( "PixelListN", PixelListN, "PixelListN[NImages]/i" );
+        sprintf( iTT, "PixelID[NImages][%d]/i", VDST_MAXCHANNELS );
+        fOTree->Branch( "PixelID", PixelID, iTT );
+        sprintf( iTT, "PixelType[NImages][%d]/i", VDST_MAXCHANNELS );
+        fOTree->Branch( "PixelType", PixelType, iTT );
+        sprintf( iTT, "PixelIntensity[NImages][%d]/F", VDST_MAXCHANNELS );
+        fOTree->Branch( "PixelIntensity", PixelIntensity, iTT );
+        sprintf( iTT, "PixelTimingT0[NImages][%d]/F", VDST_MAXCHANNELS );
+        fOTree->Branch( "PixelTimingT0", PixelTimingT0, iTT );
+        sprintf( iTT, "PixelPE[NImages][%d]/F", VDST_MAXCHANNELS );
+        fOTree->Branch( "PixelPE", PixelPE, iTT );
+    }
     
     readRunParameter();
     
@@ -2376,6 +2404,11 @@ void VTableLookupDataHandler::reset()
         fWoff_T[i] = -99.;
         fDoff_T[i] = -99.;
         fToff_T[i] = 0;
+        if( fTLRunParameter->fWritePixelLists )
+        {
+            PixelListN[i] = 0;
+        }
+
     }
     fnxyoff = 0;
     fnmscw = 0;
@@ -2491,6 +2524,10 @@ void VTableLookupDataHandler::resetImageParameters( unsigned int i )
     ftgrad_x[i] = 0.;
     ftchisq_x[i] = 0.;
     fFitstat[i] = 0;
+    if( fTLRunParameter->fWritePixelLists )
+    {
+        PixelListN[i] = 0;
+    }
 }
 
 /*
