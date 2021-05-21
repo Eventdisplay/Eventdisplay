@@ -866,18 +866,13 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             // disp uncertainty
             // - only possible for LL image fitting 
             // - standard error propagation for disp calculation
+            // - assume LL fit is performed in rotated frame
+            //   (meaning: cen_x and length on one axis)
             dispImageError = -1.;
             if( i_tpars[i]->hasParameterErrors() )
             {
-                float dx2 = dcen_x*dcen_x;
-                // (disp error now known)
-                //dx2 += cosphi * cosphi * d_disp;
-                dx2 += disp*disp * sinphi * sinphi * dphi * dphi;
-                float dy2 = dcen_y*dcen_y;
-                // (disp error now known)
-                //dy2 += sinphi * sinphi * d_disp;
-                dy2 += disp*disp * cosphi * cosphi * dphi * dphi;
-                dispImageError = sqrt( dx2 + dy2 );
+                dispImageError = sqrt( dcen_x*dcen_x
+                                     +  dlength * dlength );
             }
             
             // training target in ratio to size
@@ -926,10 +921,11 @@ int main( int argc, char* argv[] )
     // print help text
     if( argc < 6 )
     {
-        cout << "./trainTMVAforAngularReconstruction <list of input eventdisplay files (MC)> <output directory>";
-        cout << " <train vs test fraction> <RecID> <telescope type> [train for angular / energy / core reconstruction]";
-        cout << " [MVA options] [array layout file] [directory with training trees] [quality cut]";
-        cout << " [use image parameter errors (default=off=0)]";
+        cout << "./trainTMVAforAngularReconstruction <list of input eventdisplay files (MC)> <output directory>" << endl;
+        cout << "                                     <train vs test fraction> <RecID> <telescope type>" << endl;
+        cout << "                                     [train for angular / energy / core reconstruction]" << endl;
+        cout << "                                     [MVA options] [array layout file] [directory with training trees]" << endl;
+        cout << "                                     [quality cut] [use image parameter errors (default=off=0)]";
         cout << endl;
         cout << endl;
 
