@@ -537,6 +537,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     Double_t SizeFirstMax_temp = -1000.;
     Double_t SizeSecondMax_temp = -100.;
     ii = 0;
+    unsigned int i_pixel_id0 = 0;
+    PixelListNPixelNN = 0;
     for( unsigned int i = 0; i < fNTel; i++ )
     {
         bool fReadTPars = false;
@@ -613,14 +615,18 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             if( ftpars[i]->hasPixelList() && fTLRunParameter->fWritePixelLists )
             {
                 PixelListN[ii] = ftpars[i]->PixelListN;
+                PixelListNPixelNN += ftpars[i]->PixelListN;
+                unsigned int i_pix_id = 0;
                 for( unsigned int p = 0; p < PixelListN[ii]; p++ )
                 {
-                    PixelID[ii][p] = ftpars[i]->PixelID[p];
-                    PixelType[ii][p] = ftpars[i]->PixelType[p];
-                    PixelIntensity[ii][p] = ftpars[i]->PixelIntensity[p];
-                    PixelTimingT0[ii][p] = ftpars[i]->PixelTimingT0[p];
-                    PixelPE[ii][p] = ftpars[i]->PixelPE[p];
-                }
+                    i_pix_id = i_pixel_id0 + p;
+                    PixelID[i_pix_id] = ftpars[i]->PixelID[p];
+                    PixelType[i_pix_id] = ftpars[i]->PixelType[p];
+                    PixelIntensity[i_pix_id] = ftpars[i]->PixelIntensity[p];
+                    PixelTimingT0[i_pix_id] = ftpars[i]->PixelTimingT0[p];
+                    PixelPE[i_pix_id] = ftpars[i]->PixelPE[p];
+                } 
+                i_pixel_id0 += PixelListN[ii];
                 ii++;
             }
             
@@ -1841,16 +1847,12 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     if( fTLRunParameter->fWritePixelLists )
     {
         fOTree->Branch( "PixelListN", PixelListN, "PixelListN[NImages]/i" );
-        sprintf( iTT, "PixelID[NImages][%d]/i", VDST_MAXCHANNELS );
-        fOTree->Branch( "PixelID", PixelID, iTT );
-        sprintf( iTT, "PixelType[NImages][%d]/i", VDST_MAXCHANNELS );
-        fOTree->Branch( "PixelType", PixelType, iTT );
-        sprintf( iTT, "PixelIntensity[NImages][%d]/F", VDST_MAXCHANNELS );
-        fOTree->Branch( "PixelIntensity", PixelIntensity, iTT );
-        sprintf( iTT, "PixelTimingT0[NImages][%d]/F", VDST_MAXCHANNELS );
-        fOTree->Branch( "PixelTimingT0", PixelTimingT0, iTT );
-        sprintf( iTT, "PixelPE[NImages][%d]/F", VDST_MAXCHANNELS );
-        fOTree->Branch( "PixelPE", PixelPE, iTT );
+        fOTree->Branch( "PixelListNPixelNN", &PixelListNPixelNN, "PixelListNPixelNN/i" );
+        fOTree->Branch( "PixelID", PixelID, "PixelID[PixelListNPixelNN]/i" );
+        fOTree->Branch( "PixelType", PixelType, "PixelType[PixelListNPixelNN]/i" );
+        fOTree->Branch( "PixelIntensity", PixelIntensity, "PixelIntensity[PixelListNPixelNN]/F" );
+        fOTree->Branch( "PixelTimingT0", PixelTimingT0, "PixelTimingT0[PixelListNPixelNN]/F" );
+        fOTree->Branch( "PixelPE", PixelPE, "PixelPE[PixelListNPixelNN]/F" );
     }
     
     readRunParameter();
@@ -2410,6 +2412,7 @@ void VTableLookupDataHandler::reset()
         }
 
     }
+    PixelListNPixelNN = 0;
     fnxyoff = 0;
     fnmscw = 0;
     fnenergyT = 0;
