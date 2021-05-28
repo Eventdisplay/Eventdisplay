@@ -159,7 +159,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     if( !iSingleTelescopeAnalysis )
     {
         dataloader->AddVariable( "cross" , 'F' );
-    }
+    } 
     dataloader->AddVariable( "asym"  , 'F' );
     dataloader->AddVariable( "loss"  , 'F' );
     dataloader->AddVariable( "dist"  , 'F' );
@@ -174,6 +174,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
        dataloader->AddVariable( "dispImageError", 'F' );
     }
     // spectators
+    dataloader->AddSpectator( "ntubes", 'F' );
     dataloader->AddSpectator( "cen_x", 'F' );
     dataloader->AddSpectator( "cen_y", 'F' );
     dataloader->AddSpectator( "cosphi", 'F' );
@@ -683,8 +684,8 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         // - at least two telescopes
         if( !iSingleTelescopeAnalysis )
         {
-            if( i_showerpars.Chi2[iRecID] < 0.
-                    ||  i_showerpars.NImages[iRecID] < 2 )
+            if( i_showerpars.Chi2[iRecID] < -999.
+            ||  i_showerpars.NImages[iRecID] < 2 )
             {
                 continue;
             }
@@ -945,9 +946,11 @@ int main( int argc, char* argv[] )
     unsigned int iRecID      = atoi( argv[4] );
     ULong64_t    iTelType    = atoi( argv[5] ) ;
     string       iTargetML  = "BDTDisp";
+    // tmva options likely overwritten from command line
     string iTMVAOptions = "VarTransform=N:NTrees=200:BoostType=AdaBoost:MaxDepth=8";
     string       iDataDirectory = "";
     string       iLayoutFile = "";
+    // quality cut likely overwritten from command line
     string       iQualityCut = "size>1.&&ntubes>4.&&width>0.&&width<2.&&length>0.&&length<10.";
     iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&Rcore<2000.";
     if( argc >=  7 )
