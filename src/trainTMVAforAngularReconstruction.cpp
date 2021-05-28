@@ -32,6 +32,7 @@
 #include "VEmissionHeightCalculator.h"
 #include "VDetectorTree.h"
 #include "VGlobalRunParameter.h"
+#include "VSimpleStereoReconstructor.h"
 #include "VUtilities.h"
 
 using namespace std;
@@ -150,6 +151,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     dataloader->AddVariable( "length", 'F' );
     dataloader->AddVariable( "wol",    'F' );
     dataloader->AddVariable( "size"  , 'F' );
+    dataloader->AddVariable( "ntubes", 'F' );
     // hard coded ASTRI telescope type
     // (no time gradient is available)
     if( iTelType != 201511619 )
@@ -174,7 +176,6 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
        dataloader->AddVariable( "dispImageError", 'F' );
     }
     // spectators
-    dataloader->AddSpectator( "ntubes", 'F' );
     dataloader->AddSpectator( "cen_x", 'F' );
     dataloader->AddSpectator( "cen_y", 'F' );
     dataloader->AddSpectator( "cosphi", 'F' );
@@ -450,9 +451,14 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     // vector with telescope position
     // (includes all telescopes, even those
     // of other types)
+    // (unfortunatly inconsistent in data 
+    //  types required)
     vector< float > fTelX;
     vector< float > fTelY;
     vector< float > fTelZ;
+    vector< double > fEM_TelX;
+    vector< double > fEM_TelY;
+    vector< double > fEM_TelZ;
     vector< ULong64_t > fTelType;
     unsigned int f_ntelType = 0;
     for( unsigned int i = 0; i < i_ntel; i++ )
@@ -462,6 +468,9 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         fTelX.push_back( i_tel.TelX );
         fTelY.push_back( i_tel.TelY );
         fTelZ.push_back( i_tel.TelZ );
+        fEM_TelX.push_back( i_tel.TelX );
+        fEM_TelY.push_back( i_tel.TelY );
+        fEM_TelZ.push_back( i_tel.TelZ );
         fTelType.push_back( i_tel.TelType );
 
         if( i < fUseTelescope.size() && !fUseTelescope[i] )
@@ -660,6 +669,16 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     double fEM_cen_x[fTelType.size()];
     double fEM_cen_y[fTelType.size()];
     double fEM_size[fTelType.size()];
+    double fEM_width[fTelType.size()];
+    double fEM_length[fTelType.size()];
+    double fEM_cosphi[fTelType.size()];
+    double fEM_sinphi[fTelType.size()];
+    double fEM_weight[fTelType.size()];
+
+    // stereo (intersection of line) reconstruction 
+    // needed for the re-calculation of 'cross'
+    VSimpleStereoReconstructor i_SR;
+    i_SR.initialize();
     
     /////////////////////////////////////////////////
     // loop over all events in trees
@@ -698,12 +717,13 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             }
         }
         
-        // check if there are image of this particle teltype
+        // check if there are image of this telescope type
+        // (hyper-array)
         int i_nteltypecounter = 0;
         for( unsigned int i = 0; i < fTelType.size(); i++ )
         {
             if( (fTelType[i] == iTelType || iTelType == 0)
-                    && ( int )i_showerpars.ImgSel_list[iRecID][i] > 0 )
+             && ( int )i_showerpars.ImgSel_list[iRecID][i] > 0 )
             {
                 i_nteltypecounter++;
             }
@@ -714,12 +734,17 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         }
         
         /////////////////////////////////////////////////////////
-        // calculate emission height
+        // calculate emission height and cross
         for( unsigned int i = 0; i < i_tpars.size(); i++ )
         {
             fEM_size[i] = -1.;
             fEM_cen_x[i] = 0.;
             fEM_cen_y[i] = 0.;
+            fEM_width[i] = 0.;
+            fEM_length[i] = 0.;
+            fEM_cosphi[i] = 0.;
+            fEM_sinphi[i] = 0.;
+            fEM_weight[i] = 0.;
             
             if( ( int )i_showerpars.ImgSel_list[iRecID][i] < 1
                     && (i_showerpars.NImages[iRecID] > 1 || !iSingleTelescopeAnalysis ) )
@@ -727,7 +752,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                 continue;
             }
             // note: this is different to what happens in the analysis:
-            // here the emissionheight is calculated only from the
+            // here the emissionheight / direction is calculated only from the
             // telescopes of the given telescope type
             if( !i_tpars[i] )
             {
@@ -741,11 +766,35 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                 fEM_size[i] = i_tpars[i]->size;
                 fEM_cen_x[i] = i_tpars[i]->cen_x;
                 fEM_cen_y[i] = i_tpars[i]->cen_y;
+                fEM_width[i] = i_tpars[i]->width;
+                fEM_length[i] = i_tpars[i]->length;
+                fEM_cosphi[i] = i_tpars[i]->cosphi;
+                fEM_sinphi[i] = i_tpars[i]->sinphi;
+                // weight is always 1: all telescopes
+                // are of same type
+                fEM_weight[i] = 1.;
             }
         }
         EmissionHeight = fEmissionHeightCalculator->getEmissionHeight( fEM_cen_x, fEM_cen_y, fEM_size,
                          i_showerpars.ArrayPointing_Azimuth,
                          i_showerpars.ArrayPointing_Elevation );
+
+        if( !iSingleTelescopeAnalysis )
+        {
+            i_SR.reconstruct_direction_and_core( 
+                          fEM_TelX.size(),
+                          i_showerpars.ArrayPointing_Elevation,
+                          i_showerpars.ArrayPointing_Azimuth,
+                          &fEM_TelX[0], &fEM_TelY[0], &fEM_TelZ[0],
+                          fEM_size,
+                          fEM_cen_x, 
+                          fEM_cen_y,
+                          fEM_cosphi,
+                          fEM_sinphi,
+                          fEM_width,
+                          fEM_length,
+                          fEM_weight );
+         }
 
         //////////////////////////////////////
         // loop over all telescopes
@@ -764,7 +813,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             // check if event is not completely out of the FOV
             // (use 20% x size of the camera)
             if( i < iFOV_tel.size()
-                    && sqrt( i_showerpars.MCxoff * i_showerpars.MCxoff + i_showerpars.MCyoff * i_showerpars.MCyoff ) > iFOV_tel[i] * 0.5 * 1.2 )
+               && sqrt( i_showerpars.MCxoff * i_showerpars.MCxoff + i_showerpars.MCyoff * i_showerpars.MCyoff ) > iFOV_tel[i] * 0.5 * 1.2 )
             {
                 continue;
             }
@@ -776,6 +825,14 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             {
                 continue;
             }
+            // required successful fit
+            // (in case images are fitted)
+            if( i_tpars[i]->hasParameterErrors() && 
+                 i_tpars[i]->Fitstat < 1 )
+            {
+               continue;
+            }
+
             
             runNumber   = i_showerpars.runNumber;
             eventNumber = i_showerpars.eventNumber;
@@ -785,7 +842,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             sinphi      = i_tpars[i]->sinphi;
             cosphi      = i_tpars[i]->cosphi;
             size        = log10( i_tpars[i]->size );
-            ntubes      = i_tpars[i]->ntubes;
+            ntubes      = log10( i_tpars[i]->ntubes );
             loss        = i_tpars[i]->loss;
             asym        = i_tpars[i]->asymmetry;
             width       = i_tpars[i]->width;
@@ -838,10 +895,14 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             //////////////////////////////////////////////////////////////////////////////////////////////////
             // calculate disp (observe sign convention for MC in y direction for MCyoff and Yoff)
             disp  = sqrt( ( cen_y + MCyoff ) * ( cen_y + MCyoff ) + ( cen_x - MCxoff ) * ( cen_x - MCxoff ) );
-            cross = sqrt( ( cen_y + Yoff ) * ( cen_y + Yoff ) + ( cen_x - Xoff ) * ( cen_x - Xoff ) );
             if( iSingleTelescopeAnalysis )
             {
                  cross = 0.;
+            }
+            else
+            {
+                cross = sqrt( ( cen_y + i_SR.fShower_Yoffset ) * ( cen_y + i_SR.fShower_Yoffset )
+                            + ( cen_x - i_SR.fShower_Xoffset ) * ( cen_x - i_SR.fShower_Xoffset ) );
             }
             dispPhi = TMath::ATan2( sinphi, cosphi ) - TMath::ATan2( cen_y + MCyoff, cen_x - MCxoff );
             
@@ -873,7 +934,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             if( i_tpars[i]->hasParameterErrors() )
             {
                 dispImageError = sqrt( dcen_x*dcen_x
-                                     +  dlength * dlength );
+                                    +  dlength*dlength );
             }
             
             // training target in ratio to size
@@ -976,7 +1037,7 @@ int main( int argc, char* argv[] )
     bool iUseImageParameterErrors = false;
     if( argc >= 12 )
     {
-        iUseImageParameterErrors = (bool)(argv[11]);
+        iUseImageParameterErrors = (bool)(atoi(argv[11]));
     }
     
     ///////////////////////////
@@ -998,6 +1059,10 @@ int main( int argc, char* argv[] )
     }
     cout << endl;
     cout << "using events for reconstruction ID " << iRecID << endl;
+    if( iUseImageParameterErrors )
+    {
+       cout << "using image parameter fit errors" << endl;
+    }
     
     /////////////////////////
     if( fTrainTest <= 0.0 || fTrainTest >= 1.0 )
