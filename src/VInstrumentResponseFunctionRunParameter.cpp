@@ -601,7 +601,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameters( string ifilenam
     else
     {
         cout << "VInstrumentResponseFunctionRunParameter::readRunParameters() warning: ";
-        cout << "cannot read instrument epoch and active telecopes from MC event file" << endl;
+        cout << "cannot read instrument epoch and active telescopes from MC event file" << endl;
         cout << "this might lead to a wrong choice in the gamma/hadron cuts - please check" << endl;
         fInstrumentEpoch = "NOT_FOUND";
     }
