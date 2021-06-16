@@ -357,6 +357,7 @@ CTA:	evndisp \
 	slib \
 	writeCTAWPPhysSensitivityFiles \
 	writeCTAWPPhysSensitivityTree \
+	convertSensitivityFilesToFITS \
 	writeParticleRateFilesFromEffectiveAreas \
 	smoothLookupTables \
 	logFile \
@@ -1200,6 +1201,25 @@ TESTEFILE =		./obj/testEvndispOutput.o \
 testEvndispOutput:	$(TESTEFILE)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
+
+########################################################
+# convertSensitivityFilesToFITS
+########################################################
+ifeq ($(FITS),FALSE)
+convertSensitivityFilesToFITS:
+	@echo " - No FITS support; set FITSYS to your cfitsio installation"
+else
+CONVERTFITS=		./obj/convertSensitivityFilesToFITS.o \
+			./obj/VFITSIRFs.o
+
+./obj/convertSensitivityFilesToFITS.o: 	./src/convertSensitivityFilesToFITS.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+convertSensitivityFilesToFITS:	$(CONVERTFITS)
+	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
+	@echo "$@ done"
+endif
+
 
 ########################################################
 # writeCTAWPPhysSensitivityFiles 
