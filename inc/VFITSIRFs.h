@@ -20,6 +20,7 @@ class VFITSIRFs
     private:
     fitsfile* fptr;
 
+    vector< vector< float > > get_baseline_axes( TH2F *h );
     bool printerror( int status );
     bool write_table( vector< vector< float > > table );
 

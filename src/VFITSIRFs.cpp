@@ -79,9 +79,99 @@ bool VFITSIRFs::write_psf_gauss( TH2F *h )
 {
    if( !h ) return false;
 
+   int status = 0;
+   const int nCol = 10;
+   long nRows = h->GetNbinsX() * h->GetNbinsY();
+   nRows = 0;
+   char* tType[nCol] = { "ENERG_LO",
+                      "ENERG_HI",
+                      "THETA_LO",
+                      "THETA_HI",
+                      "SCALE",
+                      "SIGMA_1",
+                      "SIGMA_2",
+                      "SIGMA_3",
+                      "AMPL_2",
+                      "AMPL_3" };
+   char* tUnit[nCol] = { "TeV",
+                      "TeV",
+                      "deg",
+                      "deg",
+                      "sr^(-1)",
+                      "deg",
+                      "deg",
+                      "deg",
+                      "",
+                      "" };
+   char x_form[10];
+   sprintf( x_form, "%dE", h->GetNbinsX() );
+   char y_form[10];
+   sprintf( y_form, "%dE", h->GetNbinsY() );
+   char z_form[10];
+   sprintf( z_form, "%dE", h->GetNbinsX()*h->GetNbinsY() );
+   char* tForm[nCol] = { &x_form[0],
+                      &x_form[0],
+                      &y_form[0],
+                      &y_form[0],
+                      &z_form[0],
+                      &z_form[0],
+                      &z_form[0],
+                      &z_form[0],
+                      &z_form[0],
+                      &z_form[0] };
+   ///////////////
+   // create empty table
+   if( fits_create_tbl( fptr, 
+                        BINARY_TBL, 
+                        nRows, 
+                        nCol, 
+                        tType, 
+                        tForm, 
+                        tUnit, 
+                        "POINT SPREAD FUNCTION",
+                        &status ) )
+   {
+       return printerror( status );
+   }
+   // set dimensions
+   long int naxes[] = { h->GetNbinsX(),  h->GetNbinsY() };
+   int dim_colnum[] = { 5, 6, 7, 8, 9, 10 };
+   for( int i = 0; i < 6; i++ )
+   {
+       if( fits_write_tdim( fptr,
+                            dim_colnum[i],
+                            2,
+                            naxes,
+                            &status ) )
+      {
+          return printerror( status );
+      }
+   }
+   ///////////////
+   // write data 
+   vector< vector< float > > table = get_baseline_axes( h );
 
-   return true;
+   // data
+   vector< float > data;
+   vector< float > empty;
+   for( int i = 0; i < h->GetNbinsX(); i++ )
+   {
+      for( int j = 0; j < h->GetNbinsY(); j++ )
+      {
+          data.push_back( h->GetBinContent( i, j ) );
+          empty.push_back( 0. );
+      }
+   }
+   table.push_back( data );
+   table.push_back( data );
+   for( unsigned int i = 0; i < 4; i++ )
+   {
+       table.push_back( empty );
+   }
+
+   return write_table( table );
 }
+
 
 bool VFITSIRFs::write_histo2D( TH2F *h,
                                string name,
@@ -142,29 +232,8 @@ bool VFITSIRFs::write_histo2D( TH2F *h,
   }
    ///////////////
    // write data 
-   vector< vector< float > > table;
-   // xaxis
-   vector< float > xedge_low;
-   vector< float > xedge_hig;
-   for( int i = 0; i < h->GetNbinsX(); i++ )
-   {
-       xedge_low.push_back( TMath::Power( 10.,
-                                         h->GetXaxis()->GetBinLowEdge( i+1 ) ) );
-       xedge_hig.push_back( TMath::Power( 10.,
-                                         h->GetXaxis()->GetBinUpEdge( i+1 ) ) );
-   }
-   table.push_back( xedge_low );
-   table.push_back( xedge_hig);
-   // yaxis
-   vector< float > yedge_low;
-   vector< float > yedge_hig;
-   for( int i = 0; i < h->GetNbinsY(); i++ )
-   {
-       yedge_low.push_back( h->GetYaxis()->GetBinLowEdge( i+1 ) );
-       yedge_hig.push_back( h->GetYaxis()->GetBinUpEdge( i+1 ) );
-   }
-   table.push_back( yedge_low );
-   table.push_back( yedge_hig);
+   vector< vector< float > > table = get_baseline_axes( h );
+
    // data
    vector< float > data;
    for( int i = 0; i < h->GetNbinsX(); i++ )
@@ -201,4 +270,35 @@ bool VFITSIRFs::write_table( vector< vector< float > > table )
    }
 
    return true;
+}
+
+vector<vector<float>> VFITSIRFs::get_baseline_axes( TH2F *h )
+{
+   vector< vector< float > > table;
+   if( !h ) return table;
+   
+   // xaxis
+   vector< float > xedge_low;
+   vector< float > xedge_hig;
+   for( int i = 0; i < h->GetNbinsX(); i++ )
+   {
+       xedge_low.push_back( TMath::Power( 10.,
+                                         h->GetXaxis()->GetBinLowEdge( i+1 ) ) );
+       xedge_hig.push_back( TMath::Power( 10.,
+                                         h->GetXaxis()->GetBinUpEdge( i+1 ) ) );
+   }
+   table.push_back( xedge_low );
+   table.push_back( xedge_hig);
+   // yaxis
+   vector< float > yedge_low;
+   vector< float > yedge_hig;
+   for( int i = 0; i < h->GetNbinsY(); i++ )
+   {
+       yedge_low.push_back( h->GetYaxis()->GetBinLowEdge( i+1 ) );
+       yedge_hig.push_back( h->GetYaxis()->GetBinUpEdge( i+1 ) );
+   }
+   table.push_back( yedge_low );
+   table.push_back( yedge_hig);
+
+   return table;
 }
