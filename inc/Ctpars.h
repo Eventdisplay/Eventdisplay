@@ -1,14 +1,6 @@
 //////////////////////////////////////////////////////////
-// This class has been automatically generated on
-// Thu Feb  8 14:35:45 2007 by ROOT version 5.10/00
-// from TTree tpars/Event Parameters (Telescope 1)
-// found on file: output/32855.root
-//////////////////////////////////////////////////////////
 //
 //   adjusted to mscw_energy
-//
-//
-//
 //
 //   DO NOT OVERWRITE !!!!
 //
@@ -21,6 +13,8 @@
 #include <TChain.h>
 #include <TFile.h>
 
+#include "VGlobalRunParameter.h"
+
 using namespace std;
 
 class Ctpars
@@ -29,6 +23,7 @@ class Ctpars
         bool            bMC;
         unsigned int    bShort;
         bool            bParameterErrors;
+        bool            bPixelList;
         TTree*          fChain;                   //!pointer to the analyzed TTree or TChain
         Int_t           fCurrent;                 //!current Tree number in a TChain
         
@@ -107,6 +102,12 @@ class Ctpars
         Float_t         dlength;
         Float_t         dwidth;
         Float_t         dphi;
+        UInt_t          PixelListN;
+        UInt_t          PixelID[VDST_MAXCHANNELS];   //[PixelListN]
+        UInt_t          PixelType[VDST_MAXCHANNELS];   //[PixelListN]
+        Float_t         PixelIntensity[VDST_MAXCHANNELS];   //[PixelListN]
+        Float_t         PixelTimingT0[VDST_MAXCHANNELS];   //[PixelListN]
+        Float_t         PixelPE[VDST_MAXCHANNELS];   //[PixelListN]
         
         // List of branches
         TBranch*        b_telID;                  //!
@@ -189,6 +190,12 @@ class Ctpars
         TBranch*        b_muonIPCorrectedSize;
         TBranch*        b_muonValid;
         TBranch*        b_houghMuonValid;
+        TBranch        *b_PixelListN;   //!
+        TBranch        *b_PixelID;   //!
+        TBranch        *b_PixelType;   //!
+        TBranch        *b_PixelIntensity;   //!
+        TBranch        *b_PixelTimingT0;   //!
+        TBranch        *b_PixelPE;   //!
         
         Ctpars( TTree* tree = 0, bool iMC = false, unsigned int iShort = false );
         virtual ~Ctpars();
@@ -209,6 +216,10 @@ class Ctpars
         bool             hasParameterErrors()
         {
            return bParameterErrors;
+        }
+        bool   hasPixelList()
+        {
+           return bPixelList;
         }
 };
 #endif
@@ -233,6 +244,7 @@ Ctpars::Ctpars( TTree* tree, bool iMC, unsigned int iShort )
     bMC = iMC;
     bShort = iShort;
     bParameterErrors = false;
+    bPixelList = false;
     // forward I/O
     // is supposed to speed up reading significantly
     // problem: large memory consumption (>12 GB for certain cta arrays)
@@ -304,7 +316,11 @@ void Ctpars::Init( TTree* tree )
     {
         bParameterErrors = true;
     }
-    //	fChain->SetMakeClass( 1 );
+    bPixelList = false;
+    if( fChain->GetBranchStatus( "PixelListN" ) )
+    {
+       bPixelList = true;
+    }
     /////////////////////////////////////////////////
     //    bShort = 2:  read limited number of branched needed for lookup table filling
     //    (reading only a limited number of branches accelerates the reading process)
@@ -429,6 +445,27 @@ void Ctpars::Init( TTree* tree )
             dlength = 0.;
             dwidth = 0.;
             dphi = 0.;
+        }
+        if( fChain->GetBranchStatus( "PixelListN" ) )
+        {
+            fChain->SetBranchAddress( "PixelListN", &PixelListN );
+            fChain->SetBranchAddress( "PixelID", PixelID );
+            fChain->SetBranchAddress( "PixelType", PixelType );
+            fChain->SetBranchAddress( "PixelIntensity", PixelIntensity );
+            fChain->SetBranchAddress( "PixelTimingT0", PixelTimingT0 );
+            fChain->SetBranchAddress( "PixelPE", PixelPE );
+        }
+        else
+        {
+           PixelListN = 0;
+           for( unsigned int i = 0; i < VDST_MAXCHANNELS; i++ )
+           {
+               PixelID[i] = 0;
+               PixelType[i] = 0;
+               PixelIntensity[i] = 0.;
+               PixelTimingT0[i] = 0.;
+               PixelPE[i] = 0.;
+           }
         }
 
         // reset variables which are not read out
@@ -576,6 +613,12 @@ Bool_t Ctpars::Notify()
     b_muonIPCorrectedSize = 0;
     b_muonValid = 0;
     b_houghMuonValid = 0;
+    b_PixelListN = 0;
+    b_PixelID = 0;
+    b_PixelType = 0;
+    b_PixelIntensity = 0;
+    b_PixelTimingT0 = 0;
+    b_PixelPE = 0;
     
     // get branch pointers
     if( bShort <= 2 )
@@ -698,6 +741,21 @@ Bool_t Ctpars::Notify()
             b_dphi = fChain->GetBranch( "dphi" );
             fChain->AddBranchToCache( b_dphi );
         }
+        if( fChain->GetBranchStatus( "PixelListN" ) )
+        {
+            b_PixelListN = fChain->GetBranch( "PixelListN" );
+            fChain->AddBranchToCache( b_PixelListN );
+            b_PixelID = fChain->GetBranch( "PixelID" );
+            fChain->AddBranchToCache( b_PixelID );
+            b_PixelType = fChain->GetBranch( "PixelType" );
+            fChain->AddBranchToCache( b_PixelType );
+            b_PixelIntensity = fChain->GetBranch( "PixelIntensity" );
+            fChain->AddBranchToCache( b_PixelIntensity );
+            b_PixelTimingT0 = fChain->GetBranch( "PixelTimingT0" );
+            fChain->AddBranchToCache( b_PixelTimingT0 );
+            b_PixelPE = fChain->GetBranch( "PixelPE" );
+            fChain->AddBranchToCache( b_PixelPE );
+         }
         //muon
         if( fChain->GetBranchStatus( "muonX0" ) )
         {

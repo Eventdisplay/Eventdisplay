@@ -191,7 +191,6 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         {
             f_angdiff = 180. - f_angdiff;
         }
-        
     }
     // multiplicity 1: set value to 90 deg (!)
     else if( cosphi.size() == 1 )

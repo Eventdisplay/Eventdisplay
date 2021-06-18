@@ -158,6 +158,8 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         bool bShortTree;
         // copy MC tree over to output file (from evndisp files)
         bool bWriteMCPars;
+        // copy pixel lists into mscw tree (large tree!)
+        bool fWritePixelLists;
         // maximum time (in s) used of this run
         double fMaxRunTime;
         // parameters to be used in anasum
@@ -184,6 +186,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         void print( int iB = 0 );
         void printHelp();
         
-        ClassDef( VTableLookupRunParameter, 49 ); //for any changes to this file: increase this number
+        ClassDef( VTableLookupRunParameter, 50 ); //for any changes to this file: increase this number
 };
 #endif
