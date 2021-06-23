@@ -242,7 +242,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "energy reconstruction, after gamma-selection cuts",
                         "energy_{MC} [TeV]",
                         "energy bias E_{rec}/E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        300, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
                         fBiasBin, 0., 3., "" );
     newEffectiveAreaHistogram( "2D", E_Esys2D,
