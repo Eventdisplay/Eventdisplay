@@ -242,7 +242,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "energy reconstruction, after gamma-selection cuts",
                         "energy_{MC} [TeV]",
                         "energy bias E_{rec}/E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        300, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
                         fBiasBin, 0., 3., "" );
     newEffectiveAreaHistogram( "2D", E_Esys2D,
@@ -395,8 +395,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     if( fRunPara->fWriteEventdatatrees != "FALSE" )
     {
         fDL2EventTree = new TTree( "DL2EventTree", "DL2 tree" );
-        // save disk space: don't write runNumber
-        // fDL2EventTree->Branch( "runNumber", &fDL2_runNumber, "runNumber/i" );
+        fDL2EventTree->Branch( "runNumber", &fDL2_runNumber, "runNumber/i" );
         // save disk space: don't write eventNumber
         // fDL2EventTree->Branch( "eventNumber", &fDL2_eventNumber, "eventNumber/i" );
         fDL2EventTree->Branch( "MCaz", &fDL2_MCaz, "MCaz/F" );
