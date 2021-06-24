@@ -977,7 +977,7 @@ int main( int argc, char* argv[] )
     bool iUseImageParameterErrors = false;
     if( argc >= 12 )
     {
-        iUseImageParameterErrors = (bool)(argv[11]);
+        iUseImageParameterErrors = (bool)(atoi(argv[11]));
     }
     
     ///////////////////////////
@@ -999,6 +999,10 @@ int main( int argc, char* argv[] )
     }
     cout << endl;
     cout << "using events for reconstruction ID " << iRecID << endl;
+    if( iUseImageParameterErrors )
+    {
+       cout << "using image parameter errors for training" << endl;
+    }
     
     /////////////////////////
     if( fTrainTest <= 0.0 || fTrainTest >= 1.0 )
