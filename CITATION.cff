@@ -1,5 +1,6 @@
 # YAML 1.2
 ---
+cff-version: "1.1.0"
 abstract: "Eventdisplay is a software package for the analysis and reconstruction of data and Monte Carlo events from ground-based gamma-ray observatories such as VERITAS and CTA. It was originally developed as a display tool for data from the VERITAS prototype telescope, but evolved into a full analysis package with routines for calibration, FADC trace integration, image and stereo parameter analysis, response function calculation, and high-level analysis steps. Eventdisplay makes use of an image parameter analysis combined with gamma-hadron separation methods based on multivariate algorithms. An overview of the reconstruction methods and some selected results are presented in this contribution. "
 authors: 
   -
@@ -11,7 +12,6 @@ authors:
     affiliation: "Department of Physics and Astronomy and the Bartol Research Institute, University of Delaware, Newark, DE 19716, USA"
     family-names: Holder
     given-names: Jamie
-cff-version: "1.1.0"
 doi: "10.22323/1.301.0747 "
 message: "If you use this software, please cite it using these metadata."
 title: "Eventdisplay: An Analysis and Reconstruction Package for Ground-based Gamma-ray Astronomy"
