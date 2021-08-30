@@ -30,10 +30,12 @@ double orthogonal_X_Y_Z( double zenith_deg, double azimuth_deg, double B_z, doub
      all values from the prod2 CORSIKA simulation header
 
 */
-void printBField_at_CTA_sites()
+void printBField_at_CTA_sites( bool bCTA = true )
 {
     vector< double > fZe;
     vector< double > fAz;
+    fZe.push_back( 5. );
+    fZe.push_back( 10. );
     fZe.push_back( 15. );
     fZe.push_back( 20. );
     fZe.push_back( 45. );
@@ -46,41 +48,51 @@ void printBField_at_CTA_sites()
     vector< double > fB_tot;
     vector< double > fInclination_deg;
     vector< double > fDeclination_deg;
-    
-    /*	fSiteName.push_back( "Leoncito" );
-    	fB_tot.push_back( 23.5536 );
-    	fInclination_deg.push_back( -32.3406 );
-    	fDeclination_deg.push_back( 0. );
-    
-    	fSiteName.push_back( "SAC" );
-    	fB_tot.push_back( 22.7161 );
-    	fInclination_deg.push_back( -23.0661 );
-    	fDeclination_deg.push_back( 0. ); */
-    
-    fSiteName.push_back( "Aar" );
-    fB_tot.push_back( 27.1812 );
-    fInclination_deg.push_back( -66.3586 );
-    fDeclination_deg.push_back( 0. );
-    
-    /*	fSiteName.push_back( "Armazones" );
-    	fB_tot.push_back( 23.1594 );
-    	fInclination_deg.push_back( -22.6642 );
-    	fDeclination_deg.push_back( 0. );
+
+    if( bCTA )
+    {
+        
+        /*	fSiteName.push_back( "Leoncito" );
+            fB_tot.push_back( 23.5536 );
+            fInclination_deg.push_back( -32.3406 );
+            fDeclination_deg.push_back( 0. );
+        
+            fSiteName.push_back( "SAC" );
+            fB_tot.push_back( 22.7161 );
+            fInclination_deg.push_back( -23.0661 );
+            fDeclination_deg.push_back( 0. ); */
+        
+        fSiteName.push_back( "Aar" );
+        fB_tot.push_back( 27.1812 );
+        fInclination_deg.push_back( -66.3586 );
+        fDeclination_deg.push_back( 0. );
+        
+        /*	fSiteName.push_back( "Armazones" );
+            fB_tot.push_back( 23.1594 );
+            fInclination_deg.push_back( -22.6642 );
+            fDeclination_deg.push_back( 0. );
     
     	fSiteName.push_back( "Tenerife" );
     	fB_tot.push_back( 38.5314 );
     	fInclination_deg.push_back( 36.952 );
     	fDeclination_deg.push_back( 0. ); */
-    
-    /*	fSiteName.push_back( "SPM" );
-    	fB_tot.push_back( 45.8194 );
-    	fInclination_deg.push_back( 56.6131 );
-    	fDeclination_deg.push_back( 0. );
-    
-    	fSiteName.push_back( "US" );
-    	fB_tot.push_back( 48.9437 );
-    	fInclination_deg.push_back( 61.2665 );
-    	fDeclination_deg.push_back( 0. ); */
+        
+        /*	fSiteName.push_back( "SPM" );
+            fB_tot.push_back( 45.8194 );
+            fInclination_deg.push_back( 56.6131 );
+            fDeclination_deg.push_back( 0. );
+        
+            fSiteName.push_back( "US" );
+            fB_tot.push_back( 48.9437 );
+            fInclination_deg.push_back( 61.2665 ); */
+    }
+    else
+    {
+        fSiteName.push_back( "VERITAS" );
+        fB_tot.push_back( 48.0231 );
+        fInclination_deg.push_back( 58.3487 );
+        fDeclination_deg.push_back( 0. );
+    }
     
     for( unsigned int i = 0; i < fSiteName.size(); i++ )
     {
