@@ -11,6 +11,7 @@
 #include "VASlalib.h"
 #elif ASTROSOFA
 #include <sofa.h>
+#include <sofam.h>
 #endif
 
 #define ASTRODJM0 (2400000.5)
