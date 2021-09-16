@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - ROOT must be installed 
-  version >= 6.14
+  version >= 6.20
   To compile root, use '-Dbuiltin_cfitsio=ON -Dbuiltin_gsl=ON'
 
 - SOFA library [http://www.iausofa.org/current_C.html] must be installed. Use the script in the $EVNDISPSYS directory:
@@ -14,7 +14,7 @@ Set the following environmental variable:  SOFASYS=$EVNDISPSYS/sofa
 
 ### VERITAS analysis
 
-(see VERITAS internal wiki for all details
+(see VERITAS internal wiki for all details)
 
 ### CTA analysis
 
