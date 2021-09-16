@@ -179,21 +179,7 @@ GCC_VER_MAJOR := $(shell echo $(GCCVERSION) | cut -f1 -d.)
 GCC_VER_MINOR := $(shell echo $(GCCVERSION) | cut -f2 -d.)
 # check if gcc version is smaller than 4.8.
 GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $(GCC_VER_MINOR) -lt 8 \) ] && echo true)
-ifneq ($(strip $(HESSIOSYS)),)
 CXXFLAGS    += -Wdeprecated-declarations -std=c++11
-endif
-########################################################
-# CXX FLAGS (taken from root)
-# ROOT 6 and check correct compiler version
-ifeq ($(ROOT6FLAG),-DROOT6)
-      # get major version of gcc, e.g. '4' in '4.6.'
-      GCC_VER_MAJOR := $(shell echo $(GCCVERSION) | cut -f1 -d.)
-      # get minor version of gcc, e.g. '6' in '4.6' 
-      GCC_VER_MINOR := $(shell echo $(GCCVERSION) | cut -f2 -d.)
-      # check if gcc version is smaller than 4.8.
-      GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $(GCC_VER_MINOR) -lt 8 \) ] && echo true)
-CXXFLAGS    += -Wdeprecated-declarations -std=c++11
-endif
 ########################################################
 # CXX FLAGS (taken from root)
 ########################################################
