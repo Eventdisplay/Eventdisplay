@@ -425,6 +425,10 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         {
             fMaxRunTime = atof( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
         }
+        else if( iTemp.find( "-limitEnergyReconstruction" ) < iTemp.size() )
+        {
+             cout << "obsolete run parameter -limitEnergyReconstruction; ignored" << endl;
+        }
         else
         {
             cout << "Error: unknown run parameter: " << iTemp << endl;
