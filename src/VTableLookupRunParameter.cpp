@@ -489,7 +489,7 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         readTelTypeDepdendentWeights( fTelescopeType_weightFile );
     }
     // for VTS analysis with a single inputfile: get telescope combinations
-    if( inputfile.size() == 1 && fTelescopeList_sim_telarray_Counting.size() == 0 )
+    if( fTelescopeList_sim_telarray_Counting.size() == 0 )
     {
         if( !readTelescopeToAnalyze( inputfile[0] ) )
         {
@@ -795,6 +795,13 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
     if( iPar )
     {
         iRunParT = iPar->fTelToAnalyze;
+        if( iPar->getObservatory().find( "VERITAS" ) == string::npos )
+        {
+             cout << "VTableLookupRunParameter::readTelescopeToAnalyze warning: ";
+             cout << "reading without telescope lists not enabled for non-VERITAS observatores";
+             cout << endl;
+             return false;
+        }
     }
     else
     {
