@@ -836,7 +836,9 @@ int VAnaSumRunParameter::loadSimpleFileList( string i_listfilename )
 
 /*
 
-   read long run list
+   read run list
+
+   bShortList = True: used in radial acceptance code
 
 */
 int VAnaSumRunParameter::loadLongFileList( string i_listfilename, bool bShortList, bool bTotalAnalysisOnly )
@@ -883,7 +885,7 @@ int VAnaSumRunParameter::loadLongFileList( string i_listfilename, bool bShortLis
             }
             checkNumberOfArguments( -1, narg, i_listfilename, is_line, fVersion, bShortList );
             is_stream >> temp;
-            // read run list
+            // signal and background runs
             i_sT.fRunOn = atoi( temp.c_str() );
             is_stream >> temp;
             i_sT.fRunOff = atoi( temp.c_str() );
