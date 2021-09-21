@@ -4,8 +4,12 @@
 #
 #  **TEMPORARY - SHOULD BE REMOVE BEFORE MERGING WITH MAIN**
 #
+if [[ $# < 1 ]]; then
+   echo "source ./set_v500.sh <analysis type>"
+   echo
+   echo "   e.g., TS, NN"
+fi
 
-EVNDISPVERSION="v500"
 USERAFSDIR="/afs/ifh.de/group/cta/scratch/$USER"
 USERLUSTDIR="/lustre/fs23/group/veritas/users/$USER"
 GROUPLUSTDIR="/lustre/fs23/group/veritas"
@@ -28,6 +32,7 @@ LD_LIBRARY_PATH=$VBFSYS/lib:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH
 export EVNDISPSYS=${TDIR}
 export SOFASYS=${EVNDISPSYS}/sofa
 export LD_LIBRARY_PATH=${EVNDISPSYS}/obj:${LD_LIBRARY_PATH}
+EDVERSION=`$EVNDISPSYS/bin/evndisp --version | tr -d .`
 
 ########################################################################
 # data and IRF directories
@@ -35,8 +40,8 @@ export LD_LIBRARY_PATH=${EVNDISPSYS}/obj:${LD_LIBRARY_PATH}
 # data directory (VBF files)
 export EVNDISPSCRIPTS=${USERAFSDIR}/EVNDISP/EVNDISP-400/GITHUB_Eventdisplay/Eventdisplay_AnalysisScripts_VTS/scripts/
 export VERITAS_DATA_DIR=/lustre/fs24/group/veritas/
-export VERITAS_EVNDISP_AUX_DIR=${USERLUSTDIR}/Eventdisplay_AnalysisFiles/${EVNDISPVERSION}/
 export VERITAS_USER_DATA_DIR=${USERLUSTDIR}
+export VERITAS_EVNDISP_AUX_DIR=${VERITAS_USER_DATA_DIR}/analysis/Results/${EDVERSION}/${1}/Eventdisplay_AnalysisFiles/
 export VERITAS_IRFPRODUCTION_DIR=${VERITAS_USER_DATA_DIR}/analysis/Results/
 export VERITAS_USER_LOG_DIR=${USERAFSDIR}/LOGS/VERITAS/
 
