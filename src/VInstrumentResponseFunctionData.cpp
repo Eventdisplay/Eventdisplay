@@ -682,7 +682,7 @@ TList*  VInstrumentResponseFunctionData::calculateResolution(
     //    angular resolution mode
     //    difference-vs-energy hist
     //    containment radii < 70 % (so theoretically, this should be True only once for the 0.68 containment radii)
-    doKingFit = ( ( fType_numeric == 0 ) && ( f2DHisto[E_DIFF] == iHistogram ) && ( iContainmentProbability < 0.7 ) ) ;
+    // doKingFit = ( ( fType_numeric == 0 ) && ( f2DHisto[E_DIFF] == iHistogram ) && ( iContainmentProbability < 0.7 ) ) ;
     
     double i_energy = 0.;
     
