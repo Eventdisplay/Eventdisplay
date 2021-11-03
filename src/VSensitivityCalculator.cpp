@@ -3258,7 +3258,7 @@ bool VSensitivityCalculator::fillBackroundvsSquareDegree( TGraphAsymmErrors* i_R
                     y /= iSolidAngle * TMath::RadToDeg() * TMath::RadToDeg();
                     iH_sqDeg->SetBinContent( iH_sqDeg->FindBin( x ), y / 60. );
                     iH_sqDeg->SetBinError( iH_sqDeg->FindBin( x ), 0.5 * ( i_R->GetErrorYlow( i ) + i_R->GetErrorYhigh( i ) )
-                                           / ( iSolidAngle * TMath::DegToRad() * TMath::DegToRad() ) / 60. );
+                                           / ( iSolidAngle * TMath::RadToDeg() * TMath::RadToDeg() ) / 60. );
                 }
             }
         }
