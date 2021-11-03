@@ -46,7 +46,6 @@ bool checkTelType( ULong64_t teltype,
    cout << rootfile << endl;
    exit( EXIT_FAILURE );
 
-
    return false;
 }
 
