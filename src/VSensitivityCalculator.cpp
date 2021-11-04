@@ -3030,6 +3030,10 @@ void VSensitivityCalculator::fillParticleNumbersGraphs( vector< VDifferentialFlu
                                iDifferentialFlux[i].NOff * alpha / ( fObservationTime_h * 60. ) / dE_log10 );
             gBGRate->SetPointEXhigh( z, log10( iDifferentialFlux[i].Energy_upEdge ) - log10( iDifferentialFlux[i].Energy ) );
             gBGRate->SetPointEXlow( z, log10( iDifferentialFlux[i].Energy ) - log10( iDifferentialFlux[i].Energy_lowEdge ) );
+            gBGRate->SetPointEYhigh( z,
+                               iDifferentialFlux[i].NOff_error * alpha / ( fObservationTime_h * 60. ) / dE_log10 );
+            gBGRate->SetPointEYlow( z,
+                               iDifferentialFlux[i].NOff_error * alpha / ( fObservationTime_h * 60. ) / dE_log10 );
             z++;
         }
     }
