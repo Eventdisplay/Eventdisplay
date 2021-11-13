@@ -1027,6 +1027,7 @@ void VReadRunParameter::test_and_adjustParams()
         {
             fRunPara->fLowGainCalibrationFile = "";
         }
+        fRunPara->fEpochFile = "";
     }
     
     // CTA/AGIS adjustments
