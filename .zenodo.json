@@ -16,22 +16,20 @@
         "orcid": "0000-0001-9868-4700",
         "affiliation": "DESY",
         "name": "Maier, Gernot"
-      },
-      {
-        "affiliation": "Department of Physics and Astronomy and the Bartol Research Institute, University of Delaware, Newark, DE 19716, USA",
-        "name": "Holder, Jamie"
       }
     ],
     "access_right": "open",
     "contributors": [
         {
+          "affiliation": "Department of Physics and Astronomy and the Bartol Research Institute, University of Delaware, Newark, DE 19716, USA",
+          "name": "Holder, Jamie"
+        },
+        {
           "affiliation": "DESY",
-          "type": "Other",
           "name": "Prado, Raul"
         },
         {
           "affiliation": "DESY",
-          "type": "Other",
           "name": "Batista, Pedro"
         }
     ],
