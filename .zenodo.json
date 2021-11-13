@@ -1,0 +1,51 @@
+{
+    "title" : "Eventdisplay Gamma-ray Analysis",
+    "description": "A reconstruction and analysis pipeline for ground-based imaging atmospheric Cherenkov Telescopes.",
+    "license":  {
+      "id": "BSD-3-Clause"
+    },
+    "keywords": [
+      "gamma-ray astronomy",
+      "Imaging Atmospheric Cherenkov Telescope",
+      "VERITAS", 
+      "CTA"
+    ],
+    "upload_type": "software",
+    "creators": [
+      {
+        "orcid": "0000-0001-9868-4700",
+        "affiliation": "DESY",
+        "name": "Maier, Gernot"
+      },
+      {
+        "affiliation": "Department of Physics and Astronomy and the Bartol Research Institute, University of Delaware, Newark, DE 19716, USA",
+        "name": "Holder, Jamie"
+      }
+    ],
+    "access_right": "open",
+    "contributors": [
+        {
+          "affiliation": "DESY",
+          "type": "Other",
+          "name": "Prado, Raul"
+        },
+        {
+          "affiliation": "DESY",
+          "type": "Other",
+          "name": "Batista, Pedro"
+        }
+    ],
+    "communities": [
+      {
+        "id": "eventdisplayproject"
+      }
+    ],
+    "related_identifiers": [
+      {
+        "scheme": "url",
+        "identifier": "https://arxiv.org/abs/1708.04048",
+        "relation": "isDocumentedBy",
+        "resource_type": "publication-preprint"
+      }
+    ]
+}
