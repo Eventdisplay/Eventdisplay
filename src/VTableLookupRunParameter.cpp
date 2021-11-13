@@ -425,6 +425,10 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         {
             fMaxRunTime = atof( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
         }
+        else if( iTemp.find( "-limitEnergyReconstruction" ) < iTemp.size() )
+        {
+             cout << "obsolete run parameter -limitEnergyReconstruction; ignored" << endl;
+        }
         else
         {
             cout << "Error: unknown run parameter: " << iTemp << endl;
@@ -485,7 +489,7 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         readTelTypeDepdendentWeights( fTelescopeType_weightFile );
     }
     // for VTS analysis with a single inputfile: get telescope combinations
-    if( inputfile.size() == 1 && fTelescopeList_sim_telarray_Counting.size() == 0 )
+    if( fTelescopeList_sim_telarray_Counting.size() == 0 )
     {
         if( !readTelescopeToAnalyze( inputfile[0] ) )
         {
@@ -791,6 +795,13 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
     if( iPar )
     {
         iRunParT = iPar->fTelToAnalyze;
+        if( iPar->getObservatory().find( "VERITAS" ) == string::npos )
+        {
+             cout << "VTableLookupRunParameter::readTelescopeToAnalyze warning: ";
+             cout << "reading without telescope lists not enabled for non-VERITAS observatories";
+             cout << endl;
+             return false;
+        }
     }
     else
     {
