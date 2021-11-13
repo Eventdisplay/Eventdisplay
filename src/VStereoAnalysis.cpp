@@ -1850,7 +1850,6 @@ double VStereoAnalysis::getRawRate()
 
 CData* VStereoAnalysis::getDataFromFile( int i_runNumber )
 {
-    cout << "VStereoAnalysis::getDataFromFile Getting Data from file!" << endl;
     CData* c = 0;
     for( unsigned int i = 0; i < fRunPara->fRunList.size(); i++ )
     {
