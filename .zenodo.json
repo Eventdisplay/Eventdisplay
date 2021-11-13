@@ -42,6 +42,11 @@
         "identifier": "https://arxiv.org/abs/1708.04048",
         "relation": "isDocumentedBy",
         "resource_type": "publication-preprint"
+      },
+      {
+        "scheme": "url", 
+        "identifier": "https://github.com/Eventdisplay/Eventdisplay", 
+        "relation": "isSupplementTo"
       }
     ]
 }
