@@ -2,6 +2,8 @@
 # 
 # install the sofa package into the $EVNDISPSYS directory
 #
+# see https://www.iausofa.org for a description
+#
 #
 
 echo "Installation of sofa into $EVNDISPSYS "
@@ -22,18 +24,20 @@ mkdir sofa
 cd sofa
 
 # get sofa package from the web page and install
-wget --no-check-certificate https://www.iausofa.org/2020_0721_C/sofa_c-20200721.tar.gz
-if [ ! -e sofa_c-20200721.tar.gz ]
+SOFAD="20210512"
+SOFA="sofa_c-${SOFAD}.tar.gz"
+wget --no-check-certificate https://www.iausofa.org/2021_0512_C/${SOFA}
+if [ ! -e ${SOFA} ]
 then
     echo "error in downloading sofa package"
     exit
 fi
-tar -xvzf sofa_c-20200721.tar.gz
-rm -f sofa_c-20200721.tar.gz
+tar -xvzf ${SOFA}
+rm -f ${SOFA}
 
 ##########################
 # prepare make file
-cd sofa/20200721/c/src/
+cd sofa/${SOFAD}/c/src/
 sed -i -- "s/\$(HOME)/\$(EVNDISPSYS)\/sofa/" makefile
 # use clang on OSX
 OS=`uname -s`
