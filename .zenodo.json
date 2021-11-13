@@ -8,7 +8,8 @@
       "gamma-ray astronomy",
       "Imaging Atmospheric Cherenkov Telescope",
       "VERITAS", 
-      "CTA"
+      "CTA",
+      "Eventdisplay"
     ],
     "upload_type": "software",
     "creators": [
