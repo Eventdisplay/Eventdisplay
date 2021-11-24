@@ -772,7 +772,8 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
         double iMinSensitivity,
         double iMaxSensitivity,
         string iUnit,
-        TPad* iSensitivityPad, TPad* iBckPad )
+        TPad* iSensitivityPad, TPad* iBckPad,
+        bool iTransparentLegend	)
 {
     TCanvas* cSens = 0;
     TCanvas* cSensInter = ( TCanvas* )iSensitivityPad;
@@ -901,7 +902,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
     // print results
     if( cSens )
     {
-        plotLegend( cSens, false );
+        plotLegend( cSens, false, false, true, iTransparentLegend );
         if( iPrint.size() > 0 )
         {
             char hname[2000];
@@ -911,7 +912,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
     }
     if( cSensInter )
     {
-        plotLegend( cSensInter, false );
+        plotLegend( cSensInter, false, false, true, iTransparentLegend );
         if( iPrint.size() > 0 )
         {
             char hname[2000];
@@ -937,7 +938,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
  * plot a legend with the names of the different array layouts
  *
  */
-bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, bool iAddFirst )
+bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, bool iAddFirst, bool iTransparentLegend )
 {
     if( bPlotNoLegend )
     {
@@ -978,7 +979,10 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
     // (END) TMPTMP
     TLegend* iL = new TLegend( x, y, x + x_p, y_yp );
     iL->SetBorderSize( 0 );
-    //iL->SetFillColorAlpha( 0, 0.1 );
+    if( iTransparentLegend )
+    {
+	 iL->SetFillColorAlpha( 0, 0.1 );
+    }
     
     for( unsigned int i = 0; i < fData.size(); i++ )
     {

@@ -45,6 +45,7 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
         string fPrintingOptions;
         bool bPlotNoLegend;
         bool bPlotCrabLines;
+	bool fTransparentLegend;
         
         string fPlotCTARequirementsString;
         float  fRequirementsScalingFactor;
@@ -172,6 +173,10 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
         void setPlotNoLegend( bool iPlotNoLegend = false )
         {
             bPlotNoLegend = iPlotNoLegend;
+        }
+	void setTransparentLegend( bool iLegendTransparency = false )
+	{
+            fTransparentLegend = iLegendTransparency;
         }
         bool writeTexFileBody( string iTexFile, string iTexFileTitle = "" );
 };
