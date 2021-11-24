@@ -981,7 +981,7 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
     iL->SetBorderSize( 0 );
     if( iTransparentLegend )
     {
-	 iL->SetFillColorAlpha( 0, 0.1 );
+	   iL->SetFillColorAlpha( 0, 0.1 );
     }
     
     for( unsigned int i = 0; i < fData.size(); i++ )
