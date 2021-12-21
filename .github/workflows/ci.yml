@@ -17,9 +17,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: rootproject/root
-    env:
-      EVNDISPSYS: ${GITHUB_WORKSPACE}
-      SOFASYS: ${GITHUB_WORKSPACE}/sofa
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
@@ -29,11 +26,12 @@ jobs:
       - name: build
         run: |
           root-config --version
+          export EVNDISPSYS=$(echo $GITHUB_WORKSPACE)
+          export SOFASYS=${EVNDISPSYS}/sofa
+          echo "EVN $EVNDISPSYS"
           echo "GHE $GITHUB_WORKSPACE"
-          pwd
           ./install_sofa.sh CI
-          ls
           echo "SOFA $SOFASYS"
           echo "GHA $GITHUB_WORKSPACE"
-          ls -l $SOFASYS/include/
-          make -j 4 CTAnohessio
+          #make -j 4 CTAnohessio
+          make printRunParameter
