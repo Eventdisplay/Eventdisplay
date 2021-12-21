@@ -5,6 +5,7 @@
 # see https://www.iausofa.org for a description
 #
 #
+set -e
 
 echo "Installation of sofa into $EVNDISPSYS "
 
@@ -22,7 +23,7 @@ then
     exit
 fi
 
-mkdir sofa
+mkdir -p sofa
 cd sofa
 
 # get sofa package from the web page and install
@@ -39,7 +40,7 @@ then
     echo "error in downloading sofa package"
     exit
 fi
-tar -xvzf ${SOFA}
+tar -xzf ${SOFA}
 rm -f ${SOFA}
 
 ##########################
