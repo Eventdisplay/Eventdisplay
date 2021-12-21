@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        root: [rootproject/root:latest, rootproject/root:6.24.02-ubuntu20.04]
+        root: ["rootproject/root:latest", "rootproject/root:6.24.02-ubuntu20.04"]
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.root }}
 
