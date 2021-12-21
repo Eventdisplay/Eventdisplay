@@ -36,4 +36,4 @@ jobs:
           echo "SOFA $SOFASYS"
           echo "GHA $GITHUB_WORKSPACE"
           ls -l $SOFASYS/include/
-          make -j 4 VTS
+          make -j 4 VTS CTAnohessio

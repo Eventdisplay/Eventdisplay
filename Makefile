@@ -340,6 +340,21 @@ CTA:	evndisp \
 	logFile \
 	testEvndispOutput
 
+CTAnohessio:    evndisp \
+        printRunParameter \
+	mscw_energy \
+	combineLookupTables \
+	makeEffectiveArea \
+	trainTMVAforGammaHadronSeparation \
+	trainTMVAforAngularReconstruction \
+	slib \
+	writeCTAWPPhysSensitivityFiles \
+	writeCTAWPPhysSensitivityTree \
+	writeParticleRateFilesFromEffectiveAreas \
+	smoothLookupTables \
+	logFile \
+	testEvndispOutput
+
 CTAsens:	mscw_energy \
 	makeEffectiveArea \
 	smoothLookupTables \
