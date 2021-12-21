@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        root: ["rootproject/root:latest", "rootproject/root:6.24.02-ubuntu20.04"]
+        root: ["rootproject/root:latest", "rootproject/root:6.24.02-ubuntu20.04", "rootproject/root:6.20.08-ubuntu20.04"]
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.root }}
 
@@ -37,5 +37,4 @@ jobs:
           ./install_sofa.sh CI
           echo "SOFA $SOFASYS"
           echo "GHA $GITHUB_WORKSPACE"
-          #make -j 4 CTAnohessio
-          make printRunParameter
+          make -j 4 CTAnohessio
