@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     container: rootproject/root
     env:
-      EVNDISPSYS: ${{ env.GITHUB_WORKSPACE }}
-      SOFASYS: ${{ env.GITHUB_WORKSPACE }}/sofa
+      EVNDISPSYS: ${{ GITHUB_WORKSPACE }}
+      SOFASYS: ${{ GITHUB_WORKSPACE }}/sofa
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
