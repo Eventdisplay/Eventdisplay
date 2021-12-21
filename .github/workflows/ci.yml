@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     container: rootproject/root
     env:
-      EVNDISPSYS: ${{ GITHUB_WORKSPACE }}
-      SOFASYS: ${{ GITHUB_WORKSPACE }}/sofa
+      EVNDISPSYS: ${GITHUB_WORKSPACE}
+      SOFASYS: ${GITHUB_WORKSPACE}/sofa
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
@@ -36,4 +36,4 @@ jobs:
           echo "SOFA $SOFASYS"
           echo "GHA $GITHUB_WORKSPACE"
           ls -l $SOFASYS/include/
-          make -j 4 VTS CTAnohessio
+          make -j 4 CTAnohessio
