@@ -1,4 +1,4 @@
-TDIR=`pwd`
+TDIR=$(pwd)
 
 export EVNDISPSYS=${TDIR}
 export SOFASYS=${EVNDISPSYS}/sofa
