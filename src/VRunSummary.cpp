@@ -332,8 +332,7 @@ bool VRunSummary::fill( string iDataDirectory,
                 break;
             }
         }
-   } 
-    
+    }     
     // set target coordinates
     fTotTargetRA = iTargetRA;
     fTotTargetDec = iTargetDec;
