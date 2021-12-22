@@ -335,7 +335,6 @@ CTA:	evndisp \
 	slib \
 	writeCTAWPPhysSensitivityFiles \
 	writeCTAWPPhysSensitivityTree \
-	convertSensitivityFilesToFITS \
 	writeParticleRateFilesFromEffectiveAreas \
 	smoothLookupTables \
 	logFile \
