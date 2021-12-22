@@ -798,7 +798,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
         if( iPar->getObservatory().find( "VERITAS" ) == string::npos )
         {
              cout << "VTableLookupRunParameter::readTelescopeToAnalyze warning: ";
-             cout << "reading without telescope lists not enabled for non-VERITAS observatores";
+             cout << "reading without telescope lists not enabled for non-VERITAS observatories";
              cout << endl;
              return false;
         }
