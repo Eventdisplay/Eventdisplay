@@ -10,6 +10,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include "TFile.h"
@@ -45,7 +46,6 @@ bool checkTelType( ULong64_t teltype,
    cout << teltype << " (tel " << telid << "): ";
    cout << rootfile << endl;
    exit( EXIT_FAILURE );
-
 
    return false;
 }

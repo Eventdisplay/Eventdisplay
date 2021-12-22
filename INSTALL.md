@@ -3,10 +3,10 @@
 ## Prerequisites
 
 - ROOT must be installed 
-  version >= 6.14
+  version >= 6.20
   To compile root, use '-Dbuiltin_cfitsio=ON -Dbuiltin_gsl=ON'
 
-- SOFA library [http://www.iausofa.org/current_C.html] must be installed. Use the script in the $EVNDISPSYS directory:
+- SOFA library (http://www.iausofa.org/current_C.html) must be installed. Use the script in the $EVNDISPSYS directory:
 ```
 ./install_sofa.sh
 ```
@@ -14,21 +14,21 @@ Set the following environmental variable:  SOFASYS=$EVNDISPSYS/sofa
 
 ### VERITAS analysis
 
-(see VERITAS internal wiki for all details
+(see VERITAS internal wiki for all details)
 
 ### CTA analysis
 
 (2.0) HESSIO libraries needed for the analysis of CTA Monte Carlo can be found here:
-   [http://www.mpi-hd.mpg.de/hfm/CTA/internal/MC/Software/]
+   (http://www.mpi-hd.mpg.de/hfm/CTA/internal/MC/Software/)
 
    (note: this side is password protected, usual CTA details)
 
 ### Optional
 
-(3.0) for all FITS related output, cfitsio is needed (see [http://heasarc.gsfc.nasa.gov/fitsio/])
+(3.0) for all FITS related output, cfitsio is needed (see (http://heasarc.gsfc.nasa.gov/fitsio/))
 
 (3.1) GSL libraries (ROOT included gsl is fine)
-      [http://www.gnu.org/software/gsl/]
+      (http://www.gnu.org/software/gsl/)
 
 ## Environmental Variables
 

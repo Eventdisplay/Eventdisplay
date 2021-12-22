@@ -242,7 +242,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
                         "energy reconstruction, after gamma-selection cuts",
                         "energy_{MC} [TeV]",
                         "energy bias E_{rec}/E_{MC}",
-                        nbins, fEnergyAxis_minimum_defaultValue,
+                        300, fEnergyAxis_minimum_defaultValue,
                         fEnergyAxis_maximum_defaultValue,
                         fBiasBin, 0., 3., "" );
     newEffectiveAreaHistogram( "2D", E_Esys2D,
@@ -778,13 +778,20 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
     // Binned likelihood analysis requires
     // MC effective areas and response matrix
     // Getting MC eff
-    iEffArea->SetBranchAddress( "nbins_MC_Res", &nbins_MC_Res );
+    if( iEffArea->GetBranchStatus( "nbins_MC_Res" ) )
+    {
+        iEffArea->SetBranchAddress( "nbins_MC_Res", &nbins_MC_Res );
+        // Response Matrix
+        iEffArea->SetBranchAddress( "e_MC_Res" , e_MC_Res );
+        iEffArea->SetBranchAddress( "e_Rec_Res" , e_Rec_Res );
+        iEffArea->SetBranchAddress( "e_Rec_Res_Err" , e_Rec_Res_Err );
+    }
+    else
+    {
+       nbins_MC_Res = 0;
+    }
     // MC effective areas
     iEffArea->SetBranchAddress( "eff", eff_MC );
-    // Response Matrix
-    iEffArea->SetBranchAddress( "e_MC_Res" , e_MC_Res );
-    iEffArea->SetBranchAddress( "e_Rec_Res" , e_Rec_Res );
-    iEffArea->SetBranchAddress( "e_Rec_Res_Err" , e_Rec_Res_Err );
     // bias in energy reconstruction
     iEffArea->SetBranchAddress( "esys_rel", esys_rel );
     

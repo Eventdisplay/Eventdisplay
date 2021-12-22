@@ -123,7 +123,7 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
         vector< TGraph* >  plotCurrentInstruments( TCanvas* c );
         double  getSensitivitySystematicUncertaintiesFactor( double );
         void    plotSensitivitySystematicUncertainties( TCanvas* c, TGraphAsymmErrors* g );
-        bool    plotLegend( TCanvas* c = 0, bool iDown = false, bool iLeft = false, bool iAddFirst = true );
+        bool    plotLegend( TCanvas* c = 0, bool iDown = false, bool iLeft = false, bool iAddFirst = true, bool iTransparentLegend = true );
         
     public:
     
@@ -156,7 +156,8 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
         bool plotSensitivity( string iPrint = "",
                               double iMinSensitivity = 4.e-14, double iMaxSensitivity = 2.5e-10,
                               string iUnit = "ENERGY",
-                              TPad* iSensitivityPad = 0, TPad* iBckPad = 0 );
+                              TPad* iSensitivityPad = 0, TPad* iBckPad = 0,
+		                      bool iTransparentLegend = false );
         bool plotSensitivityRatio( string iPrint,
                                    double ymin = 0.01, double ymax = 2.,
                                    unsigned int iRatioSelector = 0, TPad* iSensRatio = 0,
