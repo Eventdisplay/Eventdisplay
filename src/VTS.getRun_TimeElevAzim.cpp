@@ -131,9 +131,9 @@ int main( int argc, char* argv[] )
                 if( is_number( file_line ) )
                 {
                     runnumber = atoi( file_line.c_str() ) ;
-                    if( runnumber < 9999 or runnumber > 99999 )
+                    if( runnumber < 9999 or runnumber > 999999 )
                     {
-                        cout << "Error, '" << file_line << "' needs to be a valid runnumber (9999-99999)" << endl;
+                        cout << "Error, '" << file_line << "' needs to be a valid runnumber (9999-999999)" << endl;
                         return 1 ;
                     }
                     else
@@ -143,7 +143,7 @@ int main( int argc, char* argv[] )
                 }
                 else
                 {
-                    cout << "Error, '" << file_line << "' needs to be a valid runnumber (9999-99999)" << endl;
+                    cout << "Error, '" << file_line << "' needs to be a valid runnumber (9999-999999)" << endl;
                     return 1 ;
                 }
             }
