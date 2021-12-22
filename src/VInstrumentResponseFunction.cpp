@@ -416,25 +416,6 @@ TGraphErrors* VInstrumentResponseFunction::getAngularResolutionGraph( unsigned i
     return 0;
 }
 
-TGraphErrors* VInstrumentResponseFunction::getAngularResolutionKingSigmaGraph( unsigned int iAzBin, unsigned int iSpectralIndexBin )
-{
-    if( iSpectralIndexBin < fIRFData.size() && iAzBin < fIRFData[iSpectralIndexBin].size() && fIRFData[iSpectralIndexBin][iAzBin] )
-    {
-        return fIRFData[iSpectralIndexBin][iAzBin]->fResolutionKingSigmaGraph[VInstrumentResponseFunctionData::E_DIFF];
-    }
-    
-    cout << "VInstrumentResponseFunction::getAngularResolutionKingSigmaGraph: warning index out of range ";
-    cout << iAzBin << "\t" << iSpectralIndexBin << "\t";
-    cout << "(" << fIRFData.size();
-    if( iSpectralIndexBin < fIRFData.size() )
-    {
-        cout << "\t" << fIRFData[iSpectralIndexBin].size();
-    }
-    cout << ")" << endl;
-    
-    return 0;
-}
-
 vector< TH2D* > VInstrumentResponseFunction::getAngularResolution2D( unsigned int iAzBin, unsigned int iSpectralIndexBin )
 {
     vector< TH2D* > h;
@@ -457,26 +438,6 @@ vector< TH2D* > VInstrumentResponseFunction::getAngularResolution2D( unsigned in
     cout << ")" << endl;
     
     return h;
-}
-
-
-TGraphErrors* VInstrumentResponseFunction::getAngularResolutionKingGammaGraph( unsigned int iAzBin, unsigned int iSpectralIndexBin )
-{
-    if( iSpectralIndexBin < fIRFData.size() && iAzBin < fIRFData[iSpectralIndexBin].size() && fIRFData[iSpectralIndexBin][iAzBin] )
-    {
-        return fIRFData[iSpectralIndexBin][iAzBin]->fResolutionKingGammaGraph[VInstrumentResponseFunctionData::E_DIFF];
-    }
-    
-    cout << "VInstrumentResponseFunction::getAngularResolutionKingGammaGraph: warning index out of range ";
-    cout << iAzBin << "\t" << iSpectralIndexBin << "\t";
-    cout << "(" << fIRFData.size();
-    if( iSpectralIndexBin < fIRFData.size() )
-    {
-        cout << "\t" << fIRFData[iSpectralIndexBin].size();
-    }
-    cout << ")" << endl;
-    
-    return 0;
 }
 
 void VInstrumentResponseFunction::setDuplicationID( unsigned int iID )

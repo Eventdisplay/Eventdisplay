@@ -22,10 +22,6 @@
 
 using namespace std;
 
-Double_t kingfunc( Double_t* r, Double_t* par ) ;
-
-Double_t kingfunc( Double_t* r, Double_t* par ) ;
-
 class VInstrumentResponseFunctionData : public TObject, public VHistogramUtilities
 {
     private:
@@ -48,8 +44,7 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
         double  fArrayCentre_Y;
         
         TList*   calculateResolution( TH2D* iHistogram, TGraphErrors* iResult, string iHistoName, 
-                                      double iContainmentProbability, 
-                                      TGraphErrors* iResultKingSigma, TGraphErrors* iResultKingGamma );
+                                      double iContainmentProbability );
         double   getResolutionErrorfromToyMC( double i68, double iN );
         int      testResponseFunctionType( string iType );
         
@@ -86,8 +81,6 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
         TList*                     fHistogramList;
         vector< TH2D* >            f2DHisto;
         vector< TGraphErrors* >    fResolutionGraph;
-        vector< TGraphErrors* >    fResolutionKingSigmaGraph;
-        vector< TGraphErrors* >    fResolutionKingGammaGraph;
         vector< double >           fContainmentProbability;
         
         VInstrumentResponseFunctionData();

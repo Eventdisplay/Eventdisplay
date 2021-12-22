@@ -350,14 +350,6 @@ int main( int argc, char* argv[] )
                                 true );
                     }
                 }
-                
-                for( unsigned int i = 0; i < fRunPara->fAzMin.size(); i++ )
-                {
-                    fEffectiveAreaCalculator.setAngularResolutionKingSigmaGraph( i,
-                            f_IRF[f]->getAngularResolutionKingSigmaGraph( i, 0 ) );
-                    fEffectiveAreaCalculator.setAngularResolutionKingGammaGraph( i,
-                            f_IRF[f]->getAngularResolutionKingGammaGraph( i, 0 ) );
-                }
             }
         }
         
