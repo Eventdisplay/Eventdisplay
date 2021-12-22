@@ -59,6 +59,7 @@ VWPPhysSensitivityPlotsMaker::VWPPhysSensitivityPlotsMaker()
     fPlotCurrentInstrumentVectorLabel = false;
 
     setPlotNoLegend();
+    setTransparentLegend();
     
 }
 
@@ -323,7 +324,7 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
                fEnergyResolution_min, fEnergyResolution_max,
                fEffAreaPad, fAngRes, fERes, false,
                fPlotAngResLogY );
-    a.plotSensitivity( fPrintingOptions, fSensitivity_min, fSensitivity_max, fSensitivity_Unit, fSensitivityPad, fBckRatesPad );
+    a.plotSensitivity( fPrintingOptions, fSensitivity_min, fSensitivity_max, fSensitivity_Unit, fSensitivityPad, fBckRatesPad, fTransparentLegend );
     //fPlotProjectedSensitivity = a.plotProjectedSensitivities( 0, 5. );
     if( iRatioCounter == 998 )
     {
