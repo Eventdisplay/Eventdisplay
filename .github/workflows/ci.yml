@@ -38,4 +38,4 @@ jobs:
           export EVNDISPSYS=$(echo $GITHUB_WORKSPACE)
           export SOFASYS=${EVNDISPSYS}/sofa
           ./install_sofa.sh CI
-          make -j 4 CTAnohessio
+          make CTAnohessio
