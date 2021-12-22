@@ -179,30 +179,19 @@ GCC_VER_MAJOR := $(shell echo $(GCCVERSION) | cut -f1 -d.)
 GCC_VER_MINOR := $(shell echo $(GCCVERSION) | cut -f2 -d.)
 # check if gcc version is smaller than 4.8.
 GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $(GCC_VER_MINOR) -lt 8 \) ] && echo true)
-CXXFLAGS    += -Wdeprecated-declarations -std=c++11
 ########################################################
 # CXX FLAGS (taken from root)
 ########################################################
-ROOTCFLAGS   = $(shell root-config --auxcflags)
-# ROOTCFLAGS   = -pthread -m64
-# TEMPORARY
-#CXXFLAGS     += -Wno-deprecated 
-CXXFLAGS     += $(ROOTCFLAGS)
-CXXFLAGS     += -I$(shell root-config --incdir) -I$(shell root-config --incdir)/TMVA 
+CXXFLAGS    += $(shell root-config --cflags)
+CXXFLAGS    += -I$(shell root-config --incdir)/TMVA 
 ########################################################
 # root libs
 ########################################################
-ifneq ($(ROOTFLAG),-DNOROOT)
-  ROOTCFLAGS   = $(shell root-config --auxcflags)
-  ROOTCFLAGS   = -pthread -m64
-  CXXFLAGS     += $(ROOTCFLAGS)
-  CXXFLAGS     += -I$(shell root-config --incdir) -I$(shell root-config --incdir)/TMVA 
-  ROOTGLIBS     = $(shell root-config --glibs)
-  GLIBS         = $(ROOTGLIBS)
-  GLIBS        += -lMLP -lTreePlayer -lTMVA -lMinuit -lXMLIO -lSpectrum
-  ifeq ($(ROOT_MINUIT2),yes)
-     GLIBS     += -lMinuit2
-  endif
+ROOTGLIBS     = $(shell root-config --glibs)
+GLIBS         = $(ROOTGLIBS)
+GLIBS        += -lMLP -lTreePlayer -lTMVA -lMinuit -lXMLIO -lSpectrum
+ifeq ($(ROOT_MINUIT2),yes)
+GLIBS     += -lMinuit2
 endif
 
 #ifeq ($(ROOT_DCACHE),yes)
@@ -284,7 +273,7 @@ ifeq ($(strip $(CTAPROD)),PROD3b_SCT)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3_DEMO
 endif
 ifeq ($(strip $(CTAPROD)),PROD3b_SCTALPHA)
-    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_PROD4_SC -DMAXIMUM_TELESCOPES=95
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_PROD4_SC -DMAXIMUM_TELESCOPES=$(MAXTEL)
 endif
 # CTA prod3b South (noSCT)
 ifeq ($(strip $(CTAPROD)),PROD3b_South)
@@ -337,6 +326,21 @@ all VTS:	evndisp \
 
 CTA:	evndisp \
         CTA.convert_hessio_to_VDST \
+        printRunParameter \
+	mscw_energy \
+	combineLookupTables \
+	makeEffectiveArea \
+	trainTMVAforGammaHadronSeparation \
+	trainTMVAforAngularReconstruction \
+	slib \
+	writeCTAWPPhysSensitivityFiles \
+	writeCTAWPPhysSensitivityTree \
+	writeParticleRateFilesFromEffectiveAreas \
+	smoothLookupTables \
+	logFile \
+	testEvndispOutput
+
+CTAnohessio:    evndisp \
         printRunParameter \
 	mscw_energy \
 	combineLookupTables \
