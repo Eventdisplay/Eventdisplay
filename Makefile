@@ -335,6 +335,7 @@ CTA:	evndisp \
 	slib \
 	writeCTAWPPhysSensitivityFiles \
 	writeCTAWPPhysSensitivityTree \
+	convertSensitivityFilesToFITS \
 	writeParticleRateFilesFromEffectiveAreas \
 	smoothLookupTables \
 	logFile \
@@ -1471,6 +1472,8 @@ trainTMVAforAngularReconstruction:	./obj/trainTMVAforAngularReconstruction.o \
 					./obj/VStar.o ./obj/VStar_Dict.o \
 					./obj/VDB_Connection.o \
 					./obj/VSkyCoordinatesUtilities.o \
+					./obj/VSimpleStereoReconstructor.o \
+					./obj/VGrIsuAnalyzer.o \
 					./obj/VEvndispReconstructionParameter.o ./obj/VEvndispReconstructionParameter_Dict.o \
 					./obj/VSpectralWeight.o ./obj/VSpectralWeight_Dict.o \
 					./obj/VUtilities.o \
