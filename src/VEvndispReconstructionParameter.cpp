@@ -2069,8 +2069,7 @@ bool VEvndispReconstructionParameterData::test( unsigned int iTelType, string iV
                     cout << " (teltype " << iTelType << "): ";
                     cout << iVarI;
                     cout << " (" << fTelescopeTypeCut[iTelType][iVarName]->fCut_int_min << ",";
-                    cout << fTelescopeTypeCut[iTelType][iVarName]->fCut_int_max;
-                    cout << "ntubes [" << fTelescopeTypeCut[iTelType][iVarName]->fCut_ntubes_min;
+                    cout << fTelescopeTypeCut[iTelType][iVarName]->fCut_int_max << ")";
                     cout << endl;
                 }
                 return true;
