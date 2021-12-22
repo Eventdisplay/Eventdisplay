@@ -44,38 +44,6 @@ VOnOff::~VOnOff()
         }
         delete hList;
     } 
-    if( hList )
-    {
-        delete hList;
-    }
-    if( hQList )
-    {
-        delete hQList;
-    }
-    if( hSList )
-    {
-        delete hSList;
-    }
-    if( hPList )
-    {
-        delete hPList;
-    }
-    if( hListStereoParameterHistograms )
-    {
-        delete hListStereoParameterHistograms;
-    }
-    if( hListRandomForestHistograms )
-    {
-        delete hListRandomForestHistograms;
-    }
-    if( hListEnergyHistograms )
-    {
-        delete hListEnergyHistograms;
-    }
-    if( hListSkyHistograms )
-    {
-        delete hListSkyHistograms;
-    }
 }
 
 

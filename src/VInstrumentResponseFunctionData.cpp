@@ -394,7 +394,6 @@ bool VInstrumentResponseFunctionData::initialize( string iName, string iType, un
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // create histograms
     /////////////////////////////////////////////////////////////////////////////////////////////////
-    char iname[1000] ;
     for( unsigned int i = 0; i < iHisName.size(); i++ )
     {
         // 2D histo
@@ -410,24 +409,6 @@ bool VInstrumentResponseFunctionData::initialize( string iName, string iType, un
         fResolutionGraph.back()->SetName( ( "g" + iHisName[i] ).c_str() );
         fResolutionGraph.back()->SetTitle();
         fHistogramList->Add( fResolutionGraph.back() );
-        
-        // most of these histograms wont use any king function fitting, but creating the extra
-        // histograms keeps things more organized
-        sprintf( iname, "gKingSigma%s_i%d", iHisName[i].c_str(), i ) ;
-        fResolutionKingSigmaGraph.push_back( new TGraphErrors( 1 ) );
-        fResolutionKingSigmaGraph.back()->SetName( iname ) ;
-        fResolutionKingSigmaGraph.back()->SetTitle( "Fitted King Function Sigma Parameter vs Energy" ) ;
-        fResolutionKingSigmaGraph.back()->GetXaxis()->SetTitle( iHisXaxisName[i].c_str() ) ;
-        fResolutionKingSigmaGraph.back()->GetYaxis()->SetTitle( "Sigma (deg)" ) ;
-        fHistogramList->Add( fResolutionKingSigmaGraph.back() );
-        
-        sprintf( iname, "gKingGamma%s_i%d", iHisName[i].c_str(), i ) ;
-        fResolutionKingGammaGraph.push_back( new TGraphErrors( 1 ) );
-        fResolutionKingGammaGraph.back()->SetName( iname ) ;
-        fResolutionKingGammaGraph.back()->SetTitle() ;
-        fResolutionKingGammaGraph.back()->GetXaxis()->SetTitle( iHisXaxisName[i].c_str() ) ;
-        fResolutionKingGammaGraph.back()->GetYaxis()->SetTitle( "Fitted King Function Gamma (unitless) vs Energy" ) ;
-        fHistogramList->Add( fResolutionKingGammaGraph.back() );
         
         // containment probability
         fContainmentProbability.push_back( 0. );
@@ -610,8 +591,7 @@ bool VInstrumentResponseFunctionData::terminate( double iContainmentProbability,
         if( i != E_RELA )
         {
             calculateResolution( f2DHisto[i], fResolutionGraph[i], f2DHisto[i]->GetName(), 
-                                 iContainmentProbability,
-                                 fResolutionKingSigmaGraph[i], fResolutionKingGammaGraph[i] );
+                                 iContainmentProbability );
         }
         // for relative plots get mean and spread from each bin in the histogram
         else
@@ -625,21 +605,6 @@ bool VInstrumentResponseFunctionData::terminate( double iContainmentProbability,
 
 
 /*!
-  Integrate the psf from 0 -> r,
-  return the containment fraction, from 0.0 to 1.0
-  par is a double[2] list of sigma, gamma
-  NOTE: THIS IS NOT THE PSF,
-  its the integral of the psf (the containment fraction)
-*/
-Double_t kingfunc( Double_t* r, Double_t* par )
-{
-    // from mathematica snippet in KingPsf.nb
-    return 1 - pow( 2, -1 + par[1] ) * pow( par[0], -2 + 2 * par[1] )
-       * pow( par[1] / ( pow( r[0], 2 ) + 2 * par[1] * pow( par[0], 2 ) ), -1 + par[1] ) ;
-}
-
-
-/*!
 
     calculate threshold (usually 68%) reconstruction accuracy from 2D histogram
 
@@ -648,8 +613,7 @@ Double_t kingfunc( Double_t* r, Double_t* par )
 */
 TList*  VInstrumentResponseFunctionData::calculateResolution( 
         TH2D* iHistogram, TGraphErrors* iResult, string iHistoName, 
-        double iContainmentProbability,
-        TGraphErrors* iResultKingSigma, TGraphErrors* iResultKingGamma )
+        double iContainmentProbability )
 {
     if( !iHistogram || !iResult )
     {
@@ -657,7 +621,6 @@ TList*  VInstrumentResponseFunctionData::calculateResolution(
     }
     
     TH1D* iTemp = 0;
-    TH1D* iTempCumulative = 0 ;
     TList* hList = new TList();
     
     char iname[800];
@@ -669,20 +632,6 @@ TList*  VInstrumentResponseFunctionData::calculateResolution(
     vector< double > vEnergy;
     vector< double > vRes;
     vector< double > vResE;
-    vector< double > vKingEnergy;
-    vector< double > vKingSigma;
-    vector< double > vKingSigmaError;
-    vector< double > vKingGamma;
-    vector< double > vKingGammaError;
-    
-    // whether or not to do a king function fit of the current resolution
-    bool doKingFit = false ;
-    
-    // only do king function fitting for
-    //    angular resolution mode
-    //    difference-vs-energy hist
-    //    containment radii < 70 % (so theoretically, this should be True only once for the 0.68 containment radii)
-    doKingFit = ( ( fType_numeric == 0 ) && ( f2DHisto[E_DIFF] == iHistogram ) && ( iContainmentProbability < 0.7 ) ) ;
     
     double i_energy = 0.;
     
@@ -740,124 +689,6 @@ TList*  VInstrumentResponseFunctionData::calculateResolution(
             }
         }
         
-        if( doKingFit )
-        {
-            TDirectory *current_dir = gDirectory;
-            if( !current_dir->FindObject( "kingfunc" ) )
-            {
-                if( current_dir->mkdir( "kingfunc" ) )
-                {
-                     current_dir->cd( "kingfunc" );
-                }
-            }
-            else
-            {
-                current_dir->cd( "kingfunc" );
-            }
-        
-            /////////////////////////////////////////////////////////////
-            // fit the cumulative iTemp histogram with a king function //
-            /////////////////////////////////////////////////////////////
-            double totalEvents      = iTemp->GetEntries() ;
-            char kingfuncname[1000] ;
-            //double binarea = 0.0 ; // BINSCALING
-            
-            // only proceed if we have enough events in iTemp for a stable fit
-            if( totalEvents > 20.0 )
-            {
-            
-                // setup cumulative iTemp
-                iTempCumulative = ( TH1D* ) iTemp->Clone() ;
-                if( iHistoName.size() > 0 )
-                {
-                    sprintf( iname, "%s_%d_cumulative", iHistoName.c_str(), i );
-                }
-                else
-                {
-                    sprintf( iname, "iH_%d_cumulative", i );
-                }
-                iTempCumulative->SetName( iname ) ;
-                sprintf( iname, "%s Cumulative (For King Function Fitting)", iTemp->GetTitle() ) ;
-                iTempCumulative->SetTitle( iname ) ;
-                
-                // fill bin contents of iTempCumulative
-                double cumulativeEvents = 0.0 ;
-                for( int j = 1 ; j <= iTempCumulative->GetNbinsX() ; j++ )
-                {
-                    cumulativeEvents += iTemp->GetBinContent( j ) ;
-                    // binarea = 2 * TMath::Pi() * pow( iTempCumulative->GetXaxis()->GetBinUpEdge(j) , 2 ) ; // BINSCALING
-                    iTempCumulative->SetBinContent( j, cumulativeEvents ) ;
-                    //iTempCumulative->SetBinContent( j, cumulativeEvents / binarea ) ; // BINSCALING
-                }
-                
-                // convert bin contents from '# of events' to '% of all events'
-                iTempCumulative->Scale( 1 / totalEvents ) ;
-                // binarea = 2 * TMath::Pi() * pow( iTempCumulative->GetXaxis()->GetBinUpEdge( iTempCumulative->GetNbinsX()-1 ) , 2 ) ; // BINSCALING
-                // iTempCumulative->Scale( binarea / totalEvents ) // BINSCALING
-                
-                // set up a king function for fitting to iTempCumulative
-                sprintf( kingfuncname, "%s_kingfunc", iTempCumulative->GetName() ) ;
-                //sprintf( kingfuncname, "%s_kingfunc2", iTempCumulative->GetName() ) ;
-                TF1* fitfunc = new TF1( kingfuncname, kingfunc, 0.0, 4.0, 2 ) ;
-                //TF1 * fitfunc = new TF1( kingfuncname, kingfunc2, 0.0, 4.0, 2 ) ;
-                fitfunc->SetParName( 0, "Sigma" ) ;
-                fitfunc->SetParName( 1, "Gamma" ) ;
-                fitfunc->SetParameter( 0,  0.08 ) ;   // basic ballpark guess for sigma
-                fitfunc->SetParameter( 1,  1.9 ) ;    // basic ballpark guess for gamma
-                fitfunc->SetParLimits( 1,  0.1   , 50.0 ) ; // gamma > 50.0 only happens when the fit fails
-                
-                // Fit the king function
-                // TH1::Fit() :
-                // M : Use TMinuit IMPROVE command to escape local fitting minima
-                // E : Better errors estimation using Minos technique
-                // V : Verbose text logging mode
-                // Q: Quite - don't printout fit results
-                // 0: do not plot
-                iTempCumulative->Fit( kingfuncname, "MEQ0" );
-                
-                // save the fitted parameters
-                double sigma       = fitfunc->GetParameter( 0 ) ;
-                double sigma_error = fitfunc->GetParError( 0 ) ;
-                double gamma       = fitfunc->GetParameter( 1 ) ;
-                double gamma_error = fitfunc->GetParError( 1 ) ;
-                vKingEnergy.push_back( i_energy ) ;
-                vKingSigma.push_back( sigma ) ;
-                vKingSigmaError.push_back( sigma_error ) ;
-                vKingGamma.push_back( gamma ) ;
-                vKingGammaError.push_back( gamma_error ) ;
-                
-                iTemp->Write();
-                iTempCumulative->Write();
-                fitfunc->Write();
-                
-            }
-            current_dir->cd();
-        }
-        
-        
-        // save or delete temporary histograms
-        if( iHistoName.size() > 0 )
-        {
-            if( iTemp )
-            {
-                hList->Add( iTemp ) ;
-            }
-            if( iTempCumulative )
-            {
-                hList->Add( iTempCumulative ) ;
-            }
-        }
-        else
-        {
-            if( iTemp )
-            {
-                delete iTemp           ;
-            }
-            if( iTempCumulative )
-            {
-                delete iTempCumulative ;
-            }
-        }
     }
     
     // fill graph
@@ -866,24 +697,6 @@ TList*  VInstrumentResponseFunctionData::calculateResolution(
     {
         iResult->SetPoint( i, vEnergy[i], vRes[i] );
         iResult->SetPointError( i, 0., vResE[i] );
-    }
-    
-    if( doKingFit )
-    {
-        // fill king function result graphs
-        iResultKingSigma->Set( ( int )vKingEnergy.size() ) ;
-        iResultKingGamma->Set( ( int )vKingEnergy.size() ) ;
-        
-        for( unsigned i = 0 ; i < vKingEnergy.size() ; i++ )
-        {
-            iResultKingSigma->SetPoint( i, vKingEnergy[i], vKingSigma[     i] ) ;
-            iResultKingSigma->SetPointError( i, 0.0           , vKingSigmaError[i] ) ;
-            iResultKingGamma->SetPoint( i, vKingEnergy[i], vKingGamma[     i] ) ;
-            iResultKingGamma->SetPointError( i, 0.0           , vKingGammaError[i] ) ;
-        }
-        
-        iResultKingSigma->Write();
-        iResultKingGamma->Write();
     }
     
     return hList;

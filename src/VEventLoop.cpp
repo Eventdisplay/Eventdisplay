@@ -350,8 +350,11 @@ bool VEventLoop::initEventLoop( string iFileName )
                 cout << "Number of channels from VBF file: ";
                 for( unsigned int i = 0; i < fRunPar->fTelToAnalyze.size(); i++ )
                 {
-                    cout << "T" << fRunPar->fTelToAnalyze[i] + 1 << ": " << i_nChannels[fRunPar->fTelToAnalyze[i]] << endl;
+                    cout << "T" << fRunPar->fTelToAnalyze[i] + 1 << ": ";
+                    cout << i_nChannels[fRunPar->fTelToAnalyze[i]];
+                    cout << "  ";
                 }
+                cout << endl;
                 fRawDataReader->setDefaultMaxNChannels( i_nChannels );
                 ///////////////////////////////////////////////////////////////
             }

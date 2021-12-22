@@ -302,6 +302,14 @@ class VTableLookupDataHandler
         float  fcrossO_short[VDST_MAXTELESCOPES];
         float  ftgrad_x_short[VDST_MAXTELESCOPES];
         int    fFitstat_short[VDST_MAXTELESCOPES];
+
+        UInt_t PixelListN[VDST_MAXTELESCOPES];
+        UInt_t PixelListNPixelNN;
+        UInt_t PixelID[VDST_MAXTELESCOPES*VDST_MAXCHANNELS];
+        UInt_t PixelType[VDST_MAXTELESCOPES*VDST_MAXCHANNELS];
+        Float_t PixelIntensity[VDST_MAXTELESCOPES*VDST_MAXCHANNELS];
+        Float_t PixelTimingT0[VDST_MAXTELESCOPES*VDST_MAXCHANNELS];
+        Float_t PixelPE[VDST_MAXTELESCOPES*VDST_MAXCHANNELS];
         
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // results

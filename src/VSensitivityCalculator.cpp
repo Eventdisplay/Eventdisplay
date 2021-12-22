@@ -3030,6 +3030,10 @@ void VSensitivityCalculator::fillParticleNumbersGraphs( vector< VDifferentialFlu
                                iDifferentialFlux[i].NOff * alpha / ( fObservationTime_h * 60. ) / dE_log10 );
             gBGRate->SetPointEXhigh( z, log10( iDifferentialFlux[i].Energy_upEdge ) - log10( iDifferentialFlux[i].Energy ) );
             gBGRate->SetPointEXlow( z, log10( iDifferentialFlux[i].Energy ) - log10( iDifferentialFlux[i].Energy_lowEdge ) );
+            gBGRate->SetPointEYhigh( z,
+                               iDifferentialFlux[i].NOff_error * alpha / ( fObservationTime_h * 60. ) / dE_log10 );
+            gBGRate->SetPointEYlow( z,
+                               iDifferentialFlux[i].NOff_error * alpha / ( fObservationTime_h * 60. ) / dE_log10 );
             z++;
         }
     }
@@ -3258,7 +3262,7 @@ bool VSensitivityCalculator::fillBackroundvsSquareDegree( TGraphAsymmErrors* i_R
                     y /= iSolidAngle * TMath::RadToDeg() * TMath::RadToDeg();
                     iH_sqDeg->SetBinContent( iH_sqDeg->FindBin( x ), y / 60. );
                     iH_sqDeg->SetBinError( iH_sqDeg->FindBin( x ), 0.5 * ( i_R->GetErrorYlow( i ) + i_R->GetErrorYhigh( i ) )
-                                           / ( iSolidAngle * TMath::DegToRad() * TMath::DegToRad() ) / 60. );
+                                           / ( iSolidAngle * TMath::RadToDeg() * TMath::RadToDeg() ) / 60. );
                 }
             }
         }

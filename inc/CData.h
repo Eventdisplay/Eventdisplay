@@ -124,11 +124,11 @@ class CData
         UShort_t        nlowgain[VDST_MAXTELESCOPES];
         Double_t        alpha[VDST_MAXTELESCOPES];
         Double_t        los[VDST_MAXTELESCOPES];
-        Double_t        asym[VDST_MAXTELESCOPES];
-        Double_t        cen_x[VDST_MAXTELESCOPES];
-        Double_t        cen_y[VDST_MAXTELESCOPES];
-        Double_t        cosphi[VDST_MAXTELESCOPES];
-        Double_t        sinphi[VDST_MAXTELESCOPES];
+        Float_t         asym[VDST_MAXTELESCOPES];
+        Float_t         cen_x[VDST_MAXTELESCOPES];
+        Float_t         cen_y[VDST_MAXTELESCOPES];
+        Float_t         cosphi[VDST_MAXTELESCOPES];
+        Float_t         sinphi[VDST_MAXTELESCOPES];
         Float_t         tgrad_x[VDST_MAXTELESCOPES];
         Double_t        tchisq_x[VDST_MAXTELESCOPES];
         Int_t           Fitstat[VDST_MAXTELESCOPES];

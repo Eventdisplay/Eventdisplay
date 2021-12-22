@@ -93,8 +93,6 @@ class VInstrumentResponseFunction
         }
         vector< TH2D* > getAngularResolution2D( unsigned int iAzBin, unsigned int iSpectralIndexBin );
         TGraphErrors* getAngularResolutionGraph( unsigned int iAzBin, unsigned int iSpectralIndexBin );
-        TGraphErrors* getAngularResolutionKingGammaGraph( unsigned int iAzBin, unsigned int iSpectralIndexBin );
-        TGraphErrors* getAngularResolutionKingSigmaGraph( unsigned int iAzBin, unsigned int iSpectralIndexBin );
         unsigned int getDuplicationID()
         {
             return fDuplicationID;
