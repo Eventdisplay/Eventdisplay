@@ -18,8 +18,6 @@ class CRunSummary : public TObject
         TTree*          fChain;                   //!pointer to the analyzed TTree or TChain
         Int_t           fCurrent;                 //!current Tree number in a TChain
         
-        unsigned int    fCVersion;
-        
         // Declaration of leave types
         Int_t           runOn;
         Int_t           runOff;
@@ -140,34 +138,17 @@ class CRunSummary : public TObject
 
 CRunSummary::CRunSummary( TTree* tree )
 {
-    fCVersion = 340;
-    // if parameter tree is not specified (or zero), connect the file
-    // used to generate this class and read the Tree.
-    if( tree == 0 )
-    {
-        TFile* f = ( TFile* )gROOT->GetListOfFiles()->FindObject( "output.root" );
-        if( !f )
-        {
-            f = new TFile( "output.root" );
-            f->cd( "output.root:/total/stereo" );
-        }
-        tree = ( TTree* )gDirectory->Get( "tRunSummary" );
-        
-    }
+    fChain = 0;
     Init( tree );
 }
 
 
 CRunSummary::~CRunSummary()
 {
-    if( !fChain )
+    if( fChain && fChain->GetCurrentFile() )
     {
-        return;
+        delete fChain->GetCurrentFile();
     }
-    /*        if( fChain->GetCurrentFile() )
-            {
-                delete fChain->GetCurrentFile();
-            } */
 }
 
 
@@ -236,7 +217,6 @@ void CRunSummary::Init( TTree* tree )
     }
     fChain = tree;
     fCurrent = -1;
-    //	fChain->SetMakeClass( 1 );
     
     fChain->SetBranchAddress( "runOn", &runOn );
     fChain->SetBranchAddress( "runOff", &runOff );
@@ -279,7 +259,6 @@ void CRunSummary::Init( TTree* tree )
     // no pedvars given, assume galactic source
     else
     {
-        fCVersion = 300;
         pedvarsOn = 8.1;
         pedvarsOff = 8.1;
     }
@@ -336,7 +315,7 @@ Bool_t CRunSummary::Notify()
     b_NTel = fChain->GetBranch( "NTel" );
     b_tOn = fChain->GetBranch( "tOn" );
     b_tOff = fChain->GetBranch( "tOff" );
-    if( fCVersion > 300 )
+    if( fChain->GetBranchStatus( "pedvarsOn" ) )
     {
         b_pedvarsOn = fChain->GetBranch( "pedvarsOn" );
         b_pedvarsOff = fChain->GetBranch( "pedvarsOff" );
@@ -382,13 +361,4 @@ void CRunSummary::Show( Long64_t entry )
     fChain->Show( entry );
 }
 
-
-/*Int_t CRunSummary::Cut( Long64_t entry )
-{
-    entry = 0;
-    // This function may be called from Loop.
-    // returns  1 if entry is accepted.
-    // returns -1 otherwise.
-    return 1;
-} */
 #endif                                            // #ifdef CRunSummary_cxx
