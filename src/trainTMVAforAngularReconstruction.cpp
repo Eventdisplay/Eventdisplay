@@ -402,7 +402,8 @@ vector< bool > readArrayList( unsigned int i_ntel, string iArrayList, vector< un
 
 */
 bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
-                        unsigned int iRecID, string iArrayList )
+                        unsigned int iRecID, string iArrayList,
+                        bool redo_stereo_reconstruction )
 {
     ////////////////////////////
     // read list of input files
@@ -899,10 +900,15 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             {
                  cross = 0.;
             }
-            else
+            else if( redo_stereo_reconstruction )
             {
                 cross = sqrt( ( cen_y + i_SR.fShower_Yoffset ) * ( cen_y + i_SR.fShower_Yoffset )
                             + ( cen_x - i_SR.fShower_Xoffset ) * ( cen_x - i_SR.fShower_Xoffset ) );
+            }
+            else
+            {
+                cross = sqrt( ( cen_y + Yoff ) * ( cen_y + Yoff )
+                            + ( cen_x - Xoff ) * ( cen_x - Xoff ) );
             }
             dispPhi = TMath::ATan2( sinphi, cosphi ) - TMath::ATan2( cen_y + MCyoff, cen_x - MCxoff );
             
@@ -1039,6 +1045,7 @@ int main( int argc, char* argv[] )
     {
         iUseImageParameterErrors = (bool)(atoi(argv[11]));
     }
+    bool redo_stereo_reconstruction = false;
     
     ///////////////////////////
     // print runparameters to screen
@@ -1091,7 +1098,7 @@ int main( int argc, char* argv[] )
     }
     //////////////////////
     // fill training file
-    if( iDataDirectory.size() == 0 && !writeTrainingFile( fInputFile, iTelType, iRecID, iLayoutFile ) )
+    if( iDataDirectory.size() == 0 && !writeTrainingFile( fInputFile, iTelType, iRecID, iLayoutFile, redo_stereo_reconstruction ) )
     {
         cout << "error writing training file " << endl;
         cout << "exiting..." << endl;
