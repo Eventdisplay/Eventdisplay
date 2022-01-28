@@ -1463,7 +1463,7 @@ void VDisplay::setFADCText()
         sprintf( cTemp, "ped var %.2f (low gain: %.2f), DP1 window %d, LG mult %.2f",
                  fEventLoop->getAnalyzer()->getPedvars( false, iSW )[iChannel],
                  fEventLoop->getAnalyzer()->getPedvars( true, iSW )[iChannel],
-                 iSW  ,
+                 iSW,
                  fEventLoop->getLowGainMultiplier_Sum( fEventLoop->getRunParameter()->fTraceIntegrationMethod_pass1[ fEventLoop->getAnalyzer()->getTelID() ],
                          fEventLoop->getRunParameter()->fsumwindow_pass1[ fEventLoop->getAnalyzer()->getTelID() ] , iSW ) );
     }

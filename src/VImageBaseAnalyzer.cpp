@@ -600,6 +600,7 @@ void VImageBaseAnalyzer::calcTZerosSums( int iFirstSum, int iLastSum, unsigned i
             {
                 cout << "calcTZerosSums event " << getEventNumber() << ", setSums Tel " << getTelID() + 1 << ", CH " << i_channelHitID;
                 cout << ", sum [ " << corrfirst << ", " << corrlast << "] = " << getSums()[i_channelHitID] ;
+                cout << ", low gain: " << getHiLo()[i_channelHitID];
                 cout << ", low-gain correction " << getLowGainSumCorrection( iTraceIntegrationMethod, iLastSum - iFirstSum , corrlast - corrfirst, getHiLo()[i_channelHitID] );
                 cout << endl;
             }
@@ -1383,23 +1384,47 @@ void VImageBaseAnalyzer::calcSecondTZerosSums()
                                 cout << "HILO SET " << getTelID() + 1 << ", CH " << i_channelHitID;
                                 cout << " : corrfirst " << corrfirst << ", max timdiff LGtoHG: " << getSumWindowMaxTimeDifferenceLGtoHG();
                             }
+                            // use original v4 code
+                            float iT0 = fTraceHandler->getPulseTiming( corrfirst, getNSamples(), 
+                                                                       corrfirst, getNSamples() ).at( getRunParameter()->fpulsetiming_tzero_index );
+                            if( fTraceHandler->getPulseTimingStatus() )
+                            {
+                                if( corrfirst - iT0 < getSumWindowMaxTimedifferenceToDoublePassPosition() )
+                                {
+                                    corrfirst = TMath::Nint( iT0 ) + getSumWindowShift();
+                                }
+                                else
+                                {
+                                    corrfirst = getNSamples();
+                                }
+                            }
+                            // use original v5 code
+                            /*
                             if( getFADCTraceIntegrationPosition( corrfirst + 0.5 + getDynamicSummationWindow( i_channelHitID ) )
                                     > getFADCTraceIntegrationPosition( corrfirst + 0.5 ) )
                             {
                             
                                 // recalculate average time (t0)
                                 fTraceHandler->getTraceSum( getFADCTraceIntegrationPosition( corrfirst + 0.5 ),
-                                                            getFADCTraceIntegrationPosition( corrfirst + 0.5 + getDynamicSummationWindow( i_channelHitID ) ),
+                                                            15,
+                                                            //getFADCTraceIntegrationPosition( corrfirst + 0.5 + getDynamicSummationWindow( i_channelHitID ) ),
                                                             fRaw, getSumWindowStart_T_method(), getHiLo()[i_channelHitID] );
+                                cout << "trace sum " <<  getFADCTraceIntegrationPosition( corrfirst + 0.5 );
+                                cout << ", " << getFADCTraceIntegrationPosition( corrfirst + 0.5 + getDynamicSummationWindow( i_channelHitID ) );
                                 setTraceAverageTime( i_channelHitID, fTraceHandler->getTraceIntegrationFirst() );
+                                cout << " corrfrist " << corrfirst;
+                                cout << " trace average " << fTraceHandler->getTraceAverageTime();
+                                cout << " getTraceIntegrationFirst " << fTraceHandler->getTraceIntegrationFirst();
+                                cout << " getSumWindowShift " << getSumWindowShift();
                                 corrfirst = fTraceHandler->getTraceIntegrationFirst() + getSumWindowShift();
+                                corrfirst = fTraceHandler->getTraceAverageTime() 
                                 if( fDebugTrace )
                                 {
                                     cout << ", corrfirstset: " << corrfirst;
                                     cout << ", integration method: " << fTraceHandler->getTraceIntegrationMethod();
                                     cout << ", Tstartmethod: " << getSumWindowStart_T_method() << endl;
                                 }
-                            }
+                            } */
                             // reset trace integration method
                             fTraceHandler->setTraceIntegrationmethod( getTraceIntegrationMethod() );
                         }
