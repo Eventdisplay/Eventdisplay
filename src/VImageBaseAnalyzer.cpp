@@ -1374,10 +1374,11 @@ void VImageBaseAnalyzer::calcSecondTZerosSums()
                             if( getSumWindowMaxTimeDifferenceLGtoHG() > -998. )
                             {
                                 corrfirst += getSumWindowMaxTimeDifferenceLGtoHG();
+                                if( corrfirst < 0 ) corrfirst = 0.;
                             }
                             else
                             {
-                                corrfirst = getPulseTime( false )[i_channelHitID];
+                                corrfirst = 0;
                             }
                             if( fDebugTrace )
                             {
@@ -1385,18 +1386,22 @@ void VImageBaseAnalyzer::calcSecondTZerosSums()
                                 cout << " : corrfirst " << corrfirst << ", max timdiff LGtoHG: " << getSumWindowMaxTimeDifferenceLGtoHG();
                             }
                             // use original v4 code
-                            float iT0 = fTraceHandler->getPulseTiming( corrfirst, getNSamples(), 
-                                                                       corrfirst, getNSamples() ).at( getRunParameter()->fpulsetiming_tzero_index );
+                            float iT0 = fTraceHandler->getPulseTiming(
+                                                    corrfirst, getNSamples(),
+                                                    corrfirst, getNSamples() ).at( getRunParameter()->fpulsetiming_tzero_index );
                             if( fTraceHandler->getPulseTimingStatus() )
                             {
-                                if( corrfirst - iT0 < getSumWindowMaxTimedifferenceToDoublePassPosition() )
-                                {
-                                    corrfirst = TMath::Nint( iT0 ) + getSumWindowShift();
-                                }
-                                else
-                                {
-                                    corrfirst = getNSamples();
-                                }
+                                corrfirst = TMath::Nint( iT0 ) + getSumWindowShift();
+                            }
+                            if( fDebugTrace )
+                            {
+                                 cout << ", sumwindowmaxdiff: " << getSumWindowMaxTimedifferenceToDoublePassPosition();
+                                 cout << ", diff: " << corrfirst - iT0;
+                                 cout << ", pulse timing status: " << fTraceHandler->getPulseTimingStatus();
+                                 cout << ", corrfirstset: " << corrfirst;
+                                 cout << ", T0: " << iT0;
+                                 cout << ", sumwindowshift: " << getSumWindowShift();
+                                 cout << endl;
                             }
                             // use original v5 code
                             /*
