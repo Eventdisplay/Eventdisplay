@@ -92,7 +92,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         
         string fInstrumentEpoch;                  // Instrumental epoch (e.g. for VTS V5 or V6)
         unsigned int fAtmosphereID;               // corsika ID of atmosphere
-        vector< float > fEpochGain;               // absolute gain (dc/pe) during epoch (e.g. for VTS V5 or V6)
         string fEpochFile;                        // file with list of epochs and atmospheres
         
         float  fRunDuration;                      // duration of runs in [s]
@@ -316,7 +315,9 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         VEvndispRunParameter( bool bSetGlobalParameter = true );
         ~VEvndispRunParameter();
         
-        string       getInstrumentEpoch(  bool iMajor = false );
+        unsigned int getAtmosphereID( bool iUpdateInstrumentEpoch = false );
+        string       getInstrumentEpoch(  bool iMajor = false,
+                                          bool iUpdateInstrumentEpoch = false );
         bool         isMC()
         {
             return fIsMC;
@@ -324,11 +325,14 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         void         setDefaultParameters( string iObservatory );
         void         setPulseZeroIndex();
         void         setSystemParameters();
+        bool         updateInstrumentEpochFromFile( 
+                                       string iEpocheFile = "usedefault", 
+                                       bool iReadInstrumentEpoch = true );
         bool         useDB()
         {
             return fuseDB;
         }
         
-        ClassDef( VEvndispRunParameter, 191 ); //(increase this number)
+        ClassDef( VEvndispRunParameter, 1000 ); //(increase this number)
 };
 #endif
