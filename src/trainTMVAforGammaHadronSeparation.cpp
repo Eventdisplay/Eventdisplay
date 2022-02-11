@@ -403,7 +403,6 @@ bool train( VTMVARunData* iRun,
     // train gamma/hadron separation
     if( iTrainGammaHadronSeparation )
     {
-        // adding signal and background tree
         dataloader->AddSignalTree( iSignalTree_reduced, iRun->fSignalWeight );
         dataloader->AddBackgroundTree( iBackgroundTree_reduced, iRun->fBackgroundWeight );
     }
