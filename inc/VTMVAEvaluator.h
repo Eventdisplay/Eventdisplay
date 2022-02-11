@@ -179,10 +179,6 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         TH1D*            getEfficiencyHistogram( string iName, TFile* iF, string iMethodTag_2 );
         double           getMeanEnergyAfterCut( TFile* f, double iCut, unsigned int iDataBin );
         bool             optimizeSensitivity( unsigned int iDataBin, string iOptimizationType, string iEpoch = "noepoch" );
-        bool             optimizeSensitivity_using_qfactor( TH1D* effS, TH1D* effB,
-                double& i_SignalEfficiency_AtMaximum,
-                double& i_BackgroundEfficiency_AtMaximum,
-                double& i_TMVACutValue_AtMaximum );
         TGraph*          getInterpolatedDifferentialRatesfromGraph2D( TObject* i_G, double i_ze_min, double i_ze_max );
         double           getAverageDifferentialRateFromGraph2D( TObject* i_G, double i_e_min, double i_e_max, double i_ze_min, double i_ze_max );
         void             fillTMVAEvaluatorResults( string iCutID = "" );
@@ -215,9 +211,9 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         string           setFullMVAFileName( string iWeightFileName,
                                      unsigned intiWeightFileIndex_Emin, unsigned int i,
                                      unsigned int iWeightFileIndex_Zmin, unsigned int j,
-                                     string fTMVAMethodName, int fTMVAMethodCounter,
                                      string iInstrumentEpoch,
                                      string iFileSuffix );
+        string           testFullMVAFileName( string iFileName, string iFileSuffix );
         void             smoothAndInterpolateMVAValue( unsigned int iE_min, unsigned int iE_max,
                 unsigned int iZ_min, unsigned int iZ_max, double iEnergyStepSize );
         TGraphAsymmErrors* fillSmoothedEfficencyGraph( TGraphAsymmErrors* g, unsigned int iZe, bool iSignalEff = true );

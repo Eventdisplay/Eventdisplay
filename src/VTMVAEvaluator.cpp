@@ -83,7 +83,6 @@ void VTMVAEvaluator::reset()
     fWeightFileIndex_Emax = 0;
     fWeightFileIndex_Zmin = 0;
     fWeightFileIndex_Zmax = 0;
-    
 }
 
 /*
@@ -214,13 +213,11 @@ bool VTMVAEvaluator::initializeWeightFiles( string iWeightFileName,
             string iFullFileName = setFullMVAFileName( iWeightFileName, 
                                                    iWeightFileIndex_Emin, i,
                                                    iWeightFileIndex_Zmin, j,
-                                                   fTMVAMethodName, fTMVAMethodCounter,
                                                    iInstrumentEpoch,
                                                    ".root" );
             string iFullFileNameXML = setFullMVAFileName( iWeightFileName, 
                                                    iWeightFileIndex_Emin, i,
                                                    iWeightFileIndex_Zmin, j,
-                                                   fTMVAMethodName, fTMVAMethodCounter,
                                                    iInstrumentEpoch,
                                                    ".weights.xml" );
 
@@ -2809,17 +2806,6 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin,
         cout << " [deg], " << fTMVAngularContainmentRadiusMax * 100. << "%)";
     }
     cout << endl;
-    ////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////
-    // calculate TMVA cut value from q-factor
-    // (will overwrite values calculated above)
-    // IMPORTANT: this call should be commented out
-    //            for default analysis
-    /* optimizeSensitivity_using_qfactor( effS, effB,
-                                       i_SignalEfficiency_AtMaximum,
-                                       i_BackgroundEfficiency_AtMaximum,
-                                       i_TMVACutValue_AtMaximum );  */
-    ////////////////////////////////////////////////////////////////
     
     // get mean energy for this bin
     double iMeanEnergyAfterCuts = -99.;
@@ -2851,53 +2837,6 @@ bool VTMVAEvaluator::optimizeSensitivity( unsigned int iDataBin,
     
     return true;
 }
-
-
-/*
- * optimize sensitivity by determining
- * maximum in q-factor value
- *
- * Important: this is not the default analysis
- */
-bool VTMVAEvaluator::optimizeSensitivity_using_qfactor( TH1D* effS, TH1D* effB,
-        double& i_SignalEfficiency_AtMaximum,
-        double& i_BackgroundEfficiency_AtMaximum,
-        double& i_TMVACutValue_AtMaximum )
-{
-    i_SignalEfficiency_AtMaximum = 0.;
-    i_BackgroundEfficiency_AtMaximum = 0.;
-    i_TMVACutValue_AtMaximum = 0.;
-    // make sure that signal and background efficiency
-    // histograms exist
-    if( !effS || !effB )
-    {
-        return false;
-    }
-    
-    double q = -1.;
-    double eS = 0.;
-    double eB = 0.;
-    double q_max = 0.;
-    
-    for( int i = 1; i <= effS->GetNbinsX(); i++ )
-    {
-        eS = effS->GetBinContent( i );
-        eB = effB->GetBinContent( i );
-        if( eB > 0. )
-        {
-            q = eS / sqrt( eB * 0.5 );
-            if( q > q_max )
-            {
-                i_TMVACutValue_AtMaximum = effS->GetXaxis()->GetBinCenter( i );
-                i_SignalEfficiency_AtMaximum = eS;
-                i_BackgroundEfficiency_AtMaximum = eB;
-            }
-        }
-    }
-    
-    return true;
-}
-
 
 
 /*
@@ -3788,55 +3727,54 @@ double VTMVAEvaluator::getAverageDifferentialRateFromGraph2D( TObject* i_G,
     return 0.;
 }
 
+/*
+ * test MVA file name and if it exists
+*/
+string VTMVAEvaluator::testFullMVAFileName( string iFileName, string iFileSuffix )
+{
+    ostringstream iFileNameTemp;
+    iFileNameTemp << iFileName;
+    if( iFileSuffix.find( "xml" ) != string::npos )
+    {
+        iFileNameTemp << "_" << fTMVAMethodName << "_" << fTMVAMethodCounter;
+    }
+    iFileNameTemp << iFileSuffix;
+    // check if file exists or if this is an old-style file
+    ifstream f( iFileNameTemp.str().c_str() );
+    if( !f.good() )
+    {
+        return "";
+    }
+    return iFileNameTemp.str();
+}
+
 /* 
  * return correct mva root and xml file
- * check if file exists
+ *
+ * BDT file naming changed and ensure backwards
+ * compatiblity
+ *
  *
  */
 string VTMVAEvaluator::setFullMVAFileName( string iWeightFileName,
                                      unsigned int iWeightFileIndex_Emin, unsigned int i,
                                      unsigned int iWeightFileIndex_Zmin, unsigned int j,
-                                     string fTMVAMethodName, int fTMVAMethodCounter,
                                      string iInstrumentEpoch,
                                      string iFileSuffix )
 {
-      ostringstream iFileName;
-      ostringstream iFileNamev2;
+      string file_name;
+      // Naming without ze bin; e.g. TMVA.BDT_3_BDT_0.weights.xml
+      ostringstream iFileNameTemp;
+      iFileNameTemp << iWeightFileName << "_" << iWeightFileIndex_Emin + i;
+      file_name = testFullMVAFileName( iFileNameTemp.str(), iFileSuffix );
+      if( file_name.size() > 0 ) return file_name;
+      // Naming includes ze bin; e.g. TMVA.BDT_3_1_BDT_0.weights.xml
+      iFileNameTemp << "_" << iWeightFileIndex_Zmin + j;
+      file_name = testFullMVAFileName( iFileNameTemp.str(), iFileSuffix );
+      if( file_name.size() > 0 ) return file_name;
 
-      iFileName << iWeightFileName << "_Ebin" << iWeightFileIndex_Emin + i;
-      iFileNamev2 << iWeightFileName << "_" << iWeightFileIndex_Emin + i;
-      // backwards compatibility with pre-2018 CTA training
-      if( iInstrumentEpoch != "noepoch" && iInstrumentEpoch != "CTA" )
-      {
-          iFileName << "_Zebin" << iWeightFileIndex_Zmin + j;
-          iFileNamev2 << "_Zebin" << iWeightFileIndex_Zmin + j;
-      }
-      if( iFileSuffix.find( "xml" ) != string::npos )
-      {
-          iFileName << "_" << fTMVAMethodName << "_" << fTMVAMethodCounter;
-          iFileNamev2 << "_" << fTMVAMethodName << "_" << fTMVAMethodCounter;
-      }
-      iFileName << iFileSuffix;
-      iFileNamev2 << iFileSuffix;
-      // check if file exists or if this is an old-style file
-      ifstream f(iFileName.str().c_str());
-      if( !f.good() )
-      {
-          ifstream f2(iFileNamev2.str().c_str());
-          if( !f2.good() )
-          {
-              cout << "VTMVAEvaluator::setFullMVAFileName warning: file not found: " << endl;
-              cout << iFileName.str() << endl;
-              cout << iFileNamev2.str() << endl;
-              return "";
-          }
-          else
-          {
-              return iFileNamev2.str();
-          }
-      }
-
-      return iFileName.str();
+      cout << "VTMVAEvaluator::setFullMVAFileName warning: file not found: " << endl;
+      return "";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
