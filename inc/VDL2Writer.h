@@ -58,7 +58,9 @@ class VDL2Writer
         vector< string > dist_mean;
         vector< float > dist_min;
         vector< float > dist_max;
-        bool fCopyDataTree;
+        bool fWriteDataTree;
+        bool fWriteDL2Tree;
+        bool fWriteDL3Tree;
 
         // TMVA
         vector< VTMVA_eval_dist* > fTMVA;
@@ -74,6 +76,7 @@ class VDL2Writer
         
         // event data
         VDL2Tree *fDL2DataTree;
+        // VDL3Tree *fDL3DataTree;
 
         unsigned int get_tmva_distance_bin( float distance );
         bool initializeTMVAEvaluators( CData *d );
@@ -83,13 +86,8 @@ class VDL2Writer
     
         VDL2Writer( string iConfigFile );
        ~VDL2Writer();
-        bool  copyDataTree() { return fCopyDataTree; }
         bool  fill( CData* d );
         vector< string > getDataFile() { return fdatafile; }
-        TTree* getEventDataTree()
-        {
-             if( fDL2DataTree ) return fDL2DataTree->getDL2Tree();
-             return 0;
-        }
+        bool writeDataTrees( TFile *iOutputFile, TChain *c );
 };
 #endif

@@ -10,7 +10,9 @@
  */
 VDL2Writer::VDL2Writer( string iConfigFile )
 {
-    fCopyDataTree = false;
+    fWriteDataTree = false;
+    fWriteDL2Tree = false;
+    fWriteDL3Tree = false;
     readConfigFile( iConfigFile );
 
     fDL2DataTree = new VDL2Tree( "DL2EventTree", "DL2 tree" );
@@ -25,6 +27,24 @@ VDL2Writer::~VDL2Writer()
         if( fTMVA[i] ) delete fTMVA[i];
     }
 }
+
+bool VDL2Writer::writeDataTrees( TFile *iOutputFile, TChain *c )
+{
+    if( !iOutputFile ) return false;
+    iOutputFile->cd();
+    if( fWriteDataTree && c )
+    {
+        cout << "writing data tree to " << iOutputFile->GetName() << endl;
+        c->Merge( iOutputFile, 0, "keep" );
+    }
+    if( fWriteDL2Tree && fDL2DataTree && fDL2DataTree->getDL2Tree() )
+    {
+        cout << "writing DL2 tree to " << iOutputFile->GetName() << endl;
+        fDL2DataTree->getDL2Tree()->Write();
+    }
+    return true;
+}
+
 
 bool VDL2Writer::readConfigFile( string iConfigFile )
 {
@@ -61,12 +81,28 @@ bool VDL2Writer::readConfigFile( string iConfigFile )
                     fdatafile.push_back( temp );
                 }
             }
-            else if( temp == "COPYDATATREE" )
+            else if( temp == "DATATREE" )
             {
                 if( !(is_stream>>std::ws).eof() )
                 {
                     is_stream >> temp;
-                    fCopyDataTree = bool( atoi(temp.c_str() ) );
+                    fWriteDataTree = bool( atoi(temp.c_str() ) );
+                }
+            }
+            else if( temp == "DL2TREE" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> temp;
+                    fWriteDL2Tree = bool( atoi(temp.c_str() ) );
+                }
+            }
+            else if( temp == "DL3TREE" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> temp;
+                    fWriteDL3Tree = bool( atoi(temp.c_str() ) );
                 }
             }
             // TMVA values

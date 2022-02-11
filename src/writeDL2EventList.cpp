@@ -60,7 +60,7 @@ void printHelp( int argc, char* argv[] )
     }
 }
 
-bool writeMCRunHeader( TChain *c, 
+bool writeAdditionalObjects( TChain *c, 
                        TFile *iOutFile )
 {
     if( !c || !iOutFile ) return false;
@@ -69,13 +69,11 @@ bool writeMCRunHeader( TChain *c,
     TFile* iF = (TFile*)c->GetFile();
     if( !iF ) return false;
     VMonteCarloRunHeader* iMC = (VMonteCarloRunHeader*)iF->Get( "MC_runheader" );
+    TTree *telconfig = (TTree*)iF->Get( "telconfig" );
     iOutFile->cd();
-    if( iMC )
-    {
-        iMC->Write();
-        return true;
-    }
-    return false;
+    if( iMC ) iMC->Write();
+    if( telconfig ) telconfig->CloneTree()->Write();
+    return true;
 }
 
 
@@ -108,23 +106,10 @@ void fillDL2EventList( string fConfigFile,
     fDL2Writer.fill( &d );
     
     // write results to disk
-    if( fDL2Writer.getEventDataTree() )
-    {
-        cout << "writing event data trees: (";
-        cout << fDL2Writer.getEventDataTree()->GetName();
-        cout << ") to " << fOutputfile->GetName() << endl;
-        fOutputfile->cd();
-        if( fDL2Writer.getEventDataTree() )
-        {
-            fDL2Writer.getEventDataTree()->Write();
-        }
-        if( fDL2Writer.copyDataTree() && c )
-        {
-            cout << "writing data tree to " << fOutputfile->GetName() << endl;
-            c->Merge(fOutputfile, 0, "keep" );
-        }
-    }
-    writeMCRunHeader( c, fOutputfile );
+    fDL2Writer.writeDataTrees( fOutputfile, c );
+
+    // copy additional useful objects
+    writeAdditionalObjects( c, fOutputfile );
 }
     
 
