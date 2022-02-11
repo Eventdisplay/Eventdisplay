@@ -131,7 +131,10 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
              iTreeVector[i]->SetBranchAddress( "EmissionHeightChi2", &EmissionHeightChi2 );
              iTreeVector[i]->SetBranchAddress( "SizeSecondMax", &SizeSecondMax );
              iTreeVector[i]->SetBranchAddress( "DispDiff", &DispDiff );
-             iTreeVector[i]->SetBranchAddress( "MCe0", &MCe0 );
+             if( iTreeVector[i]->GetBranchStatus( "MCe0" ) )
+             {
+                 iTreeVector[i]->SetBranchAddress( "MCe0", &MCe0 );
+             }
              if( !iDataTree_reduced )
              {
                  cout << "Error preparing reduced tree" << endl;
@@ -574,7 +577,9 @@ int main( int argc, char* argv[] )
     //////////////////////////////////////
     // train MVA
     // (one training per energy bin)
-    cout << "Total number of energy bins: " << fData->fEnergyCutData.size() << endl;
+    cout << "Number of energy bins: " << fData->fEnergyCutData.size();
+    cout << ", number fo zenith bins: " << fData->fZenithCutData.size();
+    cout << endl;
     cout << "================================" << endl << endl;
     for( unsigned int i = 0; i < fData->fEnergyCutData.size(); i++ )
     {
@@ -588,9 +593,10 @@ int main( int argc, char* argv[] )
                 cout << endl;
             }
             // training
-            if( fData->fTrainGammaHadronSeparation )
+            if( fData->fTrainGammaHadronSeparation && !trainGammaHadronSeparation( fData, i, j, fRunOption ) )
             {
-                trainGammaHadronSeparation( fData, i, j, fRunOption );
+                cout << "Error during training...exiting" << endl;
+                exit( EXIT_FAILURE );
             }
             if( fData->fTrainReconstructionQuality )
             {
