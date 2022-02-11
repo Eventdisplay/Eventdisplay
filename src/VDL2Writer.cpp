@@ -10,62 +10,10 @@
  */
 VDL2Writer::VDL2Writer( string iConfigFile )
 {
+    fCopyDataTree = false;
     readConfigFile( iConfigFile );
 
-    // tree with cut results for each event
-
-    runNumber = 0;
-    eventNumber = 0;
-    ArrayPointing_Azimuth = 0.;
-    ArrayPointing_Elevation = 0.;
-    MCze = 0.;
-    MCaz = 0.;
-    MCxoff = 0.;
-    MCyoff = 0.;
-    MCe0 = 0.;
-    NImages = 0;
-    ImgSel = 0;
-    ErecS = 0.;
-    dES = 0.;
-    EChi2S = 0.;
-    Az = 0.;
-    Ze = 0.;
-    Xoff = 0.;
-    Yoff = 0.;
-    Xoff_intersect = 0.;
-    Yoff_intersect = 0.;
-    Xoff_derot = 0.;
-    Yoff_derot = 0.;
-    Chi2 = 0.;
-    Xcore = 0.;
-    Ycore = 0.;
-    MCxcore = 0.;
-    MCycore = 0.;
-    DispNImages = 0;
-    MSCW = 0.;
-    MSCL = 0.;
-    SizeSecondMax = 0.;
-    EmissionHeight = 0.;
-    EmissionHeightChi2 = 0.;
-    NTtype = 0;
-    fCut_MVA = 0.;
-
-    for( unsigned int i = 0; i < VDST_MAXTELESCOPES; i++ )
-    {
-        R[i] = 0.;
-        ES[i] = 0.;
-        TtypeID[i] = 0;
-        NImages_Ttype[i] = 0;
-    }
-    // not included in mini trees:
-    // size
-    // width
-    // length
-    // dist
-    //
-
-    fDL2DataTree = new TTree( "data", "event data (shortened version)" );
-    fDL2DataTree->Branch( "MVA", &fCut_MVA, "MVA/F" );
+    fDL2DataTree = new VDL2Tree( "DL2EventTree", "DL2 tree" );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -105,21 +53,20 @@ bool VDL2Writer::readConfigFile( string iConfigFile )
             }
             is_stream >> temp;
             cout << is_line << endl;
-            if( temp == "OFFSETBIN" )
-            {
-                is_stream >> temp;
-                dist_mean.push_back( temp );
-                float temp_f;
-                is_stream >> temp_f;
-                dist_min.push_back( temp_f );
-                is_stream >> temp_f;
-                dist_max.push_back( temp_f );
-            }
-            else if( temp == "SIMULATIONFILE_DATA" )
+            if( temp == "DATAFILE" )
             {
                 if( !(is_stream>>std::ws).eof() )
                 {
-                    is_stream >> fdatafile;
+                    is_stream >> temp;
+                    fdatafile.push_back( temp );
+                }
+            }
+            else if( temp == "COPYDATATREE" )
+            {
+                if( !(is_stream>>std::ws).eof() )
+                {
+                    is_stream >> temp;
+                    fCopyDataTree = bool( atoi(temp.c_str() ) );
                 }
             }
             // TMVA values
@@ -137,29 +84,44 @@ bool VDL2Writer::readConfigFile( string iConfigFile )
                 is_stream >> iWeightFileDirectory;
                 string iWeightFileName;
                 is_stream >> iWeightFileName;
-                for( unsigned int i = 0; i < dist_mean.size(); i++ )
+                fTMVAWeightFile.push_back( gSystem->ExpandPathName( iWeightFileDirectory.c_str() ) );
+                // check if path name is complete
+                // note: this method returns FALSE if one **can** access the file
+                if( gSystem->AccessPathName( fTMVAWeightFile.back().c_str() ) )
                 {
-                    fTMVAWeightFile.push_back( gSystem->ExpandPathName( (iWeightFileDirectory+dist_mean[i]).c_str() ) );
-                    // check if path name is complete
-                    // note: this method returns FALSE if one **can** access the file
+                    VGlobalRunParameter iRunPara;
+                    fTMVAWeightFile.back() = iRunPara.getDirectory_EVNDISPAnaData() 
+                                            + "/" + fTMVAWeightFile.back();
                     if( gSystem->AccessPathName( fTMVAWeightFile.back().c_str() ) )
                     {
-                        fTMVAWeightFile.back() = VGlobalRunParameter::getDirectory_EVNDISPAnaData() 
-                                                + "/" + fTMVAWeightFile.back();
-                        if( gSystem->AccessPathName( fTMVAWeightFile.back().c_str() ) )
-                        {
-                            cout << "error, weight file directory not found: ";
-                            cout << fTMVAWeightFile.back() << endl;
-                            cout << "exiting..." << endl;
-                            exit( EXIT_FAILURE );
-                        }
+                        cout << "error, weight file directory not found: ";
+                        cout << fTMVAWeightFile.back() << endl;
+                        cout << "exiting..." << endl;
+                        exit( EXIT_FAILURE );
                     }
-                    fTMVAWeightFile.back() += "/" + iWeightFileName;
-               }
+                }
+                fTMVAWeightFile.back() += "/" + iWeightFileName;
             }
         }
     }
     return true;
+}
+
+/*
+ * get tmva wobble / distance bin
+ * (if available)
+*/
+unsigned int VDL2Writer::get_tmva_distance_bin( float dist )
+{
+    if( dist_min.size() == 0 ) return 0;
+    for( unsigned int b = 0; b < dist_min.size(); b++ )
+    {
+        if( dist >= dist_min[b] && dist < dist_max[b] )
+        {
+            return b;
+        }
+    }
+    return 999;
 }
 
 /*
@@ -190,73 +152,42 @@ bool VDL2Writer::fill( CData* d )
     // get full data set and loop over all entries
     ///////////////////////////////////////////////////////
     Long64_t d_nentries = d->fChain->GetEntries();
+    d_nentries = 1000;
     cout << "\t number of data events in source tree: " << d_nentries << endl;
 
-    unsigned int i_dist_bin = 0;
-    float dist = 0.;
+    unsigned int i_tmva_dist_bin = 0;
+    float i_tmva = 0.;
+    int iCut_QC = 0;
     
     // loop over all events
     for( Long64_t i = 0; i < d_nentries; i++ )
     {
         d->GetEntry( i );
 
-        if( d->Xoff < -50. || d->Yoff  < -50. ) continue;
+        if( d->Xoff < -50. || d->Yoff  < -50. || d->ErecS < 0. ) iCut_QC = -1;
+        else iCut_QC = 0;
 
-        dist = sqrt( d->Xoff*d->Xoff + d->Yoff*d->Yoff );
-
-        i_dist_bin = 999;
-        for( unsigned int b = 0; b < dist_min.size(); b++ )
+        i_tmva_dist_bin = get_tmva_distance_bin( sqrt( d->Xoff*d->Xoff 
+                                                     + d->Yoff*d->Yoff ) );
+        if( i_tmva_dist_bin < fTMVA.size() )
         {
-            if( dist >= dist_min[b] && dist < dist_max[b] )
-            {
-                i_dist_bin = b;
-                break;
-            }
+           i_tmva = fTMVA[i_tmva_dist_bin]->evaluate();
         }
-
-        if( i_dist_bin < fTMVA.size() )
+        else
         {
-           fillEventDataTree( fTMVA[i_dist_bin]->evaluate() );
+           i_tmva = -99.;
+           iCut_QC = -2.;
         }
-           
+        fDL2DataTree->fillEvent( d, 
+                                 i_tmva,
+                                 iCut_QC );
     }
-    if( fDL2DataTree )
+    if( fDL2DataTree->getDL2Tree() )
     {
-        cout << "\t number of events in DL2 tree: " << fDL2DataTree->GetEntries() << endl;
+        cout << "\t number of events in DL2 tree: " << fDL2DataTree->getDL2Tree()->GetEntries() << endl;
     }
     
     return true;
-}
-
-
-/* 
- * fill tree with cut numbers and MVA values per event
- *
- * 1    hhEcutTrigger_R (color: 1, marker: 20)
- * 2    hhEcutFiducialArea_R (color: 2, marker: 20)
- * 3    hhEcutStereoQuality_R (color: 3, marker: 20)
- * 4    hhEcutTelType_R (color: 4, marker: 20)
- * 5    hhEcutDirection_R (color: 5, marker: 20)
- * 6    hhEcutEnergyReconstruction_R (color: 6, marker: 20)
- * 7    hhEcutGammaHadron_R (color: 7, marker: 20)
- *
- *  1. Events passing gamma/hadron separation cut and direction cut
- *  fDL2DataTree->Draw("MVA", "Class==5" );
- *
- *  2. Events passing gamma/hadron separation cut and not direction cut
- *  fDL2DataTree->Draw("MVA", "Class==0" );
- *
- *  3. Events before gamma/hadron separation cut and before direction cut
- *   fDL2DataTree->Draw("MVA", "Class==0||Class==7||Class==5", "");
- *
- */
-void VDL2Writer::fillEventDataTree( float iMVA )
-{
-      if( fDL2DataTree )
-      {
-          fCut_MVA = iMVA;
-          fDL2DataTree->Fill();
-      }
 }
 
 bool VDL2Writer::initializeTMVAEvaluators( CData *d )

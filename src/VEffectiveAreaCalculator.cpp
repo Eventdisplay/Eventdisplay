@@ -3551,7 +3551,6 @@ void VEffectiveAreaCalculator::fillDL2EventDataTree( CData *c, UChar_t iCutClass
           fDL2_yoff = c->Yoff;
           fDL2_erec = c->ErecS;
           fDL2_nimages = (UChar_t)c->NImages;
-
           fDL2_Cut_Class = iCutClass;
           fDL2_Cut_MVA = iMVA;
           fDL2EventTree->Fill();

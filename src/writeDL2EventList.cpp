@@ -1,8 +1,10 @@
-/*! \file  fill DL2 trees
+/*! \file writeDL2 eventlist
+ * 
+ * write tree with DL2-level data:
+ * reconstructed events including g/h separation parameters
  *  
- *  applying gamma / hadron separation (e.g., TMVA)
- *
- *   input is a file list of mscw_energy output file from gamma-ray simulations
+ * input is a file list of mscw_energy output file from simulations
+ * or from data
  *
  */
 
@@ -29,13 +31,8 @@
 using namespace std;
 
 VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c );
-bool writeMCRunHeader( TChain *c, TFile *iOutFile );
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-int main( int argc, char* argv[] )
+void printHelp( int argc, char* argv[] )
 {
     // print version only
     if( argc == 2 )
@@ -48,58 +45,64 @@ int main( int argc, char* argv[] )
             exit( EXIT_SUCCESS );
         }
     }
-    
     cout << endl;
-    cout << "fillDL2Trees " << VGlobalRunParameter::getEVNDISP_VERSION() << endl;
+    cout << "writeDL2EventList " << VGlobalRunParameter::getEVNDISP_VERSION() << endl;
     cout << "-----------------------------" << endl;
-    cout << endl;
     
     /////////////////////////////////////////////////////////////////
     // read command line parameters
     if( argc != 3 )
     {
+        cout << "DL2 event list writer" << endl;
         cout << endl;
-        cout << "./fillDL2Trees <config file> <output file>" << endl;
+        cout << "./writeDL2EventList <config file> <output file>" << endl;
         exit( EXIT_SUCCESS );
     }
-    string fConfigFile = argv[1];
-    string fOutputfileName = argv[2];
+}
 
-    // open output file and write results to dist
-    TFile* fOutputfile = new TFile( fOutputfileName.c_str(), "RECREATE" );
-    if( fOutputfile->IsZombie() )
+bool writeMCRunHeader( TChain *c, 
+                       TFile *iOutFile )
+{
+    if( !c || !iOutFile ) return false;
+
+    // writing Monte Carlo header to disk
+    TFile* iF = (TFile*)c->GetFile();
+    if( !iF ) return false;
+    VMonteCarloRunHeader* iMC = (VMonteCarloRunHeader*)iF->Get( "MC_runheader" );
+    iOutFile->cd();
+    if( iMC )
     {
-        cout << "Error in opening output file: " << fOutputfile->GetName() << endl;
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE );
+        iMC->Write();
+        return true;
     }
-    
+    return false;
+}
+
+
+void fillDL2EventList( string fConfigFile,
+                       TFile *fOutputfile )
+{
     // DL2 writer
     VDL2Writer fDL2Writer( fConfigFile );
     
-    // load data chain
+    // load input data chain
     TChain* c = new TChain( "data" );
-    if( !c->Add( fDL2Writer.getDataFile().c_str(), -1 ) )
+    for( unsigned int i = 0; i < fDL2Writer.getDataFile().size(); i++ )
     {
-        cout << "Error while trying to add mscw data tree from file ";
-        cout << fDL2Writer.getDataFile() << endl;
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE );
+        cout << "Addding " << fDL2Writer.getDataFile()[i] << endl;
+        if( !c->Add( fDL2Writer.getDataFile()[i].c_str(), -1 ) )
+        {
+            cout << "Error while trying to add mscw data tree from file ";
+            cout << fDL2Writer.getDataFile()[i] << endl;
+            cout << "exiting..." << endl;
+            exit( EXIT_FAILURE );
+        }
     }
-    
     CData d( c, true, true );
     
     // MC histograms
-    VEffectiveAreaCalculatorMCHistograms *fMC_histo = copyMCHistograms( c );
-    if( fMC_histo )
-    {
-        fMC_histo->print();
-    }
-    else
-    {
-        cout << "Warning: failed reading MC histograms" << endl;
-    }
-    
+    copyMCHistograms( c );
+
     // fill DL2 trees
     fOutputfile->cd();
     fDL2Writer.fill( &d );
@@ -115,12 +118,35 @@ int main( int argc, char* argv[] )
         {
             fDL2Writer.getEventDataTree()->Write();
         }
-/*        if( c )
+        if( fDL2Writer.copyDataTree() && c )
         {
+            cout << "writing data tree to " << fOutputfile->GetName() << endl;
             c->Merge(fOutputfile, 0, "keep" );
-        } */
+        }
     }
     writeMCRunHeader( c, fOutputfile );
+}
+    
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+int main( int argc, char* argv[] )
+{
+    printHelp( argc, argv );
+    
+    string fConfigFile = argv[1];
+    string fOutputfileName = argv[2];
+
+    // output root file with DL2 event list
+    TFile* fOutputfile = new TFile( fOutputfileName.c_str(), "RECREATE" );
+    if( fOutputfile->IsZombie() )
+    {
+        cout << "Error in opening output file: " << fOutputfile->GetName() << endl;
+        cout << "exiting..." << endl;
+        exit( EXIT_FAILURE );
+    }
+
+    fillDL2EventList( fConfigFile, 
+                      fOutputfile );
     
     fOutputfile->Close();
     cout << "end..." << endl;
@@ -164,23 +190,5 @@ VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c )
         }
     }
     return iMC_his;
-}
-
-bool writeMCRunHeader( TChain *c, 
-                       TFile *iOutFile )
-{
-    if( !c || !iOutFile ) return false;
-
-    // writing monte carlo header to disk
-    TFile* iF = (TFile*)c->GetFile();
-    if( !iF ) return false;
-    VMonteCarloRunHeader* iMC = (VMonteCarloRunHeader*)iF->Get( "MC_runheader" );
-    iOutFile->cd();
-    if( iMC )
-    {
-        iMC->Write();
-        return true;
-    }
-    return false;
 }
 

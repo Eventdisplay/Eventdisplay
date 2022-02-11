@@ -782,7 +782,7 @@ makeEffectiveArea:	$(EFFOBJECT) ./obj/makeEffectiveArea.o
 	@echo "$@ done"
 
 ########################################################
-# DL2 writer fillDL2Trees
+# DL2 writer writeDL2EventList
 ########################################################
 
 DL2OBJECT =	./obj/CData.o \
@@ -802,16 +802,17 @@ DL2OBJECT =	./obj/CData.o \
 		./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o \
 		./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
 		./obj/VDL2Writer.o \
-		./obj/fillDL2Trees.o
+		./obj/VDL2Tree.o \
+		./obj/writeDL2EventList.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     DL2OBJECT += ./obj/VASlalib.o
 endif
 
-./obj/fillDL2Trees.o:	./src/fillDL2Trees.cpp
+./obj/writeDL2EventList.o:	./src/writeDL2EventList.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-fillDL2Trees:	$(DL2OBJECT) ./obj/fillDL2Trees.o
+writeDL2EventList:	$(DL2OBJECT) ./obj/writeDL2EventList.o
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 

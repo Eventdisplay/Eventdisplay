@@ -4,6 +4,7 @@
 #define VDL2Writer_H
 
 #include "CData.h"
+#include "VDL2Tree.h"
 #include "VTMVAEvaluator.h"
 
 #include "TChain.h"
@@ -51,12 +52,13 @@ class VDL2Writer
 {
     private:
 
-        string fdatafile;
+        vector< string > fdatafile;
 
-        // distance (xoff bins)
+       // distance (xoff bins)
         vector< string > dist_mean;
         vector< float > dist_min;
         vector< float > dist_max;
+        bool fCopyDataTree;
 
         // TMVA
         vector< VTMVA_eval_dist* > fTMVA;
@@ -71,49 +73,9 @@ class VDL2Writer
         vector< string > fTMVAWeightFile;
         
         // event data
-        TTree *fDL2DataTree;
+        VDL2Tree *fDL2DataTree;
 
-        Int_t runNumber;
-        Int_t eventNumber;
-        Float_t         ArrayPointing_Elevation;
-        Float_t         ArrayPointing_Azimuth;
-        Double_t        MCe0;
-        Double_t        MCxcore;
-        Double_t        MCycore;
-        Double_t        MCaz;
-        Double_t        MCze;
-        Double_t        MCxoff;
-        Double_t        MCyoff;
-        Int_t           NImages;
-        ULong64_t       ImgSel;
-        Double_t        Ze;
-        Double_t        Az;
-        Double_t        Xoff;
-        Double_t        Yoff;
-        Double_t        Xoff_derot;
-        Double_t        Yoff_derot;
-        Float_t         Xoff_intersect;
-        Float_t         Yoff_intersect;
-        Double_t        Xcore;
-        Double_t        Ycore;
-        Double_t        MSCW;
-        Double_t        MSCL;
-        Double_t        Chi2;
-        Double_t        ErecS;
-        Double_t        EChi2S;
-        Double_t        dES;
-        Double_t        ES[VDST_MAXTELESCOPES];
-        Double_t        SizeSecondMax;
-        Float_t         EmissionHeight;
-        Float_t         EmissionHeightChi2;
-        UInt_t          DispNImages;
-        Int_t           NTtype;
-        ULong64_t       TtypeID[VDST_MAXTELESCOPES];
-        UInt_t          NImages_Ttype[VDST_MAXTELESCOPES];
-        Double_t        R[VDST_MAXTELESCOPES];
-        float fCut_MVA;
-
-        void fillEventDataTree( float iMVA );
+        unsigned int get_tmva_distance_bin( float distance );
         bool initializeTMVAEvaluators( CData *d );
         bool readConfigFile( string iConfigFile );
         
@@ -121,11 +83,13 @@ class VDL2Writer
     
         VDL2Writer( string iConfigFile );
        ~VDL2Writer();
+        bool  copyDataTree() { return fCopyDataTree; }
         bool  fill( CData* d );
-        string getDataFile() { return fdatafile; }
+        vector< string > getDataFile() { return fdatafile; }
         TTree* getEventDataTree()
         {
-             return fDL2DataTree;
+             if( fDL2DataTree ) return fDL2DataTree->getDL2Tree();
+             return 0;
         }
 };
 #endif
