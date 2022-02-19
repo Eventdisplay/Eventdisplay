@@ -146,6 +146,17 @@ int main( int argc, char* argv[] )
              else if( TelID >= 75 && TelID <= 83 ) checkTelType( TelType, 10408618, fRootFile, TelID );
          }
      }
+     else if( fProduction == "prod3b-paranal-SCT156Tel" )
+     {
+         for( unsigned int i = 0; i < telconfig->GetEntries(); i++ )
+         {
+             telconfig->GetEntry( i );
+
+             if( TelID >= 0 && TelID <= 40 ) checkTelType( TelType, 10408618, fRootFile, TelID );
+             else if( TelID >= 41 && TelID <= 114 ) checkTelType( TelType, 201309316, fRootFile, TelID );
+             else if( TelID >= 114 && TelID <= 154 ) checkTelType( TelType, 207308707, fRootFile, TelID );
+         }
+     }
              
      // requirement 2: showerpars tree exist
      TTree *showerpars = (TTree*)fF.Get( "showerpars" );
