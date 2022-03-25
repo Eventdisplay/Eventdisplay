@@ -322,6 +322,7 @@ all VTS:	evndisp \
 	trainTMVAforAngularReconstruction \
 	trainTMVAforGammaHadronSeparation \
 	extrasMessage doneMessage \
+	logFile \
 	mergeVBF splitVBF
 
 CTA:	evndisp \
