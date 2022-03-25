@@ -1,13 +1,18 @@
-cff-version: "1.1.0"
-message: "If you use this software, please cite it using these metadata."
+# YAML 1.2
+# Metadata for citation of this software according to the CFF format (https://citation-file-format.github.io/)
+cff-version: 1.0.3
+message: If you use this software, please cite it using these metadata.
 title: "Eventdisplay: An Analysis and Reconstruction Package for Ground-based Gamma-ray Astronomy"
-authors: 
-  - family-names: "Maier"
-    given-names: "Gernot"
-    affiliation: DESY
-    orcid: "https://orcid.org/0000-0001-9868-4700"
-  - family-names: "Holder"
-    given-names: "Jamie"
-    affiliation: "Department of Physics and Astronomy and the Bartol Research Institute, University of Delaware, Newark, DE 19716, USA"    
-doi: "https://orcid.org/10.22323/1.301.0747"
-url: "https://github.com/Eventdisplay/Eventdisplay"
+doi: 10.5281/zenodo.3559075
+authors:
+- given-names: Gernot
+  family-names: Maier
+  affiliation: DESY
+  orcid: https://orcid.org/0000-0001-9868-4700
+- given-names: "Jamie"
+  family-names: "Holder"
+  affiliation: "Department of Physics and Astronomy and the Bartol Research Institute, University of Delaware, Newark, DE 19716, USA"
+version: 5.6.7
+date-released: 2021-11-24
+repository-code: https://github.com/Eventdisplay/Eventdisplay
+license: BSD-3-Clause
