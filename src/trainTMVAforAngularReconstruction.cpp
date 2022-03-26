@@ -452,7 +452,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     // vector with telescope position
     // (includes all telescopes, even those
     // of other types)
-    // (unfortunatly inconsistent in data 
+    // (unfortunately inconsistent in data 
     //  types required)
     vector< float > fTelX;
     vector< float > fTelY;
@@ -733,7 +733,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         {
             continue;
         }
-        
+
         /////////////////////////////////////////////////////////
         // calculate emission height and cross
         for( unsigned int i = 0; i < i_tpars.size(); i++ )
@@ -748,7 +748,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             fEM_weight[i] = 0.;
             
             if( ( int )i_showerpars.ImgSel_list[iRecID][i] < 1
-                    && (i_showerpars.NImages[iRecID] > 1 || !iSingleTelescopeAnalysis ) )
+               && (i_showerpars.NImages[iRecID] > 1 || !iSingleTelescopeAnalysis ) )
             {
                 continue;
             }
@@ -828,12 +828,14 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             }
             // required successful fit
             // (in case images are fitted)
-            if( i_tpars[i]->hasParameterErrors() && 
-                 i_tpars[i]->Fitstat < 1 )
-            {
-               continue;
-            }
-
+            // FIXME 
+            // disabled as it doesn't take it account if
+            // a fit acutally was performed
+            // if( i_tpars[i]->hasParameterErrors() && 
+            //    i_tpars[i]->Fitstat == 0 )
+            //{
+            //   continue;
+            // }
             
             runNumber   = i_showerpars.runNumber;
             eventNumber = i_showerpars.eventNumber;
@@ -1018,7 +1020,7 @@ int main( int argc, char* argv[] )
     string       iDataDirectory = "";
     string       iLayoutFile = "";
     // quality cut likely overwritten from command line
-    string       iQualityCut = "size>1.&&ntubes>4.&&width>0.&&width<2.&&length>0.&&length<10.";
+    string       iQualityCut = "size>1.&&ntubes>log10(4.)&&width>0.&&width<2.&&length>0.&&length<10.";
     iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&Rcore<2000.";
     if( argc >=  7 )
     {
