@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        root: 
+        root:
           - "rootproject/root:latest"
           #- "rootproject/root:6.20.08-ubuntu20.04"
           #- "rootproject/root:6.24.06-arch"
