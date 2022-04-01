@@ -181,23 +181,10 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     }
     
     //////////////////////////////////////////////////////////
-    // calculate angle between the image lines for
-    // multiplicity 2
-    if( cosphi.size() == 2 && sinphi.size() == 2
-            && cosphi[0] != 0. && cosphi[1] != 0. )
-    {
-        f_angdiff = fabs( atan( sinphi[0] / cosphi[0] ) - atan( sinphi[1] / cosphi[1] ) ) * TMath::RadToDeg();
-        if( f_angdiff > 90. )
-        {
-            f_angdiff = 180. - f_angdiff;
-        }
-    }
-    // multiplicity 1: set value to 90 deg (!)
-    else if( cosphi.size() == 1 )
-    {
-        f_angdiff = 180.;
-    }
-    else
+    // calculate (average) angle between the image lines for
+    f_angdiff = 0.;
+    
+    if( cosphi.size() > 1 )
     {
         // calculate average angle between image lines
         f_angdiff = 0.;
@@ -206,7 +193,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         {
             for( unsigned int jj = 1; jj < sinphi.size(); jj++ )
             {
-                if( ii == jj || ii > jj )
+                if( ii >= jj )
                 {
                     continue;
                 }
@@ -233,6 +220,11 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         {
             f_angdiff /= fmean_iangdiffN;
         }
+    }
+    // multiplicity 1 (fix to artifically large value)
+    else
+    {
+        f_angdiff = 180.;
     }
     // check for close to parallel lines
     // (not so important for disp direction,
@@ -521,7 +513,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     }
 
     // apply a completely unnecessary sign flip
-    ys *= -1.;
+    if( ys > -9998. ) ys *= -1.;
 }
 
 /*
