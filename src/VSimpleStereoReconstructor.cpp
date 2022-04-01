@@ -168,7 +168,7 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
     {
         for( unsigned int jj = 1; jj < m.size(); jj++ )
         {
-            if( ii == jj || ii > jj )
+            if( ii >= jj )
             {
                 continue;
             }
