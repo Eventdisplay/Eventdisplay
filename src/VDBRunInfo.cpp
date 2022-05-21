@@ -382,32 +382,11 @@ void VDBRunInfo::readRunInfoFromDB( string iDBserver )
     {
         angl = atof( db_row->GetField( 18 ) );
     }
+    fWobbleNorth = dist * cos( angl * TMath::DegToRad() );
+    fWobbleEast = dist * sin( angl * TMath::DegToRad() );
+    if( TMath::Abs( fWobbleNorth ) < 1.e-15 ) fWobbleNorth = 0.;
+    if( TMath::Abs( fWobbleEast ) < 1.e-15 ) fWobbleEast = 0.;
     
-    if( fabs( angl ) < 0.1 )
-    {
-        fWobbleNorth = dist;
-        fWobbleEast = 0.;
-    }
-    else if( fabs( angl - 90. ) < 0.1 )
-    {
-        fWobbleNorth = 0.;
-        fWobbleEast = dist;
-    }
-    else if( fabs( angl - 180. ) < 0.1 )
-    {
-        fWobbleNorth = -1.*dist;
-        fWobbleEast = 0.;
-    }
-    else if( fabs( angl - 270. ) < 0.1 )
-    {
-        fWobbleNorth = 0.;
-        fWobbleEast = -1.*dist;
-    }
-    if( fRunNumber == 50308 )
-    {
-        fWobbleNorth = 0.;
-        fWobbleEast = -0.5;
-    }
     // get config mask
     if( db_row->GetField( 10 ) )
     {
@@ -637,7 +616,6 @@ vector< unsigned int > VDBRunInfo::getLaserRun( string iDBserver, unsigned int i
     fLaserRunID.assign( iNTel, 0 );
     for( unsigned int t = 0; t < iNTel; t++ )
     {
-    
         // check if this run is excluded from group
         // also check if telescope is within the config mask (taking DQM cuts into account)
         for( unsigned int i = 0; i < iLaserList.size(); i++ )

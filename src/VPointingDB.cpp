@@ -383,29 +383,10 @@ bool VPointingDB::getDBRunInfo()
         fDBSourceName = db_row->GetField( 19 );
         getDBSourceCoordinates( fDBSourceName, fDBTargetDec, fDBTargetRA );
         
-        float dist = atof( db_row->GetField( 17 ) );
-        float angl = atof( db_row->GetField( 18 ) );
-        
-        if( fabs( angl ) < 0.1 )
-        {
-            fDBWobbleNorth = dist;
-            fDBWobbleEast = 0.;
-        }
-        else if( fabs( angl - 90. ) < 0.1 )
-        {
-            fDBWobbleNorth = 0.;
-            fDBWobbleEast = dist;
-        }
-        else if( fabs( angl - 180. ) < 0.1 )
-        {
-            fDBWobbleNorth = -1.*dist;
-            fDBWobbleEast = 0.;
-        }
-        else if( fabs( angl - 270. ) < 0.1 )
-        {
-            fDBWobbleNorth = 0.;
-            fDBWobbleEast = -1.*dist;
-        }
+		float dist = atof( db_row->GetField( 17 ) );
+		float angl = atof( db_row->GetField( 18 ) );
+        fDBWobbleNorth = dist * cos( angl * TMath::DegToRad() );
+        fDBWobbleEast = dist * sin( angl * TMath::DegToRad() );
     }
     else
     {
@@ -478,6 +459,8 @@ bool VPointingDB::readPointingFromVPMTextFile( string iDirectory )
             fDBTime.push_back( iITime * 86400. );
             fDBTelElevationRaw.push_back( 0. );
             fDBTelAzimuthRaw.push_back( 0. );
+            fDBTelRA.push_back( iRA * degrad );
+            fDBTelDec.push_back( iDec * degrad );
             getHorizonCoordinates( fDBMJD.back(), fDBTime.back(), iDec * degrad, iRA * degrad, az, ze );
             fDBTelElevation.push_back( 90. - ze );
             fDBTelAzimuth.push_back( az );
@@ -619,9 +602,10 @@ bool VPointingDB::readPointingCalibratedVPMFromDB()
         fDBTime.push_back( iITime * 86400. );
         fDBTelElevationRaw.push_back( 0. );
         fDBTelAzimuthRaw.push_back( 0. );
-        
         iRA = atof( db_row->GetField( 1 ) );
         iDec = atof( db_row->GetField( 2 ) );
+        fDBTelRA.push_back( iRA * degrad );
+        fDBTelDec.push_back( iDec * degrad );
         getHorizonCoordinates( fDBMJD.back(), fDBTime.back(), iDec * degrad, iRA * degrad, az, ze );
         fDBTelElevation.push_back( 90. - ze );
         fDBTelAzimuth.push_back( az );
@@ -854,6 +838,8 @@ bool VPointingDB::readPointingFromDB()
         fDBTelAzimuthRaw.push_back( atof( db_row->GetField( 2 ) ) * 180. / TMath::Pi() );
         fDBTelElevation.push_back( el * 180. / TMath::Pi() );
         fDBTelAzimuth.push_back( az * 180. / TMath::Pi() );
+        fDBTelRA.push_back( 0. );
+        fDBTelDec.push_back( 0. );
         fDBTelExpectedElevation.push_back( atof( db_row->GetField( 5 ) ) * 180. / TMath::Pi() );
         fDBTelExpectedAzimuth.push_back( atof( db_row->GetField( 6 ) ) * 180. / TMath::Pi() );
     }
@@ -906,6 +892,8 @@ TTree* VPointingDB::getTreePointingDB()
     float iTelAz = 0.;
     float iTelElT = 0.;
     float iTelAzT = 0.;
+    float iTelRA = 0.;
+    float iTelDec = 0.;
     
     sprintf( hname, "db_pointing_%d", getTelID() + 1 );
     sprintf( htitle, "pointing from DB (Telescope %d)", getTelID() + 1 );
@@ -921,6 +909,9 @@ TTree* VPointingDB::getTreePointingDB()
     // expected elevation / azimuth (value requested by pointing software)
     tD->Branch( "ElTelExpected", &iTelElT, "ElTelExpected/F" );
     tD->Branch( "AzTelExpected", &iTelAzT, "AzTelExpected/F" );
+    // ra/dec as read from DB
+    tD->Branch("RA", &iTelRA, "RA/F" );
+    tD->Branch("Dec", &iTelDec, "Dec/F" );
     
     for( unsigned int i = 0; i < fDBMJD.size(); i++ )
     {
@@ -932,6 +923,8 @@ TTree* VPointingDB::getTreePointingDB()
         iTelAz = fDBTelAzimuth[i];
         iTelElT = fDBTelExpectedElevation[i];
         iTelAzT = fDBTelExpectedAzimuth[i];
+        iTelRA = fDBTelRA[i];
+        iTelDec = fDBTelDec[i];
         
         tD->Fill();
     }
