@@ -427,16 +427,18 @@ void VCalibrator::writePeds( bool iLowGain, VPedestalCalculator* iPedestalCalcul
                     // (require at least 100 entries in pedestal events)
                     os << t << " " << i << " ";
                     if( hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]
-                            && hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetEntries() > 100 )
+                     && hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetEntries() > 100 )
                     {
                         os << hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetMean() / ( double )fRunPar->fCalibrationSumWindow << " ";
                     }
                     else
                     {
-                        cout << "VCalibrator::writePeds(): WARNING, less than 100 events";
+                        cout << "VCalibrator::writePeds(): WARNING, less than 100 events ";
                         if( hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i] )
                         {
-                            cout << "(" << hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetEntries() << ")";
+                            cout << "(";
+                            cout << hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetEntries();
+                            cout << " events)";
                         }
                         cout << ", setting pedestal to 0 for telescope (type) ";
                         cout << telType << ", channel " << i << endl;
