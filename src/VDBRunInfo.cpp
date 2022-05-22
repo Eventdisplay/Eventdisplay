@@ -486,7 +486,7 @@ void VDBRunInfo::readRunInfoFromDB( string iDBserver )
 
 void VDBRunInfo::print()
 {
-    cout << "Reading run info from database for run " << fRunNumber << ":" << endl;
+    cout << "Run info from database for run " << fRunNumber << ":" << endl;
     cout << "Date: " << fDBDate << "(" << fDataStartTimeSQL << "," << fDataStoppTimeSQL << ")";
     cout << ", Duration: " << fDuration << " [s]";
     cout << ", " << fRunType << ", " << fObservingMode << ", " << fRunStatus;
@@ -632,15 +632,10 @@ vector< unsigned int > VDBRunInfo::getLaserRun( string iDBserver, unsigned int i
                 
                 if( iStatus == "do_not_use" )
                 {
-                    cout << "VDBRunInfo::getLaserRun() Warning: laser run " << iLaserList[i] << " was assessed as \"do not use\" by DQM. " << endl;
-                    cout << "\tPlease check the run quality and either fix the DQM flag or assign a new flasher run as appropriate." << endl;
-                    cout << "\tThe analysis may fail if no gains can be loaded, use option -nocalibnoproblem to set missing gains to 1. " << endl;
-                    fLaserRunID.assign( iNTel, 0 );
+                    cout << "VDBRunInfo::getLaserRun() Warning: laser run " << iLaserList[i] << " was assessed as \"do not use\" by DQM.";
+                    cout << " Issue needs to be investigated, use analysis results might be affected. " << endl;
                 }
-                else
-                {
-                    fLaserRunID[t] = iLaserList[i];
-                }
+                fLaserRunID[t] = iLaserList[i];
             }
         }
     }
