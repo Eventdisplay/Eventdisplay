@@ -77,7 +77,6 @@ bool VCalibrator::initializePedestalHistograms( ULong64_t iTelType, bool iLowGai
         cout << " (no single or array of output files defined)" << endl;
         exit( EXIT_FAILURE );
     }
-    /////////////////////////////////////////////////////////////////
     // init histograms etc (only done before first event)
     if( fReader->getMaxChannels() )
     {
@@ -251,10 +250,9 @@ void VCalibrator::calculatePedestals( bool iLowGain )
 
     // reset and fill vectors
     resetAnaData();
+
     fillHiLo();
     
-    ////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////
     // fill pedestal sum for current telescope type
     fNumberPedestalEvents[iTelType]++;
     
@@ -392,7 +390,6 @@ void VCalibrator::writePeds( bool iLowGain, VPedestalCalculator* iPedestalCalcul
         // write histograms for first telescope of a certain teltype only
         if( !iFileWritten[telType] )
         {
-        
             cout << "Telescope (type) " << telType << endl;
             cout << "\t total number of pedestal events: " << fNumberPedestalEvents[telType] << endl;
             cout << "\t writing ";
@@ -704,7 +701,6 @@ bool VCalibrator::fillPedestalTree( unsigned int tel, VPedestalCalculator* iPede
     ////////////////////////////////////////////////////////////////////////////////
     // tree filling
     
-    //////////////////////////////////////////
     // loop over all channels
     for( unsigned int i = 0; i < hped_vec[iTelType][0].size(); i++ )
     {
@@ -2107,9 +2103,7 @@ bool VCalibrator::readPeds_from_textfile( string iFile, bool iLowGain, unsigned 
 }
 
 /*
-
    read low gain pedestals from combined file
-
 */
 bool VCalibrator::readPeds_from_combinedfile( string iFile, bool iLowGain, unsigned int i_SumWindow )
 {
@@ -2118,8 +2112,18 @@ bool VCalibrator::readPeds_from_combinedfile( string iFile, bool iLowGain, unsig
     infile.open( iFile.c_str(), ifstream::in );
     if( !infile )
     {
-        cout << "VCalibrator::readPeds_from_combinedfile error: unable to open pedestal file " << iFile << endl;
-        return false;
+        cout << "VCalibrator::readPeds_from_combinedfile error: unable to open pedestal file ";
+        cout << "\t" << iFile << endl;
+        cout << "\t trying aux directory" << endl;
+        string i_Temp = fRunPar->getDirectory_EVNDISPAnaData();
+        i_Temp += "/Calibration/";
+        i_Temp += gSystem->BaseName( iFile.c_str() );
+        infile.open( i_Temp.c_str(), ifstream::in );
+        if( !infile )
+        {
+            cout << "VCalibrator::readPeds_from_combinedfile error: unable to open pedestal file " << i_Temp << endl;
+            return false;
+        }
     }
     
     cout << "Telescope " << getTelID() + 1;
