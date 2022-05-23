@@ -951,7 +951,7 @@ void VCalibrator::writeAverageTZeros( bool iLowGain )
         cout << "\t calculated from " << fNumberTZeroEvents[t] << " events" << endl;
         
         fTZeroOutFile[tel]->cd();
-        if( t < htzero.size() && htaverage.size() )
+        if( t < htzero.size() && t < htaverage.size() )
         {
             for( unsigned int i = 0; i < htzero[t].size(); i++ )
             {
@@ -1990,7 +1990,8 @@ bool VCalibrator::readPeds_from_textfile( string iFile, bool iLowGain, unsigned 
     infile.open( iFile.c_str(), ifstream::in );
     if( !infile )
     {
-        cout << "VCalibrator::readPeds_from_textfile error: unable to open pedestal file " << iFile << endl;
+        cout << "VCalibrator::readPeds_from_textfile error: unable to open pedestal file ";
+        cout << iFile << endl;
         cout << "\t exiting..." << endl;
         exit( EXIT_FAILURE );
     }
@@ -3075,7 +3076,6 @@ void VCalibrator::initialize()
             }
             vector< vector< TH1F* > > iped_vec;
             vector< vector< TH1F* > > iped_ttype_vec;
-            //vector< TH1F* > iped_ttype_vec;
             for( int i = 0; i < getRunParameter()->fCalibrationSumWindow; i++ )
             {
                 vector<TH1F* > ihped;
@@ -3125,7 +3125,6 @@ void VCalibrator::initialize()
             readGains( true );
         }
         // read peds from DST file (for DST MC source file)
-        
         if( fRunPar->fsourcetype == 7 || fRunPar->fsourcetype == 4 )
         {
             readCalibrationDatafromDSTFiles( fRunPar->fsourcefile, fRunPar->frunmode == 1 );
@@ -4339,13 +4338,9 @@ bool VCalibrator::readCalibrationDatafromDSTFiles( string iDSTfile, bool iPedOnl
     }
     else if( getRunParameter()->fIPRdatabase.Length() > 0 )
     {
-        cout << "\t IPR graphs for NN cleaening will be read from external database: ";
+        cout << "\t IPR graphs for NN cleaning will be read from external database: ";
         cout << getRunParameter()->fIPRdatabase << endl;
     }
-    
-    // cleanup (not necessary, this is done by TFile::Close()
-    //	delete [] fPedvar_high;
-    //	delete [] fPedvar_low;
     
     iF.Close();
     return true;
