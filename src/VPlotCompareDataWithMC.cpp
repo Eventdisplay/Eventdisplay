@@ -893,10 +893,10 @@ TCanvas* VPlotCompareDataWithMC::plot_energyDependentDistributions( string iVari
             if( iVariable.find( "MW" ) != string::npos || iVariable.find( "ML" ) != string::npos )
             {
                 x = 1.;
-                TLine* lLine = new TLine( x, hSims->GetMinimum(), x, hSims->GetMaximum() );
-                lLine->SetLineStyle( 2 );
-                lLine->Draw();
             }
+            TLine* lLine = new TLine( x, hSims->GetMinimum(), x, hSims->GetMaximum() );
+            lLine->SetLineStyle( 2 );
+            lLine->Draw();
         }
         else if( iPlot == "REL" )
         {
