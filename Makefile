@@ -6,11 +6,6 @@
 #
 #  for CTA:     make CTA
 #  
-#  different productions:
-#  make CTA CTAPROD=PROD3b_North
-#  for grid binaries
-#  make CTA GRIDPROD=CTAGRID
-#
 #  shell variables needed:
 #    ROOTSYS (pointing to your root installation)
 #
@@ -34,7 +29,7 @@
 #  for using FITS (optional)
 #    FITSSYS (pointing to FITS installation)
 #
-#   for using sofa
+#   for using sofa (default)
 #      SOFASYS
 #
 ##########################################################################
@@ -45,40 +40,36 @@ ARCH = $(shell uname)
 # basic numbers 
 #############################
 package = EVNDISP
-version = 506
+version = 570
 # version of auxiliary files
 auxversion = $(version)-auxv01
 distdir = $(package)-$(version)
 ctapara = $(distdir).CTA.runparameter
 vtspara = $(package)-$(auxversion).VTS.aux
 #############################
-# root installation
-ifeq (, $(shell which root-config))
-  ERROR_MESSAGE=$(error "cern root not found; require root installation from https://root.cern.ch/")
-  ROOTFLAG=-DNOROOT
-else
+#############################
 # check root version number
-  ROOTVERSION=$(shell root-config --version)
-  ROOT_CntCln = rootcling
+#############################
+ROOTVERSION=$(shell root-config --version)
+ROOT_CntCln = rootcling
 #############################
 # check for root libraries
 #############################
-  ROOT_MLP=$(shell root-config --has-xml)
-  ROOT_MINUIT2=$(shell root-config --has-minuit2)
+ROOT_MLP=$(shell root-config --has-xml)
+ROOT_MINUIT2=$(shell root-config --has-minuit2)
 # mysql support
 # (necessary for VERITAS data analysis)
-  ROOT_MYSQL=$(shell root-config --has-mysql)
-  ifeq ($(ROOT_MYSQL),yes)
-    DBFLAG=-DRUNWITHDB
-  endif
+ROOT_MYSQL=$(shell root-config --has-mysql)
+ifeq ($(ROOT_MYSQL),yes)
+  DBFLAG=-DRUNWITHDB
+endif
 # gsl/mathmore
-  ROOT_MATHMORE=$(shell root-config --has-mathmore)
+ROOT_MATHMORE=$(shell root-config --has-mathmore)
 # DCACHE support
 # (check that root is compiled with dcache)
-  ROOT_DCACHE=$(shell root-config --has-dcache)
-  ifeq ($(ROOT_DCACHE),yes)
-    DCACHEFLAG=-DRUNWITHDCACHE
-  endif
+ROOT_DCACHE=$(shell root-config --has-dcache)
+ifeq ($(ROOT_DCACHE),yes)
+  DCACHEFLAG=-DRUNWITHDCACHE
 endif
 #############################
 # VERITAS BANK FORMAT (VBF)
@@ -147,7 +138,6 @@ endif
 # compiler and linker general values
 CXX           = g++
 CXXFLAGS      = -O3 -g -Wall -fPIC -fno-strict-aliasing -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
-## OBS CXXFLAGS      = -O3 -g -Wall -Wno-deprecated -fPIC -fno-strict-aliasing  -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
 CXXFLAGS     += -I. -I./inc/
 CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(GSLFLAG) $(GSL2FLAG) $(DCACHEFLAG) $(ASTRONMETRY)
 LD            = g++ 
@@ -164,7 +154,7 @@ ifeq ($(ARCH),Darwin)
 CXX           = clang++
 LD            = clang++
 CXXFLAGS    += -stdlib=libc++
-# OBS CXXFLAGS    += -Wdeprecated-declarations -stdlib=libc++
+#  CXXFLAGS    += -Wdeprecated-declarations -stdlib=libc++ -std=c++11
 LDFLAGS       = -bind_at_load
 DllSuf        = dylib
 UNDEFOPT      = dynamic_lookup
@@ -312,6 +302,7 @@ all VTS:	evndisp \
 	anasum \
 	combineLookupTables \
 	makeEffectiveArea \
+	trainTMVAforGammaHadronSeparation \
 	slib \
 	combineEffectiveAreas \
 	makeRadialAcceptance \
@@ -319,11 +310,8 @@ all VTS:	evndisp \
 	VTS.getRunListFromDB \
 	VTS.getLaserRunFromDB \
 	writeParticleRateFilesForTMVA \
-	trainTMVAforAngularReconstruction \
-	trainTMVAforGammaHadronSeparation \
-	extrasMessage doneMessage \
-	logFile \
-	mergeVBF splitVBF
+	writelaserinDB \
+	logFile
 
 CTA:	evndisp \
         CTA.convert_hessio_to_VDST \
@@ -470,7 +458,6 @@ ifneq ($(VBFFLAG),-DNOVBF)
 		    ./obj/VBFDataReader.o \
 	 	    ./obj/VSimulationDataReader.o 
 endif
-
 # finalize
 EVNOBJECTS += ./obj/evndisp.o
 
@@ -1955,13 +1942,9 @@ printconfig configuration config:
 	@echo "    $(CXXFLAGS)"
 	@echo "    $(GLIBS)"
 	@echo ""
-ifneq ($(ROOTFLAG),-DNOROOT)
 	@echo "using root version $(ROOTVERSION)"
 	@echo "    compiled with MLP: $(ROOT_MLP), MINUIT2: $(ROOT_MINUIT2), MYSQL: $(ROOT_MYSQL), DCACHE: $(ROOT_DCACHE), MATHMORE: $(ROOT_MATHMORE)"
 	@echo "    $(ROOTSYS)"
-else
-	@echo "no root support - you probably cannot do a lot"
-endif
 	@echo ""
 ifeq ($(GSLFLAG),-DNOGSL)
 	@echo "evndisp without GSL libraries"
