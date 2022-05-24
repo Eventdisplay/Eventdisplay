@@ -633,7 +633,7 @@ bool VCalibrator::fillPedestalTree( unsigned int tel, VPedestalCalculator* iPede
         cout << t << "\t" << hped_vec.size() << endl;
         return false;
     }
-    cout << "\t filling pedestal tree for telescope " << t << " (telescope type " << iTelType << ")" << endl;
+    cout << "\t filling pedestal tree for telescope " << t+1 << " (telescope type " << iTelType << ")" << endl;
     
     char iname[800];
     char ititle[800];
