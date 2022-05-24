@@ -1947,9 +1947,9 @@ printconfig configuration config:
 	@echo "    $(ROOTSYS)"
 	@echo ""
 ifeq ($(GSLFLAG),-DNOGSL)
-	@echo "evndisp without GSL libraries"
+	@echo "evndisp without GSL libraries (no Hough muon calibration, no likelihood fitter)"
 else
-	@echo "evndisp with GSL libraries"
+	@echo "evndisp with GSL libraries (used in Hough muon calibration, likelihood fitter)"
 	@echo "   GSL  $(GSLFLAG)" 
 	@echo "   GSL2 $(GSL2FLAG)" 
 	@echo "   $(GSLCFLAGS) $(GSLLIBS)"
