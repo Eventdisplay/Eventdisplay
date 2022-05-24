@@ -299,10 +299,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         bool fdstwriteallpixel;                   // write all information of all pixel into dst output files
         bool fdstcalibration;                     // write only the branches required for calibration to DST file
         
-        // trigsim parameters (note: different telescope IDs!)
-        map< unsigned int, int >   fTrigSim_referenceTrigger;         //!
-        map< unsigned int, float > fTrigSim_threshold;                //!
-        TString  fTrigSimInputcard;                      // input card for trigsim and next-neighbour image cleaning
         TString  fNNGraphsFile;
         TString  fIPRdatabase;                    // file to read IPRs from external database
         TString  fIPRdatabaseFile;                // file to write the IPR database
@@ -333,6 +329,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
             return fuseDB;
         }
         
-        ClassDef( VEvndispRunParameter, 1000 ); //(increase this number)
+        ClassDef( VEvndispRunParameter, 1001 ); //(increase this number)
 };
 #endif
