@@ -49,8 +49,6 @@ class VTraceHandler
         bool     apply_lowgain( double );
         double   calculateTraceSum_fixedWindow( unsigned int , unsigned int, bool );
         double   calculateTraceSum_slidingWindow( unsigned int iSearchStart, unsigned int iSearchEnd, int iIntegrationWindow, bool fRaw );
-        double   getMaxSumAutoWindow( float AmplThresh, unsigned int iSearchStart, unsigned int iSearchEnd,
-                                      unsigned int iIntegrationWindow, bool fRaw = false );
                                       
         void     reset();
         
