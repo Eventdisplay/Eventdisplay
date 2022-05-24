@@ -103,10 +103,6 @@ class VTraceHandler
         virtual void   getTraceMax( unsigned int fFirst, unsigned int fLast,
                                     double& max, unsigned int& maxpos,
                                     unsigned int& n255, bool iReverseSearchinLowGain = false );
-        bool    getifIPRmeasure()
-        {
-            return kIPRmeasure;
-        }
         void    setDigitalFilterParameters( unsigned int iMethod = 0, unsigned int iUpSample = 4, float iPoleZero = 0.75 )
         {
             fDF_method   = iMethod;
