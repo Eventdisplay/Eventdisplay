@@ -17,7 +17,7 @@ VStar::VStar()
     fRunGalLat1958 = 0.;
     fBrightness_V = 0.;
     fBrightness_B = 0.;
-    fMajorDiameter = 0.;                        // this is either the source diameter or the possitional error
+    fMajorDiameter = 0.;                        // this is either the source diameter or the positional error
     fMinorDiameter = 0.;
     fPositionAngle = 0.;
     fMajorDiameter_68 = 0.;

@@ -115,7 +115,7 @@ class VImageAnalyzerData
         // dummy vector
         vector< unsigned int > iDummyVectorUI;
         
-        VImageAnalyzerData( unsigned int iTelID, unsigned int iShortTree = 0, 
+        VImageAnalyzerData( unsigned int iTelID, unsigned int iShortTree = 0,
                             bool bCalibration = false, bool bWriteImagePixelList = false );
         ~VImageAnalyzerData() {}
         

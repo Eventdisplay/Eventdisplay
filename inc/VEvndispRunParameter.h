@@ -92,7 +92,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         
         string fInstrumentEpoch;                  // Instrumental epoch (e.g. for VTS V5 or V6)
         unsigned int fAtmosphereID;               // corsika ID of atmosphere
-        vector< float > fEpochGain;               // absolute gain (dc/pe) during epoch (e.g. for VTS V5 or V6)
         string fEpochFile;                        // file with list of epochs and atmospheres
         
         float  fRunDuration;                      // duration of runs in [s]
@@ -140,7 +139,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         string fcalibrationfile;                  // file with file names for calibration
         bool freadCalibfromDB;                    // if true, calibration information are read in VOFFLINE DB
         int freadCalibfromDB_versionquery;        // require a given version of calibration
-        bool freadCalibfromDB_save_file;          // calibration information read from the DB are stored in
+		bool freadCalibfromDB_save_file;          // calibration information read from the DB are stored in VGlobalRunParameter::getDirectory_EVNDISPCalibrationData() +/Tel_?
         bool fNoCalibNoPb;                        // if true, when no information for gain and toff can be found, the analysis is done filling thenm with 1 and 0 respectively (in VCalibrator)
         bool fNextDayGainHack;            //if true, and > 100 channels in one telescope have gain=0, all gains in that tel will be set to 1; gains won't be tested in the dead channel finder.
         bool fWriteExtraCalibTree;        // write additional tree into .gain.root file with channel charges/monitor charge/nHiLo for each event
@@ -300,10 +299,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         bool fdstwriteallpixel;                   // write all information of all pixel into dst output files
         bool fdstcalibration;                     // write only the branches required for calibration to DST file
         
-        // trigsim parameters (note: different telescope IDs!)
-        map< unsigned int, int >   fTrigSim_referenceTrigger;         //!
-        map< unsigned int, float > fTrigSim_threshold;                //!
-        TString  fTrigSimInputcard;                      // input card for trigsim and next-neighbour image cleaning
         TString  fNNGraphsFile;
         TString  fIPRdatabase;                    // file to read IPRs from external database
         TString  fIPRdatabaseFile;                // file to write the IPR database
@@ -316,7 +311,9 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         VEvndispRunParameter( bool bSetGlobalParameter = true );
         ~VEvndispRunParameter();
         
-        string       getInstrumentEpoch(  bool iMajor = false );
+        unsigned int getAtmosphereID( bool iUpdateInstrumentEpoch = false );
+        string       getInstrumentEpoch(  bool iMajor = false,
+                                          bool iUpdateInstrumentEpoch = false );
         bool         isMC()
         {
             return fIsMC;
@@ -324,11 +321,14 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         void         setDefaultParameters( string iObservatory );
         void         setPulseZeroIndex();
         void         setSystemParameters();
+        bool         updateInstrumentEpochFromFile( 
+                                       string iEpocheFile = "usedefault", 
+                                       bool iReadInstrumentEpoch = true );
         bool         useDB()
         {
             return fuseDB;
         }
         
-        ClassDef( VEvndispRunParameter, 191 ); //(increase this number)
+        ClassDef( VEvndispRunParameter, 1001 ); //(increase this number)
 };
 #endif

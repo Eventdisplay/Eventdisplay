@@ -11,6 +11,7 @@
 #include "VMonteCarloRunHeader.h"
 
 #include "TFile.h"
+#include "TKey.h"
 #include "TTree.h"
 
 #include <iostream>
@@ -342,6 +343,21 @@ bool readRunParameter( TFile* fIn, string iPara )
     {
         fPar = ( VEvndispRunParameter* )fIn->Get( "runparameterDST" );
     }
+    // possibly a anasum file -> check first (!) run directory
+    if( !fPar )
+    {
+       TIter next( fIn->GetListOfKeys() );
+       TKey *key = 0;
+       while( ( key = ( TKey * )next() ) )
+       {
+           string key_name = key->GetName();
+           if( key_name.find( "run_" ) != string::npos )
+           {
+               fPar = ( VEvndispRunParameter* )fIn->Get( (key_name+"/stereo/runparameterV2").c_str() );
+               break;
+           }
+       }
+    }
     if( !fPar )
     {
         return false;
@@ -395,11 +411,14 @@ bool readRunParameter( TFile* fIn, string iPara )
     {
         cout << fPar->freconstructionparameterfile << endl;
     }
-    else if( iPara == "-runinfo" )
+    else if( iPara.find( "runinfo" ) != string::npos )
     {
-		cout << fPar->getInstrumentEpoch( false ) << "\t";
-		cout << fPar->getInstrumentEpoch( true ) << "\t";
-        cout << fPar->fAtmosphereID << "\t";
+	cout << fPar->getInstrumentEpoch( false,
+                                          iPara.find( "updated-runinfo" ) != string::npos );
+        cout << "\t";
+	cout << fPar->getInstrumentEpoch( true ) << "\t";
+        cout << fPar->getAtmosphereID( iPara.find( "updated-runinfo" ) != string::npos );
+        cout << "\t";
         cout << fPar->fDBRunType << "\t";
         for( unsigned int i = 0; i < fPar->fTelToAnalyze.size(); i++ )
         {
@@ -481,6 +500,8 @@ void printHelp()
     cout << "      -teltoana     print telescope combination used in analysis" << endl;
     cout << "      -evndispreconstructionparameterfile print evndisp reconstruction parameter file" << endl;
     cout << "      -runinfo      print relevant run info in one line" << endl;
+    cout << "      -updated-runinfo print relevant run info in one line";
+    cout <<        "(update epoch from VERITAS.Epochs.runparameter)" << endl;
     cout << "      -elevation    print (rough) average elevation" << endl;
     cout << "      -wobble       print wobble offset" << endl;
     cout << "      -wobbleInt    print wobble offset (as integer, x100)" << endl;
@@ -530,6 +551,7 @@ int main( int argc, char* argv[] )
     }
     
     // open file
+    gErrorIgnoreLevel = kError;
     TFile* fIn = new TFile( argv[1] );
     if( fIn->IsZombie() )
     {
@@ -572,18 +594,34 @@ int main( int argc, char* argv[] )
     }
     
     VEvndispRunParameter* fPar = 0;
-    
     fPar = ( VEvndispRunParameter* )fIn->Get( "runparameterV2" );
     if( !fPar )
     {
-        fPar = ( VEvndispRunParameter* )fIn->Get( "runparameterDST" );
+       fPar = ( VEvndispRunParameter* )fIn->Get( "runparameterDST" );
     }
-    
+    // possibly a anasum file -> check first (!) run directory
+    if( !fPar )
+    {
+       TIter next( fIn->GetListOfKeys() );
+       TKey *key = 0;
+       while( ( key = ( TKey * )next() ) )
+       {
+           string key_name = key->GetName();
+           if( key_name.find( "run_" ) != string::npos )
+           {
+               fPar = ( VEvndispRunParameter* )fIn->Get( (key_name+"/stereo/runparameterV2").c_str() );
+               cout << "Reading run parameters from key_name" << endl;
+               break;
+           }
+       }
+    }
+
     if( fPar )
     {
         cout << "reading eventdisplay runparameter for version ";
         cout << fPar->GetTitle();
         cout << " (" << fPar->fEventDisplayUser << ")" << endl;
+
         if( fPar->fEventDisplayUser != "CTA-DST" )
         {
             fPar->print( 2 );
@@ -595,9 +633,7 @@ int main( int argc, char* argv[] )
     }
     
     // array analysis cuts
-    
     VEvndispReconstructionParameter* fArrayCuts = 0;
-    
     fArrayCuts = ( VEvndispReconstructionParameter* )fIn->Get( "EvndispReconstructionParameter" );
     if( fArrayCuts )
     {
@@ -608,7 +644,6 @@ int main( int argc, char* argv[] )
     }
     
     VTableLookupRunParameter* fTPar = 0;
-    
     fTPar = ( VTableLookupRunParameter* )fIn->Get( "TLRunParameter" );
     
     if( fTPar )
@@ -620,19 +655,15 @@ int main( int argc, char* argv[] )
     }
     
     VMonteCarloRunHeader* fMC = 0;
-    
-    //    if( fPar && fPar->fEventDisplayUser != "CTA-DST" )
+    fMC = ( VMonteCarloRunHeader* )fIn->Get( "MC_runheader" );
+    if( fMC )
     {
-        fMC = ( VMonteCarloRunHeader* )fIn->Get( "MC_runheader" );
-        if( fMC )
-        {
-            cout << endl << endl;
-            cout << "===========================================" << endl;
-            cout << "===========================================" << endl;
-            fMC->print();
-        }
+        cout << endl << endl;
+        cout << "===========================================" << endl;
+        cout << "===========================================" << endl;
+        fMC->print();
     }
-    
+
     
     fIn->Close();
     

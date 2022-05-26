@@ -68,6 +68,8 @@ class VPointingDB : public VGlobalRunParameter
         vector< double > fDBTime;
         vector< float > fDBTelElevationRaw;
         vector< float > fDBTelAzimuthRaw;
+        vector< float > fDBTelRA;
+        vector< float > fDBTelDec;
         vector< float > fDBTelElevation;
         vector< float > fDBTelAzimuth;
         vector< float > fDBTelExpectedElevation;
