@@ -2,8 +2,6 @@
 #
 # set the environmental variables to CTA/VERITAS/etc
 #
-# Autor: Gernot Maier
-#
 
 if [ ! -n "$1" ] || [ "$1" = "-h" ] || [ "$1" = "-help" ]
 then
