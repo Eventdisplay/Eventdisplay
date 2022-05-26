@@ -665,7 +665,7 @@ VTSRUNTIMEOBJ = ./obj/VTS.getRun_TimeElevAzim.o \
 		./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
 		./obj/VStar.o ./obj/VStar_Dict.o \
 		./obj/VDB_Connection.o \
-		./obj/VUtilities.o 
+		./obj/VUtilities.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     VTSRUNTIMEOBJ += ./obj/VASlalib.o
@@ -975,7 +975,7 @@ else
 	@echo "SHARED LIBRARIES WITH FITS SUPPORT"
 endif
 	@echo "$@ done"
-	
+
 ########################################################
 # printRunParameter
 ########################################################
@@ -1410,7 +1410,7 @@ writeParticleRateFilesForTMVA:	$(WRITECTAPHYSOBJ)
 ########################################################
 # combineLookupTables
 ########################################################
-./obj/combineLookupTables.o:	./src/combineLookupTables.cpp 
+./obj/combineLookupTables.o:	./src/combineLookupTables.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 combineLookupTables:	./obj/combineLookupTables.o ./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
@@ -1437,7 +1437,7 @@ smoothLookupTables:	./obj/smoothLookupTables.o ./obj/VGlobalRunParameter.o ./obj
 ./obj/checkAnalysisResultFile.o:	./src/checkAnalysisResultFile.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-checkAnalysisResultFile:	./obj/checkAnalysisResultFile.o 
+checkAnalysisResultFile:	./obj/checkAnalysisResultFile.o
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
@@ -1535,7 +1535,7 @@ COMBINEEFFOBJ=	 ./obj/combineEffectiveAreas.o  \
 			 ./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
 			 ./obj/VSkyCoordinatesUtilities.o ./obj/VUtilities.o \
 			 ./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o \
-			 ./obj/VGammaHadronCuts.o ./obj/VGammaHadronCuts_Dict.o 
+			 ./obj/VGammaHadronCuts.o ./obj/VGammaHadronCuts_Dict.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     COMBINEEFFOBJ += ./obj/VASlalib.o
@@ -1605,14 +1605,14 @@ endif
 ./obj/trainTMVAforGammaHadronSeparation_TrainingFile.o:	./src/trainTMVAforGammaHadronSeparation_TrainingFile.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-trainTMVAforGammaHadronSeparation_TrainingFile:	$(MAKEOPTCUTTMVATRAININGOBJ) 	
+trainTMVAforGammaHadronSeparation_TrainingFile:	$(MAKEOPTCUTTMVATRAININGOBJ)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "Done"
 
 ########################################################
 # VTS.calculateCrabRateFromMC
 ########################################################
-./obj/VTS.calculateCrabRateFromMC.o:	./src/VTS.calculateCrabRateFromMC.cpp 
+./obj/VTS.calculateCrabRateFromMC.o:	./src/VTS.calculateCrabRateFromMC.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 VTS.calculateCrabRateFromMC:	./obj/CEffArea.o ./obj/CEffArea_Dict.o \
@@ -1671,12 +1671,11 @@ VTS.calculateExposureFromDB:	./obj/VDBTools.o ./obj/VDBTools_Dict.o \
 				./obj/VDB_Connection.o \
 				./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
 				./obj/VUtilities.o \
-				./obj/VStar.o ./obj/VStar_Dict.o \
 				./obj/VSkyCoordinatesUtilities.o \
 				./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
 				./obj/VTS.calculateExposureFromDB.o
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"	
+	@echo "$@ done"
 
 ########################################################
 # VTS.getLaserRunFromDB
@@ -1778,7 +1777,7 @@ ifeq ($(FITS),FALSE)
 	   @echo "----------------------------------------"
 	   @echo "NO FITSSYS ENVIRONMENTAL VARIABLE SET"
 	   @echo "----------------------------------------"
-	   @echo ""; 
+	   @echo "";
 endif
 
 ########################################################
@@ -1830,7 +1829,7 @@ endif
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
-$(TARGET):	$(OBJECTS) 
+$(TARGET):	$(OBJECTS)
 ifeq ($(PLATFORM),macosx)
 	$(LD) $(SOFLAGS) $^ $(OutPutOpt) $@
 	ln -sf $@ $(subst .$(DllSuf),.so,$@)
@@ -1850,7 +1849,7 @@ endif
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
-./obj/VDisplay_Dict.o:	
+./obj/VDisplay_Dict.o:
 	@echo "A Generating dictionary $@.."
 	@echo ${ROOT_CntCln} -f $(basename $@).cpp -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
 	${ROOT_CntCln} -f $(basename $@).cpp -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
@@ -1858,7 +1857,7 @@ endif
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
-./obj/VZDCF_Dict.o:	
+./obj/VZDCF_Dict.o:
 	@echo "Generating dictionary $@..."
 	@echo ${ROOT_CntCln} -f $(basename $@).cpp ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
 	${ROOT_CntCln} -f $(basename $@).cpp ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
@@ -1868,7 +1867,7 @@ endif
 
 ###############################################################################################################################
 # code which requires the libnova package installed in $LIBNOVASYS
-# 
+#
 # (note: experimental state)
 ###############################################################################################################################
 
@@ -1881,7 +1880,7 @@ endif
 ./obj/VLibNovaSunAndMoon.o:	VLibNovaSunAndMoon.cpp VLibNovaSunAndMoon.h
 	$(CXX) $(CXXFLAGS) -I. -I  $(LIBNOVASYS)/include/ -c -o $@ $<
 
-binaryVisibility:	./obj/VLibNovaStar.o ./obj/VLibNovaSunAndMoon.o ./obj/binaryVisibility.o	
+binaryVisibility:	./obj/VLibNovaStar.o ./obj/VLibNovaSunAndMoon.o ./obj/binaryVisibility.o
 	$(LD) $(LDFLAGS) $^ $(GLIBS) -L$(LIBNOVASYS)/lib/ -lnova $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
