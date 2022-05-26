@@ -6,11 +6,6 @@
 #
 #  for CTA:     make CTA
 #  
-#  different productions:
-#  make CTA CTAPROD=PROD3b_North
-#  for grid binaries
-#  make CTA GRIDPROD=CTAGRID
-#
 #  shell variables needed:
 #    ROOTSYS (pointing to your root installation)
 #
@@ -34,7 +29,7 @@
 #  for using FITS (optional)
 #    FITSSYS (pointing to FITS installation)
 #
-#   for using sofa
+#   for using sofa (default)
 #      SOFASYS
 #
 ##########################################################################
@@ -45,40 +40,36 @@ ARCH = $(shell uname)
 # basic numbers 
 #############################
 package = EVNDISP
-version = 506
+version = 570
 # version of auxiliary files
 auxversion = $(version)-auxv01
 distdir = $(package)-$(version)
 ctapara = $(distdir).CTA.runparameter
 vtspara = $(package)-$(auxversion).VTS.aux
 #############################
-# root installation
-ifeq (, $(shell which root-config))
-  ERROR_MESSAGE=$(error "cern root not found; require root installation from https://root.cern.ch/")
-  ROOTFLAG=-DNOROOT
-else
+#############################
 # check root version number
-  ROOTVERSION=$(shell root-config --version)
-  ROOT_CntCln = rootcling
+#############################
+ROOTVERSION=$(shell root-config --version)
+ROOT_CntCln = rootcling
 #############################
 # check for root libraries
 #############################
-  ROOT_MLP=$(shell root-config --has-xml)
-  ROOT_MINUIT2=$(shell root-config --has-minuit2)
+ROOT_MLP=$(shell root-config --has-xml)
+ROOT_MINUIT2=$(shell root-config --has-minuit2)
 # mysql support
 # (necessary for VERITAS data analysis)
-  ROOT_MYSQL=$(shell root-config --has-mysql)
-  ifeq ($(ROOT_MYSQL),yes)
-    DBFLAG=-DRUNWITHDB
-  endif
+ROOT_MYSQL=$(shell root-config --has-mysql)
+ifeq ($(ROOT_MYSQL),yes)
+  DBFLAG=-DRUNWITHDB
+endif
 # gsl/mathmore
-  ROOT_MATHMORE=$(shell root-config --has-mathmore)
+ROOT_MATHMORE=$(shell root-config --has-mathmore)
 # DCACHE support
 # (check that root is compiled with dcache)
-  ROOT_DCACHE=$(shell root-config --has-dcache)
-  ifeq ($(ROOT_DCACHE),yes)
-    DCACHEFLAG=-DRUNWITHDCACHE
-  endif
+ROOT_DCACHE=$(shell root-config --has-dcache)
+ifeq ($(ROOT_DCACHE),yes)
+  DCACHEFLAG=-DRUNWITHDCACHE
 endif
 #############################
 # VERITAS BANK FORMAT (VBF)
@@ -147,7 +138,6 @@ endif
 # compiler and linker general values
 CXX           = g++
 CXXFLAGS      = -O3 -g -Wall -fPIC -fno-strict-aliasing -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
-## OBS CXXFLAGS      = -O3 -g -Wall -Wno-deprecated -fPIC -fno-strict-aliasing  -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
 CXXFLAGS     += -I. -I./inc/
 CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(GSLFLAG) $(GSL2FLAG) $(DCACHEFLAG) $(ASTRONMETRY)
 LD            = g++ 
@@ -164,7 +154,7 @@ ifeq ($(ARCH),Darwin)
 CXX           = clang++
 LD            = clang++
 CXXFLAGS    += -stdlib=libc++
-# OBS CXXFLAGS    += -Wdeprecated-declarations -stdlib=libc++
+#  CXXFLAGS    += -Wdeprecated-declarations -stdlib=libc++ -std=c++11
 LDFLAGS       = -bind_at_load
 DllSuf        = dylib
 UNDEFOPT      = dynamic_lookup
@@ -312,6 +302,7 @@ all VTS:	evndisp \
 	anasum \
 	combineLookupTables \
 	makeEffectiveArea \
+	trainTMVAforGammaHadronSeparation \
 	slib \
 	combineEffectiveAreas \
 	makeRadialAcceptance \
@@ -319,10 +310,8 @@ all VTS:	evndisp \
 	VTS.getRunListFromDB \
 	VTS.getLaserRunFromDB \
 	writeParticleRateFilesForTMVA \
-	trainTMVAforAngularReconstruction \
-	trainTMVAforGammaHadronSeparation \
-	extrasMessage doneMessage \
-	mergeVBF splitVBF
+	writelaserinDB \
+	logFile
 
 CTA:	evndisp \
         CTA.convert_hessio_to_VDST \
@@ -469,7 +458,6 @@ ifneq ($(VBFFLAG),-DNOVBF)
 		    ./obj/VBFDataReader.o \
 	 	    ./obj/VSimulationDataReader.o 
 endif
-
 # finalize
 EVNOBJECTS += ./obj/evndisp.o
 
@@ -677,7 +665,7 @@ VTSRUNTIMEOBJ = ./obj/VTS.getRun_TimeElevAzim.o \
 		./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
 		./obj/VStar.o ./obj/VStar_Dict.o \
 		./obj/VDB_Connection.o \
-		./obj/VUtilities.o 
+		./obj/VUtilities.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     VTSRUNTIMEOBJ += ./obj/VASlalib.o
@@ -988,7 +976,7 @@ else
 	@echo "SHARED LIBRARIES WITH FITS SUPPORT"
 endif
 	@echo "$@ done"
-	
+
 ########################################################
 # printRunParameter
 ########################################################
@@ -1423,7 +1411,7 @@ writeParticleRateFilesForTMVA:	$(WRITECTAPHYSOBJ)
 ########################################################
 # combineLookupTables
 ########################################################
-./obj/combineLookupTables.o:	./src/combineLookupTables.cpp 
+./obj/combineLookupTables.o:	./src/combineLookupTables.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 combineLookupTables:	./obj/combineLookupTables.o ./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
@@ -1450,7 +1438,7 @@ smoothLookupTables:	./obj/smoothLookupTables.o ./obj/VGlobalRunParameter.o ./obj
 ./obj/checkAnalysisResultFile.o:	./src/checkAnalysisResultFile.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-checkAnalysisResultFile:	./obj/checkAnalysisResultFile.o 
+checkAnalysisResultFile:	./obj/checkAnalysisResultFile.o
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
@@ -1548,7 +1536,7 @@ COMBINEEFFOBJ=	 ./obj/combineEffectiveAreas.o  \
 			 ./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
 			 ./obj/VSkyCoordinatesUtilities.o ./obj/VUtilities.o \
 			 ./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o \
-			 ./obj/VGammaHadronCuts.o ./obj/VGammaHadronCuts_Dict.o 
+			 ./obj/VGammaHadronCuts.o ./obj/VGammaHadronCuts_Dict.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     COMBINEEFFOBJ += ./obj/VASlalib.o
@@ -1618,14 +1606,14 @@ endif
 ./obj/trainTMVAforGammaHadronSeparation_TrainingFile.o:	./src/trainTMVAforGammaHadronSeparation_TrainingFile.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-trainTMVAforGammaHadronSeparation_TrainingFile:	$(MAKEOPTCUTTMVATRAININGOBJ) 	
+trainTMVAforGammaHadronSeparation_TrainingFile:	$(MAKEOPTCUTTMVATRAININGOBJ)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "Done"
 
 ########################################################
 # VTS.calculateCrabRateFromMC
 ########################################################
-./obj/VTS.calculateCrabRateFromMC.o:	./src/VTS.calculateCrabRateFromMC.cpp 
+./obj/VTS.calculateCrabRateFromMC.o:	./src/VTS.calculateCrabRateFromMC.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 VTS.calculateCrabRateFromMC:	./obj/CEffArea.o ./obj/CEffArea_Dict.o \
@@ -1684,12 +1672,11 @@ VTS.calculateExposureFromDB:	./obj/VDBTools.o ./obj/VDBTools_Dict.o \
 				./obj/VDB_Connection.o \
 				./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
 				./obj/VUtilities.o \
-				./obj/VStar.o ./obj/VStar_Dict.o \
 				./obj/VSkyCoordinatesUtilities.o \
 				./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
 				./obj/VTS.calculateExposureFromDB.o
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"	
+	@echo "$@ done"
 
 ########################################################
 # VTS.getLaserRunFromDB
@@ -1791,7 +1778,7 @@ ifeq ($(FITS),FALSE)
 	   @echo "----------------------------------------"
 	   @echo "NO FITSSYS ENVIRONMENTAL VARIABLE SET"
 	   @echo "----------------------------------------"
-	   @echo ""; 
+	   @echo "";
 endif
 
 ########################################################
@@ -1843,7 +1830,7 @@ endif
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
-$(TARGET):	$(OBJECTS) 
+$(TARGET):	$(OBJECTS)
 ifeq ($(PLATFORM),macosx)
 	$(LD) $(SOFLAGS) $^ $(OutPutOpt) $@
 	ln -sf $@ $(subst .$(DllSuf),.so,$@)
@@ -1863,7 +1850,7 @@ endif
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
-./obj/VDisplay_Dict.o:	
+./obj/VDisplay_Dict.o:
 	@echo "A Generating dictionary $@.."
 	@echo ${ROOT_CntCln} -f $(basename $@).cpp -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
 	${ROOT_CntCln} -f $(basename $@).cpp -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
@@ -1871,7 +1858,7 @@ endif
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
 
-./obj/VZDCF_Dict.o:	
+./obj/VZDCF_Dict.o:
 	@echo "Generating dictionary $@..."
 	@echo ${ROOT_CntCln} -f $(basename $@).cpp ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
 	${ROOT_CntCln} -f $(basename $@).cpp ./inc/VZDCF.h ./inc/VZDCFData.h ./inc/VZDCFLinkDef.h
@@ -1881,7 +1868,7 @@ endif
 
 ###############################################################################################################################
 # code which requires the libnova package installed in $LIBNOVASYS
-# 
+#
 # (note: experimental state)
 ###############################################################################################################################
 
@@ -1894,7 +1881,7 @@ endif
 ./obj/VLibNovaSunAndMoon.o:	VLibNovaSunAndMoon.cpp VLibNovaSunAndMoon.h
 	$(CXX) $(CXXFLAGS) -I. -I  $(LIBNOVASYS)/include/ -c -o $@ $<
 
-binaryVisibility:	./obj/VLibNovaStar.o ./obj/VLibNovaSunAndMoon.o ./obj/binaryVisibility.o	
+binaryVisibility:	./obj/VLibNovaStar.o ./obj/VLibNovaSunAndMoon.o ./obj/binaryVisibility.o
 	$(LD) $(LDFLAGS) $^ $(GLIBS) -L$(LIBNOVASYS)/lib/ -lnova $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
@@ -1955,18 +1942,14 @@ printconfig configuration config:
 	@echo "    $(CXXFLAGS)"
 	@echo "    $(GLIBS)"
 	@echo ""
-ifneq ($(ROOTFLAG),-DNOROOT)
 	@echo "using root version $(ROOTVERSION)"
 	@echo "    compiled with MLP: $(ROOT_MLP), MINUIT2: $(ROOT_MINUIT2), MYSQL: $(ROOT_MYSQL), DCACHE: $(ROOT_DCACHE), MATHMORE: $(ROOT_MATHMORE)"
 	@echo "    $(ROOTSYS)"
-else
-	@echo "no root support - you probably cannot do a lot"
-endif
 	@echo ""
 ifeq ($(GSLFLAG),-DNOGSL)
-	@echo "evndisp without GSL libraries"
+	@echo "evndisp without GSL libraries (no Hough muon calibration, no likelihood fitter)"
 else
-	@echo "evndisp with GSL libraries"
+	@echo "evndisp with GSL libraries (used in Hough muon calibration, likelihood fitter)"
 	@echo "   GSL  $(GSLFLAG)" 
 	@echo "   GSL2 $(GSL2FLAG)" 
 	@echo "   $(GSLCFLAGS) $(GSLLIBS)"

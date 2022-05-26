@@ -1154,9 +1154,9 @@ void VArrayAnalyzer::checkPointing()
             if( i < getPointing().size() && getPointing()[i] )
             {
                 float iPointingDiff = VAstronometry::vlaDsep( getPointing()[i]->getTelAzimuth() * TMath::DegToRad(),
-                                                             ( 90. - getPointing()[i]->getTelElevation() ) * TMath::DegToRad(),
+                                                             getPointing()[i]->getTelElevation() * TMath::DegToRad(),
                                                              getReader()->getArrayTrigger()->getAzimuth( ivbf )* TMath::DegToRad() ,
-                                                             ( 90. - getReader()->getArrayTrigger()->getAltitude( ivbf ) ) * TMath::DegToRad() )
+                                                             getReader()->getArrayTrigger()->getAltitude( ivbf ) * TMath::DegToRad() )
                                                              * TMath::RadToDeg();
                 getShowerParameters()->fTelPointingMismatch[i] = iPointingDiff;
                 getShowerParameters()->fTelPointingErrorX[i] = getPointing()[i]->getPointingErrorX();

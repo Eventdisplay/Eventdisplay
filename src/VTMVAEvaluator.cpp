@@ -3762,19 +3762,43 @@ string VTMVAEvaluator::setFullMVAFileName( string iWeightFileName,
                                      string iInstrumentEpoch,
                                      string iFileSuffix )
 {
-      string file_name;
-      // Naming without ze bin; e.g. TMVA.BDT_3_BDT_0.weights.xml
-      ostringstream iFileNameTemp;
-      iFileNameTemp << iWeightFileName << "_" << iWeightFileIndex_Emin + i;
-      file_name = testFullMVAFileName( iFileNameTemp.str(), iFileSuffix );
-      if( file_name.size() > 0 ) return file_name;
-      // Naming includes ze bin; e.g. TMVA.BDT_3_1_BDT_0.weights.xml
-      iFileNameTemp << "_" << iWeightFileIndex_Zmin + j;
-      file_name = testFullMVAFileName( iFileNameTemp.str(), iFileSuffix );
-      if( file_name.size() > 0 ) return file_name;
+      ostringstream iFileName;
+      ostringstream iFileNamev2;
 
-      cout << "VTMVAEvaluator::setFullMVAFileName warning: file not found: " << endl;
-      return "";
+      iFileName << iWeightFileName << "_Ebin" << iWeightFileIndex_Emin + i;
+      iFileNamev2 << iWeightFileName << "_" << iWeightFileIndex_Emin + i;
+      // backwards compatibility with pre-2018 CTA training
+      if( iInstrumentEpoch != "noepoch" && iInstrumentEpoch != "CTA" )
+      {
+          iFileName << "_" << iWeightFileIndex_Zmin + j;
+          iFileNamev2 << "_" << iWeightFileIndex_Zmin + j;
+      }
+      if( iFileSuffix.find( "xml" ) != string::npos )
+      {
+          iFileName << "_" << fTMVAMethodName << "_" << fTMVAMethodCounter;
+          iFileNamev2 << "_" << fTMVAMethodName << "_" << fTMVAMethodCounter;
+      }
+      iFileName << iFileSuffix;
+      iFileNamev2 << iFileSuffix;
+      // check if file exists or if this is an old-style file
+      ifstream f(iFileName.str().c_str());
+      if( !f.good() )
+      {
+          ifstream f2(iFileNamev2.str().c_str());
+          if( !f2.good() )
+          {
+              cout << "VTMVAEvaluator::setFullMVAFileName warning: file not found: " << endl;
+              cout << iFileName.str() << endl;
+              cout << iFileNamev2.str() << endl;
+              return "";
+          }
+          else
+          {
+              return iFileNamev2.str();
+          }
+      }
+
+      return iFileName.str();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

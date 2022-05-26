@@ -2,8 +2,6 @@
 
      collection of different image cleaning methods
 
-     (too many, should be splitted into several groups)
-
  */
 
 #include "VImageCleaning.h"
