@@ -619,7 +619,7 @@ bool VPointingDB::readPointingCalibratedVPMFromDB()
 }
 
 /*
-    read uncalibrated pointing monitor data from DB  (JG)
+    read uncalibrated pointing monitor data from DB
 */
 bool VPointingDB::readPointingUncalibratedVPMFromDB()
 {
