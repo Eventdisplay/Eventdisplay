@@ -2,10 +2,9 @@
 name: CTA-Prod5 Docker Image
 
 on:
-  #  push:
-  #  branches: ['release']
   push:
-    branches: ["main"]
+    tags:
+      - 'v*'
   pull_request:
     branches: ["main"]
 
