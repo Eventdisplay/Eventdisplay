@@ -38,7 +38,7 @@ jobs:
         with:
           tags: |
             type=ref,event=pr,suffix=-cta-slib
-            type=semver,pattern={{major}}.{{minor}},suffix=-cta-slib
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-slib
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
