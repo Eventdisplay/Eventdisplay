@@ -37,7 +37,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          tags: suffix=cta-prod5
+          tags: |
+            type=ref,event=pr,suffix=cta-prod5x
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: |
             latest=auto
