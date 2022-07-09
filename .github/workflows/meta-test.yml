@@ -2,10 +2,10 @@
 name: CTA-metatest Create and publish a Docker image
 
 on:
-  #  push:
-  #  branches: ['release']
   push:
     branches: ["main"]
+    tags:
+      - 'v*'
   pull_request:
     branches: ["main"]
 
@@ -38,18 +38,15 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           tags: |
-            type=ref,event=pr,suffix=cta-prod5x
+            type=ref,event=pr,suffix=-cta-prod5
+            type=semver,pattern={{major}}.{{minor}},suffix=-cta-prod5
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          flavor: |
-            latest=auto
-            prefix=cta-prod5
-            suffix=cta-prod5
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           file: ./Eventdisplay/dockerfiles/Dockerfile-test
           tags: ${{ steps.meta.outputs.tags }}
           # tags: eventdisplay/eventdisplay:cta-slib
