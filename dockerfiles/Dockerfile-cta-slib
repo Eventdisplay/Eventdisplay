@@ -41,8 +41,8 @@ ENV EVNDISPSYS ${GITHUB_WORKSPACE}
 ENV SOFASYS ${EVNDISPSYS}/sofa/
 #    make -j 4 slib && strip -g lib/libVAnaSum.so &&  \
 #    rm -f obj/*.o obj/*.cpp
-# COPY Eventdisplay $(PWD)
-RUN cd ${GITHUB_WORKSPACE} && ls -l && ./install_sofa.sh 
+COPY Eventdisplay ${GITHUB_WORKSPACE}/
+RUN cd ${GITHUB_WORKSPACE}/Eventdisplay && ls -l && ./install_sofa.sh 
 RUN make -j 4 slib 
 RUN rm -f obj/*.o obj/*.cpp
 
