@@ -1,5 +1,5 @@
 # https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
-name: CTA-slib Create and publish a Docker image
+name: CTA-slib Docker Image
 
 on:
   #  push:

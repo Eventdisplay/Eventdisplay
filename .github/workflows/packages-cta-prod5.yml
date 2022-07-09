@@ -1,5 +1,5 @@
 # https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
-name: CTA-Prod5 Create and publish a Docker image
+name: CTA-Prod5 Docker Image
 
 on:
   #  push:
