@@ -3,6 +3,9 @@ From ubuntu:16.04
 LABEL maintainer.name="Eventdisplay Team"
 LABEL maintainer.email="gernot.maier@desy.de"
 
+# force ubunto to use bash for /bin/sh
+# (otherwise trouble with many evndisp scripts)
+RUN yes no | dpkg-reconfigure dash
 
 # Basic packages
 RUN apt-get update && apt-get install -y \
