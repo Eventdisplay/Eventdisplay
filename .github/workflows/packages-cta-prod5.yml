@@ -14,7 +14,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-image:
+  build-cta-prod5-image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -37,7 +37,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          flavor: prefix=cta-prod5, onlatest=true
+          tags: |
+            type=ref,event=pr,suffix=-cta-prod5
+            type=semver,pattern={{major}}.{{minor}},suffix=-cta-slib
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: hessioxx
@@ -49,8 +51,7 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           file: ./Eventdisplay/dockerfiles/Dockerfile-cta-prod5
           tags: ${{ steps.meta.outputs.tags }}
-          # tags: eventdisplay/eventdisplay:cta-slib
           labels: ${{ steps.meta.outputs.labels }}
