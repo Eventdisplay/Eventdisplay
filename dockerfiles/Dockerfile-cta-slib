@@ -43,12 +43,12 @@ ENV PATH ${ROOTSYS}/bin:${PATH}
 ARG EVNVERSION=5.6.7
 ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
 ENV SOFASYS ${EVNDISPSYS}/sofa/
-RUN wget https://github.com/Eventdisplay/Eventdisplay/archive/refs/tags/v$EVNVERSION.zip && \
-    unzip v$EVNVERSION.zip && rm -f v$EVNVERSION.zip && \
-    mv Eventdisplay-$EVNVERSION Eventdisplay && \
-    cd ${EVNDISPSYS} && ls -l && ./install_sofa.sh && \
-    make -j 4 slib && strip -g lib/libVAnaSum.so &&  \
-    rm -f obj/*.o obj/*.cpp
+# RUN wget https://github.com/Eventdisplay/Eventdisplay/archive/refs/tags/v$EVNVERSION.zip && \
+#    unzip v$EVNVERSION.zip && rm -f v$EVNVERSION.zip && \
+#    mv Eventdisplay-$EVNVERSION Eventdisplay && \
+#    cd ${EVNDISPSYS} && ls -l && ./install_sofa.sh && \
+#    make -j 4 slib && strip -g lib/libVAnaSum.so &&  \
+#    rm -f obj/*.o obj/*.cpp
 
 #RUN wget https://github.com/Eventdisplay/Eventdisplay/archive/refs/heads/root-cpp-versions.zip && \
 #    unzip root-cpp-versions.zip && rm -f root-cpp-versions.zip && \
