@@ -1,6 +1,7 @@
 # Eventdisplay - An Analysis and Reconstruction Package for Ground-based Gamma-ray Astronomy
 
 [![DOI](https://zenodo.org/badge/221222023.svg)](https://zenodo.org/badge/latestdoi/221222023)
+[![CI](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml)
 * Authors and contributors: [CITATION.cff](CITATION.cff)
 * Licence: [LICENSE](LICENSE)
 
