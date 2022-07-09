@@ -38,7 +38,7 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           tags: |
-            type=ref,event=pr,suffix=-cta-prod5
+            type=ref,event=pr,suffix=-cta-slib
             type=semver,pattern={{major}}.{{minor}},suffix=-cta-slib
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 

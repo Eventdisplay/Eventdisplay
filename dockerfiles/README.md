@@ -13,7 +13,7 @@ Docker images are made available for the following use cases.
 
 Sim_telarray files and output evndisp root files are read and writting from the ./data directory.
 
-To analysis a prod5 sim_telarray file (replace VERSION by requested version):
+To analyse a prod5 sim_telarray file (replace VERSION by requested version):
 
 ```
 $  docker run --rm -it -v "$(pwd)/data:/data" ghcr.io/eventdisplay/eventdisplay:VERSION-cta-prod5 \
@@ -25,7 +25,7 @@ $  docker run --rm -it -v "$(pwd)/data:/data" ghcr.io/eventdisplay/eventdisplay:
 To run the container in bash and analyse a prod5 sim_telarray file:
 
 ```
-$ docker run --rm -it -v "$(pwd)/data:/data" ghcr.io/eventdisplay/eventdisplay:VERSION-cta-prod5
+$ docker run --rm -it -v "$(pwd)/data:/data" ghcr.io/eventdisplay/eventdisplay:VERSION-cta-prod5 bash
 $ run.sh \
     /data/gamma_20deg_0deg_run9___cta-prod5-paranal_desert-2147m-Paranal-dark_cone10.simtel.zst \
     CTA.prod5S.BL-4LSTs25MSTs70SSTs-MSTF.lis
