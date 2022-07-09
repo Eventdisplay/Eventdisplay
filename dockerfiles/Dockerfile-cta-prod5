@@ -71,4 +71,4 @@ ENV OBS_EVNDISP_AUX_DIR /home/Eventdisplay_AnalysisFiles_CTA
 ENV OBS_USER_DATA_DIR /tmp/
 
 # Copy run script 
-RUN cp ${EVNDISPSYS}/dockerfiles/Dockerfile-cta-slib-run.sh ${EVNDISP}/run.sh
+RUN cp ${EVNDISPSYS}/dockerfiles/Dockerfile-cta-prod5-run.sh ${EVNDISP}/run.sh
