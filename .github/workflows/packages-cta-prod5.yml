@@ -1,5 +1,5 @@
 # https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
-name: CTA-slib Create and publish a Docker image
+name: CTA-Prod5 Create and publish a Docker image
 
 on:
   #  push:
@@ -39,11 +39,16 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      - name: hessioxx
+        run: |
+          wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_HESSIOXX }}/download
+          mv download hessioxxx.tar.gz
+
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
           push: true
-          file: ./Eventdisplay/dockerfiles/Dockerfile-cta-slib
-          tags: cta-slib${{ steps.meta.outputs.tags }}
+          file: ./Eventdisplay/dockerfiles/Dockerfile-cta-prod5
+          tags: cta-prod5${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
