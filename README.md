@@ -2,6 +2,9 @@
 
 [![DOI](https://zenodo.org/badge/221222023.svg)](https://zenodo.org/badge/latestdoi/221222023)
 [![CI](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml)
+[![CTA-Prod5 Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml)
+[![CTA-slib Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml)
+
 * Authors and contributors: [CITATION.cff](CITATION.cff)
 * Licence: [LICENSE](LICENSE)
 
@@ -68,6 +71,17 @@ For almost every use case, Eventdisplay consists of at least three major compone
 
 Care should be taken in using the correct versions (releases, tags, branches) combining these three types of repositories.
 A blending of different versions of components will lead to incorrect results.
+
+### Docker images
+
+Docker images are made available for the following use cases.
+
+- CTA prod5 analysis: analysis of prod5 CTA simulations; [Dockerfile](dockerfiles/Dockerfile-cta-prod5); docker image available from [container page](https://github.com/Eventdisplay/Eventdisplay/pkgs/container/eventdisplay) with tag `cta-prod5`
+- CTA slib: analysis library used for CTA; [Dockerfile](dockerfiles/Dockerfile-cta-slib); docker image available from [container page](https://github.com/Eventdisplay/Eventdisplay/pkgs/container/eventdisplay) with tag `cta-slib`
+
+See [dockerfiles/README.md](dockerfiles/README.md) on usage.
+
+(for the time being, there is some overlap with the [Eventdisplay container](https://github.com/Eventdisplay/Eventdisplay_Docker) repository.
 
 ### Code, tools, library
 
