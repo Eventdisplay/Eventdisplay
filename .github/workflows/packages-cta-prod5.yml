@@ -50,5 +50,5 @@ jobs:
           context: .
           push: true
           file: ./Eventdisplay/dockerfiles/Dockerfile-cta-prod5
-          tags: cta-prod5${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}-cta-prod5

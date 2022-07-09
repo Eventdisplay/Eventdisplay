@@ -45,5 +45,5 @@ jobs:
           context: .
           push: true
           file: ./Eventdisplay/dockerfiles/Dockerfile-cta-slib
-          tags: cta-slib${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}-cta-slib
