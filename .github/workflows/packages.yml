@@ -21,10 +21,10 @@ jobs:
       packages: write
 
     steps:
-      # - name: Checkout repository
-      #  uses: actions/checkout@v3
-      #  with:
-      #    path: 'Eventdisplay'
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          path: 'Eventdisplay'
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -44,6 +44,6 @@ jobs:
         with:
           context: .
           push: false
-          file: ./dockerfiles/Dockerfile-cta-slib
+          file: ./Eventdisplay/dockerfiles/Dockerfile-cta-slib
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
