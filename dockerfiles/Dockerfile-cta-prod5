@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
   g++ \
   libblas-dev \
   libfreetype6 \
+  libncurses5 \
   libxpm4 \
   libxtst6 \
   make \
