@@ -42,7 +42,7 @@ ENV SOFASYS ${EVNDISPSYS}/sofa/
 #    make -j 4 slib && strip -g lib/libVAnaSum.so &&  \
 #    rm -f obj/*.o obj/*.cpp
 COPY Eventdisplay ${EVNDISPSYS}
-RUN ./install_sofa.sh && make -j 4 slib && rm -f obj/*.o obj/*.cpp
+RUN cd ${EVNDISPSYS} && ./install_sofa.sh && make -j 4 slib && rm -f obj/*.o obj/*.cpp
 
 ENV LD_LIBRARY_PATH "${EVNDISPSYS}/obj:${LD_LIBRARY_PATH}"
 ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc
