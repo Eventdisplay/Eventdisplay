@@ -45,8 +45,8 @@ ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
 ENV SOFASYS ${EVNDISPSYS}/sofa/
 #    make -j 4 slib && strip -g lib/libVAnaSum.so &&  \
 #    rm -f obj/*.o obj/*.cpp
-RUN ls ${EVNDISP}
-COPY Eventdisplay ${EVNDISP}
+RUN mkdir -p ${EVNDISP}/Eventdisplay
+COPY Eventdisplay ${EVNDISP}/Eventdisplay/
 RUN ls ${EVNDISP}
 RUN ls ${EVNDISPSYS}
 RUN cd ${EVNDISPSYS} && ls -l && ./install_sofa.sh 
