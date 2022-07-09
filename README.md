@@ -72,7 +72,7 @@ For almost every use case, Eventdisplay consists of at least three major compone
 Care should be taken in using the correct versions (releases, tags, branches) combining these three types of repositories.
 A blending of different versions of components will lead to incorrect results.
 
-### Docker images
+## Docker images
 
 Docker images are made available for the following use cases.
 
