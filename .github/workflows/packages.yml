@@ -42,6 +42,6 @@ jobs:
         with:
           context: .
           push: false
-          file: ./dockerfile/Dockerfile-cta-slib
+          file: dockerfiles/Dockerfile-cta-slib
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
