@@ -37,6 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
+          flavor: prefix=cta-prod5, onlatest=true
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: hessioxx
@@ -50,6 +51,6 @@ jobs:
           context: .
           push: true
           file: ./Eventdisplay/dockerfiles/Dockerfile-cta-prod5
-          # tags: ${{ steps.meta.outputs.tags }}
-          tags: eventdisplay/eventdisplay-cta-prod5:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          # tags: eventdisplay/eventdisplay:cta-slib
           labels: ${{ steps.meta.outputs.labels }}
