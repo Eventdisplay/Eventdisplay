@@ -399,9 +399,3 @@ void VImageParameter::setImageBorderPixelPosition( vector< float > iImageBorderP
     fImageBorderPixelPosition_x = iImageBorderPixelPosition_x;
     fImageBorderPixelPosition_y = iImageBorderPixelPosition_y;
 }
-
-/*
-    fill (optionally) list of image / border pixel to tpars
-    tree
-*/
-

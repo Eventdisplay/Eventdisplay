@@ -1,7 +1,7 @@
 EVENTDISPLAY - IACT event analysis and display - scripts
 ========================================================
 
-There are a large number of useful scripts in $EVNDISPSYS/scripts/CTA/ and  $EVNDISPSYS/scripts/VTS/
+There are a large number of useful scripts in https://github.com/Eventdisplay/Eventdisplay_AnalysisScripts_CTA
 
 These scripts allow to run the different stages of eventdisplay efficently on a farm.
 

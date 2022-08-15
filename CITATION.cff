@@ -1,18 +1,109 @@
 # YAML 1.2
 # Metadata for citation of this software according to the CFF format (https://citation-file-format.github.io/)
-cff-version: 1.0.3
+cff-version: 1.2.0
 message: If you use this software, please cite it using these metadata.
 title: "Eventdisplay: An Analysis and Reconstruction Package for Ground-based Gamma-ray Astronomy"
 doi: 10.5281/zenodo.3559075
+version: 5.7.0
+date-released: 2022-04-25
+keywords:
+- "gamma-ray astronomy"
+- "astronomy software"
+- "Imaging Atmospheric Cherenkov Telescope"
+- VERITAS
+- CTA
+- "Cherenkov Telescope Array"
+- Eventdisplay
+repository-code: https://github.com/Eventdisplay/Eventdisplay
+license: BSD-3-Clause
 authors:
 - given-names: Gernot
   family-names: Maier
   affiliation: DESY
   orcid: https://orcid.org/0000-0001-9868-4700
-- given-names: "Jamie"
-  family-names: "Holder"
+- given-names: Jamie
+  family-names: Holder
   affiliation: "Department of Physics and Astronomy and the Bartol Research Institute, University of Delaware, Newark, DE 19716, USA"
-version: 5.6.7
-date-released: 2021-11-24
-repository-code: https://github.com/Eventdisplay/Eventdisplay
-license: BSD-3-Clause
+# Many people contributed to the software. If you've been left off, please email to Gernot Maier.
+- given-names: A.
+  family-names: McCann
+- given-names: B.
+  family-names: Behera
+- given-names: C.
+  family-names: Duke
+- given-names: C.
+  family-names: Giuri
+- given-names: C.
+  family-names: Skole
+- given-names: D.
+  family-names: Tak
+- given-names: E.
+  family-names: Aliu
+- given-names: E.
+  family-names: Pueschel
+- given-names: F.
+  family-names: Pizlo
+- given-names: G.
+  family-names: Decerpri
+- given-names: G.
+  family-names: Finneagan
+- given-names: G.
+  family-names: Foote
+- given-names: G.
+  family-names: Hughes
+- given-names: H.
+  family-names: Fleischhack
+- given-names: H.
+  family-names: Krawczynski
+- given-names: H.
+  family-names: Prokoph
+- given-names: J.
+  family-names: Grube
+- given-names: J.
+  family-names: Tyler
+- given-names: K.
+  family-names: Berger
+- given-names: K.
+  family-names: Pfrang
+- given-names: L.
+  family-names: Gerard
+- given-names: M.
+  family-names: Beilicke
+- given-names: M.
+  family-names: Krause
+- given-names: M.
+  family-names: McCutcheon
+- given-names: M.
+  family-names: Nievas
+- given-names: M.
+  family-names: Schroedter
+- given-names: M.
+  family-names: Shayduk
+- given-names: N.
+  family-names: Hakasson
+- given-names: N.
+  family-names: Kelley-Hoskins
+- given-names: O.
+  family-names: Gueta
+- given-names: P.
+  family-names: Ivo
+- given-names: R.
+  family-names: Guenette
+- given-names: R.
+  family-names: Prado
+- given-names: R.
+  family-names: Welsing
+- given-names: S.
+  family-names: Griffin
+- given-names: S.
+  family-names: Griffiths
+- given-names: S.
+  family-names: "O'Brian"
+- given-names: S.
+  family-names: Vincent
+- given-names: S.
+  family-names: Vorobiov
+- given-names: T.
+  family-names: Hassan
+- given-names: Y.
+  family-names: Khassen

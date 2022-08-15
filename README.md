@@ -1,17 +1,28 @@
 # Eventdisplay - An Analysis and Reconstruction Package for Ground-based Gamma-ray Astronomy
 
-[![DOI](https://zenodo.org/badge/221222023.svg)](https://zenodo.org/badge/latestdoi/221222023)
 
-Original developers: Gernot Maier and Jamie Holder
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6814319.svg)](https://doi.org/10.5281/zenodo.6814319)
+[![CI](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml)
+[![CTA-Prod5 Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml)
+[![CTA-slib Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml)
+
+* Authors and contributors: [CITATION.cff](CITATION.cff)
+* Licence: [LICENSE](LICENSE)
+
 
 ## Overview
 
 Eventdisplay is a reconstruction and analysis pipline for data of
 Imaging Atmospheric Cherenkov Telescopes (IACT).
-It has been primarily developed for VERITAS and CTA analysis.
+It has been primarily developed for VERITAS and CTA analysis and used in
+many VERITAS and CTA publications. 
+This repository contains the Eventdisplay version used for CTA and other analyses.
+For the VERITAS version, please go to [https://github.com/VERITAS-Observatory/EventDisplay_v4](https://github.com/VERITAS-Observatory/EventDisplay_v4)
 
-In case Eventdisplay is used in a research project, please cite the 
-following publication:
+Original developers: Gernot Maier and Jamie Holder
+
+In case Eventdisplay is used in a research project, please cite this repository and
+the following publication:
 
 Maier, G.; Holder, J., Eventdisplay: An Analysis and Reconstruction Package for 
 Ground-based Gamma-ray Astronomy,  35th International Cosmic Ray Conference.
@@ -19,8 +30,8 @@ Ground-based Gamma-ray Astronomy,  35th International Cosmic Ray Conference.
 Online at [https://pos.sissa.it/cgi-bin/reader/conf.cgi?confid=301], id.747
 [https://arxiv.org/abs/1708.04048]
 
-For guidelines on installation, see INSTALL. For further information, 
-see files in README directory
+For guidelines on installation, see [INSTALL.md](INSTALL.md). For further information, 
+see files in [README](./README) directory
 
 The package consists of several analysis steps and tools:
 
@@ -35,29 +46,17 @@ The package consists of several analysis steps and tools:
 
 ## Documentation
 
-- INSTALL: information on installation the analysis package, dependencies, environmental variables
-- README.CTA: description of a typical CTA analysis
+- [INSTALL.md](INSTALL.md): information on installation the analysis package, dependencies, environmental variables
+- [README.CTA](README/README.CTA): description of a typical CTA analysis
 - README.VERITAS.quick_summary: description of a typical VERITAS analysis
 - AUTHORS: author description
 
 Description and command line options for the different software parts:
 
-- README.EVNDISP
-- README.EVNDISP.commandline
-- README.MSCW_ENERGY
-- README.ANASUM
-- README.EFFECTIVEAREA
-- README.ANALYSISLIBRARY
-- README.SCRIPTS
-- README.MACROS
-
-## Licence
-
-License: BSD-3 (see LICENCE file)
-
-## Contact information:
-
-Gernot Maier (DESY)
+- [README.EVNDISP](README/README.EVNDISP)
+- [README.MSCW_ENERGY](README/README.MSCW_ENERGY)
+- [README.EFFECTIVEAREA](README/README.EFFECTIVEAREA)
+- [README.ANALYSISLIBRARY](README/README.ANALYSISLIBRARY)
 
 ## The Eventdisplay Ecosystem
 
@@ -74,12 +73,20 @@ For almost every use case, Eventdisplay consists of at least three major compone
 Care should be taken in using the correct versions (releases, tags, branches) combining these three types of repositories.
 A blending of different versions of components will lead to incorrect results.
 
+## Docker images
+
+Docker images are made available for the following use cases.
+
+- CTA prod5 analysis: analysis of prod5 CTA simulations; [Dockerfile](dockerfiles/Dockerfile-cta-prod5); docker image available from [container page](https://github.com/Eventdisplay/Eventdisplay/pkgs/container/eventdisplay) with tag `cta-prod5`
+- CTA slib: analysis library used for CTA; [Dockerfile](dockerfiles/Dockerfile-cta-slib); docker image available from [container page](https://github.com/Eventdisplay/Eventdisplay/pkgs/container/eventdisplay) with tag `cta-slib`
+
+See [dockerfiles/README.md](dockerfiles/README.md) on usage.
+
+(for the time being, there is some overlap with the [Eventdisplay container](https://github.com/Eventdisplay/Eventdisplay_Docker) repository.
+
 ### Code, tools, library
 
 The core library consist of all code, tools, and libraries required to run the analysis.
-
-Public code repository: <https://github.com/Eventdisplay/Eventdisplay>
-Private (VERITAS) repository (to be used for VERITAS analysis): <https://github.com/VERITAS-Observatory/EventDisplay_v4>
 
 ### Analysis scripts
 
@@ -89,9 +96,8 @@ A library of scripts for the efficient execution is available and recommended to
 The analysis scripts depend on the specific observatory use cases. 
 The following repositories of scripts are available:
 
-- for **CTA**: <https://github.com/Eventdisplay/Eventdisplay_AnalysisScripts_CTA>
-- for **VERITAS** (private repository): <https://github.com/VERITAS-Observatory/Eventdisplay_AnalysisScripts_VTS> (to be used for version v485 and new; scripts are included in the [code library](https://github.com/VERITAS-Observatory/EventDisplay_v4) for older versions)
-- for the **CTA pSCT** (incomple): <https://github.com/Eventdisplay/Eventdisplay_AnalysisScripts_pSCT>
+- for **CTA**: [https://github.com/Eventdisplay/Eventdisplay_AnalysisScripts_CTA](https://github.com/Eventdisplay/Eventdisplay_AnalysisScripts_CTA)
+- for the **CTA pSCT** (incomplete): [https://github.com/Eventdisplay/Eventdisplay_AnalysisScripts_pSCT](https://github.com/Eventdisplay/Eventdisplay_AnalysisScripts_pSCT)
 
 ### Auxiliary files for parameters, definitions, calibration values
 
@@ -99,28 +105,19 @@ The reconstruction of analysis requires information on the instrument (e.g., tel
 
 This information is accessible through repositories for auxiliary files, again dependent on the observatory of interest:
 
-- for **CTA**: <https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA>
-- for **VERITAS** (private repository): <https://github.com/VERITAS-Observatory/Eventdisplay_AnalysisFiles_VTS>
-
-### Release tests
-
-Reconstruction and analysis are complex and a series of tests are required before the release of a new version of Eventdisplay.
-
-Release tests depend on the observatory of interest:
-
-- for **VERITAS** (private repository): <https://github.com/VERITAS-Observatory/EventDisplay_ReleaseTests>
+- for **CTA**: [https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA](https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA)
 
 ### Container applications
 
 Docker files and images are provided for some Eventdisplay use cases.
-Docker files are collected in <https://github.com/Eventdisplay/Eventdisplay_Docker>
+Docker files are collected in [https://github.com/Eventdisplay/Eventdisplay_Docker](https://github.com/Eventdisplay/Eventdisplay_Docker)
 
 ### Converters
 
 Tools to convert event lists into DL2 or DL3 format are collected in the converter repositories:
 
-- for **CTA** (DL2): <https://github.com/Eventdisplay/Converters>
-- for **VERITAS** (DL3, private repository): <https://github.com/VERITAS-Observatory/V2DL3>
+- for **CTA** (DL2): [https://github.com/Eventdisplay/Converters](https://github.com/Eventdisplay/Converters)
+- for **VERITAS** (converter to GADF DL3 Fromat): [https://github.com/VERITAS-Observatory/V2DL3](https://github.com/VERITAS-Observatory/V2DL3)
 
 
-
+For any questions, contact Gernot Maier (gernot.maier@desy.de)
