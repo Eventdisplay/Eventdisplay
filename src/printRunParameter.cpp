@@ -323,8 +323,8 @@ bool readNTelescopeTypes( TFile* fIn, string iPara )
         {
             z++;
         }
-        else if( TelType == 207308707
-                || TelType == 205008707 && iPara == "-nMSCT" )
+        else if( ( TelType == 207308707
+                || TelType == 205008707 ) && iPara == "-nMSCT" )
         {
             z++;
         }
