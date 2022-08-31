@@ -313,7 +313,7 @@ bool readNTelescopeTypes( TFile* fIn, string iPara )
                    || TelType == 201309316
                    || TelType == 201109916
                    || TelType == 201511619
-                   || 909924 ) && iPara == "-nSST" )
+                   || TelType == 909924 ) && iPara == "-nSST" )
         {
             z++;
         }
