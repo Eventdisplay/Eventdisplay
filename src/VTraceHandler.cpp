@@ -17,9 +17,6 @@ VTraceHandler::VTraceHandler()
     fHiLo = false;
     fDynamicRange = 216;                 // 8bit FADC, switch to low-gain; used only for debugging info
     fMaxThreshold = 150;                 // used for trace max calculation in low gain
-    // TMPTMPTMP
-    //	fMaxThreshold = 0;                 // used for trace max calculation in low gain
-    // TMPTMPTMP
     fMC_FADCTraceStart = 0;
     fpulsetiming_maxPV = 0;
     fpulsetiminglevels_size = 0;
@@ -48,9 +45,6 @@ void VTraceHandler::reset()
 void VTraceHandler::setTrace( VVirtualDataReader* iReader, unsigned int iNSamples, double ped, unsigned int iChanID, unsigned int iHitID, double iHiLo )
 {
     fPed = ped;
-    // TMPTMPTMP
-    //        fPed = 0.;
-    // TMPTMPTMP
     fChanID = iChanID;
     
     reset();
@@ -156,9 +150,6 @@ bool VTraceHandler::apply_lowgain( double iHiLo )
     // hilo switch is set
     if( iHiLo > 0. )
     {
-        ///// TMPTMPTMP
-        //                iHiLo = 1.;
-        ///// TMPTMPTMP
         for( unsigned int i = 0; i < fpTrazeSize; i++ )
         {
             fpTrace[i]  = ( fpTrace[i] - fPed ) * iHiLo;
