@@ -4154,12 +4154,12 @@ bool VCalibrator::readCalibrationDatafromDSTFiles( string iDSTfile, bool iPedOnl
                 if( p < getFADCtoPhe( false ).size() )
                 {
                     getFADCtoPhe( false )[p] = fConv_high[p];
-//                    getFADCtoPhe( false )[p] = 1.;   // TMPTMP: IPR graphs are still in dc, not in pe
+//                    getFADCtoPhe( false )[p] = 1.;   // TMPTMP: IPR graphs are still in dc, not in pe (used in prod5)
                 }
                 if( p < getFADCtoPhe( true ).size() )
                 {
                     getFADCtoPhe( true )[p] = fConv_low[p];
- //                   getFADCtoPhe( true )[p] = 1.;    // TMPTMP: IPR graphs are still in dc, not in pe
+ //                   getFADCtoPhe( true )[p] = 1.;    // TMPTMP: IPR graphs are still in dc, not in pe (used in prod5)
                 }
             }
             if( i_z > 0. && i_meanC > 0. )
