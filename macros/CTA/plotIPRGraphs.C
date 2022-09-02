@@ -158,16 +158,6 @@ void plotIPRGraphs( string iFile1, string iFile2 = "",
             TGraphErrors* ipr = ( TGraphErrors* )fF->Get( iGraphName.str().c_str() );
             if( ipr )
             {
-/*                if( i_tel_type == 201109916 )
-                {
-                    double x, y;
-                    for( int p = 0; p < ipr->GetN(); p++ )
-                    {
-                        ipr->GetPoint( p, x, y );
-                        ipr->SetPoint( p, x*6.74/2.77, y );
-                        ipr->GetPoint( p, x, y );
-                    }
-                } */
                 ipr->SetLineColor( f + 1 );
                 ipr->SetLineWidth( 2 );
                 ipr->SetMinimum( plot_min );
