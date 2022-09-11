@@ -7,6 +7,7 @@
 #include "TMath.h"
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -73,6 +74,14 @@ class VDispAnalyzer
         void calculateMeanShowerDirection( vector< float > v_x, vector< float > v_y, vector< float > v_weight,
                                            float& xs, float& ys, float& dispdiff, unsigned int iMaxN );
                                            
+		unsigned int find_smallest_diff_element(
+			vector< vector< float > > i_sign,
+			vector< float > x, vector< float > y,
+			vector< float > cosphi, vector< float > sinphi,
+			vector< float > v_disp, vector< float > v_weight );
+		vector< vector< float > > get_sign_permuation_vector( unsigned int x_size );
+        vector< unsigned int > get_largest_weight_index(std::vector<float>, unsigned int);
+		
     public:
     
         VDispAnalyzer();
