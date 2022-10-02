@@ -350,22 +350,22 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
 bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
 {
     if( TMath::IsNaN( yoff ) || TMath::IsNaN( yoff )
-            || xoff < -9998. || yoff < -9998. || yoff > 9999.5 )
+            || xoff < -998. || yoff < -998. || yoff > 998. )
     {
         reset();
         return false;
     }
     fShower_Xoffset = xoff;
-    fShower_Yoffset = yoff;
+    fShower_Yoffset = -1.*yoff;
     
     // ze / az
     double ze = 0.;
     double az = 0.;
-    VAstronometry::vlaDtp2s( -1.* fShower_Xoffset*TMath::DegToRad(), 
-                                  fShower_Yoffset*TMath::DegToRad(),
-                                  fTelAzimuth * TMath::DegToRad(),
-                                  fTelElevation * TMath::DegToRad(),
-                                   &az, &ze );
+    VAstronometry::vlaDtp2s( fShower_Xoffset*TMath::DegToRad(), 
+                             fShower_Yoffset*TMath::DegToRad(),
+                             fTelAzimuth * TMath::DegToRad(),
+                             fTelElevation * TMath::DegToRad(),
+                             &az, &ze );
     az *= TMath::RadToDeg();
     ze = 90. - ze * TMath::RadToDeg();
             
