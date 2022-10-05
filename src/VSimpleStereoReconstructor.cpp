@@ -356,13 +356,13 @@ bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
         return false;
     }
     fShower_Xoffset = xoff;
-    fShower_Yoffset = -1.*yoff;
+    fShower_Yoffset = yoff;
     
     // ze / az
     double ze = 0.;
     double az = 0.;
     VAstronometry::vlaDtp2s( fShower_Xoffset*TMath::DegToRad(), 
-                             fShower_Yoffset*TMath::DegToRad(),
+                             -1.*fShower_Yoffset*TMath::DegToRad(),
                              fTelAzimuth * TMath::DegToRad(),
                              fTelElevation * TMath::DegToRad(),
                              &az, &ze );
