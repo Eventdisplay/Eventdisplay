@@ -39,7 +39,7 @@ ENV HESSIOSYS ${EVNDISP}/hessioxxx
 ENV LD_LIBRARY_PATH "${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
 
 # Install ROOT
-RUN wget https://root.cern/download/root_v6.22.08.Linux-ubuntu16-x86_64-gcc5.4.tar.gz && \
+RUN wget --quiet https://root.cern/download/root_v6.22.08.Linux-ubuntu16-x86_64-gcc5.4.tar.gz && \
     tar -xzf root_v6.22.08.Linux-ubuntu16-x86_64-gcc5.4.tar.gz && \
     rm -f root_v6.22.08.Linux-ubuntu16-x86_64-gcc5.4.tar.gz && \
     echo /opt/root/lib >> /etc/ld.so.conf && \
@@ -63,7 +63,7 @@ ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc
 
 # Install Eventdisplay Analysis files
 ARG ANAVERSION=1.6.0
-RUN wget https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA/archive/refs/tags/v$ANAVERSION.zip && \
+RUN wget --quiet https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA/archive/refs/tags/v$ANAVERSION.zip && \
     unzip v$ANAVERSION.zip && rm -f v$ANAVERSION.zip && \
     mv Eventdisplay_AnalysisFiles_CTA-$ANAVERSION Eventdisplay_AnalysisFiles_CTA
 ENV CTA_EVNDISP_AUX_DIR /home/Eventdisplay_AnalysisFiles_CTA/
