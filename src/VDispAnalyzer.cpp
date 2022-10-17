@@ -183,12 +183,11 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     //////////////////////////////////////////////////////////
     // calculate (average) angle between the image lines for
     f_angdiff = 0.;
+    float fmean_iangdiffN = 0.;
     
     if( cosphi.size() > 1 )
     {
         // calculate average angle between image lines
-        f_angdiff = 0.;
-        float fmean_iangdiffN = 0.;
         for( unsigned int ii = 0; ii < sinphi.size(); ii++ )
         {
             for( unsigned int jj = 1; jj < sinphi.size(); jj++ )
@@ -226,11 +225,11 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     {
         f_angdiff = 180.;
     }
-    // check for close to parallel lines
+    // check for close to parallel lines for image multiplicity 2
     // (not so important for disp direction,
     //  but note that core reconstruction
     //  is still done the convential way)
-    if( f_angdiff < fAxesAngles_min )
+    if( f_angdiff < fAxesAngles_min && fmean_iangdiffN < 2.01 )
     {
         return;
     }

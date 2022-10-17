@@ -631,6 +631,7 @@ bool VEffectiveAreaCalculatorMCHistograms::matchDataVectors( vector< double > iA
     // match azimuth vector
     vector< double > iVMinAz_new;
     vector< double > iVMaxAz_new;
+    vector< unsigned int > iVAz_match;
     for( unsigned int s = 0; s < fVSpectralIndex.size(); s++ )
     {
         iVMinAz_new.clear();
@@ -650,6 +651,7 @@ bool VEffectiveAreaCalculatorMCHistograms::matchDataVectors( vector< double > iA
                     iVMaxAz_new.push_back( iAzMax[i] );
                     ihVEmc_new.push_back( hVEmc[s][j] );
                     iVEmcSWeight_new.push_back( hVEmcSWeight[s][j] );
+                    iVAz_match.push_back( j );
                 }
             }
         }
@@ -658,6 +660,17 @@ bool VEffectiveAreaCalculatorMCHistograms::matchDataVectors( vector< double > iA
     }
     fVMinAz = iVMinAz_new;
     fVMaxAz = iVMaxAz_new;
-    
+
+    // unweighted histogram
+    vector< TH1D* > ihVEmcUnWeighted_new;
+    for( unsigned int i = 0; i < iVAz_match.size(); i++ )
+    {
+        if( iVAz_match[i] < hVEmcUnWeighted.size() )
+        {
+            ihVEmcUnWeighted_new.push_back( hVEmcUnWeighted[iVAz_match[i]] );
+        }
+    }
+    hVEmcUnWeighted = ihVEmcUnWeighted_new;
+
     return true;
 }
