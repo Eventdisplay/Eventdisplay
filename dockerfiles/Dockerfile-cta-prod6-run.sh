@@ -3,27 +3,29 @@
 # run a Eventdisplay DL1 analysis for CTA prod6 simulations
 #
 
-if [ $# -lt 1 ]; then
+if [ $# -lt 3 ]; then
 	echo "
-	./run.sh <sim_telarray file> [layout file]
-	echo
-	echo [layout file (optional)] e.g., CTA.prod5S.BL-4LSTs25MSTs70SSTs-MSTF.lis
+    ./run.sh <sim_telarray file> <zenith angle, e.g., 20deg> <nsb condition (dark/moon/fullmoon)> [layout file]
+
+	     [layout file (optional)] e.g., CTA.prod6S.Am-0LSTs14MSTs37SSTs.lis
 	"
-        exit
+    exit
 fi
 
 DATAFILE=${1}
-LAYOUTFILE=${2}
+ZE=${2}
+NSB=${3}
+LAYOUTFILE=${4}
 # select automatically the corresponding hyperlayout
 if [[ -z ${LAYOUTFILE} ]]; then
     if [[ $DATAFILE == *"paranal"* ]]; then
-        LAYOUTFILE="CTA.prod5S.hyperarray.lis"
-    else
-        if  [[ $DATAFILE == *"prod5b"* ]]; then
-            LAYOUTFILE="CTA.prod5bN.hyperarray.lis"
+        if [[ $DATAFILE == *"scts"* ]]; then
+            LAYOUTFILE="CTA.prod6S.SCT.hyperarray.lis"
         else
-            LAYOUTFILE="CTA.prod5N.hyperarray.lis"
+            LAYOUTFILE="CTA.prod6S.hyperarray.lis"
         fi
+    else
+        LAYOUTFILE="CTA.prod6N.hyperarray.lis"
     fi
 fi
      
@@ -31,21 +33,14 @@ OUTPUTFILE=$(basename ${DATAFILE} .zst)
 rm -f /tmp/${OUTPUTFILE}*
 
 # calibration file
-if [[ $DATAFILE == *"dark"* ]]; then
-	IPRFILE=${OBS_EVNDISP_AUX_DIR}/Calibration/prod6/prod5-IPR.root
-    if [[ $DATAFILE == *"60deg"* ]]; then
-        IPRFILE=${OBS_EVNDISP_AUX_DIR}/Calibration/prod6/prod5-ze-60-IPR.root
-    elif [[ $DATAFILE == *"40deg"* ]]; then
-        IPRFILE=${OBS_EVNDISP_AUX_DIR}/Calibration/prod6/prod5-ze-40-IPR.root
-    fi
+if [[ $NSB == *"fullmoon"* ]]; then
+    IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-full-ze${ZE}-IPR.root"
+elif [[ $NSB == *"moon"* ]]; then
+    IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-half-ze${ZE}-IPR.root"
 else
-	IPRFILE=${OBS_EVNDISP_AUX_DIR}/Calibration/prod5/prod6-halfmoon-IPR.root
-    if [[ $DATAFILE == *"60deg"* ]]; then
-        IPRFILE=${OBS_EVNDISP_AUX_DIR}/Calibration/prod6/prod5-halfmoon-ze-60-IPR.root
-    elif [[ $DATAFILE == *"40deg"* ]]; then
-        IPRFILE=${OBS_EVNDISP_AUX_DIR}/Calibration/prod6/prod5-halfmoon-ze-40-IPR.root
-    fi
+    IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-dark-ze${ZE}-IPR.root"
 fi
+
 
 ###########
 # file checks
@@ -61,6 +56,7 @@ if [[ ! -e ${DATAFILE} ]]; then
 	echo "Error; sim_telarray file not found: ${DATAFILE}"
 	exit
 fi
+echo "${IPRFILE}"
 
 ###########
 # run analysis
