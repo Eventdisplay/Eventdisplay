@@ -950,10 +950,7 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
     }
     c->cd();
     
-    double x = 0.2 + 0.35;
-    // TMPTMP
-    x = 0.1 + 0.35;
-    // (END) TMPTMP
+    double x = 0.1 + 0.35;
     if( iLeft )
     {
         x = 0.15;
@@ -972,11 +969,8 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
     {
         y_yp -= 0.1;
     }
-    // TMPTMP
-    double x_p = 0.3;
-    x_p = 0.4;
+    double x_p = 0.4;
     y_yp += 0.1;
-    // (END) TMPTMP
     TLegend* iL = new TLegend( x, y, x + x_p, y_yp );
     iL->SetBorderSize( 0 );
     if( iTransparentLegend )
