@@ -201,7 +201,6 @@ double VSensitivityCalculator::getSensitivity( double iSignal, double iBackgroun
         {
             return -1.;
         }
-        // TMP
         else
         {
             return 0.01;
@@ -1016,7 +1015,6 @@ bool VSensitivityCalculator::calculateSensitivityvsEnergyFromCrabSpectrum( strin
             cout << "\t cut optimization: " << checkCutOptimization( fDifferentialFlux[i].Energy, true )  << endl;
         }
         // sensitivity limitiations
-        // (TMP differential sensitivity only)
         if( dE_Log10 > 0. )
         {
             if( bUnit == "ENERGY" )

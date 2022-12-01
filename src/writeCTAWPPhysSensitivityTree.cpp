@@ -400,7 +400,7 @@ bool VSensitivityTree::fillEvent( string iSite,
             }
         }
         // SST
-        else if( iTelType == 201409917 )
+        else if( iTelType == 201409917 || iTelType == 201109916 )
         {
             fNTelType[3]++;
             if( fTelescopeData.size() > 2 )
@@ -412,7 +412,7 @@ bool VSensitivityTree::fillEvent( string iSite,
             }
         }
         // SC-MSTs (type 4)
-        else if( iTelType == 207308707 )
+        else if( iTelType == 207308707 || iTelType == 205008707 )
         {
             fNTelType[4]++;
             if( fTelescopeData.size() > 5 )

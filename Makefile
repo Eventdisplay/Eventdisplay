@@ -40,7 +40,7 @@ ARCH = $(shell uname)
 # basic numbers
 #############################
 package = EVNDISP
-version = 570
+version = 580
 # version of auxiliary files
 auxversion = $(version)-auxv01
 distdir = $(package)-$(version)
@@ -277,6 +277,11 @@ endif
 # CTA prod5
 ifeq ($(strip $(CTAPROD)),PROD5)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_PROD4 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG
+endif
+### prod6
+# CTA prod6
+ifeq ($(strip $(CTAPROD)),PROD6)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG
 endif
 # MAX values
 ifeq ($(strip $(CTAPROD)),CTAMAX)
