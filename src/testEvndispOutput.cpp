@@ -157,6 +157,22 @@ int main( int argc, char* argv[] )
              else if( TelID >= 114 && TelID <= 154 ) checkTelType( TelType, 207308707, fRootFile, TelID );
          }
      }
+     else if( fProduction == "prod6-North" )
+     {
+         for( unsigned int i = 0; i < telconfig->GetEntries(); i++ )
+         {
+             telconfig->GetEntry( i );
+             // TODO
+         }
+     }
+     else if( fProduction == "prod6-South" )
+     {
+         for( unsigned int i = 0; i < telconfig->GetEntries(); i++ )
+         {
+             telconfig->GetEntry( i );
+             // TODO
+         }
+     }
              
      // requirement 2: showerpars tree exist
      TTree *showerpars = (TTree*)fF.Get( "showerpars" );

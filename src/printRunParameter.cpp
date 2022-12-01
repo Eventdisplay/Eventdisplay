@@ -130,6 +130,7 @@ string getTelTypeName( ULong64_t ttype )
              || ttype == 201310418
              || ttype == 201511619
              || ttype == 201409917
+             || ttype == 201109916
              || ttype == 201411019 )
     {
         return "SST";
@@ -140,7 +141,8 @@ string getTelTypeName( ULong64_t ttype )
     {
         return "MST";
     }
-    else if( ttype == 207308707 )
+    else if( ttype == 207308707
+            || ttype == 205008707 )
     {
         return "MSCT";
     }
@@ -309,17 +311,20 @@ bool readNTelescopeTypes( TFile* fIn, string iPara )
         }
         else if( ( TelType == 201509515
                    || TelType == 201309316
+                   || TelType == 201109916
                    || TelType == 201511619
-                   || 909924 ) && iPara == "-nSST" )
+                   || TelType == 909924 ) && iPara == "-nSST" )
         {
             z++;
         }
         else if( ( TelType == 10408418
-                   || TelType == 10408618 ) && iPara == "-nMST" )
+                   || TelType == 10408618 
+                   || TelType == 10608418 ) && iPara == "-nMST" )
         {
             z++;
         }
-        else if( TelType == 207308707 && iPara == "-nMSCT" )
+        else if( ( TelType == 207308707
+                || TelType == 205008707 ) && iPara == "-nMSCT" )
         {
             z++;
         }
