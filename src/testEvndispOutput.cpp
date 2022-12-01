@@ -27,8 +27,9 @@ void printHelp()
      cout << "to write a log file into a root file:" << endl;
      cout << "\t ./testEvndispOutput <evndisp root file (DL1)> [CTA production]" << endl;
      cout << endl;
-     cout << "\t hardwired CTA productions: prod5-South, prod5-North" << endl;
+     cout << "\t hardwired CTA productions: prod5-South, prod5-North, prod6-South, prod6-North" << endl;
      cout << endl;
+     cout << "Important: checks for minimal number of required telescopes for a productions; ignores any additional telescopes" << endl;
      cout << endl;
 }
 
@@ -162,7 +163,15 @@ int main( int argc, char* argv[] )
          for( unsigned int i = 0; i < telconfig->GetEntries(); i++ )
          {
              telconfig->GetEntry( i );
-             // TODO
+             if( TelID >= 0 && TelID <= 3 ) checkTelType( TelType, 138704810, fRootFile, TelID );
+             else if( TelID >= 4 && TelID <= 39 ) checkTelType( TelType, 10608418, fRootFile, TelID );
+             else
+             {
+                 cout << "Error: unexpected telescope of type " << TelType;
+                 cout << ", telID: " << TelID;
+                 cout << " (" << fRootFile << ")" << endl;
+                 exit( EXIT_FAILURE );
+             }
          }
      }
      else if( fProduction == "prod6-South" )
@@ -170,7 +179,34 @@ int main( int argc, char* argv[] )
          for( unsigned int i = 0; i < telconfig->GetEntries(); i++ )
          {
              telconfig->GetEntry( i );
-             // TODO
+             if( TelID >= 0 && TelID <= 3 ) checkTelType( TelType, 138704810, fRootFile, TelID );
+             else if( TelID >= 4 && TelID <= 36 ) checkTelType( TelType, 10408618, fRootFile, TelID );
+             else if( TelID >= 37 && TelID <= 86 ) checkTelType( TelType,201109916, fRootFile, TelID );
+             else
+             {
+                 cout << "Error: unexpected telescope of type " << TelType;
+                 cout << ", telID: " << TelID;
+                 cout << " (" << fRootFile << ")" << endl;
+                 exit( EXIT_FAILURE );
+             }
+         }
+     }
+     else if( fProduction == "prod6-SouthSCT" )
+     {
+         for( unsigned int i = 0; i < telconfig->GetEntries(); i++ )
+         {
+             telconfig->GetEntry( i );
+             if( TelID >= 0 && TelID <= 3 ) checkTelType( TelType, 138704810, fRootFile, TelID );
+             else if( TelID >= 4 && TelID <= 36 ) checkTelType( TelType, 10408618, fRootFile, TelID );
+             else if( TelID >= 37 && TelID <= 86 ) checkTelType( TelType,201109916, fRootFile, TelID );
+             else if( TelID >= 87 && TelID <=105 ) checkTelType( TelType, 205008707, fRootFile, TelID );
+             else
+             {
+                 cout << "Error: unexpected telescope of type " << TelType;
+                 cout << ", telID: " << TelID;
+                 cout << " (" << fRootFile << ")" << endl;
+                 exit( EXIT_FAILURE );
+             }
          }
      }
              
