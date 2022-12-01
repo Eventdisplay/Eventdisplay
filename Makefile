@@ -37,7 +37,7 @@ SHELL = /bin/sh
 ARCH = $(shell uname)
 
 #############################
-# basic numbers 
+# basic numbers
 #############################
 package = EVNDISP
 version = 570
