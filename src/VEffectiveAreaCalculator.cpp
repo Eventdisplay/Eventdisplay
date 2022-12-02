@@ -408,9 +408,9 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
         fDL2EventTree->Branch( "ArrayPointing_Elevation", &fDL2_ArrayPointing_Elevation, "ArrayPointing_Elevation/F" );
         fDL2EventTree->Branch( "az", &fDL2_az, "az/F" );
         fDL2EventTree->Branch( "el", &fDL2_el, "el/F" );
-        // save disk space: don't write Xoff, Yoff
-        // fDL2EventTree->Branch( "xoff", &fDL2_xoff, "xoff/F" );
-        // fDL2EventTree->Branch( "yoff", &fDL2_yoff, "yoff/F" );
+        // save disk space: don't write Xoff, Yoff (switched on for debugging)
+        fDL2EventTree->Branch( "xoff", &fDL2_xoff, "xoff/F" );
+        fDL2EventTree->Branch( "yoff", &fDL2_yoff, "yoff/F" );
         fDL2EventTree->Branch( "erec", &fDL2_erec, "erec/F" );
         fDL2EventTree->Branch( "nimages", &fDL2_nimages, "nimages/b" );
         fDL2EventTree->Branch( "CutClass", &fDL2_Cut_Class, "Class/b" );
@@ -1765,7 +1765,10 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         }
         if( !iAnaCuts->isGamma( i, true ) )
         {
-            fillDL2EventDataTree( d, 7, iAnaCuts->getTMVA_EvaluationResult() );
+            if( (fIsotropicArrivalDirections && !bDirectionCut) || !fIsotropicArrivalDirections )
+            {
+                fillDL2EventDataTree( d, 7, iAnaCuts->getTMVA_EvaluationResult() );
+            }
             continue;
         }
         if( !bDirectionCut )
@@ -1776,7 +1779,10 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         // remaining events
         else
         {
-            fillDL2EventDataTree( d, 0, iAnaCuts->getTMVA_EvaluationResult() );
+            if( !fIsotropicArrivalDirections )
+            {
+                fillDL2EventDataTree( d, 0, iAnaCuts->getTMVA_EvaluationResult() );
+            }
         }
         
         // unique event counter
@@ -3551,7 +3557,6 @@ void VEffectiveAreaCalculator::fillDL2EventDataTree( CData *c, UChar_t iCutClass
           fDL2_yoff = c->Yoff;
           fDL2_erec = c->ErecS;
           fDL2_nimages = (UChar_t)c->NImages;
-
           fDL2_Cut_Class = iCutClass;
           fDL2_Cut_MVA = iMVA;
           fDL2EventTree->Fill();
