@@ -5,6 +5,7 @@
 [![CI](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml)
 [![CTA-Prod5 Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml)
 [![CTA-slib Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml)
+[![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B-orange)](https://fair-software.eu)
 
 * Authors and contributors: [CITATION.cff](CITATION.cff)
 * Licence: [LICENSE](LICENSE)
