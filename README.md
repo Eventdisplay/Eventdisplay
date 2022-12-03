@@ -2,9 +2,12 @@
 
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6814319.svg)](https://doi.org/10.5281/zenodo.6814319)
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![CI](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml)
 [![CTA-Prod5 Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml)
 [![CTA-slib Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml)
+[![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B-orange)](https://fair-software.eu)
+[![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/6753/badge)](https://bestpractices.coreinfrastructure.org/projects/6753)
 
 * Authors and contributors: [CITATION.cff](CITATION.cff)
 * Licence: [LICENSE](LICENSE)
@@ -119,5 +122,6 @@ Tools to convert event lists into DL2 or DL3 format are collected in the convert
 - for **CTA** (DL2): [https://github.com/Eventdisplay/Converters](https://github.com/Eventdisplay/Converters)
 - for **VERITAS** (converter to GADF DL3 Fromat): [https://github.com/VERITAS-Observatory/V2DL3](https://github.com/VERITAS-Observatory/V2DL3)
 
+## Contact
 
 For any questions, contact Gernot Maier (gernot.maier@desy.de)
