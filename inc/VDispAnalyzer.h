@@ -38,7 +38,7 @@ class VDispAnalyzer
         float fFui_min;
         bool  fDispErrorWeighting;
         float fDispErrorExponential;
-        double *fdistanceQC_max;
+        double* fdistanceQC_max;
         
         // disp direction reconstruction
         float f_disp;
@@ -74,14 +74,14 @@ class VDispAnalyzer
         void calculateMeanShowerDirection( vector< float > v_x, vector< float > v_y, vector< float > v_weight,
                                            float& xs, float& ys, float& dispdiff, unsigned int iMaxN );
                                            
-		unsigned int find_smallest_diff_element(
-			vector< vector< float > > i_sign,
-			vector< float > x, vector< float > y,
-			vector< float > cosphi, vector< float > sinphi,
-			vector< float > v_disp, vector< float > v_weight );
-		vector< vector< float > > get_sign_permuation_vector( unsigned int x_size );
-        vector< unsigned int > get_largest_weight_index(std::vector<float>, unsigned int);
-		
+        unsigned int find_smallest_diff_element(
+            vector< vector< float > > i_sign,
+            vector< float > x, vector< float > y,
+            vector< float > cosphi, vector< float > sinphi,
+            vector< float > v_disp, vector< float > v_weight );
+        vector< vector< float > > get_sign_permuation_vector( unsigned int x_size );
+        vector< unsigned int > get_largest_weight_index( std::vector<float>, unsigned int );
+        
     public:
     
         VDispAnalyzer();
@@ -172,7 +172,7 @@ class VDispAnalyzer
         float getEnergyMedianAbsoluteError();
         int   getEnergyQualityLabel()
         {
-             return fdisp_energyQL;
+            return fdisp_energyQL;
         }
         float getEnergyT( unsigned int iTelescopeNumber );
         unsigned int   getEnergyNT()
@@ -202,7 +202,7 @@ class VDispAnalyzer
         {
             if( i < fdisp_T.size() )
             {
-               return fdisp_T[i];
+                return fdisp_T[i];
             }
             return -999.;
         }
@@ -236,7 +236,7 @@ class VDispAnalyzer
             fDispErrorWeighting = iW;
             fDispErrorExponential = iWeight;
         }
-        void  setQualityCuts( unsigned int iNImages_min = 0, float iAxesAngles_min = 0., 
+        void  setQualityCuts( unsigned int iNImages_min = 0, float iAxesAngles_min = 0.,
                               float imaxdist = 1.e5, float imaxloss = 1.,
                               float iminfui = 0., double* imaxdist_qc = 0 )
         {
