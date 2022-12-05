@@ -142,12 +142,11 @@ float VDispAnalyzer::evaluate( float iWidth, float iLength, float iAsymm, float 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
-///
 /*
- * return permuation vector with all possible pairs of signs
+ * return permutation vector with all possible pairs of signs
  *
  */
-vector< vector< float > > VDispAnalyzer::get_sign_permuation_vector( unsigned int x_size )
+vector< vector< float > > VDispAnalyzer::get_sign_permutation_vector( unsigned int x_size )
 {
     unsigned int ncombinations = ( 1 << x_size ) - 1;
     vector< vector< float > > i_sign;
@@ -353,7 +352,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     // more images: use 5 images with largest weight
     if( x.size() < 6 )
     {
-        vector< vector< float > > i_sign = get_sign_permuation_vector( x.size() );
+        vector< vector< float > > i_sign = get_sign_permutation_vector( x.size() );
         i_smallest_diff_element = find_smallest_diff_element(
                                       i_sign, x, y, cosphi, sinphi, v_disp, v_weight );
                                       
@@ -364,47 +363,12 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         }
         calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
     }
-    // large event multiplicities:
-    // calculate direction from 5 largest weight events and
-    // use the average reconstructed position as seed for the
-    // decision on head/tail
-    else
+    // more images
+    // (MVA disp analyzer using
+    // stereo reconstruction as starting
+    // value
+    else if( x_off4 > -998. && y_off4 > -998. )
     {
-        vector< float > i_largestw_x;
-        vector< float > i_largestw_y;
-        vector< float > i_largestw_cosphi;
-        vector< float > i_largestw_sinphi;
-        vector< float > i_largestw_v_disp;
-        vector< float > i_largestw_v_weight;
-        vector< unsigned int > i_index = get_largest_weight_index( v_weight, 5 );
-        for( unsigned int i = 0; i < i_index.size(); i++ )
-        {
-            i_largestw_x.push_back( x[i_index[i]] );
-            i_largestw_y.push_back( y[i_index[i]] );
-            i_largestw_cosphi.push_back( cosphi[i_index[i]] );
-            i_largestw_sinphi.push_back( sinphi[i_index[i]] );
-            i_largestw_v_disp.push_back( v_disp[i_index[i]] );
-            i_largestw_v_weight.push_back( v_weight[i_index[i]] );
-        }
-        vector< vector< float > > i_sign = get_sign_permuation_vector( i_largestw_x.size() );
-        i_smallest_diff_element = find_smallest_diff_element(
-                                      i_sign, i_largestw_x, i_largestw_y,
-                                      i_largestw_cosphi, i_largestw_sinphi,
-                                      i_largestw_v_disp, i_largestw_v_weight );
-        fdisp_xs_T.clear();
-        fdisp_ys_T.clear();
-        fdisp_xs_T.assign( v_weight.size(), 0. );
-        fdisp_ys_T.assign( v_weight.size(), 0. );
-        for( unsigned int ii = 0; ii < x.size(); ii++ )
-        {
-            fdisp_xs_T[ii] = i_largestw_x[ii] -
-                             i_sign[i_smallest_diff_element][ii] * i_largestw_v_disp[ii] * i_largestw_cosphi[ii];
-            fdisp_ys_T[ii] = i_largestw_y[ii] -
-                             i_sign[i_smallest_diff_element][ii] * i_largestw_v_disp[ii] * i_largestw_sinphi[ii];
-        }
-        // direction from N largest weight events
-        calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
-        
         // vector with disp directions per image
         fdisp_xs_T.clear();
         fdisp_ys_T.clear();
@@ -427,8 +391,8 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
             // check solution closest to starting value
             // (should work properly here, as these are
             // all events with multiplicity > 4)
-            if( sqrt( ( x1 - xs ) * ( x1 - xs ) + ( y1 - ys ) * ( y1 - ys ) )
-                    < sqrt( ( x2 - xs ) * ( x2 - xs ) + ( y2 - ys ) * ( y2 - ys ) ) )
+            if( sqrt( ( x1 - x_off4 ) * ( x1 - x_off4 ) + ( y1 + y_off4 ) * ( y1 + y_off4 ) )
+                < sqrt( ( x2 - x_off4 ) * ( x2 - x_off4 ) + ( y2 + y_off4 ) * ( y2 + y_off4 ) ) )
             {
                 fdisp_xs_T[ii] = x1;
                 fdisp_ys_T[ii] = y1;
@@ -442,7 +406,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         }
         calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
     }
-    
+
     // apply a completely unnecessary sign flip
     if( ys > -9998. )
     {
@@ -473,7 +437,7 @@ void VDispAnalyzer::calculateMeanShowerDirection( vector< float > v_x, vector< f
         cout << "invalid vector size " << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     // single image
     if( iMaxN == 1 && v_x.size() == 1 && v_y.size() == 1 && v_weight.size() == 1 )
     {
@@ -547,7 +511,7 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
     f_dispDiff = -99.;
     f_xs = -99.;
     f_ys = -99.;
-    
+
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
@@ -805,7 +769,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     
     ////////////////////////////////////////////
     // calculate for each image an energy
-    
+
     // counter for good energy values
     float z = 0.;
     for( unsigned int i = 0; i < i_ntel; i++ )
