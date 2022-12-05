@@ -1,6 +1,6 @@
 name: fair-software
 
-on: push
+on: workflow_dispatch
 
 jobs:
   verify:
