@@ -48,7 +48,7 @@ class VInstrumentResponseFunctionReader : public VAnalysisUtilities, public VPlo
         bool                             getDataFromFile();
         bool                             getDataFromCTAFile();
         TGraphErrors*                    getResolutionGraph( TGraphErrors* );
-        TGraphErrors*                    getAngularResolution( TH2D* iHistogram, double iContainmentProbability, int iMinRequiredEvents = 20 );
+        TGraphErrors*                    getAngularResolution( TH2D* iHistogram, double iContainmentProbability, int iMinRequiredEvents = 100 );
         TGraphErrors*                    getEnergyResolutionMPropInterval( TH2D* migmatrix,
                 bool bXaxisIsEtrue = false,
                 TGraphErrors* gEnergyResolutionNoDirectionCuts = 0 );
