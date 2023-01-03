@@ -8,6 +8,7 @@
 [![CTA-slib Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml)
 [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B-orange)](https://fair-software.eu)
 [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/6753/badge)](https://bestpractices.coreinfrastructure.org/projects/6753)
+[![ascl:2212.002](https://ascl.net/2212.002)](https://img.shields.io/badge/ascl-2212.002-blue.svg?colorB=262255)
 
 * Authors and contributors: [CITATION.cff](CITATION.cff)
 * Licence: [LICENSE](LICENSE)
