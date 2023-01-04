@@ -2,13 +2,16 @@
 
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6814319.svg)](https://doi.org/10.5281/zenodo.6814319)
+[![ascl:2212.002](https://img.shields.io/badge/ascl-2212.002-blue.svg?colorB=262255)](https://ascl.net/2212.002)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
+[![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B-orange)](https://fair-software.eu)
+[![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/6753/badge)](https://bestpractices.coreinfrastructure.org/projects/6753)
+
 [![CI](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/ci.yml)
 [![CTA-Prod5 Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml)
 [![CTA-slib Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml)
-[![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B-orange)](https://fair-software.eu)
-[![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/6753/badge)](https://bestpractices.coreinfrastructure.org/projects/6753)
-[![ascl:2212.002](https://ascl.net/2212.002)](https://img.shields.io/badge/ascl-2212.002-blue.svg?colorB=262255)
+
 
 * Authors and contributors: [CITATION.cff](CITATION.cff)
 * Licence: [LICENSE](LICENSE)
