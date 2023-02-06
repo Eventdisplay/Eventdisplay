@@ -110,6 +110,8 @@ class CData
         Double_t        size2[VDST_MAXTELESCOPES];
         Double_t        fraclow[VDST_MAXTELESCOPES];
         Float_t         loss[VDST_MAXTELESCOPES];
+        Float_t         fui[VDST_MAXTELESCOPES];
+        Float_t         cross[VDST_MAXTELESCOPES];
         Double_t        max1[VDST_MAXTELESCOPES];
         Double_t        max2[VDST_MAXTELESCOPES];
         Double_t        max3[VDST_MAXTELESCOPES];
@@ -219,6 +221,8 @@ class CData
         TBranch*        b_size2;                  //!
         TBranch*        b_fraclow;                //!
         TBranch*        b_loss;                   //!
+        TBranch*        b_fui;                   //!
+        TBranch*        b_cross;                   //!
         TBranch*        b_max1;                   //!
         TBranch*        b_max2;                   //!
         TBranch*        b_max3;                   //!
@@ -862,6 +866,28 @@ void CData::Init( TTree* tree )
             }
         }
         fChain->SetBranchAddress( "loss", loss );
+        if( fChain->GetBranchStatus( "fui" ) )
+        {
+            fChain->SetBranchAddress( "fui", fui );
+        }
+        else
+        {
+            for( int i = 0; i < VDST_MAXTELESCOPES; i++ )
+            {
+                fui[i] = 0.;
+            }
+        }
+        if( fChain->GetBranchStatus( "cross" ) )
+        {
+            fChain->SetBranchAddress( "cross", cross );
+        }
+        else
+        {
+            for( int i = 0; i < VDST_MAXTELESCOPES; i++ )
+            {
+                cross[i] = 0.;
+            }
+        }
         
         fChain->SetBranchAddress( "max1", max1 );
         fChain->SetBranchAddress( "max2", max2 );
@@ -915,6 +941,8 @@ void CData::Init( TTree* tree )
             size2[i] = 0.;
             fraclow[i] = 0.;
             loss[i] = 0.;
+            fui[i] = 0.;
+            cross[i] = 0.;
             max1[i] = 0.;
             max2[i] = 0.;
             max3[i] = 0.;
