@@ -939,7 +939,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
     // derotate coordinates
     else
     {
-         fXoff_derot = fXoff * cos( fArrayPointing_RotationAngle) 
+         fXoff_derot = fXoff * cos( fArrayPointing_RotationAngle ) 
                      - fYoff * sin( fArrayPointing_RotationAngle );
          fYoff_derot = fYoff * cos( fArrayPointing_RotationAngle )
                      + fXoff * sin( fArrayPointing_RotationAngle );
