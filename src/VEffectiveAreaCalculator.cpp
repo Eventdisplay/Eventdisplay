@@ -440,7 +440,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
             fDL2EventTree->Branch( "DispDiff", &fDL2_DispDiff, "DispDiff/F" );
             fDL2EventTree->Branch( "dESabs", &fDL2_dESabs, "dESabs/F" );
             fDL2EventTree->Branch( "NTrig", &fDL2_NTrig, "NTrig/i" );
-            fDL2EventTree->Branch( "meanPedvar_Image", &fDL2_NTrig, "meanPedvar_Image/F" );
+            fDL2EventTree->Branch( "meanPedvar_Image", &fDL2_meanPedvar_Image, "meanPedvar_Image/F" );
             fDL2EventTree->Branch( "ES", fDL2_ES, "ES[nimages]/F" );
        }
     }
