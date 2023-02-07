@@ -650,9 +650,7 @@ void CData::Init( TTree* tree )
             MCCorsikaShowerID = -1;
             MCFirstInteractionDepth = -1;
             MCFirstInteractionHeight = -1;
-            
         }
-        
     }
     else
     {
@@ -838,11 +836,37 @@ void CData::Init( TTree* tree )
             TtypeID[tt] = 0;
         }
     }
+    fChain->SetBranchAddress( "dist", dist );
+    fChain->SetBranchAddress( "size", size );
+    fChain->SetBranchAddress( "loss", loss );
+    fChain->SetBranchAddress( "asym", asym );
+    fChain->SetBranchAddress( "tgrad_x", tgrad_x );
+    if( fChain->GetBranchStatus( "fui" ) )
+    {
+        fChain->SetBranchAddress( "fui", fui );
+    }
+    else
+    {
+        for( int i = 0; i < VDST_MAXTELESCOPES; i++ )
+        {
+            fui[i] = 0.;
+        }
+    }
+    if( fChain->GetBranchStatus( "cross" ) )
+    {
+        fChain->SetBranchAddress( "cross", cross );
+    }
+    else
+    {
+        for( int i = 0; i < VDST_MAXTELESCOPES; i++ )
+        {
+            cross[i] = 0.;
+        }
+    }
+    
     
     if( !fShort )
     {
-        fChain->SetBranchAddress( "dist", dist );
-        fChain->SetBranchAddress( "size", size );
         if( fChain->GetBranchStatus( "size2" ) )
         {
             fChain->SetBranchAddress( "size2", size2 );
@@ -865,30 +889,6 @@ void CData::Init( TTree* tree )
                 fraclow[i] = 0.;
             }
         }
-        fChain->SetBranchAddress( "loss", loss );
-        if( fChain->GetBranchStatus( "fui" ) )
-        {
-            fChain->SetBranchAddress( "fui", fui );
-        }
-        else
-        {
-            for( int i = 0; i < VDST_MAXTELESCOPES; i++ )
-            {
-                fui[i] = 0.;
-            }
-        }
-        if( fChain->GetBranchStatus( "cross" ) )
-        {
-            fChain->SetBranchAddress( "cross", cross );
-        }
-        else
-        {
-            for( int i = 0; i < VDST_MAXTELESCOPES; i++ )
-            {
-                cross[i] = 0.;
-            }
-        }
-        
         fChain->SetBranchAddress( "max1", max1 );
         fChain->SetBranchAddress( "max2", max2 );
         fChain->SetBranchAddress( "max3", max3 );
@@ -923,12 +923,10 @@ void CData::Init( TTree* tree )
         }
         fChain->SetBranchAddress( "alpha", alpha );
         fChain->SetBranchAddress( "los", los );
-        fChain->SetBranchAddress( "asym", asym );
         fChain->SetBranchAddress( "cen_x", cen_x );
         fChain->SetBranchAddress( "cen_y", cen_y );
         fChain->SetBranchAddress( "cosphi", cosphi );
         fChain->SetBranchAddress( "sinphi", sinphi );
-        fChain->SetBranchAddress( "tgrad_x", tgrad_x );
         fChain->SetBranchAddress( "Fitstat", Fitstat );
         fChain->SetBranchAddress( "tchisq_x", tchisq_x );
     }
@@ -936,13 +934,8 @@ void CData::Init( TTree* tree )
     {
         for( int i = 0; i < VDST_MAXTELESCOPES; i++ )
         {
-            dist[i] = 0.;
-            size[i] = 0.;
             size2[i] = 0.;
             fraclow[i] = 0.;
-            loss[i] = 0.;
-            fui[i] = 0.;
-            cross[i] = 0.;
             max1[i] = 0.;
             max2[i] = 0.;
             max3[i] = 0.;
@@ -957,12 +950,10 @@ void CData::Init( TTree* tree )
             ntubesBNI[i] = 0;
             alpha[i] = 0.;
             los[i] = 0.;
-            asym[i] = 0.;
             cen_x[i] = 0.;
             cen_y[i] = 0.;
             cosphi[i] = 0.;
             sinphi[i] = 0.;
-            tgrad_x[i] = 0.;
             Fitstat[i] = 0;
             tchisq_x[i] = 0.;
         }

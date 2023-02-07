@@ -3603,7 +3603,7 @@ void VEffectiveAreaCalculator::fillDL2EventDataTree( CData *c, UChar_t iCutClass
               fDL2_dESabs = c->getEnergyDelta();
               fDL2_NTrig = (UChar_t)c->NTrig;
               fDL2_meanPedvar_Image = c->meanPedvar_Image;
-              for( unsigned int i = 0; i < fDL2_nimages; i++ )
+              for( int i = 0; i < c->NImages; i++ )
               {
                   fDL2_size[i] = c->size[i];
                   fDL2_dist[i] = c->dist[i];
