@@ -976,7 +976,7 @@ void VTableLookupRunParameter::print( int iP )
             {
                 cout << "\t BDT TMVA stereo reconstruction loss cut < " << fmaxloss << endl;
             }
-            if( fminfui < 0. )
+            if( fminfui > 0. )
             {
                 cout << "\t BDT TMVA stereo reconstruction fui cut < " << fminfui << endl;
             }

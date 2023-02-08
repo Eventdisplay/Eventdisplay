@@ -139,7 +139,6 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     gSystem->ExpandPathName( iOutputDirectory );
     ( TMVA::gConfig().GetIONames() ).fWeightFileDir = iOutputDirectory;
     
-    
     // tmva regression
     TMVA::Factory* factory = new TMVA::Factory( iTargetML.c_str(), i_tmva, 
                             "V:!DrawProgressBar:!Color:!Silent:AnalysisType=Regression:VerboseLevel=Debug:Correlations=True" );
@@ -147,10 +146,10 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
     
     // list of variables used by MVA method
-    dataloader->AddVariable( "width" , 'F' );
+    dataloader->AddVariable( "width", 'F' );
     dataloader->AddVariable( "length", 'F' );
     dataloader->AddVariable( "wol",    'F' );
-    dataloader->AddVariable( "size"  , 'F' );
+    dataloader->AddVariable( "size", 'F' );
     dataloader->AddVariable( "ntubes", 'F' );
     // hard coded ASTRI telescope type
     // (no time gradient is available)
@@ -160,11 +159,11 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     }
     if( !iSingleTelescopeAnalysis )
     {
-        dataloader->AddVariable( "cross" , 'F' );
+        dataloader->AddVariable( "cross", 'F' );
     } 
-    dataloader->AddVariable( "asym"  , 'F' );
-    dataloader->AddVariable( "loss"  , 'F' );
-    dataloader->AddVariable( "dist"  , 'F' );
+    dataloader->AddVariable( "asym", 'F' );
+    dataloader->AddVariable( "loss", 'F' );
+    dataloader->AddVariable( "dist", 'F' );
     dataloader->AddVariable( "fui"  , 'F' );
     if( iTargetML.find( "DispEnergy" ) != string::npos && !iSingleTelescopeAnalysis )
     {
@@ -826,16 +825,6 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             {
                 continue;
             }
-            // required successful fit
-            // (in case images are fitted)
-            // FIXME 
-            // disabled as it doesn't take it account if
-            // a fit acutally was performed
-            // if( i_tpars[i]->hasParameterErrors() && 
-            //    i_tpars[i]->Fitstat == 0 )
-            //{
-            //   continue;
-            // }
             
             runNumber   = i_showerpars.runNumber;
             eventNumber = i_showerpars.eventNumber;

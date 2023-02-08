@@ -234,6 +234,33 @@ class VEffectiveAreaCalculator
         UChar_t fDL2_nimages;
         UChar_t fDL2_Cut_Class;
         float fDL2_Cut_MVA;
+        bool fDL2_extendedTrees;
+        // extented tree
+        float fDL2_Xcore;
+        float fDL2_Ycore;
+        float fDL2_Xoff_intersect;
+        float fDL2_Yoff_intersect;
+        float fDL2_img2_ang;
+        float fDL2_EChi2S;
+        float fDL2_SizeSecondMax;
+        UChar_t fDL2_NTelPairs;
+        float fDL2_MSCW;
+        float fDL2_MSCL;
+        float fDL2_EmissionHeight;
+        float fDL2_EmissionHeightChi2;
+        float fDL2_DispDiff;
+        float fDL2_dESabs;
+        UChar_t fDL2_NTrig;
+        float fDL2_meanPedvar_Image;
+        float fDL2_size[VDST_MAXTELESCOPES];
+        float fDL2_dist[VDST_MAXTELESCOPES];
+        float fDL2_loss[VDST_MAXTELESCOPES];
+        float fDL2_fui[VDST_MAXTELESCOPES];
+        float fDL2_cross[VDST_MAXTELESCOPES];
+        float fDL2_R[VDST_MAXTELESCOPES];
+        float fDL2_ES[VDST_MAXTELESCOPES];
+        float fDL2_asym[VDST_MAXTELESCOPES];
+        float fDL2_tgrad_x[VDST_MAXTELESCOPES];
 
         // effective area smoothing
         int fSmoothIter;

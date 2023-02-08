@@ -450,7 +450,7 @@ void VDispAnalyzer::calculateMeanShowerDirection( vector< float > v_x, vector< f
     float z = 0.;
     for( unsigned int n = 0; n < iMaxN; n++ )
     {
-        for( unsigned int m = n; m < iMaxN; m++ )
+		for( unsigned int m = n + 1; m < iMaxN; m++ )
         {
             dispdiff += sqrt( ( v_x[n] - v_x[m] ) * ( v_x[n] - v_x[m] )
                               + ( v_y[n] - v_y[m] ) * ( v_y[n] - v_y[m] ) )
@@ -592,7 +592,10 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
     }
     
     // calculate expected direction
-    calculateMeanDirection( f_xs, f_ys, x, y, cosphi, sinphi, v_disp, v_weight, f_dispDiff, xoff_4, yoff_4 );
+    calculateMeanDirection( f_xs, f_ys, 
+            x, y, cosphi, sinphi, 
+            v_disp, v_weight, 
+            f_dispDiff, xoff_4, yoff_4 );
     fdisp_xy_weight_T = v_weight;
     fdisp_T = v_disp;
     fdisplist_T = v_displist;
