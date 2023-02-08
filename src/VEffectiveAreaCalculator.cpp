@@ -374,7 +374,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     
     ////////////////////////////////////
     // tree with DL2 event information (DL2 event) for each event
-    fDL2_extendedTrees = true;
+    fDL2_extendedTrees = false;
     // note adaptions to save disk space
     fDL2_runNumber = 0.;
     fDL2_eventNumber = 0;
