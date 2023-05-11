@@ -463,7 +463,6 @@ bool train( VTMVARunData* iRun,
         }
 
         //////////////////////////
-        // BOOSTED DECISION TREES
         if( iRun->fMVAMethod[i] != "BOXCUTS" )
         {
             if( iTrainGammaHadronSeparation )
@@ -647,7 +646,7 @@ int main( int argc, char* argv[] )
                 cout << "Error finding tvma root file " << endl;
                 continue;
             }
-            TFile* short_root_file = TFile::Open( iTempS.str().c_str() , "RECREATE" );
+            TFile* short_root_file = TFile::Open( iTempS.str().c_str(), "RECREATE" );
             if( !short_root_file->IsZombie() )
             {
                 VTMVARunDataEnergyCut* fDataEnergyCut = ( VTMVARunDataEnergyCut* )root_file->Get( "fDataEnergyCut" );
@@ -731,7 +730,7 @@ int main( int argc, char* argv[] )
             string iFinalRootFileName( iTempS.str() );
             string iBinRootString( ".bin.root" );
             iFinalRootFileName.replace( iFinalRootFileName.find( iBinRootString ), iBinRootString.length(), ".root" );
-            rename( iTempS.str().c_str() , iFinalRootFileName.c_str() );
+            rename( iTempS.str().c_str(), iFinalRootFileName.c_str() );
         }
     }
     return 0;

@@ -1758,7 +1758,6 @@ void VTableLookup::getIndexBoundary( unsigned int* iup, unsigned int* ilow, vect
 void VTableLookup::getTables( unsigned int inoise, unsigned int ize,
                               unsigned int iwoff, unsigned int iaz, unsigned int tel,
                               VTablesToRead* s )
-
 {
     if( !s )
     {
