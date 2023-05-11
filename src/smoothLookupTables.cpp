@@ -53,7 +53,7 @@ TH2F* smooth2DHistogram( TH2F* h, TH2F* hNevents )
         return  i_inter.doLogLinearExtrapolation( h,
                 "fitexpo",
                 hNevents,
-                20 ); 
+                20 );
     }
     else
     {
@@ -61,7 +61,7 @@ TH2F* smooth2DHistogram( TH2F* h, TH2F* hNevents )
                 "fitpol2",
                 hNevents,
                 20 );
-    } 
+    }
     return 0;
 }
 

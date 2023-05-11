@@ -7,9 +7,9 @@
 
 #include "VImageParameter.h"
 
-VImageParameter::VImageParameter( 
-               unsigned int iShortTree,
-               bool iWriteNImagePixels )
+VImageParameter::VImageParameter(
+    unsigned int iShortTree,
+    bool iWriteNImagePixels )
 {
     fMC = false;
     tpars = 0;
@@ -198,7 +198,7 @@ void VImageParameter::initTree( string iName, string iTitle, bool iMC, bool iLL,
     tpars->Branch( "dlength", &dlength, "dlength/F" );
     tpars->Branch( "dwidth", &dwidth, "dwidth/F" );
     tpars->Branch( "dphi", &dphi, "dphi/F" );
-
+    
     // image / border pixel list
     if( fWriteNImagePixels )
     {
@@ -357,15 +357,15 @@ void VImageParameter::reset( unsigned int resetLevel )
     houghCN = 0.;
     houghContained = 0.;
     houghMuonValid = 0;
-
+    
     if( fWriteNImagePixels )
     {
         PixelListN = 0;
-        memset( PixelID, 0, VDST_MAXCHANNELS * sizeof(unsigned int));
-        memset( PixelType, 0, VDST_MAXCHANNELS * sizeof(unsigned int));
-        memset( PixelIntensity, 0, VDST_MAXCHANNELS * sizeof(float));
-        memset( PixelTimingT0, 0, VDST_MAXCHANNELS * sizeof(float));
-        memset( PixelPE, 0, VDST_MAXCHANNELS * sizeof(float));
+        memset( PixelID, 0, VDST_MAXCHANNELS * sizeof( unsigned int ) );
+        memset( PixelType, 0, VDST_MAXCHANNELS * sizeof( unsigned int ) );
+        memset( PixelIntensity, 0, VDST_MAXCHANNELS * sizeof( float ) );
+        memset( PixelTimingT0, 0, VDST_MAXCHANNELS * sizeof( float ) );
+        memset( PixelPE, 0, VDST_MAXCHANNELS * sizeof( float ) );
     }
 }
 

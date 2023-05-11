@@ -157,7 +157,7 @@ class VImageParameter
         float drho;
         float signal;
         float dsignal;                            //!< error in signal (normalisation parameter for fit)
-
+        
         // image / border list
         unsigned int PixelListN;
         unsigned int PixelID[VDST_MAXCHANNELS];
@@ -182,7 +182,10 @@ class VImageParameter
         {
             return fMC;
         }
-        bool isWriteNImagePixels() { return fWriteNImagePixels; }
+        bool isWriteNImagePixels()
+        {
+            return fWriteNImagePixels;
+        }
         void printParameters();
         void reset( unsigned int resetLevel = 0 );
         void setImageBorderPixelPosition( vector< float > iImageBorderPixelPosition_x, vector< float > iImageBorderPixelPosition_y );

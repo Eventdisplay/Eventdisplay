@@ -21,9 +21,9 @@ VImageParameterCalculation::VImageParameterCalculation( unsigned int iShortTree,
     fboolCalcTiming = false;
     fDetectorGeometry = 0;
     fHoughTransform = 0;
-
+    
     fImageFitter = new VImageParameterFitter( fData,
-                                              fDebug );
+            fDebug );
 }
 
 
@@ -79,7 +79,7 @@ void VImageParameterCalculation::calcTimingParameters( bool iIsSecondPass )
     // depend on parameter set in getSumWindowStart_T_method():
     // 1: tzeros
     // 2: average pulse times
-        // 3: trigger pixel time
+    // 3: trigger pixel time
     for( unsigned int i = 0; i < fData->getPulseTime().size(); i++ )
     {
         //  use only image and border and no low-gain channels (timing is different)
@@ -766,7 +766,7 @@ void VImageParameterCalculation::houghInitialization()
 {
 
     fHoughTransform = new VHoughTransform( getDetectorGeometry() );
-
+    
 }
 
 
@@ -865,10 +865,10 @@ void VImageParameterCalculation::calcTriggerParameters( vector<bool> fTrigger )
             double xi = getDetectorGeometry()->getX()[j];
             double yi = getDetectorGeometry()->getY()[j];
             
-            sumx_trig += xi;         
-            sumy_trig += yi;         
-            sumx2_trig += xi * xi;   
-            sumy2_trig += yi * yi;   
+            sumx_trig += xi;
+            sumy_trig += yi;
+            sumx2_trig += xi * xi;
+            sumy2_trig += yi * yi;
         }
     }
     fParGeo->trig_tubes = trig_tubes;
@@ -880,10 +880,10 @@ void VImageParameterCalculation::calcTriggerParameters( vector<bool> fTrigger )
         const double x2mean_trig = sumx2_trig / trig_tubes;
         const double y2mean_trig = sumy2_trig / trig_tubes;
         
-        fParGeo->cen_x_trig = xmean_trig;       
-        fParGeo->cen_y_trig = ymean_trig;       
-        fParGeo->cen_x2_trig = x2mean_trig;     
-        fParGeo->cen_y2_trig = y2mean_trig;     
+        fParGeo->cen_x_trig = xmean_trig;
+        fParGeo->cen_y_trig = ymean_trig;
+        fParGeo->cen_x2_trig = x2mean_trig;
+        fParGeo->cen_y2_trig = y2mean_trig;
     }
     
 }
@@ -1381,23 +1381,23 @@ vector<bool> VImageParameterCalculation::calcLL( bool iUseSums2, bool i_reInitia
         calcParameters();
     }
     setImageBorderPixelPosition( fParLL );
-
+    
     // fit image
     vector< bool > imageList = fImageFitter->calcLL( fParGeo,
-                                                     fParLL,
-                                                     iUseSums2, 
-                                                     i_reInitializeLL, 
-                                                     iEqualSummationWindows );
-
+                               fParLL,
+                               iUseSums2,
+                               i_reInitializeLL,
+                               iEqualSummationWindows );
+                               
     // calculate same reamining parameters
-    fParLL->fui = getFractionOfImageBorderPixelUnderImage( fParLL->cen_x, fParLL->cen_y, 
-                                                           fParLL->width, fParLL->length, 
-                                                           fParLL->cosphi, fParLL->sinphi );
-
+    fParLL->fui = getFractionOfImageBorderPixelUnderImage( fParLL->cen_x, fParLL->cen_y,
+                  fParLL->width, fParLL->length,
+                  fParLL->cosphi, fParLL->sinphi );
+                  
     return imageList;
 }
 
-    
+
 
 /*!
     calculate the fraction of image/border pixels which are located under the image ellipse.
@@ -1544,7 +1544,7 @@ void VImageParameterCalculation::fillImageBorderPixelTree()
             if( fData->getHiLo()[i] )
             {
                 fParGeo->PixelType[fParGeo->PixelListN] += 10;
-            } 
+            }
             fParGeo->PixelListN++;
         }
     }

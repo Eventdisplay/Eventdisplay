@@ -190,12 +190,12 @@ class Ctpars
         TBranch*        b_muonIPCorrectedSize;
         TBranch*        b_muonValid;
         TBranch*        b_houghMuonValid;
-        TBranch        *b_PixelListN;   //!
-        TBranch        *b_PixelID;   //!
-        TBranch        *b_PixelType;   //!
-        TBranch        *b_PixelIntensity;   //!
-        TBranch        *b_PixelTimingT0;   //!
-        TBranch        *b_PixelPE;   //!
+        TBranch*        b_PixelListN;   //!
+        TBranch*        b_PixelID;   //!
+        TBranch*        b_PixelType;   //!
+        TBranch*        b_PixelIntensity;   //!
+        TBranch*        b_PixelTimingT0;   //!
+        TBranch*        b_PixelPE;   //!
         
         Ctpars( TTree* tree = 0, bool iMC = false, unsigned int iShort = false );
         virtual ~Ctpars();
@@ -215,11 +215,11 @@ class Ctpars
         }
         bool             hasParameterErrors()
         {
-           return bParameterErrors;
+            return bParameterErrors;
         }
         bool   hasPixelList()
         {
-           return bPixelList;
+            return bPixelList;
         }
 };
 #endif
@@ -319,7 +319,7 @@ void Ctpars::Init( TTree* tree )
     bPixelList = false;
     if( fChain->GetBranchStatus( "PixelListN" ) )
     {
-       bPixelList = true;
+        bPixelList = true;
     }
     /////////////////////////////////////////////////
     //    bShort = 2:  read limited number of branched needed for lookup table filling
@@ -363,29 +363,29 @@ void Ctpars::Init( TTree* tree )
         fChain->SetBranchAddress( "cen_y", &cen_y );
         if( fChain->GetBranchStatus( "f_d" ) )
         {
-               fChain->SetBranchAddress( "f_d", &f_d );
+            fChain->SetBranchAddress( "f_d", &f_d );
         }
         else
         {
-               f_d = 0.;
+            f_d = 0.;
         }
         if( fChain->GetBranchStatus( "f_s" ) )
         {
-               fChain->SetBranchAddress( "f_s", &f_s );
+            fChain->SetBranchAddress( "f_s", &f_s );
         }
         else
         {
-               f_s = 0.;
+            f_s = 0.;
         }
         if( fChain->GetBranchStatus( "f_sdevxy" ) )
         {
-               fChain->SetBranchAddress( "f_sdevxy", &f_sdevxy );
+            fChain->SetBranchAddress( "f_sdevxy", &f_sdevxy );
         }
         else
         {
-               f_sdevxy = 0.;
+            f_sdevxy = 0.;
         }
-
+        
         fChain->SetBranchAddress( "size", &size );
         fChain->SetBranchAddress( "loss", &loss );
         if( fChain->GetBranchStatus( "fracLow" ) )
@@ -457,17 +457,17 @@ void Ctpars::Init( TTree* tree )
         }
         else
         {
-           PixelListN = 0;
-           for( unsigned int i = 0; i < VDST_MAXCHANNELS; i++ )
-           {
-               PixelID[i] = 0;
-               PixelType[i] = 0;
-               PixelIntensity[i] = 0.;
-               PixelTimingT0[i] = 0.;
-               PixelPE[i] = 0.;
-           }
+            PixelListN = 0;
+            for( unsigned int i = 0; i < VDST_MAXCHANNELS; i++ )
+            {
+                PixelID[i] = 0;
+                PixelType[i] = 0;
+                PixelIntensity[i] = 0.;
+                PixelTimingT0[i] = 0.;
+                PixelPE[i] = 0.;
+            }
         }
-
+        
         // reset variables which are not read out
         alpha = 0.;
         los = 0.;
@@ -666,18 +666,18 @@ Bool_t Ctpars::Notify()
         fChain->AddBranchToCache( b_cen_y );
         if( fChain->GetBranchStatus( "f_d" ) )
         {
-             b_f_d = fChain->GetBranch( "f_d" );
-             fChain->AddBranchToCache( b_f_d );
+            b_f_d = fChain->GetBranch( "f_d" );
+            fChain->AddBranchToCache( b_f_d );
         }
         if( fChain->GetBranchStatus( "f_s" ) )
         {
-             b_f_s = fChain->GetBranch( "f_s" );
-             fChain->AddBranchToCache( b_f_s );
+            b_f_s = fChain->GetBranch( "f_s" );
+            fChain->AddBranchToCache( b_f_s );
         }
         if( fChain->GetBranchStatus( "f_sdevxy" ) )
         {
-             b_f_sdevxy = fChain->GetBranch( "f_sdevxy" );
-             fChain->AddBranchToCache( b_f_sdevxy );
+            b_f_sdevxy = fChain->GetBranch( "f_sdevxy" );
+            fChain->AddBranchToCache( b_f_sdevxy );
         }
         b_size = fChain->GetBranch( "size" );
         fChain->AddBranchToCache( b_size );
@@ -755,7 +755,7 @@ Bool_t Ctpars::Notify()
             fChain->AddBranchToCache( b_PixelTimingT0 );
             b_PixelPE = fChain->GetBranch( "PixelPE" );
             fChain->AddBranchToCache( b_PixelPE );
-         }
+        }
         //muon
         if( fChain->GetBranchStatus( "muonX0" ) )
         {

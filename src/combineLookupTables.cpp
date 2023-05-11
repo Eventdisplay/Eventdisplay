@@ -41,21 +41,21 @@ void copyDirectory( TDirectory* source, const char* hx = 0, unsigned int i_noise
 bool fCopy_woff_0500 = false;
 
 /*
- * extract noise from file name 
+ * extract noise from file name
  * (is only a second order correction and depends of course on the
  * particular file nameing)
 */
 unsigned int extract_noisefrom_filename( string iFN )
 {
-      unsigned int i_noise = 0;
-
-      if( iFN.find( "noise" ) != string::npos )
-      {
-          size_t i_beg = iFN.find("noise")+5;
-          size_t i_fin = iFN.find("_", i_beg) - i_beg;
-          i_noise = atoi( iFN.substr(i_beg, i_fin).c_str() );
-      }
-      return i_noise;
+    unsigned int i_noise = 0;
+    
+    if( iFN.find( "noise" ) != string::npos )
+    {
+        size_t i_beg = iFN.find( "noise" ) + 5;
+        size_t i_fin = iFN.find( "_", i_beg ) - i_beg;
+        i_noise = atoi( iFN.substr( i_beg, i_fin ).c_str() );
+    }
+    return i_noise;
 }
 
 /*
@@ -98,25 +98,25 @@ string check_for_similar_noise_values( string iTelescopeType, const char* hx, un
             // use file name (should be second choisce only)
             if( noise_from_filename > 0 )
             {
-                  for( unsigned int i = 0; i < fNoiseLevel[iTelescopeType].noiseFileName.size(); i++ )
-                  {
-                      if( (int)noise_from_filename == fNoiseLevel[iTelescopeType].noiseFileName[i] )
-                      {
-                          if( i < fNoiseLevel[iTelescopeType].noise.size() )
-                          {
-                              char hname[200];
-                              sprintf( hname, "NOISE_%05d", fNoiseLevel[iTelescopeType].noise[i] );
-                              iTemp = hname;
-                              cout << "\t found similar noise level for telescope type " << iTelescopeType;
-                              cout << ", save into directory: " << iTemp << "\t" << fNoiseLevel[iTelescopeType].noise[i];
-                              cout << " (" << fNoiseLevel[iTelescopeType].noise.size() << ")" << endl;
-                              cout << "\t using file name for noise level identification: " << iTelescopeType;
-                              cout << ", noise levels: " << i_noise << ", " << fNoiseLevel[iTelescopeType].noise[i];
-                              cout << " (file noise level " << noise_from_filename << ")" << endl;
-                              return iTemp;
-                           }
-                       }
-                   }
+                for( unsigned int i = 0; i < fNoiseLevel[iTelescopeType].noiseFileName.size(); i++ )
+                {
+                    if( ( int )noise_from_filename == fNoiseLevel[iTelescopeType].noiseFileName[i] )
+                    {
+                        if( i < fNoiseLevel[iTelescopeType].noise.size() )
+                        {
+                            char hname[200];
+                            sprintf( hname, "NOISE_%05d", fNoiseLevel[iTelescopeType].noise[i] );
+                            iTemp = hname;
+                            cout << "\t found similar noise level for telescope type " << iTelescopeType;
+                            cout << ", save into directory: " << iTemp << "\t" << fNoiseLevel[iTelescopeType].noise[i];
+                            cout << " (" << fNoiseLevel[iTelescopeType].noise.size() << ")" << endl;
+                            cout << "\t using file name for noise level identification: " << iTelescopeType;
+                            cout << ", noise levels: " << i_noise << ", " << fNoiseLevel[iTelescopeType].noise[i];
+                            cout << " (file noise level " << noise_from_filename << ")" << endl;
+                            return iTemp;
+                        }
+                    }
+                }
             }
             // new noise level for existing telescope type
             fNoiseLevel[iTelescopeType].noise.push_back( i_noise );
@@ -248,11 +248,11 @@ int main( int argc, char* argv[] )
             continue;
         }
         cout << "now reading file " << f << ": " << fInFiles[f] << endl;
-
+        
         unsigned int noise_from_filename = extract_noisefrom_filename( fInFiles[f] );
         if( noise_from_filename > 0 )
         {
-                cout << "\t noise ID from file name: " << noise_from_filename << endl;
+            cout << "\t noise ID from file name: " << noise_from_filename << endl;
         }
         
         //loop on all entries of this directory

@@ -12,7 +12,7 @@ VInstrumentResponseFunction::VInstrumentResponseFunction()
     
     fName = "";
     fType = "";
-
+    
     fOutputFile = 0;
     
     fData = 0;
@@ -122,14 +122,14 @@ bool VInstrumentResponseFunction::initialize( string iName, string iType, unsign
         {
             sprintf( hname, "%s_%d_%d", iName.c_str(), i, j );
             i_irf.push_back( new VInstrumentResponseFunctionData() );
-   	    i_irf.back()->setHistogramLogAngbinning( fRunPara->fLogAngularBin,
-                                                     fRunPara->fhistoAngularBin_min,
-                                                     fRunPara->fhistoAngularBin_max );
-      	    i_irf.back()->setHistogramEbinning( fRunPara->fhistoNEbins,
+            i_irf.back()->setHistogramLogAngbinning( fRunPara->fLogAngularBin,
+                    fRunPara->fhistoAngularBin_min,
+                    fRunPara->fhistoAngularBin_max );
+            i_irf.back()->setHistogramEbinning( fRunPara->fhistoNEbins,
                                                 fRunPara->fhistoNEbins_logTeV_min,
                                                 fRunPara->fhistoNEbins_logTeV_max );
             i_irf.back()->setEnergyReconstructionMethod( fEnergyReconstructionMethod );
-
+            
             if( !i_irf.back()->initialize( hname, iType, iNTel, iMCMaxCoreRadius ) )
             {
                 return false;
@@ -197,9 +197,12 @@ bool VInstrumentResponseFunction::fillEventData()
     for( Long64_t i = 0; i < d_nentries; i++ )
     {
         fData->GetEntry( i );
-
-        VGammaHadronCuts *iAnaCuts = getGammaHadronCuts( fData );
-        if( !iAnaCuts ) continue;
+        
+        VGammaHadronCuts* iAnaCuts = getGammaHadronCuts( fData );
+        if( !iAnaCuts )
+        {
+            continue;
+        }
         
         iAnaCuts->newEvent( false );
         
@@ -304,7 +307,7 @@ bool VInstrumentResponseFunction::fillEventData()
 bool VInstrumentResponseFunction::fillResolutionGraphs( vector< vector< VInstrumentResponseFunctionData* > > iIRFData )
 {
     fIRFData = iIRFData;
-
+    
     if( fOutputFile )
     {
         fOutputFile->cd();
@@ -319,7 +322,7 @@ bool VInstrumentResponseFunction::fillResolutionGraphs( vector< vector< VInstrum
         {
             if( fIRFData[i][j] )
             {
-		fIRFData[i][j]->terminate( fContainmentProbability, fContainmentProbabilityError );
+                fIRFData[i][j]->terminate( fContainmentProbability, fContainmentProbabilityError );
             }
         }
     }
@@ -378,7 +381,7 @@ void VInstrumentResponseFunction::setEnergyReconstructionMethod( unsigned int iM
 void VInstrumentResponseFunction::setCuts( vector< VGammaHadronCuts* > iCuts )
 {
     fAnaCuts = iCuts;
-
+    
     // all cuts should have the same layout (array) properties)
     if( fAnaCuts.size() > 0 && fAnaCuts[0] )
     {
@@ -388,12 +391,12 @@ void VInstrumentResponseFunction::setCuts( vector< VGammaHadronCuts* > iCuts )
             {
                 if( fIRFData[i][j] )
                 {
-                    fIRFData[i][j]->setArrayCentre( fAnaCuts[0]->getArrayCentre_X(), 
+                    fIRFData[i][j]->setArrayCentre( fAnaCuts[0]->getArrayCentre_X(),
                                                     fAnaCuts[0]->getArrayCentre_Y() );
                 }
             }
         }
-   }
+    }
 }
 
 TGraphErrors* VInstrumentResponseFunction::getAngularResolutionGraph( unsigned int iAzBin, unsigned int iSpectralIndexBin )
@@ -451,29 +454,32 @@ void VInstrumentResponseFunction::setDuplicationID( unsigned int iID )
 
 VGammaHadronCuts* VInstrumentResponseFunction::getGammaHadronCuts( CData* c )
 {
-    if( !c ) return 0;
-
-    if( fAnaCuts.size() == 1 ) 
+    if( !c )
+    {
+        return 0;
+    }
+    
+    if( fAnaCuts.size() == 1 )
     {
         return fAnaCuts[0];
     }
     for( unsigned int i = 0; i < fAnaCuts.size(); i++ )
     {
-         if( fAnaCuts[i] && fAnaCuts[i]->useThisCut( c ) )
-         {
-             return fAnaCuts[i];
-         }
+        if( fAnaCuts[i] && fAnaCuts[i]->useThisCut( c ) )
+        {
+            return fAnaCuts[i];
+        }
     }
     return 0;
 }
 
 void VInstrumentResponseFunction::printCutStatistics()
 {
-   for( unsigned int i = 0; i < fAnaCuts.size(); i++ )
-   {
-       if( fAnaCuts[i] ) 
-       {
-           fAnaCuts[i]->printCutStatistics();
-       }
-   }
+    for( unsigned int i = 0; i < fAnaCuts.size(); i++ )
+    {
+        if( fAnaCuts[i] )
+        {
+            fAnaCuts[i]->printCutStatistics();
+        }
+    }
 }

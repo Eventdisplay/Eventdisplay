@@ -164,16 +164,22 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     {
         istringstream is_stream( is_line );
         // simple site name (D+counter)"
-        if( !(is_stream>>std::ws).eof() )
+        if( !( is_stream >> std::ws ).eof() )
         {
             is_stream >> iTemp;
             // ignore lines without '!' in the beginning
-            if( (iTemp == "!" || iTemp == "T") &&  z == iSiteCounter )
+            if( ( iTemp == "!" || iTemp == "T" ) &&  z == iSiteCounter )
             {
-                if(  iTemp == "T" ) iWPPhysTreeFile = true;
+                if( iTemp == "T" )
+                {
+                    iWPPhysTreeFile = true;
+                }
                 break;
             }
-            if( is_line.size() > 0 ) z++;
+            if( is_line.size() > 0 )
+            {
+                z++;
+            }
         }
     }
     if( z != iSiteCounter || is_line.size() == 0 )
@@ -182,14 +188,14 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     }
     cout << "reading from " << iDataList;
     cout << " (line " << iSiteCounter << ")" << endl;
-
+    
     // investigate line and fill site data
     istringstream is_stream( is_line );
     is_stream >> iTemp;
     ostringstream iSN;
     iSN << "D" << iSiteCounter;
     fSiteName = iSN.str();
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         // add direction string
@@ -207,7 +213,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         is_stream >> iTemp;
     }
     // array name
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         fArray.push_back( iTemp );
@@ -217,7 +223,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
         fArray.push_back( "" );
     }
     // observation time
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         fObservationTime_s.push_back( atof( iTemp.c_str() ) );
@@ -226,7 +232,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     {
         fObservationTime_s.push_back( 0. );
     }
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         fCameraOffset_deg.push_back( atof( iTemp.c_str() ) );
@@ -235,7 +241,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     {
         fCameraOffset_deg.push_back( 0. );
     }
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         fSiteFile_Emin.push_back( atof( iTemp.c_str() ) );
@@ -244,7 +250,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     {
         fSiteFile_Emin.push_back( 1.e-5 );
     }
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         fSiteFile_Emax.push_back( atof( iTemp.c_str() ) );
@@ -253,7 +259,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     {
         fSiteFile_Emax.push_back( 1.e5 );
     }
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         fPlottingColor.push_back( atoi( iTemp.c_str() ) );
@@ -262,7 +268,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     {
         fPlottingColor.push_back( 1 );
     }
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         fPlottingLineStyle.push_back( atoi( iTemp.c_str() ) );
@@ -271,7 +277,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     {
         fPlottingLineStyle.push_back( 1 );
     }
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         fPlottingFillStyle.push_back( atoi( iTemp.c_str() ) );
@@ -280,7 +286,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     {
         fPlottingFillStyle.push_back( 1 );
     }
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         fPlottingMarkerStyle.push_back( atoi( iTemp.c_str() ) );
@@ -289,7 +295,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     {
         fPlottingMarkerStyle.push_back( 21 );
     }
-    if( !(is_stream>>std::ws).eof() )
+    if( !( is_stream >> std::ws ).eof() )
     {
         fLegend.push_back( is_stream.str().substr( is_stream.tellg(), is_stream.str().size() ) );
     }
@@ -300,7 +306,7 @@ bool VSiteData::addDataSet( string iDataList, unsigned int iSiteCounter, string 
     // fill up remaining vectors
     fGraphSensitivity.push_back( 0 );
     fGraphSensitivityInterPolated = 0;
-
+    
     if( fDebug )
     {
         cout << "VSiteData::addDataSet: integrity: " << checkIntegrity() << endl;

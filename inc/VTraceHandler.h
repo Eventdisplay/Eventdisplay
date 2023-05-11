@@ -49,7 +49,7 @@ class VTraceHandler
         bool     apply_lowgain( double );
         double   calculateTraceSum_fixedWindow( unsigned int , unsigned int, bool );
         double   calculateTraceSum_slidingWindow( unsigned int iSearchStart, unsigned int iSearchEnd, int iIntegrationWindow, bool fRaw );
-                                      
+        
         void     reset();
         
     public:
@@ -87,9 +87,9 @@ class VTraceHandler
                                     unsigned int iTraceIntegrationMethod = 9999,
                                     bool iForceWindowStart = false,
                                     unsigned int iSlidingWindowLast = 9999 );
-        virtual vector< float >& getPulseTiming( unsigned int fFirst, unsigned int fLast, 
-                                                 unsigned int fTFirst, unsigned int fTLast,
-                                                 bool iReverseSearchinLowGain = false );
+        virtual vector< float >& getPulseTiming( unsigned int fFirst, unsigned int fLast,
+                unsigned int fTFirst, unsigned int fTLast,
+                bool iReverseSearchinLowGain = false );
         virtual bool   getPulseTimingStatus()
         {
             return fFindPulseTiming;

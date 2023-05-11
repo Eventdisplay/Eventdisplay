@@ -199,7 +199,7 @@ void VTableLookupDataHandler::fill()
     }
     
     if( fTLRunParameter->bWriteReconstructedEventsOnly >= 0
-    || fTLRunParameter->bWriteReconstructedEventsOnly == -2 )
+            || fTLRunParameter->bWriteReconstructedEventsOnly == -2 )
     {
         if( isReconstructed() )
         {
@@ -288,13 +288,13 @@ bool VTableLookupDataHandler::getNextEvent( bool bShort )
         // calculate theta2
         if( !fIsMC )
         {
-            ftheta2 = ( fYoff_derot - fWobbleN ) * ( fYoff_derot - fWobbleN ) 
-                    + ( fXoff_derot - fWobbleE ) * ( fXoff_derot - fWobbleE );
+            ftheta2 = ( fYoff_derot - fWobbleN ) * ( fYoff_derot - fWobbleN )
+                      + ( fXoff_derot - fWobbleE ) * ( fXoff_derot - fWobbleE );
         }
         else
         {
             ftheta2 = ( fXoff - fMCxoff ) * ( fXoff - fMCxoff )
-                    + ( fYoff - fMCyoff ) * ( fYoff - fMCyoff );
+                      + ( fYoff - fMCyoff ) * ( fYoff - fMCyoff );
         }
         
         setEventWeightfromMCSpectrum();
@@ -341,7 +341,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     // for table filling: check as soon as possible if the event is useful
     // (also expect that this will not change if stereo reconstruction
     //  is repeated; this is probably not true)
-    if( fwrite && !isReconstructed(true) )
+    if( fwrite && !isReconstructed( true ) )
     {
         fEventStatus = false;
         fEventCounter++;
@@ -355,14 +355,14 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     }
     if( fDeepLearnerpars )
     {
-        // showerpars and deep learner trees should be in 
+        // showerpars and deep learner trees should be in
         // sync; if not; feel default values
         if( !fDeepLearnerpars->GetEntry( fEventCounter ) )
         {
             dl_gammaness = -999.;
             dl_isGamma = false;
         }
-    }   
+    }
     // fill MC parameters
     if( fIsMC )
     {
@@ -582,19 +582,19 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             flength[i] = ftpars[i]->length;
             ftgrad_x[i] = ftpars[i]->tgrad_x;
             if( i < fpointingCorrections.size() && fpointingCorrections[i]
-               && fpointingCorrections[i]->is_initialized() )
+                    && fpointingCorrections[i]->is_initialized() )
             {
-                 fpointingCorrections[i]->getEntry( fEventCounter );
-                 fcen_x[i] = fpointingCorrections[i]->getCorrected_cen_x( ftpars[i]->cen_x );
-                 fcen_y[i] = fpointingCorrections[i]->getCorrected_cen_y( ftpars[i]->cen_y );
-                 float phi = fpointingCorrections[i]->getCorrected_phi( 
-                                                      ftpars[i]->cen_x,
-                                                      ftpars[i]->cen_y,
-                                                      ftpars[i]->f_d,
-                                                      ftpars[i]->f_s,
-                                                      ftpars[i]->f_sdevxy );
-                 fcosphi[i] = cos( phi );
-                 fsinphi[i] = sin( phi );
+                fpointingCorrections[i]->getEntry( fEventCounter );
+                fcen_x[i] = fpointingCorrections[i]->getCorrected_cen_x( ftpars[i]->cen_x );
+                fcen_y[i] = fpointingCorrections[i]->getCorrected_cen_y( ftpars[i]->cen_y );
+                float phi = fpointingCorrections[i]->getCorrected_phi(
+                                ftpars[i]->cen_x,
+                                ftpars[i]->cen_y,
+                                ftpars[i]->f_d,
+                                ftpars[i]->f_s,
+                                ftpars[i]->f_sdevxy );
+                fcosphi[i] = cos( phi );
+                fsinphi[i] = sin( phi );
             }
             else
             {
@@ -625,7 +625,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
                     PixelIntensity[i_pix_id] = ftpars[i]->PixelIntensity[p];
                     PixelTimingT0[i_pix_id] = ftpars[i]->PixelTimingT0[p];
                     PixelPE[i_pix_id] = ftpars[i]->PixelPE[p];
-                } 
+                }
                 i_pixel_id0 += PixelListN[ii];
                 ii++;
             }
@@ -704,7 +704,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
         fEmissionHeightChi2 = 1.e-10;
         fNTelPairs = 0;
     }
-        
+    
     
     //////////////////////////////////////////////////////////
     // !!! SPECIAL AND EXPERT USAGE ONLY !!!
@@ -725,7 +725,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     if( fDispAnalyzerCore )
     {
         fDispAnalyzerCore->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
-                                           fTLRunParameter->fmaxdist, 
+                                           fTLRunParameter->fmaxdist,
                                            fTLRunParameter->fmaxloss,
                                            fTLRunParameter->fminfui,
                                            fmaxdist_qc );
@@ -765,7 +765,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     if( fDispAnalyzerEnergy )
     {
         fDispAnalyzerEnergy->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
-                                             fTLRunParameter->fmaxdist, 
+                                             fTLRunParameter->fmaxdist,
                                              fTLRunParameter->fmaxloss,
                                              fTLRunParameter->fminfui,
                                              fmaxdist_qc );
@@ -785,7 +785,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fEmissionHeightMean,
             fMCEnergy,
             ffui );
-
+            
         // fill results
         setEnergy( fDispAnalyzerEnergy->getEnergy(),
                    fDispAnalyzerEnergy->getEnergyChi2(),
@@ -841,7 +841,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
     // DISP method for updated disp reconstruction
     ////////////////////////////////////////////////////////////////////
     if( fDispAnalyzerDirection
-        && fNImages <= ( int )fTLRunParameter->fRerunStereoReconstruction_BDTNImages_max )
+            && fNImages <= ( int )fTLRunParameter->fRerunStereoReconstruction_BDTNImages_max )
     {
     
         vector< float > iDispError( getNTel(), -9999. );
@@ -876,7 +876,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
         fDispAnalyzerDirection->setDispErrorWeighting( fDispAnalyzerDirectionError != 0,
                 fTLRunParameter->fDispError_BDTWeight );
         fDispAnalyzerDirection->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
-                                                fTLRunParameter->fmaxdist, 
+                                                fTLRunParameter->fmaxdist,
                                                 fTLRunParameter->fmaxloss,
                                                 fTLRunParameter->fminfui,
                                                 fmaxdist_qc );
@@ -896,7 +896,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
         // reconstructed direction by disp method:
         fXoff = fDispAnalyzerDirection->getXcoordinate_disp();
         fYoff = fDispAnalyzerDirection->getYcoordinate_disp();
-            
+        
         // dispersion of disp values
         fDispDiff = fDispAnalyzerDirection->getDispDiff();
         fimg2_ang = fDispAnalyzerDirection->getAngDiff();
@@ -939,10 +939,10 @@ void VTableLookupDataHandler::doStereoReconstruction()
     // derotate coordinates
     else
     {
-         fXoff_derot = fXoff * cos( fArrayPointing_RotationAngle ) 
-                     - fYoff * sin( fArrayPointing_RotationAngle );
-         fYoff_derot = fYoff * cos( fArrayPointing_RotationAngle )
-                     + fXoff * sin( fArrayPointing_RotationAngle );
+        fXoff_derot = fXoff * cos( fArrayPointing_RotationAngle )
+                      - fYoff * sin( fArrayPointing_RotationAngle );
+        fYoff_derot = fYoff * cos( fArrayPointing_RotationAngle )
+                      + fXoff * sin( fArrayPointing_RotationAngle );
     }
     fZe    = i_SR.fShower_Ze;
     fAz    = i_SR.fShower_Az;
@@ -1321,10 +1321,10 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
     // get individual image parameter trees
     for( unsigned int i = 0; i < fNTel; i++ )
     {
-        TChain *iT = new TChain( "tpars" );
-        sprintf( iName, "pointing_%u", i+1 );
+        TChain* iT = new TChain( "tpars" );
+        sprintf( iName, "pointing_%u", i + 1 );
         // pointing correction chain
-        TChain *iPC = new TChain( iName );
+        TChain* iPC = new TChain( iName );
         for( unsigned int f = 0; f < finputfile.size(); f++ )
         {
             sprintf( iDir, "%s/Tel_%u/tpars", finputfile[f].c_str(), i + 1 );
@@ -1746,18 +1746,18 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
         sprintf( iTT, "tchisq_x[%d]/D", fNTel );
         fOTree->Branch( "tchisq_x", ftchisq_x, iTT );
     }
-//    if( fTreeWithParameterErrors )
+    //    if( fTreeWithParameterErrors )
     {
-       sprintf( iTT, "dcen_x[%d]/D", fNTel );
-       fOTree->Branch( "dcen_x", fdcen_x, iTT );
-       sprintf( iTT, "dcen_y[%d]/D", fNTel );
-       fOTree->Branch( "dcen_y", fdcen_y, iTT );
-       sprintf( iTT, "dlength[%d]/D", fNTel );
-       fOTree->Branch( "dlength", fdlength, iTT );
-       sprintf( iTT, "dwidth[%d]/D", fNTel );
-       fOTree->Branch( "dwidth", fdwidth, iTT );
-       sprintf( iTT, "dphi[%d]/D", fNTel );
-       fOTree->Branch( "dphi", fdphi, iTT );
+        sprintf( iTT, "dcen_x[%d]/D", fNTel );
+        fOTree->Branch( "dcen_x", fdcen_x, iTT );
+        sprintf( iTT, "dcen_y[%d]/D", fNTel );
+        fOTree->Branch( "dcen_y", fdcen_y, iTT );
+        sprintf( iTT, "dlength[%d]/D", fNTel );
+        fOTree->Branch( "dlength", fdlength, iTT );
+        sprintf( iTT, "dwidth[%d]/D", fNTel );
+        fOTree->Branch( "dwidth", fdwidth, iTT );
+        sprintf( iTT, "dphi[%d]/D", fNTel );
+        fOTree->Branch( "dphi", fdphi, iTT );
     }
     fOTree->Branch( "DispNImages", &fnxyoff, "DispNImages/i" );
     fOTree->Branch( "DispXoff_T", fXoff_T, "DispXoff_T[NImages]/F" );
@@ -1892,7 +1892,7 @@ bool VTableLookupDataHandler::readRunParameter()
             VMonteCarloRunHeader* iMC = ( VMonteCarloRunHeader* )ifInput.Get( "MC_runheader" );
             if( iMC )
             {
-                 fTLRunParameter->ze = iMC->getMeanZenithAngle_Deg();
+                fTLRunParameter->ze = iMC->getMeanZenithAngle_Deg();
             }
             if( iPar )
             {
@@ -1928,14 +1928,14 @@ bool VTableLookupDataHandler::readRunParameter()
                     // (might have been changed since the evndisp analysis)
                     if( fTLRunParameter->fUpdateInstrumentEpoch )
                     {
-                         cout << "Evaluating instrument epoch (";
-                         cout << "was: " << iPar->getInstrumentEpoch( false );
-                         cout << ", is: " << iPar->getInstrumentEpoch( false, true );
-                         cout << ")" << endl;
-                         cout << "Evaluating atmosphere ID (";
-                         cout << "was: " << iPar->getAtmosphereID( false );
-                         cout << ", is: " << iPar->getAtmosphereID( true );
-                         cout << ")" << endl;
+                        cout << "Evaluating instrument epoch (";
+                        cout << "was: " << iPar->getInstrumentEpoch( false );
+                        cout << ", is: " << iPar->getInstrumentEpoch( false, true );
+                        cout << ")" << endl;
+                        cout << "Evaluating atmosphere ID (";
+                        cout << "was: " << iPar->getAtmosphereID( false );
+                        cout << ", is: " << iPar->getAtmosphereID( true );
+                        cout << ")" << endl;
                     }
                     iPar->Write();
                 }
@@ -2069,7 +2069,7 @@ bool VTableLookupDataHandler::terminate( TNamed* iM )
         }
         
         // copy MC tree
-        // (not default, as this is a large tree with 
+        // (not default, as this is a large tree with
         // 1 entry per simulated event)
         if( fIsMC )
         {
@@ -2083,13 +2083,13 @@ bool VTableLookupDataHandler::terminate( TNamed* iM )
         // try and copy a deep learning tree
         // (usually not there)
         // copyTree_from_evndispFile( "data_DL" );
-
+        
         
         ///////////////////////////////////////////////////////////////////////////
         // copy TTree 'pointingDataReduced' and 'deadPixelRegistry' from evndisp.<>.root to mscw.<>.root
         if( finputfile.size() > 1 && !fIsMC )
         {
-			cout << "Warning, VTableLookupDataHandler->finputfile.size() isn't 1, not sure which input file to copy TTree 'pointingDataReduced' from, copying from file finputfile[0]:" << finputfile[0] << endl;
+            cout << "Warning, VTableLookupDataHandler->finputfile.size() isn't 1, not sure which input file to copy TTree 'pointingDataReduced' from, copying from file finputfile[0]:" << finputfile[0] << endl;
         }
         // not sure why we don't want to do this for MC
         if( finputfile.size() > 0 && !fIsMC )
@@ -2349,7 +2349,7 @@ void VTableLookupDataHandler::copyMCHistograms()
                         }
                         if( iMC_his_temp )
                         {
-                                iMC_his->add( iMC_his_temp );
+                            iMC_his->add( iMC_his_temp );
                         }
                     }
                     ifInput->Close();
@@ -2423,7 +2423,7 @@ void VTableLookupDataHandler::reset()
         {
             PixelListN[i] = 0;
         }
-
+        
     }
     PixelListNPixelNN = 0;
     fnxyoff = 0;
@@ -2555,15 +2555,18 @@ void VTableLookupDataHandler::resetImageParameters( unsigned int i )
 bool VTableLookupDataHandler::isReconstructed( bool iEventCounters )
 {
     // use MC parameters for table filling
-    if( fTLRunParameter->fTableFilling_useStereoMCParameter 
-       && fNImages >= ( int )fTLRunParameter->fTableFillingCut_NImages_min )
+    if( fTLRunParameter->fTableFilling_useStereoMCParameter
+            && fNImages >= ( int )fTLRunParameter->fTableFillingCut_NImages_min )
     {
         return true;
     }
     // require successful reconstruction
     if( fchi2 < 0 && fNImages < ( int )fTLRunParameter->fTableFillingCut_NImages_min )
     {
-        if( iEventCounters ) fNStats_Chi2Cut++;
+        if( iEventCounters )
+        {
+            fNStats_Chi2Cut++;
+        }
         return false;
     }
     // require stereo events with the given multiplicity
@@ -2572,7 +2575,10 @@ bool VTableLookupDataHandler::isReconstructed( bool iEventCounters )
     //  can be removed)
     if( fNImages < ( int )fTLRunParameter->fTableFillingCut_NImages_min )
     {
-        if( iEventCounters ) fNStats_NImagesCut++;
+        if( iEventCounters )
+        {
+            fNStats_NImagesCut++;
+        }
         return false;
     }
     

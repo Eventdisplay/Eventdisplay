@@ -157,11 +157,11 @@ map< ULong64_t, float > readCameraScalingMap( string iFile )
         {
             istringstream is_stream( iLine );
             is_stream >> iT1;
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> iT1;
                 ULong64_t teltype = atoi( iT1.c_str() );
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iT1;
                     iCameraScalingMap[teltype] = atof( iT1.c_str() );
@@ -387,7 +387,7 @@ bool read_trigger_mask( string trg_mask_file )
     {
         cout << "read_trigger_mask(): error, cannot open trigger mask file: " << endl;
         cout << "\t" << trg_mask_file << endl;
-        free(tms);
+        free( tms );
         return false;
     }
     
@@ -495,8 +495,8 @@ bool DST_fillMCEvent( VDSTTree* fData, AllHessData* hsdata )
     double i_tel_az = hsdata->run_header.direction[0] * TMath::RadToDeg();
     double j_x, j_y = 0.;
     int j_j = 0;
-    VAstronometry::vlaDs2tp( fData->fDSTaz *TMath::DegToRad(), (90.-fData->fDSTze)*TMath::DegToRad(),
-                             i_tel_az * TMath::DegToRad(), i_tel_el * TMath::DegToRad(), 
+    VAstronometry::vlaDs2tp( fData->fDSTaz * TMath::DegToRad(), ( 90. - fData->fDSTze )*TMath::DegToRad(),
+                             i_tel_az * TMath::DegToRad(), i_tel_el * TMath::DegToRad(),
                              &j_x, &j_y, &j_j );
     fData->fDSTTel_xoff = j_x * TMath::RadToDeg();
     fData->fDSTTel_yoff = -1.*j_y * TMath::RadToDeg();
@@ -785,7 +785,7 @@ bool DST_fillEvent( VDSTTree* fData, AllHessData* hsdata, map< unsigned int, VDS
                     // (simply check if HI_GAIN is above certain value)
                     if( i_lowGainSwitch > 0
                             && hsdata->event.teldata[telID].raw->num_gains == 2
-                            && hsdata->event.teldata[telID].raw->adc_known[LO_GAIN][p] != 0 
+                            && hsdata->event.teldata[telID].raw->adc_known[LO_GAIN][p] != 0
                             && hsdata->event.teldata[telID].raw->adc_sample && hsdata->event.teldata[telID].raw->adc_sample[LO_GAIN] )
                     {
                         for( int t = 0; t < hsdata->event.teldata[telID].raw->num_samples; t++ )
@@ -879,34 +879,34 @@ bool DST_fillEvent( VDSTTree* fData, AllHessData* hsdata, map< unsigned int, VDS
                         }
                     }
                 }
-                                // fill characteristic trigger time in pulse timing level vector after all entries before:
-                                if( getPulseTimingLevels().size() < fData->getDSTpulsetiminglevelsN() )
-                                {
-                                        unsigned int iTriggerTimeIndex = getPulseTimingLevels().size();
-                                        fData->fDSTpulsetiminglevels[i_ntel_data][iTriggerTimeIndex] = -1.;
-                                        // read timing from trigger timing (for ASTRI - prod4)
-                                        if( hsdata->event.teldata[telID].pixeltrg_time.known 
-                                            && hsdata->event.teldata[telID].pixeltrg_time.num_times > 0 )
-                                        {
-                                              bool b_PixTimeFound = false;
-                                              // current pixel is p - search for it in list
-                                              for( int ip = 0; ip < hsdata->event.teldata[telID].pixeltrg_time.num_times; ip++ )
-                                              {
-                                                   if( hsdata->event.teldata[telID].pixeltrg_time.pixel_list[ip] == p )
-                                                   {
-                                                        fData->fDSTpulsetiming[i_ntel_data][iTriggerTimeIndex][p] = hsdata->event.teldata[telID].pixeltrg_time.pixel_time[ip];
-                                                        fData->fDSTpulsetiming[i_ntel_data][iTriggerTimeIndex][p] *= hsdata->event.teldata[telID].pixeltrg_time.time_step;
-                                                        b_PixTimeFound = true;
-                                                        break;
-                                                   }
-                                              }
-                                              if( !b_PixTimeFound )
-                                              {
-                                                   fData->fDSTpulsetiming[i_ntel_data][iTriggerTimeIndex][p] = -999.;
-                                              }
-                                        } 
-                                  }
-
+                // fill characteristic trigger time in pulse timing level vector after all entries before:
+                if( getPulseTimingLevels().size() < fData->getDSTpulsetiminglevelsN() )
+                {
+                    unsigned int iTriggerTimeIndex = getPulseTimingLevels().size();
+                    fData->fDSTpulsetiminglevels[i_ntel_data][iTriggerTimeIndex] = -1.;
+                    // read timing from trigger timing (for ASTRI - prod4)
+                    if( hsdata->event.teldata[telID].pixeltrg_time.known
+                            && hsdata->event.teldata[telID].pixeltrg_time.num_times > 0 )
+                    {
+                        bool b_PixTimeFound = false;
+                        // current pixel is p - search for it in list
+                        for( int ip = 0; ip < hsdata->event.teldata[telID].pixeltrg_time.num_times; ip++ )
+                        {
+                            if( hsdata->event.teldata[telID].pixeltrg_time.pixel_list[ip] == p )
+                            {
+                                fData->fDSTpulsetiming[i_ntel_data][iTriggerTimeIndex][p] = hsdata->event.teldata[telID].pixeltrg_time.pixel_time[ip];
+                                fData->fDSTpulsetiming[i_ntel_data][iTriggerTimeIndex][p] *= hsdata->event.teldata[telID].pixeltrg_time.time_step;
+                                b_PixTimeFound = true;
+                                break;
+                            }
+                        }
+                        if( !b_PixTimeFound )
+                        {
+                            fData->fDSTpulsetiming[i_ntel_data][iTriggerTimeIndex][p] = -999.;
+                        }
+                    }
+                }
+                
             }
             /////////////////////////////
             // fill QADC results
@@ -979,8 +979,8 @@ bool DST_fillEvent( VDSTTree* fData, AllHessData* hsdata, map< unsigned int, VDS
     }
     double j_x, j_y = 0.;
     int j_j = 0;
-    VAstronometry::vlaDs2tp( fData->fDSTaz *TMath::DegToRad(), (90.-fData->fDSTze)*TMath::DegToRad(),
-                             i_tel_az * TMath::DegToRad(), i_tel_el * TMath::DegToRad(), 
+    VAstronometry::vlaDs2tp( fData->fDSTaz * TMath::DegToRad(), ( 90. - fData->fDSTze )*TMath::DegToRad(),
+                             i_tel_az * TMath::DegToRad(), i_tel_el * TMath::DegToRad(),
                              &j_x, &j_y, &j_j );
     fData->fDSTTel_xoff = j_x * TMath::RadToDeg();;
     fData->fDSTTel_yoff = -1.*j_y * TMath::RadToDeg();;
@@ -1115,7 +1115,7 @@ TList* DST_fillCalibrationTree( VDSTTree* fData, AllHessData* hsdata,
             cout << "\t filling calibration values for Telescope: " << itel << "\t" << fTelID;
             if( telescope_list[fTelID].TelescopeName.size() > 0 )
             {
-                 cout << "\t" << telescope_list[fTelID].TelescopeName;
+                cout << "\t" << telescope_list[fTelID].TelescopeName;
             }
             cout << " (FOV " << telescope_list[fTelID].FOV << " deg,";
             cout << " dynamic range: " << telescope_list[fTelID].DynamicRange;
@@ -1351,7 +1351,7 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
     float fTelypos = 0.;
     float fTelzpos = 0.;
     float fFocalLength = 0.;
-	float fEffectiveFocalLength = 0.;
+    float fEffectiveFocalLength = 0.;
     float fCameraScaleFactor = 1.;
     float fCameraCentreOffset = 0.;
     float fCameraRotation = 0.;
@@ -1402,7 +1402,7 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
     fTreeDet->Branch( "TelY", &fTelypos, "TelY/F" );
     fTreeDet->Branch( "TelZ", &fTelzpos, "TelZ/F" );
     fTreeDet->Branch( "FocalLength", &fFocalLength, "FocalLength/F" );
-	fTreeDet->Branch( "EffectiveFocalLength", &fEffectiveFocalLength, "EffectiveFocalLength/F" );
+    fTreeDet->Branch( "EffectiveFocalLength", &fEffectiveFocalLength, "EffectiveFocalLength/F" );
     fTreeDet->Branch( "FOV", &fFOV, "FOV/F" );
     fTreeDet->Branch( "CameraScaleFactor", &fCameraScaleFactor, "CameraScaleFactor/F" );
     fTreeDet->Branch( "CameraCentreOffset", &fCameraCentreOffset, "CameraCentreOffset/F" );
@@ -1458,7 +1458,7 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
             // effective focal length (set only from prod4 on)
             if( hsdata->camera_set[itel].eff_flen > 0. )
             {
-                 fEffectiveFocalLength = hsdata->camera_set[itel].eff_flen;
+                fEffectiveFocalLength = hsdata->camera_set[itel].eff_flen;
             }
             if( telescope_list[fTelID].DynamicRange > 0 )
             {
@@ -1582,7 +1582,7 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
             // telescope name
             if( telescope_list.size() == 0 || telescope_list[fTelID].TelescopeName.size() == 0 )
             {
-                sprintf( fTelescopeName, "Tel-%d", fTelID+1 );
+                sprintf( fTelescopeName, "Tel-%d", fTelID + 1 );
             }
             else
             {
@@ -1604,23 +1604,23 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
             {
                 fTelescope_type += 200000000;
             }
-            // Keep telescope IDs constant between prod3 and prod4 - 
+            // Keep telescope IDs constant between prod3 and prod4 -
             // despite changing parameters.
-
+            
             // ASTRI
-            if (fTelescope_type == 201411619)
+            if( fTelescope_type == 201411619 )
             {
                 fTelescope_type += 100000;
             }
-
+            
             // TMP Prod4 fix for MSTs
-            if (fTelescope_type == 10608618)
+            if( fTelescope_type == 10608618 )
             {
                 fTelescope_type = 10408618;
             }
             // (end of tmp)
             
-
+            
             fTelescopeType[itel] = fTelescope_type;
             fTelescopeTypeList.insert( fTelescope_type );
             
@@ -1629,7 +1629,7 @@ TTree* DST_fill_detectorTree( AllHessData* hsdata, map< unsigned int, VDSTTelesc
             fCameraScaleFactor = 1.;
             if( fEffectiveFocalLength > 0. )
             {
-                 fCameraScaleFactor = fFocalLength / fEffectiveFocalLength;
+                fCameraScaleFactor = fFocalLength / fEffectiveFocalLength;
             }
             // scaling factor given from external file?
             else if( iCameraScalingMap.find( fTelescope_type ) != iCameraScalingMap.end() )

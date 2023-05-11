@@ -86,7 +86,7 @@ class VSensitivityTree
         vector< string > fVarName;
         vector< float* > fVar;
         vector< float* > fVarError;
-
+        
         static const int fN2DBins = 10000000;
         vector< unsigned int > fVar2DNbins;
         vector< unsigned int > fVar2DNbinsx;
@@ -102,8 +102,8 @@ class VSensitivityTree
     
         VSensitivityTree();
         ~VSensitivityTree() {}
-        bool fillEvent( string iSite, 
-                        string iSubArrayName, 
+        bool fillEvent( string iSite,
+                        string iSubArrayName,
                         int iObservingTime_s,
                         int iTelMultiplicity,
                         int iTelMultiplicityLST,
@@ -137,7 +137,7 @@ VSensitivityTree::VSensitivityTree()
     fPointingDirection = "_0deg";
     
     // variable name
-    // --> correspond to file names in 
+    // --> correspond to file names in
     //     sensitivity files
     // --> correspond to branch names in
     //     output tree
@@ -166,7 +166,7 @@ VSensitivityTree::VSensitivityTree()
         fVar.push_back( new float[fNEnergyBins] );
         fVarError.push_back( new float[fNEnergyBins] );
     }
-
+    
     // TH3F histgrams
     // (tricky, as variable binning: assuming
     //  a huge value)
@@ -235,7 +235,7 @@ void VSensitivityTree::reset()
  *
  */
 bool VSensitivityTree::fillEvent( string iSite,
-                                  string iSubArrayName, 
+                                  string iSubArrayName,
                                   int iObservingTime_s,
                                   int iTelMultiplicity,
                                   int iTelMultiplicityLST,
@@ -248,7 +248,7 @@ bool VSensitivityTree::fillEvent( string iSite,
     // directories and file names
     //string iDataDirectory = "$CTA_USER_DATA_DIR/analysis/AnalysisData/" + iSite;
     string iDataDirectory = "/lustre/fs22/group/cta/users/maierg/analysis/AnalysisData/" + iSite;
-
+    
     ////////////////////////////////////////////////////////////////////
     // open WP Phys file - return if not available
     //
@@ -265,26 +265,26 @@ bool VSensitivityTree::fillEvent( string iSite,
     string iWPPhysFile = iWPPhysFile_st.str();
     ostringstream iObservingTime;
     iObservingTime << iObservingTime_s << "s";
-
+    
     ostringstream iWFile;
     // iWFile << iWPPhysDirectory << "-NIM" << iTelMultiplicity << "/";
     iWFile << iWPPhysDirectory << "/";
     iWFile << iWPPhysFile;
     iWFile << iSubArrayName << "." << iObservingTime.str();
     iWFile << ".root";
-
+    
     cout << "reading IRFs from " << iWFile.str() << endl;
-
+    
     // test if root file exists
     // (prevents printout of root errors / warnings)
-    FILE *test_file = fopen(iWFile.str().c_str(), "r");
+    FILE* test_file = fopen( iWFile.str().c_str(), "r" );
     if( !test_file )
     {
-         cout << "File not found: " << iWFile.str() << endl;
-         return false;
+        cout << "File not found: " << iWFile.str() << endl;
+        return false;
     }
-    fclose(test_file);
-
+    fclose( test_file );
+    
     // open IRF file
     TFile iP( iWFile.str().c_str() );
     if( iP.IsZombie() )
@@ -292,7 +292,7 @@ bool VSensitivityTree::fillEvent( string iSite,
         cout << "File oppening error: " << iWFile.str() << endl;
         return false;
     }
-
+    
     /////////////////////////////////////////////////////
     // get telconfig
     
@@ -315,7 +315,7 @@ bool VSensitivityTree::fillEvent( string iSite,
     cout << iMSCWDirectory_st.str() << endl;
     cout << iMSCWFile_st.str() << endl;
     cout << iWPPhysFile << endl;
-
+    
     reset();
     
     // array name & ID
@@ -362,7 +362,7 @@ bool VSensitivityTree::fillEvent( string iSite,
     for( int i = 0; i < t->GetEntries(); i++ )
     {
         t->GetEntry( i );
-
+        
         // LSTs (Type 0: 23m-LSTs)
         if( iTelType == 138704810 )
         {
@@ -450,10 +450,10 @@ bool VSensitivityTree::fillEvent( string iSite,
                 {
                     continue;
                 }
-                i_dist  = ( fTelescopeData[i][j]->fTel_x - fTelescopeData[i][k]->fTel_x ) 
-                        * ( fTelescopeData[i][j]->fTel_x - fTelescopeData[i][k]->fTel_x );
+                i_dist  = ( fTelescopeData[i][j]->fTel_x - fTelescopeData[i][k]->fTel_x )
+                          * ( fTelescopeData[i][j]->fTel_x - fTelescopeData[i][k]->fTel_x );
                 i_dist += ( fTelescopeData[i][j]->fTel_y - fTelescopeData[i][k]->fTel_y )
-                        * ( fTelescopeData[i][j]->fTel_y - fTelescopeData[i][k]->fTel_y );
+                          * ( fTelescopeData[i][j]->fTel_y - fTelescopeData[i][k]->fTel_y );
                 i_dist  = sqrt( i_dist );
                 if( i_dist < i_min )
                 {
@@ -477,7 +477,7 @@ bool VSensitivityTree::fillEvent( string iSite,
             if( iTelescopeDistances.size() % 2 == 0 )
             {
                 fMedianTelescopeDistance[i] = 0.5 * ( iTelescopeDistances[iTelescopeDistances.size() / 2 - 1 ]
-                                                    + iTelescopeDistances[iTelescopeDistances.size() / 2] );
+                                                      + iTelescopeDistances[iTelescopeDistances.size() / 2] );
             }
             else
             {
@@ -492,7 +492,7 @@ bool VSensitivityTree::fillEvent( string iSite,
     
     ////////////////////////////////////////////////
     // read sensitivities
-
+    
     fObservingTime_s = iObservingTime_s;
     fTelMult = iTelMultiplicity;
     fTelMultLST = iTelMultiplicityLST;
@@ -537,7 +537,7 @@ bool VSensitivityTree::fillEvent( string iSite,
     }
     for( unsigned int i = 0; i < fVar2DName.size(); i++ )
     {
-        TH2F *h2 = ( TH2F* )iP.Get( fVar2DName[i].c_str() );
+        TH2F* h2 = ( TH2F* )iP.Get( fVar2DName[i].c_str() );
         if( !h2 )
         {
             cout << "error finding histogram " << fVar2DName[i] << endl;
@@ -550,16 +550,16 @@ bool VSensitivityTree::fillEvent( string iSite,
         fVar2DNbins[i] = fVar2DNbinsx[i] * fVar2DNbinsy[i];
         for( unsigned int e1 = 0; e1 < fVar2DNbinsx[i]; e1++ )
         {
-            fVar2DXaxis[i][e1] = h2->GetXaxis()->GetBinCenter( e1+1 );
+            fVar2DXaxis[i][e1] = h2->GetXaxis()->GetBinCenter( e1 + 1 );
             for( unsigned int e2 = 0; e2 < fVar2DNbinsy[i]; e2++ )
             {
-                fVar2DYaxis[i][e2] = h2->GetYaxis()->GetBinCenter( e2+1 );
-
-                fVar2D[i][e1+e2*fVar2DNbinsx[i]] = h2->GetBinContent( e1+1, e2+1 );
+                fVar2DYaxis[i][e2] = h2->GetYaxis()->GetBinCenter( e2 + 1 );
+                
+                fVar2D[i][e1 + e2 * fVar2DNbinsx[i]] = h2->GetBinContent( e1 + 1, e2 + 1 );
             }
         }
     }
-
+    
     // fill results
     fDataTree->Fill();
     
@@ -590,7 +590,7 @@ bool VSensitivityTree::fillEvent( string iSite,
             for( unsigned int i = 0; i < fVar2DName.size(); i++ )
             {
                 string iHName = fVar2DName[i] + "_offaxis";
-                TH3F *h2 = ( TH3F* )iP.Get( iHName.c_str() );
+                TH3F* h2 = ( TH3F* )iP.Get( iHName.c_str() );
                 if( !h2 )
                 {
                     cout << "error finding histogram " << fVar2DName[i] << endl;
@@ -603,12 +603,12 @@ bool VSensitivityTree::fillEvent( string iSite,
                 fVar2DNbins[i] = fVar2DNbinsx[i] * fVar2DNbinsy[i];
                 for( unsigned int e1 = 0; e1 < fVar2DNbinsx[i]; e1++ )
                 {
-                    fVar2DXaxis[i][e1] = h2->GetXaxis()->GetBinCenter( e1+1 );
+                    fVar2DXaxis[i][e1] = h2->GetXaxis()->GetBinCenter( e1 + 1 );
                     for( unsigned int e2 = 0; e2 < fVar2DNbinsy[i]; e2++ )
                     {
-                        fVar2DYaxis[i][e2] = h2->GetYaxis()->GetBinCenter( e2+1 );
-
-                        fVar2D[i][e1+e2*fVar2DNbinsx[i]] = h2->GetBinContent( e1+1, e2+1, w );
+                        fVar2DYaxis[i][e2] = h2->GetYaxis()->GetBinCenter( e2 + 1 );
+                        
+                        fVar2D[i][e1 + e2 * fVar2DNbinsx[i]] = h2->GetBinContent( e1 + 1, e2 + 1, w );
                     }
                 }
             }
@@ -643,7 +643,7 @@ bool VSensitivityTree::initialize( string iOutputFileName, string iName )
     fDataTree = new TTree( "IRFData", iName.c_str() );
     
     fDataTree->Branch( "Array", &fArray, "Array/C" );
-
+    
     // telescope positions
     fDataTree->Branch( "NTel", &fNTel, "NTel/I" );
     sprintf( hname, "NTelType[%d]", fNumTelTypes );
@@ -666,7 +666,7 @@ bool VSensitivityTree::initialize( string iOutputFileName, string iName )
     // observational details
     fDataTree->Branch( "ObsTime_s", &fObservingTime_s, "ObsTime_s/I" );
     fDataTree->Branch( "Offset_deg", &fOffset_deg, "Offset_deg/F" );
-    // IRFs 
+    // IRFs
     sprintf( hname, "Energy_logTeV[%d]", fNEnergyBins );
     sprintf( htitle, "Energy_logTeV[%d]/F", fNEnergyBins );
     fDataTree->Branch( hname, fEnergy_logTeV, htitle );
@@ -686,23 +686,23 @@ bool VSensitivityTree::initialize( string iOutputFileName, string iName )
         sprintf( hname, "Nbins_%s", fVar2DName[i].c_str() );
         sprintf( htitle, "Nbins_%s/i", fVar2DName[i].c_str() );
         fDataTree->Branch( hname, &fVar2DNbins[i], htitle );
-
+        
         sprintf( hname, "Nbins_%s_x", fVar2DName[i].c_str() );
         sprintf( htitle, "Nbins_%s_x/i", fVar2DName[i].c_str() );
         fDataTree->Branch( hname, &fVar2DNbinsx[i], htitle );
-
+        
         sprintf( hname, "Axis_%s_x[Nbins_%s_x]", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
         sprintf( htitle, "Axis_%s_x[Nbins_%s_x]/F", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
         fDataTree->Branch( hname, fVar2DXaxis[i], htitle );
-
+        
         sprintf( hname, "Nbins_%s_y", fVar2DName[i].c_str() );
         sprintf( htitle, "Nbins_%s_y/i", fVar2DName[i].c_str() );
         fDataTree->Branch( hname, &fVar2DNbinsy[i], htitle );
-
+        
         sprintf( hname, "Axis_%s_y[Nbins_%s_y]", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
         sprintf( htitle, "Axis_%s_y[Nbins_%s_y]/F", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
         fDataTree->Branch( hname, fVar2DYaxis[i], htitle );
-
+        
         sprintf( hname, "%s[Nbins_%s]", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
         sprintf( htitle, "%s[Nbins_%s]/F", fVar2DName[i].c_str(), fVar2DName[i].c_str() );
         fDataTree->Branch( hname, fVar2D[i], htitle );
@@ -801,7 +801,7 @@ int main( int argc, char* argv[] )
     is.close();
     
     cout << "total number of subarrays: " << fSubArray.size() << endl;
-
+    
     /////////////////////////////////////////
     // initialize and fill data tree
     
@@ -816,7 +816,7 @@ int main( int argc, char* argv[] )
     vector< int > iObservingTimeVector;
     iObservingTimeVector.push_back( 180000 );
     iObservingTimeVector.push_back( 1800 );
-
+    
     // hardwired telescope multiplicity
     //
     // (LST multiplicity is overwritten below)
@@ -837,7 +837,7 @@ int main( int argc, char* argv[] )
     // (SCMST multiplicity is overwritten below)
     vector< int > iTelMultiplicitySCMST;
     iTelMultiplicitySCMST.push_back( 3 );
-
+    
     /////////////////////////////////////////////////////////
     // fill events for complete parameter space
     // array loop
@@ -858,17 +858,17 @@ int main( int argc, char* argv[] )
                             // TMPTMPTMP
                             // (requires NMSTs == NSSTs)
                             // if( iTelMultiplicityMST[m] != iTelMultiplicitySST[s] ) continue;
-
+                            
                             // TMPTMPTMP
                             iTelMultiplicityLST[l] = std::min( iTelMultiplicityMST[m], iTelMultiplicitySST[s] );
                             iTelMultiplicitySCMST[c] = std::min( iTelMultiplicityMST[m], iTelMultiplicitySST[s] );
                             // TMPTMPTMP
-
-                            unsigned int iTelMultiplicity = 
-                                        std::min( iTelMultiplicityLST[l], 
-                                                std::min( iTelMultiplicityMST[m],
-                                                std::min( iTelMultiplicitySST[s], iTelMultiplicitySCMST[c] ) ) );
-
+                            
+                            unsigned int iTelMultiplicity =
+                                std::min( iTelMultiplicityLST[l],
+                                          std::min( iTelMultiplicityMST[m],
+                                                    std::min( iTelMultiplicitySST[s], iTelMultiplicitySCMST[c] ) ) );
+                                                    
                             cout << endl << endl;
                             cout << "now filling array layout " << fSubArray[i];
                             cout << " (obs time " << iObservingTimeVector[t] << " s), ";
@@ -880,20 +880,20 @@ int main( int argc, char* argv[] )
                             cout << "=========================================" << endl;
                             cout << endl;
                             
-                            fData->fillEvent( fSite, fSubArray[i], iObservingTimeVector[t], 
-                                   iTelMultiplicity,
-                                   iTelMultiplicityLST[l],
-                                   iTelMultiplicityMST[m],
-                                   iTelMultiplicitySST[s],
-                                   iTelMultiplicitySCMST[c],
-                                   fInputDirectory, fMSTDateID );
+                            fData->fillEvent( fSite, fSubArray[i], iObservingTimeVector[t],
+                                              iTelMultiplicity,
+                                              iTelMultiplicityLST[l],
+                                              iTelMultiplicityMST[m],
+                                              iTelMultiplicitySST[s],
+                                              iTelMultiplicitySCMST[c],
+                                              fInputDirectory, fMSTDateID );
                         }
-                     }
+                    }
                 }
             }
         }
     }
-        
+    
     fData->terminate();
     
     return 0;

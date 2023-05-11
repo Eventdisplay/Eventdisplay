@@ -32,7 +32,7 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         
     public:
     
-	string fObservatory;
+        string fObservatory;
         unsigned int    fFillingMode;              // filling mode
         bool            fEffArea_short_writing;    // short/long tree writing
         
@@ -56,7 +56,7 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         bool            fFillMCHistograms;
         bool            fgetXoff_Yoff_afterCut;
         string          fWriteEventdatatrees;
-
+        
         // IRF histogram bin definition
         unsigned int    fEnergyAxisBins_log10;
         double  fEnergyAxis_logTeV_min;
@@ -65,7 +65,7 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         unsigned int fLogAngularBin;                 // Angular resolution Log10 (bins)
         double   fhistoAngularBin_min;
         double   fhistoAngularBin_max;
-        unsigned int fResponseMatricesEbinning;      // bins in the ResponseMatrices 
+        unsigned int fResponseMatricesEbinning;      // bins in the ResponseMatrices
         unsigned int fhistoNEbins;                   // E binning (affects 2D histograms only)
         double   fhistoNEbins_logTeV_min;
         double   fhistoNEbins_logTeV_max;
@@ -110,9 +110,15 @@ class VInstrumentResponseFunctionRunParameter : public TNamed
         VInstrumentResponseFunctionRunParameter();
         ~VInstrumentResponseFunctionRunParameter() {}
         
-        vector< string >      getCutFileName() { return fCutFileName; }
-        vector< float >       getCutCharacteristicMCAZ() { return fCutCharacteristicMCAZ; }
-        string                getInstrumentEpoch( bool iMajor = false );	
+        vector< string >      getCutFileName()
+        {
+            return fCutFileName;
+        }
+        vector< float >       getCutCharacteristicMCAZ()
+        {
+            return fCutCharacteristicMCAZ;
+        }
+        string                getInstrumentEpoch( bool iMajor = false );
         TTree*                getTelConfigTree();
         void                  print();
         VMonteCarloRunHeader* readMCRunHeader();

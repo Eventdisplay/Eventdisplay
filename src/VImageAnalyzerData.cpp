@@ -50,7 +50,7 @@ VImageAnalyzerData::VImageAnalyzerData( unsigned int iTelID, unsigned int iShort
 
 void VImageAnalyzerData::initialize( unsigned int iChannels, unsigned int iMaxChannel, bool iDebug,
                                      int iseed, unsigned int iSamples, unsigned int ipulsetiminglevel,
-			             unsigned int ipulsetiming_tzero_index, unsigned int ipulsetiming_width_index,
+                                     unsigned int ipulsetiming_tzero_index, unsigned int ipulsetiming_width_index,
                                      unsigned int ipulsetiming_triggertime_index )
 {
     if( iDebug )
@@ -63,7 +63,7 @@ void VImageAnalyzerData::initialize( unsigned int iChannels, unsigned int iMaxCh
     fNDead = 0;
     fpulsetiming_tzero_index = ipulsetiming_tzero_index;
     fpulsetiming_width_index = ipulsetiming_width_index;
-        fpulsetiming_triggertime_index = ipulsetiming_triggertime_index;
+    fpulsetiming_triggertime_index = ipulsetiming_triggertime_index;
     fLowGainNDead = 0;
     fDead.resize( iChannels, 0 );
     fMasked.resize( iMaxChannel, 0 );
@@ -218,16 +218,16 @@ vector<unsigned int>& VImageAnalyzerData::getFADCstopTrigChannelID()
 }
 
 /*
- * read special channel configuration 
+ * read special channel configuration
  * (e.g. channels occupied by L2)
  *
  * read through put correction from file
  *
  * use special channel for this (although it is per telescope)
  */
-bool VImageAnalyzerData::readSpecialChannels( int iRunNumber, string iEpoch, 
-                                              string ispecialchannelfile, 
-                                              string ithroughputfile, string iDirectory )
+bool VImageAnalyzerData::readSpecialChannels( int iRunNumber, string iEpoch,
+        string ispecialchannelfile,
+        string ithroughputfile, string iDirectory )
 {
     if( fSpecialChannel )
     {
@@ -237,7 +237,7 @@ bool VImageAnalyzerData::readSpecialChannels( int iRunNumber, string iEpoch,
     {
         fSpecialChannel = new VSpecialChannel( fTelID );
     }
-	fSpecialChannel->readSpecialChannels( iRunNumber, ispecialchannelfile, iDirectory );
+    fSpecialChannel->readSpecialChannels( iRunNumber, ispecialchannelfile, iDirectory );
     fSpecialChannel->readThroughput( iEpoch, ithroughputfile, iDirectory, fNChannels );
     
     return !fSpecialChannel->isZombie();
@@ -255,25 +255,28 @@ double VImageAnalyzerData::getHIGHQE_gainfactor( unsigned int iChannel )
 
 valarray<double>& VImageAnalyzerData::getTraceAverageTime( bool iCorrected )
 {
-     if( iCorrected ) return fPulseTimingAverageTimeCorrected;
-
-     return fPulseTimingAverageTime;
+    if( iCorrected )
+    {
+        return fPulseTimingAverageTimeCorrected;
+    }
+    
+    return fPulseTimingAverageTime;
 }
 
 valarray<double>& VImageAnalyzerData::getTTrigger()
 {
-	// return tzero according to pulse timing vector
-	if( fpulsetiming_triggertime_index < fPulseTimingCorrected.size() )
-	{
-		return fPulseTimingCorrected[fpulsetiming_triggertime_index];
-	}
-	
-	// this is a serious problem and should never happen
-	cout << "VImageAnalyzerData::getTTrigger error: trigger time index out of range " << endl;
-	cout << "\t" << fpulsetiming_triggertime_index << "\t" << fPulseTimingCorrected.size() << endl;
-	exit( EXIT_FAILURE );
-	
-	return fPulseTimingCorrected[0]; // should never happen
+    // return tzero according to pulse timing vector
+    if( fpulsetiming_triggertime_index < fPulseTimingCorrected.size() )
+    {
+        return fPulseTimingCorrected[fpulsetiming_triggertime_index];
+    }
+    
+    // this is a serious problem and should never happen
+    cout << "VImageAnalyzerData::getTTrigger error: trigger time index out of range " << endl;
+    cout << "\t" << fpulsetiming_triggertime_index << "\t" << fPulseTimingCorrected.size() << endl;
+    exit( EXIT_FAILURE );
+    
+    return fPulseTimingCorrected[0]; // should never happen
 }
 
 

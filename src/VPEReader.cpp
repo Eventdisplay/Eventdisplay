@@ -238,13 +238,13 @@ bool VPEReader::getNextEvent()
             // add wobble offset
             double az = 0.;
             double ze = 0.;
-            VAstronometry::vlaDtp2s(  -1.*fPE_Tel_xoff * TMath::DegToRad(),
-                                      -1.*fPE_Tel_yoff * TMath::DegToRad(),
-                                      fPE_az,
-                                      0.5*TMath::Pi()-ze,
-                                      &az, &ze );
-
-            fPE_ze = 0.5*TMath::Pi()-ze;
+            VAstronometry::vlaDtp2s( -1.*fPE_Tel_xoff * TMath::DegToRad(),
+                                     -1.*fPE_Tel_yoff * TMath::DegToRad(),
+                                     fPE_az,
+                                     0.5 * TMath::Pi() - ze,
+                                     &az, &ze );
+                                     
+            fPE_ze = 0.5 * TMath::Pi() - ze;
             fPE_az = az;
         }
         

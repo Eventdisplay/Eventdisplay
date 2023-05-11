@@ -469,9 +469,9 @@ bool VEnergySpectrum::combineRuns( vector< int > runlist )
     // error: histograms for no runs have been found
     if( z == 0 )
     {
-         cout << "VEnergySpectrum::combineRuns(): ";
-         cout << "ERROR , no histograms for any run found." << endl;
-         return false;
+        cout << "VEnergySpectrum::combineRuns(): ";
+        cout << "ERROR , no histograms for any run found." << endl;
+        return false;
     }
     
     if( fDebug == 3 )
@@ -1191,7 +1191,10 @@ TCanvas* VEnergySpectrum::plot( TCanvas* c )
         plot_nullHistogram( c, hNull, fPlottingLogEnergyAxis, true, hNull->GetYaxis()->GetTitleOffset(), fPlottingMinEnergy, fPlottingMaxEnergy );
         c->SetLogy( 1 );
     }
-    if( c ) c->cd();
+    if( c )
+    {
+        c->cd();
+    }
     
     // plot the spectral energy points
     plot_energySpectrum();
@@ -1976,71 +1979,71 @@ int VEnergySpectrum::getRebinningGrouping( TH1* h, double iNewBinWidth )
  */
 void VEnergySpectrum::plotEnergyThresholds()
 {
-      if( fRunList.size() == 0 )
-      {
-           return;
-      }
-
-      TGraph *hGEnergyTresholdRunNumber = new TGraph( 1 );
-      hGEnergyTresholdRunNumber->SetMarkerStyle( 21 );
-      hGEnergyTresholdRunNumber->SetTitle( "" );
-
-      TGraph *hGEnergyTresholdZe = new TGraph( 1 );
-      hGEnergyTresholdZe->SetMarkerStyle( 21 );
-      hGEnergyTresholdZe->SetTitle( "" );
-
-
-      unsigned int z = 0;
-      for( unsigned int i = 0; i < fRunList.size(); i++ )
-      {
-              if( fRunList[i].elevationOn > 0. )
-              {
-                  hGEnergyTresholdRunNumber->SetPoint( z, fRunList[i].runnumber, fRunList[i].energyThreshold * 1.e3 );
-                  hGEnergyTresholdZe->SetPoint( z, 90.-fRunList[i].elevationOn, fRunList[i].energyThreshold * 1.e3 );
-                  z++;
-              }
-              else if( fRunList[i].elevationOff > 0. )
-              {
-                  hGEnergyTresholdRunNumber->SetPoint( z, fRunList[i].runnumber, fRunList[i].energyThreshold * 1.e3 );
-                  hGEnergyTresholdZe->SetPoint( z, 90.-fRunList[i].elevationOff, fRunList[i].energyThreshold * 1.e3 );
-                  z++;
-              }
-              else
-              {
-                  cout << "ignoring run with 0 elevation: " << fRunList[i].runnumber << endl;
-              }
-      }
-      char hname[600];
-      char htitle[600];
-      sprintf( hname, "cET_%s", fDataSetName.c_str() );
-      sprintf( htitle, "energy thresholds vs run number (%s)", fDataSetName.c_str() );
-      TCanvas *cET = new TCanvas( hname, htitle, 700, 10, 500, 500 );
-      cET->SetGridx( 0 );
-      cET->SetGridy( 0 );
-      gPad->SetLeftMargin( 0.13 );
-
-      hGEnergyTresholdRunNumber->Draw( "ap" );
-      hGEnergyTresholdRunNumber->GetHistogram()->GetYaxis()->SetTitleOffset( 1.4 );
-      hGEnergyTresholdRunNumber->GetHistogram()->SetXTitle( "run number #" );
-      hGEnergyTresholdRunNumber->GetHistogram()->SetYTitle( "energy threshold (TeV)" );
+    if( fRunList.size() == 0 )
+    {
+        return;
+    }
     
-      sprintf( hname, "cEZE_%s", fDataSetName.c_str() );
-      sprintf( htitle, "energy thresholds vs zenith angle (%s)", fDataSetName.c_str() );
-      TCanvas *cEZE = new TCanvas( hname, htitle, 900, 10, 500, 500 );
-      cEZE->SetGridx( 0 );
-      cEZE->SetGridy( 0 );
-      gPad->SetLeftMargin( 0.13 );
-
-      hGEnergyTresholdZe->Draw( "ap" );
-      hGEnergyTresholdZe->GetHistogram()->GetYaxis()->SetTitleOffset( 1.4 );
-      hGEnergyTresholdZe->GetHistogram()->SetXTitle( "zenith angle (deg)" );
-      hGEnergyTresholdZe->GetHistogram()->SetYTitle( "energy threshold (TeV)" );
-
+    TGraph* hGEnergyTresholdRunNumber = new TGraph( 1 );
+    hGEnergyTresholdRunNumber->SetMarkerStyle( 21 );
+    hGEnergyTresholdRunNumber->SetTitle( "" );
+    
+    TGraph* hGEnergyTresholdZe = new TGraph( 1 );
+    hGEnergyTresholdZe->SetMarkerStyle( 21 );
+    hGEnergyTresholdZe->SetTitle( "" );
+    
+    
+    unsigned int z = 0;
+    for( unsigned int i = 0; i < fRunList.size(); i++ )
+    {
+        if( fRunList[i].elevationOn > 0. )
+        {
+            hGEnergyTresholdRunNumber->SetPoint( z, fRunList[i].runnumber, fRunList[i].energyThreshold * 1.e3 );
+            hGEnergyTresholdZe->SetPoint( z, 90. - fRunList[i].elevationOn, fRunList[i].energyThreshold * 1.e3 );
+            z++;
+        }
+        else if( fRunList[i].elevationOff > 0. )
+        {
+            hGEnergyTresholdRunNumber->SetPoint( z, fRunList[i].runnumber, fRunList[i].energyThreshold * 1.e3 );
+            hGEnergyTresholdZe->SetPoint( z, 90. - fRunList[i].elevationOff, fRunList[i].energyThreshold * 1.e3 );
+            z++;
+        }
+        else
+        {
+            cout << "ignoring run with 0 elevation: " << fRunList[i].runnumber << endl;
+        }
+    }
+    char hname[600];
+    char htitle[600];
+    sprintf( hname, "cET_%s", fDataSetName.c_str() );
+    sprintf( htitle, "energy thresholds vs run number (%s)", fDataSetName.c_str() );
+    TCanvas* cET = new TCanvas( hname, htitle, 700, 10, 500, 500 );
+    cET->SetGridx( 0 );
+    cET->SetGridy( 0 );
+    gPad->SetLeftMargin( 0.13 );
+    
+    hGEnergyTresholdRunNumber->Draw( "ap" );
+    hGEnergyTresholdRunNumber->GetHistogram()->GetYaxis()->SetTitleOffset( 1.4 );
+    hGEnergyTresholdRunNumber->GetHistogram()->SetXTitle( "run number #" );
+    hGEnergyTresholdRunNumber->GetHistogram()->SetYTitle( "energy threshold (TeV)" );
+    
+    sprintf( hname, "cEZE_%s", fDataSetName.c_str() );
+    sprintf( htitle, "energy thresholds vs zenith angle (%s)", fDataSetName.c_str() );
+    TCanvas* cEZE = new TCanvas( hname, htitle, 900, 10, 500, 500 );
+    cEZE->SetGridx( 0 );
+    cEZE->SetGridy( 0 );
+    gPad->SetLeftMargin( 0.13 );
+    
+    hGEnergyTresholdZe->Draw( "ap" );
+    hGEnergyTresholdZe->GetHistogram()->GetYaxis()->SetTitleOffset( 1.4 );
+    hGEnergyTresholdZe->GetHistogram()->SetXTitle( "zenith angle (deg)" );
+    hGEnergyTresholdZe->GetHistogram()->SetYTitle( "energy threshold (TeV)" );
+    
 }
 
 /*
  * print energy thresholds per run
-*/ 
+*/
 void VEnergySpectrum::printEnergyThreshold()
 {
     cout << "Energy thresholds per run" << endl;

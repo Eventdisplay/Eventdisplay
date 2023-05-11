@@ -103,12 +103,12 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         string iLine;
         if( i_temp_TMVAFILE.is_open() )
         {
-            while( getline(i_temp_TMVAFILE,iLine) )
+            while( getline( i_temp_TMVAFILE, iLine ) )
             {
-                if( iLine.find("cross") != string::npos )
-                { 
-                   iSingleTelescopeAnalysis = false;
-                   break;
+                if( iLine.find( "cross" ) != string::npos )
+                {
+                    iSingleTelescopeAnalysis = false;
+                    break;
                 }
             }
         }
@@ -120,7 +120,7 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         {
             cout << "\t multi-telescope disp analysis" << endl;
         }
-
+        
         fTMVAReader[fTelescopeTypeList[i]] = new TMVA::Reader( "!Color:!Silent" );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "width", &fWidth );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "length", &fLength );
@@ -150,8 +150,8 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         // spectators
         fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "cen_x", &cen_x );
         fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "cen_y", &cen_y );
-        fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "cosphi", &cosphi);
-        fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "sinphi", &sinphi);
+        fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "cosphi", &cosphi );
+        fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "sinphi", &sinphi );
         fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "MCe0", &iMCe0 );
         fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "MCxoff", &iMCxoff );
         fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "MCyoff", &iMCyoff );
@@ -213,7 +213,7 @@ float VTMVADispAnalyzer::evaluate( float iWidth, float iLength, float iSize, flo
     }
     else
     {
-       return -99.;
+        return -99.;
     }
     fTGrad = iTGrad * iTGrad;
     fZe = iZe;

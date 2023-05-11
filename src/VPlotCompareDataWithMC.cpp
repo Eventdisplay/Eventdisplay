@@ -31,7 +31,7 @@ void VPlotCompareDataWithMC::help()
     cout << endl;
     cout << "compare image and shower parameter distribution of simulations and on/off data" << endl;
     cout << "------------------------------------------------------------------------------" << endl;
-	cout << endl << endl;
+    cout << endl << endl;
     cout << "shower parameter distributions:  stereo_parameter()  " << endl << endl;
     cout << "mscw/mscl energy dependent:      msc_vs_energy_plots()  " << endl << endl;
     cout << "mwr/mlr energy dependent:        mwr_vs_energy_plots()  " << endl << endl;

@@ -444,7 +444,7 @@ void VImageBaseAnalyzer::calcTZerosSums( int iFirstSum, int iLastSum, unsigned i
         cout << "VImageBaseAnalyzer::calcTZerosSums() \t" << iFirstSum << "\t" << iLastSum << endl;
     }
     bool fDebugTrace = false;
-
+    
     /////////////////////////////////////////////////////////////////////////////////
     // DST source file without FADC information
     // ignore everything and just get the sums and tzeros from data trees
@@ -559,10 +559,10 @@ void VImageBaseAnalyzer::calcTZerosSums( int iFirstSum, int iLastSum, unsigned i
             // calculate timing parameters (raw and corrected; tzero correction happens later)
             setPulseTiming( i_channelHitID,
                             fTraceHandler->getPulseTiming( 0, getNSamplesAnalysis(),
-                                                           0, getNSamplesAnalysis(),
-                                                           getSumWindow_searchmaxreverse() ),
+                                    0, getNSamplesAnalysis(),
+                                    getSumWindow_searchmaxreverse() ),
                             true );
-            
+                            
             // set integration start and stop
             // use T0 as start of integration window for trace integration method 1
             // use TAVERAGE as start of integration window for trace integration method 2
@@ -612,12 +612,12 @@ void VImageBaseAnalyzer::calcTZerosSums( int iFirstSum, int iLastSum, unsigned i
             setTraceMax( i_channelHitID, i_tempTraceMax );
             setTraceRawMax( i_channelHitID, i_tempTraceMax + getPeds( getHiLo()[i_channelHitID] )[i_channelHitID] );
             setTraceN255( i_channelHitID, i_tempN255 );
-            // (MNR: TODO:) test dead channel flag based on tracemax. 
+            // (MNR: TODO:) test dead channel flag based on tracemax.
             // Probably it is a weird location to have this flag set, but we need the trace information
             
             setDead( i_channelHitID, getDeadChannelFinder( getHiLo()[i_channelHitID] )
                      ->testTraceMax( i_channelHitID, i_tempTraceMax ), getHiLo()[i_channelHitID] );
-
+                     
             if( getFillMeanTraces() )
             {
                 setTrace( i_channelHitID, fTraceHandler->getTrace(), getHiLo()[i_channelHitID], getPeds( getHiLo()[i_channelHitID] )[i_channelHitID] );
@@ -845,7 +845,7 @@ void VImageBaseAnalyzer::findDeadChans( bool iLowGain, bool iFirst )
         setDead( false, iLowGain );
     }
     */
-    setDead(false, iLowGain);
+    setDead( false, iLowGain );
     
     // get mean and rms of pedvar
     double i_meanPedVar = 0.;
@@ -1374,7 +1374,10 @@ void VImageBaseAnalyzer::calcSecondTZerosSums()
                             if( getSumWindowMaxTimeDifferenceLGtoHG() > -998. )
                             {
                                 corrfirst += getSumWindowMaxTimeDifferenceLGtoHG();
-                                if( corrfirst < 0 ) corrfirst = 0.;
+                                if( corrfirst < 0 )
+                                {
+                                    corrfirst = 0.;
+                                }
                             }
                             else
                             {
@@ -1387,21 +1390,21 @@ void VImageBaseAnalyzer::calcSecondTZerosSums()
                             }
                             // use original v4 code
                             float iT0 = fTraceHandler->getPulseTiming(
-                                                    corrfirst, getNSamples(),
-                                                    corrfirst, getNSamples() ).at( getRunParameter()->fpulsetiming_tzero_index );
+                                            corrfirst, getNSamples(),
+                                            corrfirst, getNSamples() ).at( getRunParameter()->fpulsetiming_tzero_index );
                             if( fTraceHandler->getPulseTimingStatus() )
                             {
                                 corrfirst = TMath::Nint( iT0 ) + getSumWindowShift();
                             }
                             if( fDebugTrace )
                             {
-                                 cout << ", sumwindowmaxdiff: " << getSumWindowMaxTimedifferenceToDoublePassPosition();
-                                 cout << ", diff: " << corrfirst - iT0;
-                                 cout << ", pulse timing status: " << fTraceHandler->getPulseTimingStatus();
-                                 cout << ", corrfirstset: " << corrfirst;
-                                 cout << ", T0: " << iT0;
-                                 cout << ", sumwindowshift: " << getSumWindowShift();
-                                 cout << endl;
+                                cout << ", sumwindowmaxdiff: " << getSumWindowMaxTimedifferenceToDoublePassPosition();
+                                cout << ", diff: " << corrfirst - iT0;
+                                cout << ", pulse timing status: " << fTraceHandler->getPulseTimingStatus();
+                                cout << ", corrfirstset: " << corrfirst;
+                                cout << ", T0: " << iT0;
+                                cout << ", sumwindowshift: " << getSumWindowShift();
+                                cout << endl;
                             }
                             // use original v5 code
                             /*
@@ -1422,7 +1425,7 @@ void VImageBaseAnalyzer::calcSecondTZerosSums()
                                 cout << " getTraceIntegrationFirst " << fTraceHandler->getTraceIntegrationFirst();
                                 cout << " getSumWindowShift " << getSumWindowShift();
                                 corrfirst = fTraceHandler->getTraceIntegrationFirst() + getSumWindowShift();
-                                corrfirst = fTraceHandler->getTraceAverageTime() 
+                                corrfirst = fTraceHandler->getTraceAverageTime()
                                 if( fDebugTrace )
                                 {
                                     cout << ", corrfirstset: " << corrfirst;

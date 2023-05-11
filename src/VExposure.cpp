@@ -1085,7 +1085,7 @@ void VExposure::fillExposureMap()
                 double l_pos = fMapGal2D->GetXaxis()->GetBinCenter( l );
                 
                 r_dist = VAstronometry::vlaDsep( l_pos * TMath::Pi() / 180., b_pos * TMath::Pi() / 180., fRunGalLong1958[i] * TMath::Pi() / 180.,
-                                  fRunGalLat1958[i] * TMath::Pi() / 180. ) * 180. / TMath::Pi();
+                                                 fRunGalLat1958[i] * TMath::Pi() / 180. ) * 180. / TMath::Pi();
                 if( r_dist < fMaximumIntegrationRadius && fRunDuration[i] > 0. )
                 {
                     // galactic longitudes are from 180. to -180.
@@ -1747,7 +1747,7 @@ void VExposure::printListOfRuns( string iCatalogue, double iR, double iMinDurati
         {
             // calculate distance of catalogue object to camera center
             r_centre = VAstronometry::vlaDsep( s->getStarRA2000( i ) * TMath::Pi() / 180., s->getStarDec2000( i ) * TMath::Pi() / 180.,
-                                ( fRunRA[j] + fRunoffsetRA[j] ) * TMath::Pi() / 180., ( fRunDec[j] + fRunoffsetDec[j] ) * TMath::Pi() / 180. ) * 180. / TMath::Pi();
+                                               ( fRunRA[j] + fRunoffsetRA[j] ) * TMath::Pi() / 180., ( fRunDec[j] + fRunoffsetDec[j] ) * TMath::Pi() / 180. ) * 180. / TMath::Pi();
             // do dqm
             if( !doDQM( j, iMinDuration ) )
             {
@@ -1759,7 +1759,7 @@ void VExposure::printListOfRuns( string iCatalogue, double iR, double iMinDurati
             {
                 // calculate distance of catalogue object to VERITAS object
                 r_VA_object = VAstronometry::vlaDsep( s->getStarRA2000( i ) * TMath::Pi() / 180., s->getStarDec2000( i ) * TMath::Pi() / 180.,
-                                       fRunRA[j] * TMath::Pi() / 180., fRunDec[j] * TMath::Pi() / 180. ) * 180. / TMath::Pi();
+                                                      fRunRA[j] * TMath::Pi() / 180., fRunDec[j] * TMath::Pi() / 180. ) * 180. / TMath::Pi();
                 // total time on object (all array configurations)
                 r_tot += fRunDuration[j];
                 // total time on object (new array configuration only)
@@ -2508,16 +2508,16 @@ void VExposure::downloadRunList()
                 sprintf( mkdir_string, "mkdir %s", filepath );
                 cout << "COMMAND: " << mkdir_string << endl;
                 if( system( mkdir_string ) != 0 )
-		{
-		    cout << "error mkdir " << filepath << endl;
-		    exit( EXIT_FAILURE );
+                {
+                    cout << "error mkdir " << filepath << endl;
+                    exit( EXIT_FAILURE );
                 }
                 sprintf( permission_string, "chmod g+sw %s", filepath );
                 cout << "COMMAND: " << permission_string << endl;
-		if( system( permission_string ) != 0 )
-		{
-		    cout << "error setting permissions" << endl;
-		    exit( EXIT_FAILURE );
+                if( system( permission_string ) != 0 )
+                {
+                    cout << "error setting permissions" << endl;
+                    exit( EXIT_FAILURE );
                 }
             }
             
@@ -2533,18 +2533,18 @@ void VExposure::downloadRunList()
                      getRawDataServer().c_str() );
             sprintf( permission_string , "chmod g+w %s", filename );
             cout << dl_string << endl;
-	    if( system( dl_string ) != 0 )
-	    {
-	        cout << "error downloading" << endl;
-		cout << dl_string << endl;
-		exit( EXIT_FAILURE );
+            if( system( dl_string ) != 0 )
+            {
+                cout << "error downloading" << endl;
+                cout << dl_string << endl;
+                exit( EXIT_FAILURE );
             }
             cout << permission_string << endl;
-	    if( system( permission_string ) != 0 )
-	    {
-	        cout << "error setting permissions" << endl;
-		cout << permission_string << endl;
-		exit( EXIT_FAILURE );
+            if( system( permission_string ) != 0 )
+            {
+                cout << "error setting permissions" << endl;
+                cout << permission_string << endl;
+                exit( EXIT_FAILURE );
             }
             
             checkMD5sum( fRunDownloadDate[i], fRunDownload[i] );
@@ -2580,14 +2580,14 @@ void VExposure::downloadRunList()
                     sprintf( mkdir_string, "mkdir %s", filepath );
                     cout << "COMMAND: " << mkdir_string << endl;
                     if( system( mkdir_string ) != 0 )
-		    { 
-		        cout << "error making directory " << endl;
+                    {
+                        cout << "error making directory " << endl;
                     }
                     sprintf( permission_string, "chmod g+sw %s", filepath );
                     cout << "COMMAND: " << permission_string << endl;
                     if( system( permission_string ) != 0 )
-		    { 
-		        cout << "error setting permissions" << endl;
+                    {
+                        cout << "error setting permissions" << endl;
                     }
                 }
                 if( system( "which bbftp" ) != 0 )
@@ -2605,12 +2605,12 @@ void VExposure::downloadRunList()
                 {
                     cout << dl_string << endl;
                     if( system( dl_string ) != 0 )
-		    {
+                    {
                         cout << "error downloading" << endl;
                     }
                     cout << permission_string << endl;
                     if( system( permission_string ) != 0 )
-		    {
+                    {
                         cout << "error setting permission string" << endl;
                     }
                     checkMD5sum( fLaserDownloadDate[i], fLaserDownload[i] );
@@ -2783,9 +2783,9 @@ TString VExposure::getArchiveMD5sum( int date, int run, bool force_download )
         {
             cout << "VExposure::getArchiveMD5sum Error: Problem executing command : " << dlcommand << endl;
         }
-	if( system( chmodcommand.Data() ) != 0 )
-	{
-	    cout << "error running " << dlcommand << endl;
+        if( system( chmodcommand.Data() ) != 0 )
+        {
+            cout << "error running " << dlcommand << endl;
         }
         if( use_new_ucla_sumfile )
         {
@@ -2908,14 +2908,14 @@ TString VExposure::calcMD5sum( int date, int run )
         if( system( command.Data() ) == 0 )
         {
             command.Form( "rm %s", tempfilename.Data() );
-	    if( system( command.Data() ) != 0 )
-	    {
-	        cout << "error calculating md5sum" << endl;
+            if( system( command.Data() ) != 0 )
+            {
+                cout << "error calculating md5sum" << endl;
             }
             command.Form( "chmod g+w %s", resultfilename.Data() );
             if( system( command.Data() ) != 0 )
-	    {
-	        cout << "error setting permissions" << endl;
+            {
+                cout << "error setting permissions" << endl;
             }
         }
     }

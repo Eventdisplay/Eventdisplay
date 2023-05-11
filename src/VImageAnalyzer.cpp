@@ -314,7 +314,7 @@ void VImageAnalyzer::doAnalysis()
         if( getImageParameters()->ntubes > fRunPar->fLogLikelihood_Ntubes_min[getTelID()]
                 && ( fRunPar->fForceLLImageFit ||
                      ( getImageParameters()->loss > fRunPar->fLogLikelihoodLoss_min[getTelID()] &&
-                     getImageParameters()->loss < fRunPar->fLogLikelihoodLoss_max[getTelID()] ) ) ) // FORCELL
+                       getImageParameters()->loss < fRunPar->fLogLikelihoodLoss_max[getTelID()] ) ) ) // FORCELL
         {
             if( !isEqualSummationWindows() )
             {

@@ -386,11 +386,11 @@ void Cshowerpars::Init( TTree* tree )
     }
     if( fChain->GetBranchStatus( "ArrayPointing_deRotationAngle_deg" ) )
     {
-         fChain->SetBranchAddress( "ArrayPointing_deRotationAngle_deg", &ArrayPointing_deRotationAngle_deg );
+        fChain->SetBranchAddress( "ArrayPointing_deRotationAngle_deg", &ArrayPointing_deRotationAngle_deg );
     }
     else
     {
-         ArrayPointing_deRotationAngle_deg = 0.;
+        ArrayPointing_deRotationAngle_deg = 0.;
     }
     
     fChain->SetBranchAddress( "WobbleN", &WobbleN );

@@ -54,7 +54,7 @@ class VCTARequirements : public VPlotUtilities
         float fRequirementsScalingStretch;
         bool  fRequirementsSystematics;
         
-        void plotRequirementsSystematic( TGraph *g );
+        void plotRequirementsSystematic( TGraph* g );
         void plotRequirements( TGraph* g, bool iLog = false, bool iLine = false, bool iSystematics = false );
         
     public:
@@ -88,7 +88,7 @@ class VCTARequirements : public VPlotUtilities
         void   setRequirementsPlotSystematics( bool iPlotSystematics = false )
         {
             fRequirementsSystematics = iPlotSystematics;
-        } 
+        }
         void    setPlotRequirementsScaling( bool iPlotCTARequirementsScaling = false,
                                             float iRequirementsScalingFactor = 0.3,
                                             float iRequirementsScalingEnergy_TeV = 0.2,

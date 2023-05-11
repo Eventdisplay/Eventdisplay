@@ -1076,10 +1076,10 @@ class VEvndispData
         }
         vector< valarray< double > >& getPulseTiming( bool iCorrected = true );
         valarray<double>&   getPulseTime( bool iCorrected = true );
-		valarray<double>&   getTTrigger()
-		{
-			return fAnaData[fTelID]->getTTrigger();
-		}
+        valarray<double>&   getTTrigger()
+        {
+            return fAnaData[fTelID]->getTTrigger();
+        }
         valarray<double>&   getTZeros( bool iCorrected = true )
         {
             return fAnaData[fTelID]->getTZeros( iCorrected );
@@ -1154,10 +1154,10 @@ class VEvndispData
         }
         void                setAnaData()
         {
-			fAnaData[fTelID]->initialize( fDetectorGeo->getNChannels( fTelID ), getReader()->getMaxChannels(),
-                                                      getDebugFlag(), getRunParameter()->fMCNdeadSeed, getNSamples(), 
-                                                      getRunParameter()->fpulsetiminglevels.size(), getRunParameter()->fpulsetiming_tzero_index, 
-                                                      getRunParameter()->fpulsetiming_width_index, getRunParameter()->fpulsetiming_triggertime_index  );
+            fAnaData[fTelID]->initialize( fDetectorGeo->getNChannels( fTelID ), getReader()->getMaxChannels(),
+                                          getDebugFlag(), getRunParameter()->fMCNdeadSeed, getNSamples(),
+                                          getRunParameter()->fpulsetiminglevels.size(), getRunParameter()->fpulsetiming_tzero_index,
+                                          getRunParameter()->fpulsetiming_width_index, getRunParameter()->fpulsetiming_triggertime_index );
         }
         void                setBorder( bool iBo )
         {

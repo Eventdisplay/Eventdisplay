@@ -537,7 +537,7 @@ void VGrIsuReader::readPedsfromPlines()
                 }
                 fhPeds[i_telID][i_channel]->Reset();
                 is_stream >> is_Temp;
-                while( !(is_stream>>std::ws).eof() )
+                while( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> is_Temp;
                     i_val.push_back( atof( is_Temp.c_str() ) );
@@ -846,10 +846,10 @@ bool VGrIsuReader::getNextShowerEvent()
             double ze = 0.;
             VAstronometry::vlaDtp2s( -1.*fMC_Xoffset * TMath::DegToRad(),
                                      -1.*fMC_Yoffset * TMath::DegToRad(),
-                                     fMC_Az, TMath::Pi()/2.-fMC_Ze,
+                                     fMC_Az, TMath::Pi() / 2. - fMC_Ze,
                                      &az, &ze );
-
-            fMC_Ze = TMath::Pi()/2.-ze;
+                                     
+            fMC_Ze = TMath::Pi() / 2. - ze;
             fMC_Az = az;
             resetEvent();
             i_eventFound = true;

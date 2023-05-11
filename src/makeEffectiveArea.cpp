@@ -106,14 +106,14 @@ int main( int argc, char* argv[] )
     /////////////////////////////////////////////////////////////////
     // gamma/hadron cuts
     // (might be a series of cuts)
-
+    
     vector< VGammaHadronCuts* > fCuts;
     for( unsigned int i = 0; i < fRunPara->getCutFileName().size(); i++ )
     {
         fCuts.push_back( new VGammaHadronCuts() );
         fCuts.back()->initialize();
-        fCuts.back()->setNTel( fRunPara->telconfig_ntel, 
-                               fRunPara->telconfig_arraycentre_X, 
+        fCuts.back()->setNTel( fRunPara->telconfig_ntel,
+                               fRunPara->telconfig_arraycentre_X,
                                fRunPara->telconfig_arraycentre_Y );
         fCuts.back()->setInstrumentEpoch( fRunPara->getInstrumentEpoch( true ) );
         fCuts.back()->setTelToAnalyze( fRunPara->fTelToAnalyse );
@@ -306,7 +306,7 @@ int main( int argc, char* argv[] )
             fMC_histo = new VEffectiveAreaCalculatorMCHistograms();
             fMC_histo->setMonteCarloEnergyRange( fRunPara->fMCEnergy_min, fRunPara->fMCEnergy_max, TMath::Abs( fRunPara->fMCEnergy_index ) );
             fMC_histo->initializeHistograms( fRunPara->fAzMin, fRunPara->fAzMax, fRunPara->fSpectralIndex,
-					     fEffectiveAreaCalculator.getEnergyAxis_nbins_defaultValue(),
+                                             fEffectiveAreaCalculator.getEnergyAxis_nbins_defaultValue(),
                                              fEffectiveAreaCalculator.getEnergyAxis_minimum_defaultValue(),
                                              fEffectiveAreaCalculator.getEnergyAxis_maximum_defaultValue() );
             fMC_histo->fill( fRunPara->fze, c2, fRunPara->fAzimuthBins );
@@ -394,50 +394,50 @@ int main( int argc, char* argv[] )
             fOutputfile->cd();
             fEffectiveAreaCalculator.getAcceptance_AfterCuts()->Write();
         }
-        if( (fRunPara->fWriteEventdatatrees == "DL2" || fRunPara->fWriteEventdatatrees == "FULLTREES" )
-          && fEffectiveAreaCalculator.getEventDL2DataTree() )
+        if( ( fRunPara->fWriteEventdatatrees == "DL2" || fRunPara->fWriteEventdatatrees == "FULLTREES" )
+                && fEffectiveAreaCalculator.getEventDL2DataTree() )
         {
-               cout << "writing event data trees: (";
-               cout << fEffectiveAreaCalculator.getEventDL2DataTree()->GetName();
-               cout << ") to " << fOutputfile->GetName() << endl;
-               fOutputfile->cd();
-               if( fEffectiveAreaCalculator.getEventDL2DataTree() )
-               {
-                   fEffectiveAreaCalculator.getEventDL2DataTree()->Write();
-               }
-       }
-       if( fRunPara->fWriteEventdatatrees == "FULLTREES" )
-       {
-               if( c )
-               {
-                   c->Merge(fOutputfile, 0, "keep" );
-               }
-       }
-       for( unsigned int c = 0; c < fCuts.size(); c++ )
-       {
+            cout << "writing event data trees: (";
+            cout << fEffectiveAreaCalculator.getEventDL2DataTree()->GetName();
+            cout << ") to " << fOutputfile->GetName() << endl;
+            fOutputfile->cd();
+            if( fEffectiveAreaCalculator.getEventDL2DataTree() )
+            {
+                fEffectiveAreaCalculator.getEventDL2DataTree()->Write();
+            }
+        }
+        if( fRunPara->fWriteEventdatatrees == "FULLTREES" )
+        {
+            if( c )
+            {
+                c->Merge( fOutputfile, 0, "keep" );
+            }
+        }
+        for( unsigned int c = 0; c < fCuts.size(); c++ )
+        {
             if( fCuts[c]->getMVACutGraphs().size() > 0 )
             {
-                  if( c == 0 )
-                  {
-                      cout << "writing MVA cut graphs to ";
-                      cout << fOutputfile->GetName() << endl;
-                      fOutputfile->cd();
-                  }
-                  ostringstream mvaDir;
-                  mvaDir << "mvaGraphs_" << c;
-                  if( fOutputfile->mkdir( mvaDir.str().c_str() ) )
-                  {
-                      fOutputfile->cd( mvaDir.str().c_str() );
-                      for( unsigned int i = 0; i < fCuts[c]->getMVACutGraphs().size(); i++ )
-                      {
-                          if( fCuts[c]->getMVACutGraphs()[i] )
-                          {
-                              fCuts[c]->getMVACutGraphs()[i]->Write();
-                          }
-                      }
-              }
-              fOutputfile->cd();
-           }
+                if( c == 0 )
+                {
+                    cout << "writing MVA cut graphs to ";
+                    cout << fOutputfile->GetName() << endl;
+                    fOutputfile->cd();
+                }
+                ostringstream mvaDir;
+                mvaDir << "mvaGraphs_" << c;
+                if( fOutputfile->mkdir( mvaDir.str().c_str() ) )
+                {
+                    fOutputfile->cd( mvaDir.str().c_str() );
+                    for( unsigned int i = 0; i < fCuts[c]->getMVACutGraphs().size(); i++ )
+                    {
+                        if( fCuts[c]->getMVACutGraphs()[i] )
+                        {
+                            fCuts[c]->getMVACutGraphs()[i]->Write();
+                        }
+                    }
+                }
+                fOutputfile->cd();
+            }
         }
     }
     // write resolution data to disk only for long output
@@ -459,8 +459,8 @@ int main( int argc, char* argv[] )
         }
         if( fCuts[i] )
         {
-            fCuts[i]->terminate( ( fRunPara->fEffArea_short_writing 
-                                || fRunPara->fFillingMode == 3 ),
+            fCuts[i]->terminate( ( fRunPara->fEffArea_short_writing
+                                   || fRunPara->fFillingMode == 3 ),
                                  cutsname.str() );
         }
     }
@@ -469,8 +469,11 @@ int main( int argc, char* argv[] )
     {
         iMonteCarloHeader->Write();
     }
-    TTree *i_telconfig = 0;
-    if( fRunPara ) i_telconfig = fRunPara->getTelConfigTree();
+    TTree* i_telconfig = 0;
+    if( fRunPara )
+    {
+        i_telconfig = fRunPara->getTelConfigTree();
+    }
     fOutputfile->cd();
     if( i_telconfig )
     {

@@ -79,7 +79,7 @@ bool readRunParameterFile( string ifile )
             if( temp == "MCset" )
             {
                 is_stream >> temp;
-                if( (is_stream>>std::ws).eof() )
+                if( ( is_stream >> std::ws ).eof() )
                 {
                     cout << "error while reading MCset line" << endl;
                     return false;

@@ -67,7 +67,7 @@ void readRateGraphsFromEffectiveAreaFile( const string iEffAreaDirectory,
     i_ze.push_back( 50 );
     i_ze.push_back( 55 );
     i_ze.push_back( 60 );
-    i_ze.push_back( 65 ); 
+    i_ze.push_back( 65 );
     // az bin 8: averaged over all azimuth angles
     int i_Az = 8;
     // spectral index (does not matter, weighted histograms are
@@ -112,7 +112,7 @@ void readRateGraphsFromEffectiveAreaFile( const string iEffAreaDirectory,
                     // dE for differential calculation
                     double iE_min = TMath::Power( 10., iTempIRFReader.hWeightedRate005->GetBinLowEdge( b ) );
                     double iE_max = TMath::Power( 10., iTempIRFReader.hWeightedRate005->GetBinLowEdge( b )
-                                                    + iTempIRFReader.hWeightedRate005->GetBinWidth( b ) );
+                                                  + iTempIRFReader.hWeightedRate005->GetBinWidth( b ) );
                     double dE = iE_max - iE_min;
                     if( iTempIRFReader.hWeightedRate005->GetBinContent( b ) > 0 && dE > 0. )
                     {
@@ -348,11 +348,11 @@ int main( int argc, char* argv[] )
     
     /////////////////////////////////////////////////////////////////
     // rate graphs from anasum file
-    readRateGraphsFromAnasumFile( iDataDir, tRatePerEnergyON, 
-                                  tRatePerEnergyOFF, 
-                                  tRatePerEnergySignal, 
+    readRateGraphsFromAnasumFile( iDataDir, tRatePerEnergyON,
+                                  tRatePerEnergyOFF,
+                                  tRatePerEnergySignal,
                                   ( argc > 3 ) );
-    
+                                  
     /////////////////////////////////////////////////////////////////
     // signal rate graphs from effective area files
     if( argc == 6 )

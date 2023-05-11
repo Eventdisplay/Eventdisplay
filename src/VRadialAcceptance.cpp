@@ -27,14 +27,14 @@ VRadialAcceptance::VRadialAcceptance()
 VRadialAcceptance::VRadialAcceptance( string ifile, int irun )
 {
     reset();
-
+    
     // ignore acceptance files (getacceptance will always return 1)
     if( ifile == "IGNOREACCEPTANCE" || ifile == "simu" )
     {
         fAcceptanceFunctionDefined = false;
         return;
     }
-
+    
     if( ifile.find( "/" ) == string::npos )
     {
         ifile = VUtilities::testFileLocation( ifile, "RadialAcceptances/", true );
@@ -81,7 +81,7 @@ VRadialAcceptance::VRadialAcceptance( string ifile, int irun )
             TObject* obj = key->ReadObj();
             string itemp = obj->GetName();
             if( itemp.find( "hRadialAcceptance_perRun_" ) < itemp.size()
-             && itemp.find( "Fit" ) == string::npos  )
+                    && itemp.find( "Fit" ) == string::npos )
             {
                 fNumberOfRawFiles++;
             }
@@ -574,7 +574,7 @@ int VRadialAcceptance::fillAcceptanceFromData( CData* iData, int entry, double x
     
     // apply some basic quality cuts
     if( fCuts->applyInsideFiducialAreaCut()
-      && fCuts->applyStereoQualityCuts( fEnergyReconstructionMethod, false, entry, true ) )
+            && fCuts->applyStereoQualityCuts( fEnergyReconstructionMethod, false, entry, true ) )
     {
         // gamma/hadron cuts
         if( !fCuts->isGamma( entry, false ) )
@@ -685,11 +685,11 @@ bool VRadialAcceptance::terminate( TDirectory* iDirectory )
     string iDirTitle = iDirectory->GetTitle();
     if( iDirTitle.size() > 0 )
     {
-         cout << "(" << iDirectory->GetName() << ", " << iDirectory->GetTitle() << ")";
+        cout << "(" << iDirectory->GetName() << ", " << iDirectory->GetTitle() << ")";
     }
     else
     {
-         cout << "(az average histograms)";
+        cout << "(az average histograms)";
     }
     cout << endl;
     /////////////////////////////////////
@@ -738,7 +738,7 @@ bool VRadialAcceptance::terminate( TDirectory* iDirectory )
             i++;
         }
     }
- 
+    
     // try to copy with printouts from Minuit
     gPrintViaErrorHandler = kTRUE;
     
@@ -785,22 +785,22 @@ bool VRadialAcceptance::terminate( TDirectory* iDirectory )
         gErrorIgnoreLevel = 5000;
         // TFitResultPtr i_fitR = hfit->Fit( ffit, "0REMQS" );
         TFitResultPtr i_fitR = hfit->Fit( ffit, "0RES" );
-        if( (int)i_fitR == 0 )
+        if( ( int )i_fitR == 0 )
         {
-             cout << "\t\t successful fitting (";
-             cout << (int)i_fitR << ") of " << h->GetName();
-             string iDirName = iDirectory->GetTitle();
-             // key words for later checking in VTS scripts
-             if( iDirName.size() == 0 )
-             {
-                 cout << " (RADACC)";
-             }
-             cout << endl;
+            cout << "\t\t successful fitting (";
+            cout << ( int )i_fitR << ") of " << h->GetName();
+            string iDirName = iDirectory->GetTitle();
+            // key words for later checking in VTS scripts
+            if( iDirName.size() == 0 )
+            {
+                cout << " (RADACC)";
+            }
+            cout << endl;
         }
         else
         {
-             cout << "\t\t failed fitting (";
-             cout << (int)i_fitR << ") of " << h->GetName() << endl;
+            cout << "\t\t failed fitting (";
+            cout << ( int )i_fitR << ") of " << h->GetName() << endl;
         }
         gErrorIgnoreLevel = 0;
         // hfit->Fit( ffit, "0REM" );
@@ -1295,11 +1295,11 @@ bool VRadialAcceptance::correctRadialAcceptancesForExclusionRegions( TDirectory*
     string iDirTitleName = iDirectory->GetTitle();
     if( iDirTitleName.size() > 0 )
     {
-         cout << "(" << iDirectory->GetName() << ", " << iDirectory->GetTitle() << "):";
+        cout << "(" << iDirectory->GetName() << ", " << iDirectory->GetTitle() << "):";
     }
     else
     {
-         cout << "(az average histograms):";
+        cout << "(az average histograms):";
     }
     cout << endl;
     double neventssim = ( double )( hAreaExcluded2D[ifocus]->GetNbinsX() * hAreaExcluded2D[ifocus]->GetNbinsY() );

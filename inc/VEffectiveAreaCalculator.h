@@ -43,14 +43,14 @@ class VEffectiveAreaCalculator
     private:
     
         vector< vector< double > > fEffArea_time;
-     	vector< vector< double > > fEffAreaMC_time;
+        vector< vector< double > > fEffAreaMC_time;
         vector< double > timebins;
         
         float fMC_ScatterArea;
         
         bool bNOFILE;
         TDirectory* fGDirectory;
-        TFile *fOutputFile;
+        TFile* fOutputFile;
         
         vector< double > fZe;
         vector< double > fMCZe;
@@ -64,15 +64,15 @@ class VEffectiveAreaCalculator
         unsigned int fhistoNEbins;              // energy bins for histograms only
         unsigned int fResponseMatricesEbinning; // fine bins for response matrices. Likelihood analysis.
         unsigned int fLogAngularBin;            // bins for the log10(angular diff R,MC [deg])
-
+        
         vector< float >                      fEff_E0;
         map< unsigned int, vector< float > > fEffArea_map;
-	map< unsigned int, vector< float > > fEffAreaMC_map;
+        map< unsigned int, vector< float > > fEffAreaMC_map;
         map< unsigned int, vector< float > > fEff_EsysMCRelative;
-	map< unsigned int, vector< float > > fe_MC_Res_map;
-	map< unsigned int, vector< float > > fe_Rec_Res_map;
-	map< unsigned int, vector< float > > fe_Rec_Res_Err_map;
-	map< unsigned int, unsigned int > fEntry_map;
+        map< unsigned int, vector< float > > fe_MC_Res_map;
+        map< unsigned int, vector< float > > fe_Rec_Res_map;
+        map< unsigned int, vector< float > > fe_Rec_Res_Err_map;
+        map< unsigned int, unsigned int > fEntry_map;
         
         // mean and mean time binned effective areas
         unsigned int     fNTimeBinnedMeanEffectiveArea;
@@ -84,9 +84,9 @@ class VEffectiveAreaCalculator
         
         TGraphErrors* gMeanSystematicErrorGraph;
         
-	// For Binned Likelihood
-	TGraphAsymmErrors* gMeanEffectiveAreaMC;
-	TH2D*		   hMeanResponseMatrix;
+        // For Binned Likelihood
+        TGraphAsymmErrors* gMeanEffectiveAreaMC;
+        TH2D*		   hMeanResponseMatrix;
         // unique event counting
         map< unsigned int, unsigned short int> fUniqueEventCounter;
         
@@ -99,7 +99,7 @@ class VEffectiveAreaCalculator
         
         double fEnergyAxis_minimum_defaultValue;
         double fEnergyAxis_maximum_defaultValue;
-
+        
         double fLogAngular_minimum_defaultValue;
         double fLogAngular_maximum_defaultValue;
         
@@ -121,34 +121,36 @@ class VEffectiveAreaCalculator
         // list of histograms
         enum E_HISTYPE { E_1D, E_1P, E_2D };
         enum E_HIS1D { E_Emc, E_Ecut, E_EcutUW, E_EcutNoTh2,
-                E_Ecut500, E_EcutRec, E_EcutRecUW, E_EcutRecNoTh2,
-                E_WeightedRate, E_WeightedRate005,
-                E_EcutTrigger, E_EcutFiducialArea, 
-                E_EcutStereoQuality, E_EcutTelType,
-                E_EcutDirection, E_EcutEnergyReconstruction,
-                E_EcutGammaHadron, E_EmcUW };
+                       E_Ecut500, E_EcutRec, E_EcutRecUW, E_EcutRecNoTh2,
+                       E_WeightedRate, E_WeightedRate005,
+                       E_EcutTrigger, E_EcutFiducialArea,
+                       E_EcutStereoQuality, E_EcutTelType,
+                       E_EcutDirection, E_EcutEnergyReconstruction,
+                       E_EcutGammaHadron, E_EmcUW
+                     };
         enum E_HIS1P { E_EmcSWeight, E_EsysMCRelative };
-        enum E_HIS2D {E_EsysMCRelativeRMS, E_EsysMCRelative2D, 
-               E_EsysMCRelative2DNoDirectionCut, E_Esys2D,
-               E_ResponseMatrix, E_ResponseMatrixFine,
-               E_ResponseMatrixQC, E_ResponseMatrixFineQC,
-               E_ResponseMatrixNoDirectionCut,
-               E_ResponseMatrixFineNoDirectionCut};
-        
+        enum E_HIS2D {E_EsysMCRelativeRMS, E_EsysMCRelative2D,
+                      E_EsysMCRelative2DNoDirectionCut, E_Esys2D,
+                      E_ResponseMatrix, E_ResponseMatrixFine,
+                      E_ResponseMatrixQC, E_ResponseMatrixFineQC,
+                      E_ResponseMatrixNoDirectionCut,
+                      E_ResponseMatrixFineNoDirectionCut
+                     };
+                     
         TList* hisVList;
         // dimension: [spectral index][az]
         map< int, vector< vector< TH1D* > > > hV_HIS1D;
         map< int, vector< vector< TProfile* > > > hV_HIS1P;
         map< int, vector< vector< TH2D* > > > hV_HIS2D;
-
+        
         // angular resolution graphs (vector in az)
         vector< TGraphErrors* > fGraph_AngularResolution68p;
         vector< TGraphErrors* > fGraph_AngularResolution80p;
         vector< TGraphErrors* > fGraph_AngularResolutionKingSigma;
         vector< TGraphErrors* > fGraph_AngularResolutionKingGamma;
-
+        
         vector< TH2D* >         hVAngularLogDiffEmc_2D;
-        TH2D *hAngularLogDiffEmc_2D;
+        TH2D* hAngularLogDiffEmc_2D;
         
         // the following histograms are written to the output file
         // (into the fEffArea tree)
@@ -157,12 +159,12 @@ class VEffectiveAreaCalculator
         map< int, TH1D* > h_HIS1D;
         map< int, TProfile* > h_HIS1P;
         map< int, TH2D* > h_HIS2D;
-
+        
         TGraphAsymmErrors* gEffAreaMC;
         TGraphAsymmErrors* gEffAreaRec;
         TGraphAsymmErrors* gEffAreaNoTh2MC;
         TGraphAsymmErrors* gEffAreaNoTh2Rec;
-
+        
         int fEffectiveAreaVsEnergyMC;            // 0 = vs MC energy, 1 = vs rec energy (approx. method), 2 = vs rec energy (default)
         TTree* fEffArea;
         float ze;
@@ -215,7 +217,7 @@ class VEffectiveAreaCalculator
         
         /////////////////////////////
         // DL2 event data tree
-        TTree *fDL2EventTree;
+        TTree* fDL2EventTree;
         bool   fDL2WriteFullEventTree;
         UInt_t fDL2_runNumber;
         UInt_t fDL2_eventNumber;
@@ -261,7 +263,7 @@ class VEffectiveAreaCalculator
         float fDL2_ES[VDST_MAXTELESCOPES];
         float fDL2_asym[VDST_MAXTELESCOPES];
         float fDL2_tgrad_x[VDST_MAXTELESCOPES];
-
+        
         // effective area smoothing
         int fSmoothIter;
         double fSmoothThreshold;
@@ -272,23 +274,23 @@ class VEffectiveAreaCalculator
         double fEffectiveAreas_meanPedVar;
         double fEffectiveAreas_meanIndex;
         double fEffectiveAreas_meanN;
-
+        
         // Gaussian function for approximating the response matrix
-        TF1 *fGauss;
+        TF1* fGauss;
         // Bool to handle if likelihood analysis is required
         bool bLikelihoodAnalysis;
         bool bIsOn;
-
+        
         TGraphAsymmErrors* applyResponseMatrix( TH2* h, TGraphAsymmErrors* g );
         bool               binomialDivide( TGraphAsymmErrors* g, TH1D* hrec, TH1D* hmc,
-                               float *eff = 0, float* eff_error = 0 );
+                                           float* eff = 0, float* eff_error = 0 );
         void               copyProfileHistograms( TProfile*,  TProfile* );
         void               copyHistograms( TH1*,  TH1*, bool );
         void               fillAngularResolution( unsigned int i_az, bool iContaintment_80p );
-        void               fillDL2EventDataTree( CData *c, UChar_t iCutClass, float iMVA );
+        void               fillDL2EventDataTree( CData* c, UChar_t iCutClass, float iMVA );
         void               fillEcutSub( double iE, enum E_HIS1D iCutIndex );
-        void               fillHistogram( int iHisType, int iHisN, 
-                                          unsigned int s, unsigned i_az, 
+        void               fillHistogram( int iHisType, int iHisN,
+                                          unsigned int s, unsigned i_az,
                                           double i_x, double i_w, double i_w2D = 1. );
         float              getAzMean( float azmin, float azmax );
         double             getCRWeight( double iEMC_TeV_lin, TH1* h , bool for_back_map = false, TH1* hF = 0 );
@@ -301,15 +303,15 @@ class VEffectiveAreaCalculator
         vector< unsigned int > getUpperLowBins( vector< double > i_values, double d );
         bool   initializeEffectiveAreasFromHistograms( TTree*, TH1D*, double azmin, double azmax, double ispectralindex, double ipedvar );
         vector< float >    interpolate_effectiveArea( double iV, double iVLower, double iVupper,
-               vector< float > iEL, vector< float > iEU, bool iCos = true );
-        bool               newEffectiveAreaHistogram( string iType, int iHisN, string iHisTitle, 
-                                                      string iTitleX, string iTitleY, 
-                                                      int i_nbins, double i_xmin, double i_xmax,
-                                                      int i_nbins_y = -1,
-                                                      double i_ymin = -1., double i_ymax = 1.,
-                                                      string iPOpt = "" );
+                vector< float > iEL, vector< float > iEU, bool iCos = true );
+        bool               newEffectiveAreaHistogram( string iType, int iHisN, string iHisTitle,
+                string iTitleX, string iTitleY,
+                int i_nbins, double i_xmin, double i_xmax,
+                int i_nbins_y = -1,
+                double i_ymin = -1., double i_ymax = 1.,
+                string iPOpt = "" );
         void               reset();
-        void               resetEffAreaArray( float *v );
+        void               resetEffAreaArray( float* v );
         void               resetTimeBin();
         void               resetHistograms( unsigned int iZe );
         void               resetHistogramsVectors();
@@ -321,9 +323,9 @@ class VEffectiveAreaCalculator
         // constructor for reading
         VEffectiveAreaCalculator( string ieffFile, double azmin, double azmax, double iPedVar, double iIndex,
                                   vector< double> fMCZe, int iSmoothIter = -1, double iSmoothThreshold = 1.,
-				  int iEffectiveAreaVsEnergyMC = 2, bool iLikelihoodAnalysis = false, bool iIsOn = false );
+                                  int iEffectiveAreaVsEnergyMC = 2, bool iLikelihoodAnalysis = false, bool iIsOn = false );
         // constructor for filling
-        VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter*, 
+        VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter*,
                                   vector< VGammaHadronCuts* >,
                                   TFile* );
         ~VEffectiveAreaCalculator();
@@ -337,11 +339,11 @@ class VEffectiveAreaCalculator
         }
         int getEnergyAxis_nbins_defaultValue()
         {
-                return fhistoNEbins;
+            return fhistoNEbins;
         }
         TTree*             getEventDL2DataTree()
         {
-                return fDL2EventTree;
+            return fDL2EventTree;
         }
         TTree*             getAcceptance_AfterCuts()
         {
@@ -406,12 +408,12 @@ class VEffectiveAreaCalculator
             fTelescopeTypeCutsSet = iB;
         }
         void                setWobbleOffset( double x, double y );
-       
+        
         void 				addMeanResponseMatrix( vector <float> i_emc, vector <float> i_erec , vector <float> i_erec_err );
         TH2D* 				getMeanResponseMatrix()
         {
-            VHistogramUtilities::normalizeTH2D_y(hMeanResponseMatrix);
-            return (TH2D*)hMeanResponseMatrix->Clone();
+            VHistogramUtilities::normalizeTH2D_y( hMeanResponseMatrix );
+            return ( TH2D* )hMeanResponseMatrix->Clone();
         }
 };
 #endif

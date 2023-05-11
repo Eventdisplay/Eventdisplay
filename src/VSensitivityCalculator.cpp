@@ -688,8 +688,8 @@ bool VSensitivityCalculator::calculateParticleNumberGraphs_MC( double dE_Log10 )
     bNewCanvas:   plot histograms and Crab lines
 
 */
-TCanvas* VSensitivityCalculator::plotSensitivityvsEnergyFromCrabSpectrum( 
-        TCanvas* cSensitivity, string bUnit, double dE_Log10, bool bNewCanvas )
+TCanvas* VSensitivityCalculator::plotSensitivityvsEnergyFromCrabSpectrum(
+    TCanvas* cSensitivity, string bUnit, double dE_Log10, bool bNewCanvas )
 {
 
     // get canvas
@@ -787,8 +787,8 @@ bool VSensitivityCalculator::calculateSensitivityvsEnergyFromCrabSpectrum( strin
     // read sensitivities from CTA WP Phys tree
     else if( "CTA-PHYSTREE" )
     {
-
-       return true;
+    
+        return true;
     }
     // differential flux vector from anasum file (e.g. a measurement towards the Crab Nebula)
     else
@@ -1170,7 +1170,7 @@ TCanvas* VSensitivityCalculator::plotCanvas_SensitivityvsEnergy( string bUnit, b
     
     plot_nullHistogram( iCanvas, hnull, true, true, 1.7, TMath::Power( 10., fEnergy_min_Log ), TMath::Power( 10., fEnergy_max_Log ) );
     iCanvas->SetLogy( 1 );
-
+    
     // get vector with integral or differential Crab-like spectra for different flux levels
     vector< TGraph* > i_fFunCrabFlux = getCrabSpectrum( fPlottingCrabFlux_CU, bIntegralSensitivity, bUnit, false, true );
     
@@ -1591,7 +1591,7 @@ vector< VDifferentialFluxData > VSensitivityCalculator::getDifferentialFluxVecto
 
     allows to cut for maximum energy bias (default: off)
 
-    returns: 
+    returns:
     - sensitivity graph
 
     fills:
@@ -1690,7 +1690,7 @@ TGraphAsymmErrors* VSensitivityCalculator::getSensitivityGraphFromWPPhysFile( st
         get_Graph_from_Histogram( h, gElectronRate, true, 0., log10( iEnergyMin_TeV_lin ), log10( iEnergyMax_TeV_lin ) );
         setGraphPlottingStyle( gElectronRate, 1, 2, 22, 2 );
     }
-
+    
     // remove points with large energy bias
     if( fMaxEnergyBias < 1.e4 && fMaxEnergyBias > 0. )
     {
@@ -1724,15 +1724,15 @@ void VSensitivityCalculator::applyEnergyBiasCut( TH1F* h, TGraphAsymmErrors* g, 
     {
         return;
     }
-
+    
     int nRemoved = 0;
-
+    
     double x = 0.;
     double y = 0.;
     for( int i = 0; i < g->GetN(); i++ )
     {
         g->GetPoint( i, x, y );
-        if( h->FindBin( x ) > 0. 
+        if( h->FindBin( x ) > 0.
                 && h->GetBinContent( h->FindBin( x ) ) > iMaxEBias )
         {
             g->RemovePoint( i );
@@ -1744,7 +1744,7 @@ void VSensitivityCalculator::applyEnergyBiasCut( TH1F* h, TGraphAsymmErrors* g, 
         cout << "removed " << nRemoved << " point(s) due to maximum energy bias constraint";
         cout << " (<" << iMaxEBias << ")" << endl;
     }
-
+    
 }
 
 /*
@@ -2571,7 +2571,7 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
                     if( c->e0[n] > iMCPara->energy_lowEdge[i] && c->e0[n] < iMCPara->energy_upEdge[i] )
                     {
                         iMCPara->effArea.back() += c->eff[n];
-                        iMCPara->effArea_error.back() += (c->eff_error[n]*c->eff_error[n] );
+                        iMCPara->effArea_error.back() += ( c->eff_error[n] * c->eff_error[n] );
                         z++;
                     }
                 }
@@ -2646,7 +2646,7 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
                                            c->hResponseMatrix->GetXaxis()->GetXmin(), c->hResponseMatrix->GetXaxis()->GetXmax(),
                                            c->hResponseMatrix->GetNbinsY(),
                                            c->hResponseMatrix->GetYaxis()->GetXmin(), c->hResponseMatrix->GetYaxis()->GetXmax() );
-        TH2D* i_hResponse = (TH2D*)c->hResponseMatrix;
+        TH2D* i_hResponse = ( TH2D* )c->hResponseMatrix;
         // for cosmic rays: interpolate response matrix
         if( iMCPara->fParticleID != 1 && iMCPara->fParticleID != 2 )
         {
@@ -2696,12 +2696,12 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
     vector< VGammaHadronCuts* > iCuts;
     if( fEff.Get( "GammaHadronCuts" ) )
     {
-        iCuts.push_back( (VGammaHadronCuts*)fEff.Get( "GammaHadronCuts" ) );
+        iCuts.push_back( ( VGammaHadronCuts* )fEff.Get( "GammaHadronCuts" ) );
     }
     else if( fEff.Get( "GammaHadronCuts_0" ) && fEff.Get( "GammaHadronCuts_1" ) )
     {
-        iCuts.push_back( (VGammaHadronCuts*)fEff.Get( "GammaHadronCuts_0" ) );
-        iCuts.push_back( (VGammaHadronCuts*)fEff.Get( "GammaHadronCuts_1" ) );
+        iCuts.push_back( ( VGammaHadronCuts* )fEff.Get( "GammaHadronCuts_0" ) );
+        iCuts.push_back( ( VGammaHadronCuts* )fEff.Get( "GammaHadronCuts_1" ) );
     }
     if( iCuts.size() > 0 )
     {
@@ -2714,7 +2714,7 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
             theta2_min_average +=  iCuts[c]->getTheta2Cut_min();
         }
         // theta2 min assumed to be energy independent
-        iMCPara->theta2_min = theta2_min_average / (double)iCuts.size();
+        iMCPara->theta2_min = theta2_min_average / ( double )iCuts.size();
         if( iMCPara->theta2_min < 0. )
         {
             iMCPara->theta2_min = 0.;
@@ -2738,7 +2738,7 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
             {
                 theta2_max_average += iCuts[c]->getTheta2Cut_max( TMath::Power( 10., e ) );
             }
-            itheta2 = theta2_max_average / (double)iCuts.size();
+            itheta2 = theta2_max_average / ( double )iCuts.size();
             if( itheta2 > 0. )
             {
                 iSolidAngle  = 2. * TMath::Pi() * ( 1. - cos( sqrt( itheta2 ) * TMath::Pi() / 180. ) );
@@ -2762,13 +2762,13 @@ bool VSensitivityCalculator::getMonteCarlo_EffectiveArea( VSensitivityCalculator
     fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults" );
     if( !fTMVAEvaluatorResults )
     {
-       fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults_0" );
+        fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults_0" );
     }
     if( !fTMVAEvaluatorResults )
     {
-       fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults0" );
+        fTMVAEvaluatorResults = ( VTMVAEvaluatorResults* )fEff.Get( "TMVAEvaluatorResults0" );
     }
-
+    
     if( fTMVAEvaluatorResults )
     {
         cout << "reading TMVAEvaluatorResults from effective area file (";
@@ -3029,9 +3029,9 @@ void VSensitivityCalculator::fillParticleNumbersGraphs( vector< VDifferentialFlu
             gBGRate->SetPointEXhigh( z, log10( iDifferentialFlux[i].Energy_upEdge ) - log10( iDifferentialFlux[i].Energy ) );
             gBGRate->SetPointEXlow( z, log10( iDifferentialFlux[i].Energy ) - log10( iDifferentialFlux[i].Energy_lowEdge ) );
             gBGRate->SetPointEYhigh( z,
-                               iDifferentialFlux[i].NOff_error * alpha / ( fObservationTime_h * 60. ) / dE_log10 );
+                                     iDifferentialFlux[i].NOff_error * alpha / ( fObservationTime_h * 60. ) / dE_log10 );
             gBGRate->SetPointEYlow( z,
-                               iDifferentialFlux[i].NOff_error * alpha / ( fObservationTime_h * 60. ) / dE_log10 );
+                                    iDifferentialFlux[i].NOff_error * alpha / ( fObservationTime_h * 60. ) / dE_log10 );
             z++;
         }
     }
@@ -3598,18 +3598,18 @@ void VSensitivityCalculator::smoothenSensitivityGraph( TGraphAsymmErrors* g, TH1
         double yL = 0.;
         double yH = 0.;
         double x = 0.;
-
-        for( int i = 1; i < g->GetN()-1; i++ )
+        
+        for( int i = 1; i < g->GetN() - 1; i++ )
         {
-            g->GetPoint( i-1, x, yL );
-            g->GetPoint( i+1, x, yH );
+            g->GetPoint( i - 1, x, yL );
+            g->GetPoint( i + 1, x, yH );
             g->GetPoint( i, x, y );
-
+            
             if( x > 0. && x < 1. )
             {
                 if( h->GetBinContent( h->FindBin( x ) ) < 1.e-20 )
                 {
-                    yN = 0.5* ( yL + yH );
+                    yN = 0.5 * ( yL + yH );
                     g->SetPoint( i, x, yN );
                     cout << "Interpolated sensitivity for bin: ";
                     cout << x << "\t" << yN;
@@ -3619,7 +3619,7 @@ void VSensitivityCalculator::smoothenSensitivityGraph( TGraphAsymmErrors* g, TH1
         }
     }
 }
-    
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

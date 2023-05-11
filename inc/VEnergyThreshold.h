@@ -47,8 +47,8 @@ class VEnergyThreshold : public TObject
         
         double fze;
         int fAzBin;
-		double fAzMin;
-		double fAzMax;
+        double fAzMin;
+        double fAzMax;
         double fXoff;
         double fYoff;
         double fWoff;
@@ -88,9 +88,12 @@ class VEnergyThreshold : public TObject
         VEnergyThreshold();
         VEnergyThreshold( string ioutfilename, string iFileOption = "UPDATE" );
         VEnergyThreshold( double iEthFixed, string iInFile = "" );
-       ~VEnergyThreshold();
+        ~VEnergyThreshold();
         bool closeOutputFile();
-        bool  isZombie() { return fIsZombie; }
+        bool  isZombie()
+        {
+            return fIsZombie;
+        }
         bool   openEffectiveAreaFile( string ifile );
         bool   calculateEnergyThreshold( int nentries = -1 );
         double getEnergy_diffMax( TObject* h = 0, double index = -2.5 );
