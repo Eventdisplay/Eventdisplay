@@ -42,7 +42,7 @@ void VPlotCompareDataWithMC::help()
     cout << "centroid plots:                  centroids()" << endl << endl;
     cout << "image parameter distributions:   single_telescope()" << endl << endl;
     cout << "width/length energy dependent:   widthlength_vs_energy_plots()" << endl << endl;
-    cout << "erecratio energy depednent:      erecRatio_vs_energy_plots()" << endl << endl;
+    cout << "erecratio energy dependent:      erecRatio_vs_energy_plots()" << endl << endl;
     cout << "mva energy dependent:            mva_vs_energy_plots()" << endl << endl;
     cout << "mva parameter distribution:      mva_parameter()" << endl << endl;
     cout << endl;
