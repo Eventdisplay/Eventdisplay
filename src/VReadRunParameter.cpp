@@ -612,36 +612,6 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
         {
             fRunPara->fDBCameraRotationMeasurements = atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
         }
-        else if( iTemp.rfind( "-usetcorrectionfrom" ) < iTemp.size() )
-        {
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->fDBTrackingCorrections = iTemp2;
-                fRunPara->fDBTracking = true;
-                i++;
-            }
-            else
-            {
-                fRunPara->fDBTrackingCorrections = "";
-                cout << "no date for T-Point correction given" << endl;
-                return false;
-            }
-        }
-        else if( iTemp.rfind( "-pointingmonitortxt" ) < iTemp.size() )
-        {
-            if( iTemp2.size() > 0 )
-            {
-                fRunPara->fPMTextFileDirectory = iTemp2;
-                fRunPara->fDBTracking = true;
-                i++;
-            }
-            else
-            {
-                fRunPara->fPMTextFileDirectory = "";
-                cout << "no pointing monitor text file directory give" << endl;
-                return false;
-            }
-        }
         // min laser charge
         else if( iTemp.rfind( "lasermin" ) < iTemp.size() )
         {
@@ -1342,14 +1312,6 @@ void VReadRunParameter::test_and_adjustParams()
     }
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // can't apply T-point corrections to pointing monitor data
-    if( fRunPara->fDBTrackingCorrections.size() > 0 && fRunPara->fPMTextFileDirectory.size() > 0 )
-    {
-        cout << "error: can't apply T-point corrections to pointing monitor data" << endl;
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE );
-    }
-    
     // switch of display in calibration and dst mode
     if( fRunPara->fdisplaymode == true && fRunPara->frunmode != 0 )
     {

@@ -137,7 +137,6 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fDBVPM = false;
     fDBUncalibratedVPM = false;
 #endif
-    fPMTextFileDirectory = "";
     fPointingErrorX.push_back( 0. );
     fPointingErrorY.push_back( 0. );
     // star catalogue

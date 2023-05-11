@@ -125,7 +125,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         double felevation;                        // elevation in [deg] (preli)
         double fazimuth;                          // azimuth in [deg] (preli)
         bool fDBTracking;                         // use tracking from DB
-        string fPMTextFileDirectory;              // pointing monitor text file directory
         bool fDBVPM;                              // use calibrated VPM tracking from database
         bool fDBUncalibratedVPM;                  // use uncalibrated VPM tracking from database
         vector<double> fPointingErrorX;           // pointing error, in camera coordinates [deg]
