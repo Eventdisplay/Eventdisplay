@@ -138,7 +138,6 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fDBVPM = false;
     fDBUncalibratedVPM = false;
 #endif
-    fDBTrackingCorrections = "";
     fPMTextFileDirectory = "";
     fPointingErrorX.push_back( 0. );
     fPointingErrorY.push_back( 0. );

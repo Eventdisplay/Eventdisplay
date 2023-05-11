@@ -445,9 +445,6 @@ EVNOBJECTS =    ./obj/VVirtualDataReader.o \
 		./obj/VArrayPointing.o \
 		./obj/VStarCatalogue.o  ./obj/VStarCatalogue_Dict.o \
 		./obj/VStar.o ./obj/VStar_Dict.o \
-		./obj/VTrackingCorrections.o \
-		./obj/CorrectionParameters.o \
-		./obj/Angle.o \
 		./obj/PointingMonitor.o \
 		./obj/VSkyCoordinatesUtilities.o \
 		./obj/VHoughTransform.o \

@@ -126,7 +126,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         double felevation;                        // elevation in [deg] (preli)
         double fazimuth;                          // azimuth in [deg] (preli)
         bool fDBTracking;                         // use tracking from DB
-        string fDBTrackingCorrections;            // apply tracking corrections from this period (SQL time string), empty for use of measured values in db
         string fPMTextFileDirectory;              // pointing monitor text file directory
         bool fDBVPM;                              // use calibrated VPM tracking from database
         bool fDBUncalibratedVPM;                  // use uncalibrated VPM tracking from database
@@ -329,6 +328,6 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
             return fuseDB;
         }
         
-        ClassDef( VEvndispRunParameter, 191 ); //(increase this number)
+        ClassDef( VEvndispRunParameter, 192 ); //(increase this number)
 };
 #endif

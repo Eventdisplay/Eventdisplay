@@ -6,7 +6,6 @@
 #include "PointingMonitor.h"
 #include "VAstronometry.h"
 #include "VGlobalRunParameter.h"
-#include "VTrackingCorrections.h"
 #include "VDB_Connection.h"
 
 #include <TMath.h>
@@ -77,9 +76,6 @@ class VPointingDB : public VGlobalRunParameter
         
         
         VDB_Connection* fmy_connection;
-        
-        VTrackingCorrections* fTrackingCorrections;
-        string fTPointCorrectionDate;
         
         bool getDBRunInfo();
         void getDBMJDTime( string itemp, int& MJD, double& Time, bool bStrip );
@@ -156,7 +152,7 @@ class VPointingDB : public VGlobalRunParameter
         {
             return fTelID;
         }
-        bool   initialize( string iTPointCorrection, string iVPMDirectory, bool iVPMDB, bool iUncalibratedVPM );
+        bool   initialize( string iVPMDirectory, bool iVPMDB, bool iUncalibratedVPM );
         void   setObservatory( double iLongitude_deg = 0., double iLatitude_deg = 0. );
         bool   terminate();
         bool   updatePointing( int MJD, double iTime );
