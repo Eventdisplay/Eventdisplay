@@ -8,24 +8,24 @@
 
 #include "VPointingCorrectionsTreeReader.h"
 
-VPointingCorrectionsTreeReader::VPointingCorrectionsTreeReader( TChain *t )
+VPointingCorrectionsTreeReader::VPointingCorrectionsTreeReader( TChain* t )
 {
     fPointingErrorX = 0.;
     fPointingErrorY = 0.;
     fPointingCorrectionTreeSetting = false;
-
+    
     fTree = t;
     if( fTree )
     {
         if( fTree->GetBranchStatus( "PointingErrorX" ) &&
-            fTree->GetBranchStatus( "PointingErrorY" ) )
+                fTree->GetBranchStatus( "PointingErrorY" ) )
         {
             fTree->SetBranchAddress( "PointingErrorX", &fPointingErrorX );
             fTree->SetBranchAddress( "PointingErrorY", &fPointingErrorY );
             fPointingCorrectionTreeSetting = true;
         }
     }
-
+    
 }
 
 
@@ -58,7 +58,7 @@ Long64_t VPointingCorrectionsTreeReader::getEntries()
  */
 float VPointingCorrectionsTreeReader::getCorrected_cen_x( float cen_x )
 {
-   return cen_x + fPointingErrorX;
+    return cen_x + fPointingErrorX;
 }
 
 /*
@@ -66,7 +66,7 @@ float VPointingCorrectionsTreeReader::getCorrected_cen_x( float cen_x )
  */
 float VPointingCorrectionsTreeReader::getCorrected_cen_y( float cen_y )
 {
-   return cen_y + fPointingErrorY;
+    return cen_y + fPointingErrorY;
 }
 
 
@@ -77,10 +77,10 @@ float VPointingCorrectionsTreeReader::getCorrected_phi( float cen_x, float cen_y
 {
     float xmean = cen_x + fPointingErrorX;
     float ymean = cen_y + fPointingErrorY;
-
+    
     const double ac = ( d + s ) * ymean + 2.0 * sdevxy * xmean;
     const double bc = 2.0 * sdevxy * ymean - ( d - s ) * xmean;
     const double cc = sqrt( ac * ac + bc * bc );
-
+    
     return atan2( ac / cc, bc / cc );
 }

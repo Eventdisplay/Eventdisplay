@@ -657,7 +657,7 @@ bool VImageCleaning::BoundarySearch( unsigned int teltype, float thresh, TF1* fP
         return 0;
     }
     
-//    float TimeForReSearch = 0.;
+    //    float TimeForReSearch = 0.;
     bool iffound = false;
     Int_t n = 0;
     float time = 0.;

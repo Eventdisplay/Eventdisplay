@@ -35,7 +35,7 @@ class VPlotCTAArrayLayout_TelescopeList
     
         int       fTelID;           // prod3b telID
         string    fTelIDName;       // telescope name (plotted as label)
-        ULong64_t fTelType;       
+        ULong64_t fTelType;
         string    fTelTypeName;
         int       fTelID_hyperArray;
         float     fTel_x;
@@ -96,12 +96,18 @@ class VPlotCTAArrayLayout
         unsigned int getTelTypeNumber( string iTelType );
         float    getCost_LST( bool iNorth = false )
         {
-            if( iNorth ) return 13.;
+            if( iNorth )
+            {
+                return 13.;
+            }
             return 15.;
         }
         float    getCost_MST( bool iNorth = false )
         {
-            if( iNorth ) return 4.4;
+            if( iNorth )
+            {
+                return 4.4;
+            }
             return 3.9;
         }
         float    getCost_SST()
@@ -131,7 +137,7 @@ class VPlotCTAArrayLayout
         }
         bool     setSubArray( string iSubArrayFile = "" );
         void     synchronizeTelescopeLists( vector< VPlotCTAArrayLayout_TelescopeList* > iInputList,
-                bool iListFile = false );
+                                            bool iListFile = false );
 };
 
 VPlotCTAArrayLayout::VPlotCTAArrayLayout()
@@ -186,7 +192,7 @@ void VPlotCTAArrayLayout::printListOfTelescopes( int iMode, double dx, double dy
         {
             cout << "Telescope " << i + 1;
             cout << "\t" << iPrintList[i]->fTelIDName;
-            cout << "\t" << setprecision(2) << fixed << setw(8);
+            cout << "\t" << setprecision( 2 ) << fixed << setw( 8 );
             cout << iPrintList[i]->fTel_x - dx;
             cout << "\t" << iPrintList[i]->fTel_y + dy;
             cout << "\t" << iPrintList[i]->fTel_z << endl;
@@ -206,10 +212,10 @@ void VPlotCTAArrayLayout::printListOfTelescopes( int iMode, double dx, double dy
         // data
         for( unsigned int i = 0; i < iPrintList.size(); i++ )
         {
-            cout << iPrintList[i]->fTelIDName << separator << setw(8);
-            cout << iPrintList[i]->fTel_y + dy << separator << setw(8);
-            cout << -1.*iPrintList[i]->fTel_x + dx << separator << setw(8);
-            cout << iPrintList[i]->fTel_z << separator << setw(8);
+            cout << iPrintList[i]->fTelIDName << separator << setw( 8 );
+            cout << iPrintList[i]->fTel_y + dy << separator << setw( 8 );
+            cout << -1.*iPrintList[i]->fTel_x + dx << separator << setw( 8 );
+            cout << iPrintList[i]->fTel_z << separator << setw( 8 );
             cout << iPrintList[i]->fTelID << separator;
             cout << endl;
         }
@@ -220,7 +226,10 @@ void VPlotCTAArrayLayout::printListOfTelescopes( int iMode, double dx, double dy
         for( unsigned int i = 0; i < iPrintList.size(); i++ )
         {
             cout << iPrintList[i]->fTelIDName;
-            if( i != iPrintList.size()-1 ) cout << ", ";
+            if( i != iPrintList.size() - 1 )
+            {
+                cout << ", ";
+            }
         }
         cout << "]" << endl;
     }
@@ -249,7 +258,7 @@ unsigned int VPlotCTAArrayLayout::getTelTypeNumber( string iTelType )
     return iT;
 }
 
-/* 
+/*
  * print and plot number of MSTs / SSTS for fixed North scenaries
  *
  */
@@ -257,15 +266,15 @@ void VPlotCTAArrayLayout::plotFixedNorth( float iTotalSum, int iNLSTs_north, int
 {
     float iTotalSum_North = getCost_LST( true ) * iNLSTs_north + getCost_MST( true ) * iNMSTs_north;
     float iTotalSum_South = iTotalSum - iTotalSum_North;
-
+    
     cout << "Total sum: " << iTotalSum << endl;
     cout << "Total sum (North): " << iTotalSum_North << endl;
     cout << "Total sum (South): " << iTotalSum_South << endl;
-
+    
     plotFixedCostMSTSST( iTotalSum_South );
-
-
-
+    
+    
+    
 }
 
 /*
@@ -274,40 +283,40 @@ void VPlotCTAArrayLayout::plotFixedNorth( float iTotalSum, int iNLSTs_north, int
  */
 void VPlotCTAArrayLayout::plotFixedCostMSTSST( float iTotalSum )
 {
-    int nmax_MST = (int)(iTotalSum/getCost_MST(false)+0.5);
-    int nmax_SST = (int)(iTotalSum/getCost_SST()+0.5);
+    int nmax_MST = ( int )( iTotalSum / getCost_MST( false ) + 0.5 );
+    int nmax_SST = ( int )( iTotalSum / getCost_SST() + 0.5 );
     cout << endl;
     cout << "Options South:" << endl;
     cout << "\t Maximum number of MSTs: " << nmax_MST << endl;
     cout << "\t Maximum number of SSTs: " << nmax_SST << endl;
-
-    TCanvas *cFixedCosts = new TCanvas( "cFixedCosts", "fixed cost function MSTs/SSTs", 400, 400, 600, 600 );
+    
+    TCanvas* cFixedCosts = new TCanvas( "cFixedCosts", "fixed cost function MSTs/SSTs", 400, 400, 600, 600 );
     cFixedCosts->SetLeftMargin( 0.13 );
     cFixedCosts->SetGridx( 1 );
     cFixedCosts->SetGridy( 1 );
-
-    TH1D *h = new TH1D( "h", "", nmax_SST+1, 0, nmax_MST );
+    
+    TH1D* h = new TH1D( "h", "", nmax_SST + 1, 0, nmax_MST );
     h->SetMaximum( nmax_SST );
     h->SetMinimum( 0 );
     h->GetXaxis()->SetTitle( "# of MSTs" );
     h->GetYaxis()->SetTitle( "# of SSTs" );
     h->SetStats( 0 );
     h->Draw();
-
-    TF1 *f_fixedCost = new TF1( "f_fixedCost", "([0]-x*[1])/[2]", 0., nmax_MST );
+    
+    TF1* f_fixedCost = new TF1( "f_fixedCost", "([0]-x*[1])/[2]", 0., nmax_MST );
     f_fixedCost->SetParameter( 0, iTotalSum );
     f_fixedCost->SetParameter( 1, getCost_MST( false ) );
     f_fixedCost->SetParameter( 2, getCost_SST() );
     f_fixedCost->Draw( "same" );
     f_fixedCost->GetHistogram()->SetTitle( "" );
-
+    
     for( int i = 0; i <= nmax_MST; i++ )
     {
-        cout << "\t " << i << " MSTs, " << (int)(f_fixedCost->Eval( i )+0.5) << " SSTs" << endl;
+        cout << "\t " << i << " MSTs, " << ( int )( f_fixedCost->Eval( i ) + 0.5 ) << " SSTs" << endl;
     }
-
-
-
+    
+    
+    
 }
 
 void VPlotCTAArrayLayout::printArrayCosts( bool iShort, bool iNorth )
@@ -500,7 +509,7 @@ bool VPlotCTAArrayLayout::readArrayFromShortTXTFile( string iFile, double iEasti
         
         z++;
     }
-
+    
     
     is.close();
     
@@ -575,14 +584,23 @@ bool VPlotCTAArrayLayout::readArrayFromTXTFile( string iFile )
             fTelescopeList.back()->fMarkerSize = 1;
         }
         // TMPTMPTMP
-        if( fTelescopeList.size() > 100 ) fTelescopeList.back()->fMarkerColor = 416;
-        if( fTelescopeList.size() > 109 ) fTelescopeList.back()->fMarkerColor = 900;
-        if( fTelescopeList.size() > 127 ) fTelescopeList.back()->fMarkerColor = 800;
+        if( fTelescopeList.size() > 100 )
+        {
+            fTelescopeList.back()->fMarkerColor = 416;
+        }
+        if( fTelescopeList.size() > 109 )
+        {
+            fTelescopeList.back()->fMarkerColor = 900;
+        }
+        if( fTelescopeList.size() > 127 )
+        {
+            fTelescopeList.back()->fMarkerColor = 800;
+        }
     }
     
     is.close();
-
-    fTelescopeList.erase(fTelescopeList.begin());
+    
+    fTelescopeList.erase( fTelescopeList.begin() );
     
     return true;
 }
@@ -926,8 +944,8 @@ TCanvas* VPlotCTAArrayLayout::plot_array( string iname, double xmax, double ymax
     if( !cUserCanvas )
     {
         c = new TCanvas( hname, htitle, 10, 10, 800, 800 );
-        c->SetFillStyle(0);
-        c->SetFillColor(0);
+        c->SetFillStyle( 0 );
+        c->SetFillColor( 0 );
         c->SetGridx( 0 );
         c->SetGridy( 0 );
         c->SetRightMargin( 0.08 );
@@ -935,11 +953,11 @@ TCanvas* VPlotCTAArrayLayout::plot_array( string iname, double xmax, double ymax
         c->SetTopMargin( 0.08 );
         c->SetBottomMargin( 0.08 );
         c->Draw();
-        TPad *p = new TPad("p","",0.1,0.,1,1);
-        p->SetFillColor(0);
-        p->SetFillStyle(0);
-        p->SetFrameFillColor(0);
-        p->SetFrameFillStyle(0);
+        TPad* p = new TPad( "p", "", 0.1, 0., 1, 1 );
+        p->SetFillColor( 0 );
+        p->SetFillStyle( 0 );
+        p->SetFrameFillColor( 0 );
+        p->SetFrameFillStyle( 0 );
         p->SetRightMargin( 0.08 );
         p->SetLeftMargin( 0.08 );
         p->SetTopMargin( 0.08 );
@@ -948,7 +966,7 @@ TCanvas* VPlotCTAArrayLayout::plot_array( string iname, double xmax, double ymax
         p->SetGridy( 0 );
         p->Draw();
         p->cd();
-                
+        
         sprintf( hname, "hnull_%s", iname.c_str() );
         TH2D* hnull = new TH2D( hname, "", 100, -1.*xmax, xmax, 100, -1.*ymax, ymax );
         hnull->SetStats( 0 );
@@ -1176,7 +1194,7 @@ void VPlotCTAArrayLayout::plotTelescopeDistances( string iname, double i_max )
 }
 
 /*
- * return list of telescopes 
+ * return list of telescopes
  *
  */
 vector< VPlotCTAArrayLayout_TelescopeList* > VPlotCTAArrayLayout::getListOfTelescopes()
@@ -1200,9 +1218,9 @@ void VPlotCTAArrayLayout::synchronizeTelescopeLists( vector< VPlotCTAArrayLayout
         bool iListFile )
 {
     cout << "Reading input file list of size " << iInputList.size() << endl;
-
+    
     fTelescopeList_subArray.clear();
-
+    
     for( unsigned int i = 0; i < iInputList.size(); i++ )
     {
         // check if there is a corresponding telescope in
@@ -1211,10 +1229,10 @@ void VPlotCTAArrayLayout::synchronizeTelescopeLists( vector< VPlotCTAArrayLayout
         {
             if( iInputList[i] && fTelescopeList[t] )
             {
-                double d = sqrt( (iInputList[i]->fTel_x-fTelescopeList[t]->fTel_x)
-                        *(iInputList[i]->fTel_x-fTelescopeList[t]->fTel_x)
-                        +(iInputList[i]->fTel_y-fTelescopeList[t]->fTel_y)
-                        *(iInputList[i]->fTel_y-fTelescopeList[t]->fTel_y) );
+                double d = sqrt( ( iInputList[i]->fTel_x - fTelescopeList[t]->fTel_x )
+                                 * ( iInputList[i]->fTel_x - fTelescopeList[t]->fTel_x )
+                                 + ( iInputList[i]->fTel_y - fTelescopeList[t]->fTel_y )
+                                 * ( iInputList[i]->fTel_y - fTelescopeList[t]->fTel_y ) );
                 // allow for tolerances of 1 m
                 if( d < 1. )
                 {
@@ -1232,12 +1250,12 @@ void VPlotCTAArrayLayout::synchronizeTelescopeLists( vector< VPlotCTAArrayLayout
                         cout << "\t input " << iInputList[i]->fTelID << " (" << iInputList[i]->fTelIDName << ")" << endl;
                         cout << "\t match " << fTelescopeList[t]->fTelID << " (" << fTelescopeList[t]->fTelIDName << ")" << endl;
                     }
-                        
+                    
                 }
             }
         }
     }
-
+    
 }
 
 ////////////////////////////////////////////////

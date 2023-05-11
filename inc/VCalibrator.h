@@ -86,9 +86,9 @@ class VCalibrator : public VImageBaseAnalyzer
         
         TTree* fillCalibrationSummaryTree( unsigned int itel, string iName, vector<TH1F* > h );
         bool   fillPedestalTree( unsigned int tel, VPedestalCalculator* iP );
-        bool   initializePedestalHistograms( ULong64_t iTelType, bool iLowGain, 
-                                               vector< double > minSumPerSumWindow, 
-                                               vector< double > maxSumPerSumWindow );
+        bool   initializePedestalHistograms( ULong64_t iTelType, bool iLowGain,
+                                             vector< double > minSumPerSumWindow,
+                                             vector< double > maxSumPerSumWindow );
         void getCalibrationRunNumbers();
         int  getCalibrationRunNumbers_fromCalibFile();
         unsigned int getNumberOfEventsUsedInCalibration( vector< int > iE, int iTelID );

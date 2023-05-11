@@ -2,16 +2,16 @@
 
     image fitter to calculate second moment paramters
 
-    note that for efficiency reasons, only after calling calcLL 
+    note that for efficiency reasons, only after calling calcLL
     we check for zero pointers
 
 */
 
- #include <VImageParameterFitter.h>
+#include <VImageParameterFitter.h>
 
 VImageParameterFitter::VImageParameterFitter( VEvndispData* iData,
-                                              bool iDebug,
-                                              double iZeroTolerence )
+        bool iDebug,
+        double iZeroTolerence )
 {
     fDebug = iDebug;
     fLLDebug = false;
@@ -20,19 +20,19 @@ VImageParameterFitter::VImageParameterFitter( VEvndispData* iData,
         cout << "VImageParameterFitter::VImageParameterFitter()" << endl;
     }
     iZeroTolerence = ZeroTolerence;
-
+    
     // default data sources and result classes
     fData = iData;
     fParLL = 0;
     fParGeo = 0;
     fNormal2D = 0;
-
-    // fit function: 
+    
+    // fit function:
     // rotated normal distribution provides
     // with errors which are less correlated
     // bRotatedNormalDistributionFit = false;
     bRotatedNormalDistributionFit = true;
-  
+    
     resetFitParameters();
 }
 
@@ -56,7 +56,10 @@ void VImageParameterFitter::initMinuit( int iVmode )
         fLLDebug = true;
     }
     unsigned int iFitParameter = 6;
-    if( fData->getRunParameter()->fMinimizeTimeGradient ) iFitParameter = 9;
+    if( fData->getRunParameter()->fMinimizeTimeGradient )
+    {
+        iFitParameter = 9;
+    }
     fLLFitter = new TMinuit( iFitParameter );
     // no minuit printouts
     if( iVmode == 1 )
@@ -109,11 +112,11 @@ void VImageParameterFitter::initMinuit( int iVmode )
     In this case there is a large probablitity that the parameters are wrong.
 
 */
-vector<bool> VImageParameterFitter::calcLL( VImageParameter *iParGeo,
-                                            VImageParameter *iParLL,
-                                            bool iUseSums2, 
-                                            bool i_reInitializeLL, 
-                                            bool iEqualSummationWindows )
+vector<bool> VImageParameterFitter::calcLL( VImageParameter* iParGeo,
+        VImageParameter* iParLL,
+        bool iUseSums2,
+        bool i_reInitializeLL,
+        bool iEqualSummationWindows )
 {
     fParGeo = iParGeo;
     fParLL = iParLL;
@@ -141,20 +144,20 @@ vector<bool> VImageParameterFitter::calcLL( VImageParameter *iParGeo,
     
     // reset fit variables
     resetFitParameters();
-
+    
     // get pixel values, all nonimage/nonborder pixels have fData->getSums()=0.
     // if there are dead channels, size of these vectors is < fData->getSums().size() !!
     signal = fill_pixel_sums( iUseSums2 );
     
     // set start values for LL fit
     defineFitParameters();
-
+    
     // now do the minimization
     fLLFitter->Command( "MIGRAD" );
-
+    
     // fit statistics
     getFitStatistics();
-
+    
     // call HESSE in case error calculation failed
     if( fParLL->Fitstat < 3 )
     {
@@ -164,21 +167,21 @@ vector<bool> VImageParameterFitter::calcLL( VImageParameter *iParGeo,
     
     // fit results
     getFitResults();
-
+    
     // calculate image parameters from fit results
     calculateImageParameters( iUseSums2, iEqualSummationWindows );
-
+    
     return fLLEst;
 }
 
 /*
     calculate image brightness from 2D fit
 */
-double VImageParameterFitter::calculatePixelBrightness( unsigned int iChannel, 
-                                                        double rho, double phi,
-                                                        double meanX, double sigmaX, 
-                                                        double meanY, double sigmaY, 
-                                                        double signal )
+double VImageParameterFitter::calculatePixelBrightness( unsigned int iChannel,
+        double rho, double phi,
+        double meanX, double sigmaX,
+        double meanY, double sigmaY,
+        double signal )
 {
     double f = 0;
     // get channel coordinates
@@ -187,17 +190,17 @@ double VImageParameterFitter::calculatePixelBrightness( unsigned int iChannel,
     // calculate 2D-gauss
     if( bRotatedNormalDistributionFit )
     {
-        double x_p =     x*cos(phi) + y*sin(phi);
-        double y_p = -1.*x*sin(phi) + y*cos(phi);
-        double cx_p =     meanX*cos(phi) + meanY*sin(phi);
-        double cy_p = -1.*meanX*sin(phi) + meanY*cos(phi);
-
-        f  = (x_p - cx_p) * (x_p - cx_p) / sigmaX / sigmaX;
-        f += (y_p - cy_p) * (y_p - cy_p) / sigmaY / sigmaY;
+        double x_p =     x * cos( phi ) + y * sin( phi );
+        double y_p = -1.*x * sin( phi ) + y * cos( phi );
+        double cx_p =     meanX * cos( phi ) + meanY * sin( phi );
+        double cy_p = -1.*meanX * sin( phi ) + meanY * cos( phi );
+        
+        f  = ( x_p - cx_p ) * ( x_p - cx_p ) / sigmaX / sigmaX;
+        f += ( y_p - cy_p ) * ( y_p - cy_p ) / sigmaY / sigmaY;
         f *= -1. / 2.;
         f  = exp( f );
         f *= 1. / 2. / TMath::Pi() / sigmaX / sigmaY;
-    } 
+    }
     else
     {
         f  = ( x - meanX ) * ( x - meanX ) / sigmaX / sigmaX;
@@ -294,12 +297,12 @@ void get_LL_imageParameter_2DGauss( Int_t& npar, Double_t* gin, Double_t& f, Dou
     double rho_s =  1. / 2. / M_PI / par[2] / par[4] / sqrt( 1. - par[0] * par[0] ) * par[5];
     
     VImageParameterFitter* iImageCalculation = ( VImageParameterFitter* )fLLFitter->GetObjectFit();
-
+    
     if( iImageCalculation->minimize_time_gradient_for_this_event() )
     {
         t_sig = par[8];
-        phi = atan2( 2.*par[0] * par[2] * par[4], 
-                        par[2] * par[2] - par[4] * par[4] ) / 2.;
+        phi = atan2( 2.*par[0] * par[2] * par[4],
+                     par[2] * par[2] - par[4] * par[4] ) / 2.;
         t_sig_term = log( 1. / sqrt( 2. * M_PI * t_sig ) );
     }
     
@@ -340,14 +343,14 @@ void get_LL_imageParameter_2DGauss( Int_t& npar, Double_t* gin, Double_t& f, Dou
                     if( t > 0. )
                     {
                         // calculate position along long axis
-                        tx = (x-par[1]) * cos(phi) + (y-par[3]) * sin(phi);
-                        LL_t += 
-                            - 1./2./(t_sig*t_sig) 
-                            * (t - par[6] - par[7] * tx )
-                            * (t - par[6] - par[7] * tx );
+                        tx = ( x - par[1] ) * cos( phi ) + ( y - par[3] ) * sin( phi );
+                        LL_t +=
+                            - 1. / 2. / ( t_sig * t_sig )
+                            * ( t - par[6] - par[7] * tx )
+                            * ( t - par[6] - par[7] * tx );
                     }
                 }
-
+                
             }
         }
     }
@@ -366,8 +369,8 @@ void get_LL_imageParameter_2DGauss( Int_t& npar, Double_t* gin, Double_t& f, Dou
 bool VImageParameterFitter::minimize_time_gradient_for_this_event()
 {
     if( minimize_time_gradient()
-        && TMath::Abs( fParGeo->tgrad_x ) > fData->getRunParameter()->fMinimizeTimeGradient_minGradforFit
-        && fParGeo->ntubes >= fData->getRunParameter()->fMinimizeTimeGradient_minNtubes )
+            && TMath::Abs( fParGeo->tgrad_x ) > fData->getRunParameter()->fMinimizeTimeGradient_minGradforFit
+            && fParGeo->ntubes >= fData->getRunParameter()->fMinimizeTimeGradient_minNtubes )
     {
         return true;
     }
@@ -406,9 +409,15 @@ double VImageParameterFitter::getLL_paramameterlimits_rho( double rho, double up
     {
         rho_edge = rho + upper_sign * 0.1;
     }
-    if( upper_sign > 0. && rho_edge > 0.998 )  return 0.998;
-    if( upper_sign < 0. && rho_edge < -0.998 ) return -0.998;
-
+    if( upper_sign > 0. && rho_edge > 0.998 )
+    {
+        return 0.998;
+    }
+    if( upper_sign < 0. && rho_edge < -0.998 )
+    {
+        return -0.998;
+    }
+    
     return rho_edge;
 }
 
@@ -416,15 +425,15 @@ double VImageParameterFitter::getLL_paramameterlimits_rho( double rho, double up
    LL optimisation: starting value for cen(_x or _y)
 */
 double VImageParameterFitter::getLL_paramameterlimits_cen( double dist_limit,
-                                                           double centroid, 
-                                                           double fLL_StartingValue_sigma, 
-                                                           double i_sign )
+        double centroid,
+        double fLL_StartingValue_sigma,
+        double i_sign )
 {
     // temporary settings for rotated normal distribution
-/*    if( bRotatedNormalDistributionFit )
-    {
-        return i_sign * 5.;
-    } */
+    /*    if( bRotatedNormalDistributionFit )
+        {
+            return i_sign * 5.;
+        } */
     // Case 1: image is well inside the camera
     //         assumption is that geo centroids are good values
     if( fLL_StartingValue_sigma > 0. && fParGeo->loss < fData->getRunParameter()->fMinimizeTimeGradient_minLoss )
@@ -434,7 +443,10 @@ double VImageParameterFitter::getLL_paramameterlimits_cen( double dist_limit,
         if( fData->getDetectorGeometry()->getTubeRadius().size() > 0 )
         {
             camera_pixel_size = 5.*fData->getDetectorGeometry()->getTubeRadius()[0];
-            if( camera_pixel_size < 0.1 ) camera_pixel_size = 5.*0.1;
+            if( camera_pixel_size < 0.1 )
+            {
+                camera_pixel_size = 5.*0.1;
+            }
         }
         return centroid + i_sign * camera_pixel_size;
     }
@@ -442,7 +454,7 @@ double VImageParameterFitter::getLL_paramameterlimits_cen( double dist_limit,
     //         to search for centroid
     if( fLL_StartingValue_sigma > 0. )
     {
-        dist_limit = centroid + i_sign* 2.*fLL_StartingValue_sigma;
+        dist_limit = centroid + i_sign * 2.*fLL_StartingValue_sigma;
         // make sure that this is inside the FOV (+10%)
         if( fData->getDetectorGeometry() &&  fData->getTelID() < fData->getDetectorGeometry()->getFieldofView().size() )
         {
@@ -464,7 +476,7 @@ double VImageParameterFitter::getLL_paramameterlimits_cen( double dist_limit,
         // image centroid should not be outside of the FOV (by more than 10%)
         if( fData->getDetectorGeometry() &&  fData->getTelID() < fData->getDetectorGeometry()->getFieldofView().size() )
         {
-            dist_limit = i_sign *1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
+            dist_limit = i_sign * 1.1 * 0.5 * fData->getDetectorGeometry()->getFieldofView()[fData->getTelID()];
         }
         // should never land here
         else
@@ -473,7 +485,7 @@ double VImageParameterFitter::getLL_paramameterlimits_cen( double dist_limit,
         }
     }
     return dist_limit;
-
+    
 }
 /*! \fn get_LL_imageParameter_2DGaussRotated( Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
     \brief function for the loglikelihood calculation of image parameters in minuit (2dim-Gaus)
@@ -525,28 +537,28 @@ void get_LL_imageParameter_2DGaussRotated( Int_t& npar, Double_t* gin, Double_t&
     double r = 0.;
     double x_p = 0.;
     double y_p = 0.;
-    double cx_p =     par[1]*cos(par[0]) + par[3]*sin(par[0]);
-    double cy_p = -1.*par[1]*sin(par[0]) + par[3]*cos(par[0]);
+    double cx_p =     par[1] * cos( par[0] ) + par[3] * sin( par[0] );
+    double cy_p = -1.*par[1] * sin( par[0] ) + par[3] * cos( par[0] );
     double n = 0.;
     double t = 0.;
     double tx = 0.;
     double t_sig = 4.;
     double t_sig_term = 0.;
-
+    
     // normalisation factor
-    double rho_1 = -1. / 2.; 
-
-    VImageParameterFitter* iImageCalculation = (VImageParameterFitter*)fLLFitter->GetObjectFit();
-
+    double rho_1 = -1. / 2.;
+    
+    VImageParameterFitter* iImageCalculation = ( VImageParameterFitter* )fLLFitter->GetObjectFit();
+    
     if( iImageCalculation->minimize_time_gradient_for_this_event() )
     {
         t_sig = par[8];
         t_sig_term = log( 1. / sqrt( 2. * M_PI * t_sig ) );
     }
-
+    
     // for probability densitivity integration
     // (optional)
-    TF2 *fNormal2D = iImageCalculation->getNormal2D();
+    TF2* fNormal2D = iImageCalculation->getNormal2D();
     if( fNormal2D )
     {
         fNormal2D->SetParameter( 0, cx_p );
@@ -555,8 +567,8 @@ void get_LL_imageParameter_2DGaussRotated( Int_t& npar, Double_t* gin, Double_t&
         fNormal2D->SetParameter( 3, par[4] );
         fNormal2D->SetRange( par[1] - 2., par[3] - 2., par[1] + 2., par[3] + 2. );
     }
-
-
+    
+    
     if( par[2] > 0. && par[4] > 0. )
     {
         unsigned int nSums = iImageCalculation->getLLSums().size();
@@ -568,30 +580,30 @@ void get_LL_imageParameter_2DGaussRotated( Int_t& npar, Double_t* gin, Double_t&
                 // work in rotated space
                 x = iImageCalculation->getLLX()[i];
                 y = iImageCalculation->getLLY()[i];
-
+                
                 // rotated coordinate system
-                x_p = x*cos(par[0]) + y*sin(par[0]);
-                y_p = -1.*x*sin(par[0]) + y*cos(par[0]);
+                x_p = x * cos( par[0] ) + y * sin( par[0] );
+                y_p = -1.*x * sin( par[0] ) + y * cos( par[0] );
                 r = iImageCalculation->getLLR()[i] / 2.;
-
+                
                 // use integral of probability distribution
                 // (integrate over pixels)
-                // - test show that this method is inferior 
+                // - test show that this method is inferior
                 //   to all others
                 if( fNormal2D )
                 {
-                    sum = fNormal2D->Integral( x_p - r, x_p + r, 
+                    sum = fNormal2D->Integral( x_p - r, x_p + r,
                                                y_p - r, y_p + r );
                 }
-                // use probability densitiy at centre of 
+                // use probability densitiy at centre of
                 // pixel position
                 else
                 {
-                    sum  = (x_p-cx_p)*(x_p-cx_p) / par[2] / par[2]
-                         + (y_p-cy_p)*(y_p-cy_p) / par[4] / par[4];
-
+                    sum  = ( x_p - cx_p ) * ( x_p - cx_p ) / par[2] / par[2]
+                           + ( y_p - cy_p ) * ( y_p - cy_p ) / par[4] / par[4];
+                           
                     sum  = 1. / 2. / M_PI / par[2] / par[4]
-                         * exp( sum * rho_1 );
+                           * exp( sum * rho_1 );
                 }
                 sum *= par[5];
                 
@@ -618,14 +630,14 @@ void get_LL_imageParameter_2DGaussRotated( Int_t& npar, Double_t* gin, Double_t&
                     if( t > 0. )
                     {
                         // calculate position along long axis
-                        tx = (x-par[1]) * cos(par[0]) + (y-par[3]) * sin(par[0]);
-                        LL_t += 
-                            - 1./2./(t_sig*t_sig) 
-                            * (t - par[6] - par[7] * tx )
-                            * (t - par[6] - par[7] * tx );
+                        tx = ( x - par[1] ) * cos( par[0] ) + ( y - par[3] ) * sin( par[0] );
+                        LL_t +=
+                            - 1. / 2. / ( t_sig * t_sig )
+                            * ( t - par[6] - par[7] * tx )
+                            * ( t - par[6] - par[7] * tx );
                     }
                 }
-
+                
             }
         }
     }
@@ -675,10 +687,22 @@ double VImageParameterFitter::fill_pixel_sums( bool iUseSums2 )
             fll_R.push_back( ri );
             
             // get an estimate of the distance (limits to the fit)
-            if( xi > fdistXmax ) fdistXmax = xi;
-            if( xi < fdistXmin ) fdistXmin = xi;
-            if( yi > fdistYmax ) fdistYmax = yi;
-            if( yi < fdistYmin ) fdistYmin = yi;
+            if( xi > fdistXmax )
+            {
+                fdistXmax = xi;
+            }
+            if( xi < fdistXmin )
+            {
+                fdistXmin = xi;
+            }
+            if( yi > fdistYmax )
+            {
+                fdistYmax = yi;
+            }
+            if( yi < fdistYmin )
+            {
+                fdistYmin = yi;
+            }
             
             if( fData->getImage()[j] || fData->getBorder()[j] )
             {
@@ -779,7 +803,7 @@ void VImageParameterFitter::defineFitParameters()
         fLLFitter->DefineParameter( 0, "phi",
                                     phi,
                                     step,
-                                   -40.*M_PI,
+                                    -40.*M_PI,
                                     40.*M_PI );
     }
     else
@@ -791,14 +815,14 @@ void VImageParameterFitter::defineFitParameters()
                                     getLL_paramameterlimits_rho( rho, 1. ) );
     }
     // cen_x starting values
-    fLLFitter->DefineParameter( 1, "meanX", 
+    fLLFitter->DefineParameter( 1, "meanX",
                                 cen_x,
-                                step, 
+                                step,
                                 getLL_paramameterlimits_cen( fdistXmin, cen_x, sigmaX, -1. ),
                                 getLL_paramameterlimits_cen( fdistXmin, cen_x, sigmaX, 1. ) );
     // sigma x starting values
     double sigma_x_L = sigmaX / 4.;
-    double sigma_x_U = 2.*sigmaX+ 1.;
+    double sigma_x_U = 2.*sigmaX + 1.;
     if( bRotatedNormalDistributionFit )
     {
         sigma_x_L = fParGeo->width * 0.5;
@@ -806,13 +830,13 @@ void VImageParameterFitter::defineFitParameters()
     }
     fLLFitter->DefineParameter( 2, "sigmaX",
                                 sigmaX,
-                                step, 
+                                step,
                                 sigma_x_L,
                                 sigma_x_U );
     // cen_y starting values
-    fLLFitter->DefineParameter( 3, "meanY", 
+    fLLFitter->DefineParameter( 3, "meanY",
                                 cen_y,
-                                step, 
+                                step,
                                 getLL_paramameterlimits_cen( fdistYmin, cen_y, sigmaY, -1. ),
                                 getLL_paramameterlimits_cen( fdistYmin, cen_y, sigmaY, 1. ) );
     // sigma x starting values
@@ -823,12 +847,12 @@ void VImageParameterFitter::defineFitParameters()
         sigma_y_L = fParGeo->width * 0.5;
         sigma_y_U = fParGeo->length * 2.5;
     }
-    fLLFitter->DefineParameter( 4, "sigmaY", 
-                                sigmaY, 
-                                step, 
+    fLLFitter->DefineParameter( 4, "sigmaY",
+                                sigmaY,
+                                step,
                                 sigma_y_L,
                                 sigma_y_U );
-
+                                
     // signal
     fLLFitter->DefineParameter( 5, "signal", signal, step, 0., 1.e6 );
     // time gradient analysis
@@ -837,9 +861,9 @@ void VImageParameterFitter::defineFitParameters()
         double toffset_start = 0.;
         if( fData->getXGraph( false ) )
         {
-             toffset_start = fData->getXGraph( false )->Eval( 0. );
+            toffset_start = fData->getXGraph( false )->Eval( 0. );
         }
-        fLLFitter->DefineParameter( 6, "toffset", toffset_start, step, toffset_start-10., toffset_start+10. );
+        fLLFitter->DefineParameter( 6, "toffset", toffset_start, step, toffset_start - 10., toffset_start + 10. );
         fLLFitter->DefineParameter( 7, "tgrad", fParGeo->tgrad_x, step, -1.e3, 1.e3 );
         fLLFitter->DefineParameter( 8, "tchi2", sqrt( fParGeo->tchisq_x ), step, 0.1, 2.*sqrt( fParGeo->tchisq_x ) );
         if( minimize_time_gradient_for_this_event() )
@@ -855,7 +879,7 @@ void VImageParameterFitter::defineFitParameters()
         fLLFitter->FixParameter( 8 );
     }
 }
-    
+
 void VImageParameterFitter::getFitStatistics()
 {
     double edm = 0.;
@@ -899,7 +923,7 @@ void VImageParameterFitter::getFitResults()
     if( fLLDebug )
     {
         cout << "=======================================================================" << endl;
-        cout << "Telescope " << fData->getTelID()+1 << " starting parameters" << endl;
+        cout << "Telescope " << fData->getTelID() + 1 << " starting parameters" << endl;
         cout << "\t FITSTAT " << fParLL->Fitstat << endl;
         cout << "\t CENX " << cen_x << " +- " << dcen_x << endl;
         cout << "\t CENY " << cen_y << " +- " << dcen_y << endl;
@@ -941,11 +965,11 @@ void VImageParameterFitter::getFitResults()
 }
 
 void VImageParameterFitter::calculateImageParameters( bool iUseSums2,
-                                                      bool iEqualSummationWindows )
+        bool iEqualSummationWindows )
 {
     // image size
     calculate_image_size( iUseSums2, iEqualSummationWindows );
-
+    
     if( bRotatedNormalDistributionFit )
     {
         if( sigmaX < sigmaY )
@@ -954,7 +978,7 @@ void VImageParameterFitter::calculateImageParameters( bool iUseSums2,
             fParLL->dwidth = dsigmaX;
             fParLL->length = sigmaY;
             fParLL->dlength = dsigmaY;
-            phi = redang( fParLL->phi + M_PI/2.,  2. * M_PI );
+            phi = redang( fParLL->phi + M_PI / 2.,  2. * M_PI );
             fParLL->phi = phi;
         }
         else
@@ -964,26 +988,26 @@ void VImageParameterFitter::calculateImageParameters( bool iUseSums2,
             fParLL->length = sigmaX;
             fParLL->dlength = dsigmaX;
         }
-        sigmaX *= cos(phi);
-        sigmaY *= sin(phi);
+        sigmaX *= cos( phi );
+        sigmaY *= sin( phi );
         calculate_image_rho();
     }
-
+    
     // covariance
     double sigmaXY = rho * sqrt( sigmaX * sigmaX * sigmaY * sigmaY );
     
     double d = sigmaY * sigmaY - sigmaX * sigmaX;
     double z = sqrt( d * d + 4. * sigmaXY * sigmaXY );
-
+    
     double dsxxy2 = sigmaX * sigmaX * sigmaY * sigmaY;
     double dsigmaXY2 = dsxxy2 * drho * drho;
     dsigmaXY2 += rho * rho * sigmaX * sigmaX * sigmaY * sigmaY * sigmaY * sigmaY / dsxxy2 * dsigmaX * dsigmaX;
     dsigmaXY2 += rho * rho * sigmaX * sigmaX * sigmaX * sigmaX * sigmaY * sigmaY / dsxxy2 * dsigmaY * dsigmaY;
-    double dd2 = 4.*sigmaY * sigmaY * dsigmaY * dsigmaY 
-               + 4.*sigmaX * sigmaX * dsigmaX * dsigmaX;
+    double dd2 = 4.*sigmaY * sigmaY * dsigmaY * dsigmaY
+                 + 4.*sigmaX * sigmaX * dsigmaX * dsigmaX;
     double dz2 = d * d / ( d * d + 4.*sigmaXY * sigmaXY ) * dd2
-              + 16.*sigmaXY * sigmaXY / ( d * d + 4.*sigmaXY * sigmaXY ) * dsigmaXY2;
-
+                 + 16.*sigmaXY * sigmaXY / ( d * d + 4.*sigmaXY * sigmaXY ) * dsigmaXY2;
+                 
     if( !bRotatedNormalDistributionFit )
     {
         calculate_image_length( z, dz2 );
@@ -994,7 +1018,7 @@ void VImageParameterFitter::calculateImageParameters( bool iUseSums2,
     fParLL->f_s = z;
     fParLL->f_sdevxy = sigmaXY;
     calculate_image_distance();
-
+    
     //  fit was not successfull if width is close to zero -> take pargeo parameters
     if( fParLL->width < ZeroTolerence )
     {
@@ -1006,7 +1030,7 @@ void VImageParameterFitter::calculateImageParameters( bool iUseSums2,
         fParLL->size = fParGeo->size;
         fParLL->size2 = fParGeo->size2;
     }
-
+    
     // setters
     fParLL->los = 0.;
     if( fParLL->size != 0. )
@@ -1028,7 +1052,7 @@ void VImageParameterFitter::calculateImageParameters( bool iUseSums2,
      integrate over all bins to get fitted size
 */
 void VImageParameterFitter::calculate_image_size( bool iUseSums2,
-                                                  bool iEqualSummationWindows )
+        bool iEqualSummationWindows )
 {
     bool fWidthResetted = false;
     float  iSize = fParGeo->size;
@@ -1045,7 +1069,7 @@ void VImageParameterFitter::calculate_image_size( bool iUseSums2,
         {
             // make sure that width is not close to zero (can happen when all pixels are on a line)
             if( fData->getDetectorGeometry()->getTubeRadius().size() > iCentreTube
-             && fData->getDetectorGeometry()->getTubeRadius()[iCentreTube] > 0. )
+                    && fData->getDetectorGeometry()->getTubeRadius()[iCentreTube] > 0. )
             {
                 if( sigmaX < fData->getDetectorGeometry()->getTubeRadius()[iCentreTube] * 0.1 )
                 {
@@ -1062,7 +1086,7 @@ void VImageParameterFitter::calculate_image_size( bool iUseSums2,
             double cen_x_recentered = 0.;
             double cen_y_recentered = 0.;
             if( fData->getDetectorGeometry()->getTubeRadius().size() > iCentreTube
-             && fData->getDetectorGeometry()->getTubeRadius()[iCentreTube] > 0. )
+                    && fData->getDetectorGeometry()->getTubeRadius()[iCentreTube] > 0. )
             {
                 cen_x_recentered = cen_x - fData->getDetectorGeometry()->getTubeRadius()[iCentreTube] * 2.
                                    * ( int )( cen_x / fData->getDetectorGeometry()->getTubeRadius()[iCentreTube] / 2. );
@@ -1085,9 +1109,9 @@ void VImageParameterFitter::calculate_image_size( bool iUseSums2,
             for( unsigned int i = 0; i < fData->getSums().size(); i++ )
             {
                 iSize +=  calculatePixelBrightness( i, rho, phi,
-                                                       cen_x_recentered, sigmaX, 
-                                                       cen_y_recentered, sigmaY, 
-                                                       signal );
+                                                    cen_x_recentered, sigmaX,
+                                                    cen_y_recentered, sigmaY,
+                                                    signal );
             }
         }
     }
@@ -1118,12 +1142,12 @@ void VImageParameterFitter::calculate_image_size( bool iUseSums2,
         }
         fParLL->size2 = fParGeo->size2;
     }
-}      
+}
 
 void VImageParameterFitter::calculate_image_length( double z, double dz2 )
 {
     double length = sqrt( 0.5 * ( sigmaX * sigmaX + sigmaY * sigmaY + z ) );
-
+    
     double dlength = 0.;
     dlength  = 4.*sigmaX * sigmaX * dsigmaX * dsigmaX;
     dlength += 4.*sigmaY * sigmaY * dsigmaY * dsigmaY;
@@ -1133,7 +1157,7 @@ void VImageParameterFitter::calculate_image_length( double z, double dz2 )
     {
         dlength = sqrt( dlength );
     }
-
+    
     fParLL->length = length;
     fParLL->dlength = dlength;
 }
@@ -1161,9 +1185,9 @@ void VImageParameterFitter::calculate_image_width( double z, double dz2 )
 void VImageParameterFitter::calculate_image_phi( double dsxxy2 )
 {
     double dsx_y2 = sigmaX * sigmaX - sigmaY * sigmaY;
-
+    
     phi = atan2( 2.*rho * sigmaX * sigmaY, dsx_y2 ) / 2.;
-
+    
     if( dsx_y2 == 0. )
     {
         dphi = 1000.;
@@ -1177,11 +1201,11 @@ void VImageParameterFitter::calculate_image_phi( double dsxxy2 )
         dphi *= 1. / ( 1. + 2.*rho * sigmaX * sigmaY / dsx_y2 * 2.*rho * sigmaX * sigmaY / dsx_y2 );
         dphi  = sqrt( dphi );
         dphi  = redang( dphi, M_PI / 2. );
-   }
-   fParLL->phi = phi;
-   fParLL->cosphi = cos( fParLL->phi );
-   fParLL->sinphi = sin( fParLL->phi );
-   fParLL->dphi = dphi;
+    }
+    fParLL->phi = phi;
+    fParLL->cosphi = cos( fParLL->phi );
+    fParLL->sinphi = sin( fParLL->phi );
+    fParLL->dphi = dphi;
 }
 
 void VImageParameterFitter::calculate_image_distance()
@@ -1196,12 +1220,12 @@ void VImageParameterFitter::calculate_image_distance()
     double miss = fabs( cen_y * fParLL->cosphi - cen_x * fParLL->sinphi );
     double dmiss = 0.;
     dmiss  = fParLL->cosphi * fParLL->cosphi * dcen_x * dcen_x
-           + fParLL->sinphi * fParLL->sinphi * dcen_y * dcen_y;
+             + fParLL->sinphi * fParLL->sinphi * dcen_y * dcen_y;
     dmiss += fParLL->dphi * fParLL->dphi * ( fParLL->sinphi * fParLL->sinphi * cen_x * cen_x
-                                           + fParLL->cosphi * fParLL->cosphi * cen_y * cen_y );
+             + fParLL->cosphi * fParLL->cosphi * cen_y * cen_y );
     fParLL->miss = miss;
     fParLL->dmiss = sqrt( dmiss );
-
+    
     fParLL->alpha = 0.;
     fParLL->dalpha = 0.;
     if( dist != 0. )
@@ -1213,7 +1237,7 @@ void VImageParameterFitter::calculate_image_distance()
         dalpha = redang( sqrt( dalpha ), 2. * M_PI );
         fParLL->dalpha = dalpha * TMath::RadToDeg();
     }
-
+    
     fParLL->dist = dist;
     fParLL->ddist = ddist;
 }
@@ -1223,11 +1247,11 @@ void VImageParameterFitter::calculate_image_rho()
     rho = 0.;
     if( sigmaY > 0. && sigmaX > 0. )
     {
-        rho = tan(2.*phi) * (sigmaX*sigmaX-sigmaY*sigmaY);
-        rho = rho / (2. * sigmaY * sigmaX);
+        rho = tan( 2.*phi ) * ( sigmaX * sigmaX - sigmaY * sigmaY );
+        rho = rho / ( 2. * sigmaY * sigmaX );
     }
     drho = 0.;
-
+    
     fParLL->rho = rho;
     fParLL->drho = drho;
 }
@@ -1242,13 +1266,13 @@ void VImageParameterFitter::calculate_image_rho()
     optional, used only if fNormal2D != 0
 
 */
-Double_t normal2DRotated( Double_t *x, Double_t *par )
+Double_t normal2DRotated( Double_t* x, Double_t* par )
 {
     double f  = 0.;
     if( par[1] > 0. && par[3] > 0. )
     {
-        f += (x[0] - par[0]) * (x[0] - par[0]) / par[1] / par[1];
-        f += (x[1] - par[2]) * (x[1] - par[2]) / par[3] / par[3];
+        f += ( x[0] - par[0] ) * ( x[0] - par[0] ) / par[1] / par[1];
+        f += ( x[1] - par[2] ) * ( x[1] - par[2] ) / par[3] / par[3];
         f *= -1. / 2.;
         f  = exp( f );
         f *= 1. / 2. / TMath::Pi() / par[1] / par[3];

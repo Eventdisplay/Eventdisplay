@@ -59,32 +59,32 @@ int main( int argc, char* argv[] )
     double fGamma = 2.5;
     char ifile[800];
     sprintf( ifile, "%s", fDataFile.c_str() );
-	//calculate fluxes for all runs even when significance < 3
+    //calculate fluxes for all runs even when significance < 3
     VFluxCalculation* flux = new VFluxCalculation( ifile );
     if( flux->IsZombie() )
     {
         return 1;
     }
     flux->setDebug( fDebug );
-	flux->setSignificanceParameters( -99., -999999 );	//force calculation of flux (not UL), even for negative excess
+    flux->setSignificanceParameters( -99., -999999 );	//force calculation of flux (not UL), even for negative excess
     flux->calculateIntegralFlux( fMinEnergy );
     if( fDebug )
     {
         flux->printResults();
     }
-	//calculate upper limits for all runs even when significance >= 3
-	VFluxCalculation* fluxUL = new VFluxCalculation( ifile );
-	if( fluxUL->IsZombie() )
-	{
-		return 1;
-	}
-	fluxUL->setDebug( fDebug );
-	fluxUL->setSignificanceParameters( 99999, 999999 );//force calculation UL, even for strong excess
-	fluxUL->calculateIntegralFlux( fMinEnergy );
-	if( fDebug )
-	{
-		fluxUL->printResults();
-	}
+    //calculate upper limits for all runs even when significance >= 3
+    VFluxCalculation* fluxUL = new VFluxCalculation( ifile );
+    if( fluxUL->IsZombie() )
+    {
+        return 1;
+    }
+    fluxUL->setDebug( fDebug );
+    fluxUL->setSignificanceParameters( 99999, 999999 );//force calculation UL, even for strong excess
+    fluxUL->calculateIntegralFlux( fMinEnergy );
+    if( fDebug )
+    {
+        fluxUL->printResults();
+    }
     
     // read run list
     VAnalysisUtilities a;
@@ -189,9 +189,9 @@ int main( int argc, char* argv[] )
         f.writeThetaSquareDistribution( fDebug );
         f.writeSignificanceSkyMap( fDebug );
         f.writeExcessSkyMap( fDebug );
-		f.writeEnergySpectrum( fDebug ); //Uncomment this to include the energy spectrum. Obs that this function can fail quietly, in which case the energy spectrum won't get written.
-		f.writeNightlyFlux( fDebug, ( fOUTFile + "_nightly.flux" ).c_str() );
-		f.writeMonthlyFlux( fDebug, ( fOUTFile + "_monthly.flux" ).c_str() );
+        f.writeEnergySpectrum( fDebug ); //Uncomment this to include the energy spectrum. Obs that this function can fail quietly, in which case the energy spectrum won't get written.
+        f.writeNightlyFlux( fDebug, ( fOUTFile + "_nightly.flux" ).c_str() );
+        f.writeMonthlyFlux( fDebug, ( fOUTFile + "_monthly.flux" ).c_str() );
         f.writeFITSFile( fDebug );
         
     }

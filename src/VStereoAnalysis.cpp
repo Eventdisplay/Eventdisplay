@@ -26,7 +26,7 @@ VStereoAnalysis::VStereoAnalysis( bool ion, string i_hsuffix, VAnaSumRunParamete
     gMeanEsys_MC = 0;
     
     gMeanEffectiveAreaMC = 0;
-
+    
     fHisCounter = 0;
     fTotCount = 0.;
     
@@ -37,14 +37,14 @@ VStereoAnalysis::VStereoAnalysis( bool ion, string i_hsuffix, VAnaSumRunParamete
     fTreeSelectedEvents = 0;
     
     fRunPara = irunpara;
-	fDL3EventTree = 0;
-	fDeadTimeStorage = 0.;
+    fDL3EventTree = 0;
+    fDeadTimeStorage = 0.;
     
     fVsky = new VSkyCoordinates() ;
     fVsky->supressStdoutText( true ) ;
-	fVsky->setObservatory( VGlobalRunParameter::getObservatory_Longitude_deg(),
-						   VGlobalRunParameter::getObservatory_Latitude_deg() );
-    
+    fVsky->setObservatory( VGlobalRunParameter::getObservatory_Longitude_deg(),
+                           VGlobalRunParameter::getObservatory_Latitude_deg() );
+                           
     // calculating run start, end and duration (verifies data trees)
     if( !bTotalAnalysisOnly )
     {
@@ -428,9 +428,9 @@ double VStereoAnalysis::fillHistograms( int icounter, int irun, double iAzMin, d
     // tree with selected events
     init_TreeWithSelectedEvents( irun, fIsOn );
     
-	if( fIsOn )
-	{
-		init_DL3Tree( irun, fHisCounter );
+    if( fIsOn )
+    {
+        init_DL3Tree( irun, fHisCounter );
     }
     
     // spectral energy reconstruction (effective areas, etc.)
@@ -441,7 +441,7 @@ double VStereoAnalysis::fillHistograms( int icounter, int irun, double iAzMin, d
                                       fRunPara->fEnergyEffectiveAreaSmoothingThreshold,
                                       fRunPara->fEffectiveAreaVsEnergyMC,
                                       fRunPara->fLikelihoodAnalysis,
-                                      fIsOn);
+                                      fIsOn );
     double iEnergyWeighting = 1.;
     double iErec = 0.;
     double iErecChi2 = 0.;
@@ -683,10 +683,10 @@ double VStereoAnalysis::fillHistograms( int icounter, int irun, double iAzMin, d
                 }
             }
             
-			// fill a tree with current event for DL3 converter
-			if( fIsOn && bIsGamma )
+            // fill a tree with current event for DL3 converter
+            if( fIsOn && bIsGamma )
             {
-				fill_DL3Tree( fDataRun, i_xderot, i_yderot, icounter, i_UTC );
+                fill_DL3Tree( fDataRun, i_xderot, i_yderot, icounter, i_UTC );
             }
             /////////////////////////////////////////////////////////
             // histograms after gamma and energy reconstruction cuts
@@ -814,26 +814,26 @@ double VStereoAnalysis::fillHistograms( int icounter, int irun, double iAzMin, d
         gMeanEsys_MC = ( TGraphErrors* )gMeanEsys_MC->Clone();
     }
     
-    if ( fRunPara->fLikelihoodAnalysis && fIsOn )
+    if( fRunPara->fLikelihoodAnalysis && fIsOn )
     {
-      cout << "\t\tVStereoAnalysis::fillHistograms Getting Effective Area MC" << endl;
-      gMeanEffectiveAreaMC = ( TGraphAsymmErrors* )fEnergy.getMeanEffectiveAreaMC();
-      if( gMeanEffectiveAreaMC )
-      {
-          gMeanEffectiveAreaMC = ( TGraphAsymmErrors* )gMeanEffectiveAreaMC->Clone();
-      }
-
-      cout << "\t\tVStereoAnalysis::fillHistograms Getting Response Matrix" << endl;
-      hMeanResponseMatrix = (TH2D*)fEnergy.getMeanResponseMatrix();
-      cout << "\t\tVStereoAnalysis::fillHistograms Got Response Matrix" << endl;
-      cout << "\t\tVStereoAnalysis::fillHistograms Cloning Response Matrix " << hMeanResponseMatrix << endl;
-
-      if( hMeanResponseMatrix )
-      {
-          hMeanResponseMatrix = ( TH2D* )hMeanResponseMatrix->Clone();
-      }
-      cout << "\t\tVStereoAnalysis::fillHistograms Cloned Response Matrix" << endl;
-
+        cout << "\t\tVStereoAnalysis::fillHistograms Getting Effective Area MC" << endl;
+        gMeanEffectiveAreaMC = ( TGraphAsymmErrors* )fEnergy.getMeanEffectiveAreaMC();
+        if( gMeanEffectiveAreaMC )
+        {
+            gMeanEffectiveAreaMC = ( TGraphAsymmErrors* )gMeanEffectiveAreaMC->Clone();
+        }
+        
+        cout << "\t\tVStereoAnalysis::fillHistograms Getting Response Matrix" << endl;
+        hMeanResponseMatrix = ( TH2D* )fEnergy.getMeanResponseMatrix();
+        cout << "\t\tVStereoAnalysis::fillHistograms Got Response Matrix" << endl;
+        cout << "\t\tVStereoAnalysis::fillHistograms Cloning Response Matrix " << hMeanResponseMatrix << endl;
+        
+        if( hMeanResponseMatrix )
+        {
+            hMeanResponseMatrix = ( TH2D* )hMeanResponseMatrix->Clone();
+        }
+        cout << "\t\tVStereoAnalysis::fillHistograms Cloned Response Matrix" << endl;
+        
     }
     // get mean effective area for TIME BINs
     gTimeBinnedMeanEffectiveArea = ( TGraph2DErrors* )fEnergy.getTimeBinnedMeanEffectiveArea()->Clone();
@@ -897,12 +897,12 @@ void VStereoAnalysis::writeHistograms( bool bOn )
                 fHisto[fHisCounter]->writeObjects( fRunPara->fRunList[fHisCounter].fEffectiveAreaFile, "EffectiveAreas", gTimeBinnedMeanEffectiveArea );
                 fHisto[fHisCounter]->writeObjects( fRunPara->fRunList[fHisCounter].fEffectiveAreaFile, "EffectiveAreas", gMeanEsys_MC );
             }
-            if (fRunPara->fLikelihoodAnalysis)
+            if( fRunPara->fLikelihoodAnalysis )
             {
-              cout << "\t\tVStereoAnalysis::writeHistograms Writing histograms" << endl;
-              fHisto[fHisCounter]->writeObjects( fRunPara->fRunList[fHisCounter].fEffectiveAreaFile, "EffectiveAreas", gMeanEffectiveAreaMC );
-              fHisto[fHisCounter]->writeObjects( fRunPara->fRunList[fHisCounter].fEffectiveAreaFile, "EffectiveAreas", hMeanResponseMatrix );
-
+                cout << "\t\tVStereoAnalysis::writeHistograms Writing histograms" << endl;
+                fHisto[fHisCounter]->writeObjects( fRunPara->fRunList[fHisCounter].fEffectiveAreaFile, "EffectiveAreas", gMeanEffectiveAreaMC );
+                fHisto[fHisCounter]->writeObjects( fRunPara->fRunList[fHisCounter].fEffectiveAreaFile, "EffectiveAreas", hMeanResponseMatrix );
+                
             }
             if( fRunPara->fRunList[fHisCounter].fAcceptanceFile.size() > 0
                     && fRunPara->fRunList[fHisCounter].fAcceptanceFile != "IGNOREACCEPTANCE" )
@@ -1595,9 +1595,9 @@ void VStereoAnalysis::defineAstroSource()
         fRunPara->fRunList[i].fWobbleWestMod  = i_WobbleJ2000_West  - fRunPara->fRunList[i].fSkyMapCentreWest;
         
         // fill run parameter values
-		fRunPara->setTargetRADecJ2000( i, fRunPara->fRunList[i].fTargetRAJ2000, 
-                                                  fRunPara->fRunList[i].fTargetDecJ2000,
-                                                  fRunPara->fRunList[i].fTarget );
+        fRunPara->setTargetRADecJ2000( i, fRunPara->fRunList[i].fTargetRAJ2000,
+                                       fRunPara->fRunList[i].fTargetDecJ2000,
+                                       fRunPara->fRunList[i].fTarget );
         fRunPara->setTargetShifts( i, fRunPara->fRunList[i].fTargetShiftWest, fRunPara->fRunList[i].fTargetShiftNorth,
                                    fRunPara->fTargetShiftRAJ2000, fRunPara->fTargetShiftDecJ2000 );
         fRunPara->setSkyMapCentreJ2000( i, fRunPara->fRunList[i].fSkyMapCentreRAJ2000, fRunPara->fRunList[i].fSkyMapCentreDecJ2000 );
@@ -1610,7 +1610,7 @@ void VStereoAnalysis::defineAstroSource()
             cout << ",  RA " << i_raDiff << ", Dec " << i_decDiff << endl;
             cout << "\tWobble offsets (J2000): N: " << i_WobbleJ2000_North << " W: " << i_WobbleJ2000_West << endl;
             cout << "\tSky maps centred at (ra,dec (J2000)) (";
-			cout << fRunPara->fRunList[i].fSkyMapCentreRAJ2000 << ", " << fRunPara->fRunList[i].fSkyMapCentreDecJ2000 << ")";
+            cout << fRunPara->fRunList[i].fSkyMapCentreRAJ2000 << ", " << fRunPara->fRunList[i].fSkyMapCentreDecJ2000 << ")";
             cout << "\tTelescopes pointing to: (ra,dec (J2000)) (" << i_raWobble << ", " << i_decWobble << ")";
             cout << ", N: " << fRunPara->fRunList[i].fWobbleNorthMod << " W: " << fRunPara->fRunList[i].fWobbleWestMod << endl;
             cout << "\t1D-histograms calculated at (x,y): " << fRunPara->fRunList[i].fTargetShiftNorth << ", " << fRunPara->fRunList[i].fTargetShiftWest;
@@ -1877,11 +1877,11 @@ CData* VStereoAnalysis::getDataFromFile( int i_runNumber )
             exit( EXIT_FAILURE );
         }
         c = new CData( fDataRunTree );
-		// read current (major) epoch from data file
+        // read current (major) epoch from data file
         VEvndispRunParameter* i_runPara = ( VEvndispRunParameter* )fDataFile->Get( "runparameterV2" );
         if( i_runPara )
         {
-			fInstrumentEpoch = i_runPara->getInstrumentEpoch( true );
+            fInstrumentEpoch = i_runPara->getInstrumentEpoch( true );
             fTelToAnalyze = i_runPara->fTelToAnalyze;
         }
         else
@@ -1960,10 +1960,10 @@ bool VStereoAnalysis::init_TreeWithSelectedEvents( int irun, bool isOn )
     fTreeSelectedEvents->Branch( "MSCL", &fTreeSelected_MSCL, "MSCL/D" );
     fTreeSelectedEvents->Branch( "MWR", &fTreeSelected_MWR, "MWR/D" );
     fTreeSelectedEvents->Branch( "MLR", &fTreeSelected_MLR, "MLR/D" );
-	fTreeSelectedEvents->Branch( "Erec", &fTreeSelected_Erec, "Erec/D" );
-	fTreeSelectedEvents->Branch( "EChi2", &fTreeSelected_EChi2, "EChi2/D" );
-	fTreeSelectedEvents->Branch( "Erec", &fTreeSelected_Erec, "Erec/D" );
-	fTreeSelectedEvents->Branch( "EChi2", &fTreeSelected_EChi2, "EChi2/D" );
+    fTreeSelectedEvents->Branch( "Erec", &fTreeSelected_Erec, "Erec/D" );
+    fTreeSelectedEvents->Branch( "EChi2", &fTreeSelected_EChi2, "EChi2/D" );
+    fTreeSelectedEvents->Branch( "Erec", &fTreeSelected_Erec, "Erec/D" );
+    fTreeSelectedEvents->Branch( "EChi2", &fTreeSelected_EChi2, "EChi2/D" );
     fTreeSelectedEvents->Branch( "EmissionHeight", &fTreeSelected_EmissionHeight, "EmissionHeight/F" );
     fTreeSelectedEvents->Branch( "EmissionHeightChi2", &fTreeSelected_EmissionHeightChi2, "EmissionHeightChi2/F" );
     fTreeSelectedEvents->Branch( "SizeSecondMax", &fTreeSelected_SizeSecondMax, "SizeSecondMax/D" );
@@ -2133,36 +2133,36 @@ bool VStereoAnalysis::init_DL3Tree( int irun, int icounter )
         return false;
     }
     
-	char htitle[200];
-	sprintf( htitle, "DL3 event list for run %d", irun );
-	fDL3EventTree = new TTree( "DL3EventTree", htitle );
-
+    char htitle[200];
+    sprintf( htitle, "DL3 event list for run %d", irun );
+    fDL3EventTree = new TTree( "DL3EventTree", htitle );
+    
     fDL3EventTree->Branch( "runNumber",      &fDL3EventTree_runNumber,      "runNumber/I" );
     fDL3EventTree->Branch( "eventNumber",    &fDL3EventTree_eventNumber,    "eventNumber/I" );
     fDL3EventTree->Branch( "timeOfDay",      &fDL3EventTree_Time,           "timeOfDay/D" );
-	fDL3EventTree->Branch( "MJD",            &fDL3EventTree_MJD,            "MJD/I" );
-	fDL3EventTree->Branch( "Energy",         &fDL3EventTree_Erec,           "Erec/D" );
-	fDL3EventTree->Branch( "Energy_Err",     &fDL3EventTree_Erec_Err,       "Erec_Err/D" );
-	fDL3EventTree->Branch( "XCore",          &fDL3EventTree_Xcore,          "XCore/D" );
-	fDL3EventTree->Branch( "YCore",          &fDL3EventTree_Ycore,          "YCore/D" );
-	fDL3EventTree->Branch( "Xderot",         &fDL3EventTree_Xderot,         "Xderot/D" );
-	fDL3EventTree->Branch( "Yderot",         &fDL3EventTree_Yderot,         "Yderot/D" );
-	fDL3EventTree->Branch( "NImages",        &fDL3EventTree_NImages,        "NImages/I" );
-	fDL3EventTree->Branch( "ImgSel",         &fDL3EventTree_ImgSel,         "ImgSel/l" );
-	fDL3EventTree->Branch( "MSCW",           &fDL3EventTree_MSCW,           "MSCW/D" );
-	fDL3EventTree->Branch( "MSCL",           &fDL3EventTree_MSCL,           "MSCL/D" );
-	fDL3EventTree->Branch( "RA"            , &fDL3EventTree_RA,             "RA/D" );
-	fDL3EventTree->Branch( "DEC"           , &fDL3EventTree_DEC,            "DEC/D" );
-	fDL3EventTree->Branch( "Az"            , &fDL3EventTree_Az,             "Az/D" );
-	fDL3EventTree->Branch( "El"            , &fDL3EventTree_El,             "El/D" );
-	fDL3EventTree->Branch( "EmissionHeight", &fDL3EventTree_EmissionHeight, "EmissionHeight/D" );
-	fDL3EventTree->Branch( "Xoff"          , &fDL3EventTree_Xoff          , "Xoff/D" );
-	fDL3EventTree->Branch( "Yoff"          , &fDL3EventTree_Yoff          , "Yoff/D" );
-	fDL3EventTree->Branch( "Acceptance"    , &fDL3EventTree_Acceptance    , "Acceptance/D" );
-	cout << endl;
-
-	// init radial acceptance class
-    if( icounter < (int)fRunPara->fRunList.size() )
+    fDL3EventTree->Branch( "MJD",            &fDL3EventTree_MJD,            "MJD/I" );
+    fDL3EventTree->Branch( "Energy",         &fDL3EventTree_Erec,           "Erec/D" );
+    fDL3EventTree->Branch( "Energy_Err",     &fDL3EventTree_Erec_Err,       "Erec_Err/D" );
+    fDL3EventTree->Branch( "XCore",          &fDL3EventTree_Xcore,          "XCore/D" );
+    fDL3EventTree->Branch( "YCore",          &fDL3EventTree_Ycore,          "YCore/D" );
+    fDL3EventTree->Branch( "Xderot",         &fDL3EventTree_Xderot,         "Xderot/D" );
+    fDL3EventTree->Branch( "Yderot",         &fDL3EventTree_Yderot,         "Yderot/D" );
+    fDL3EventTree->Branch( "NImages",        &fDL3EventTree_NImages,        "NImages/I" );
+    fDL3EventTree->Branch( "ImgSel",         &fDL3EventTree_ImgSel,         "ImgSel/l" );
+    fDL3EventTree->Branch( "MSCW",           &fDL3EventTree_MSCW,           "MSCW/D" );
+    fDL3EventTree->Branch( "MSCL",           &fDL3EventTree_MSCL,           "MSCL/D" );
+    fDL3EventTree->Branch( "RA"            , &fDL3EventTree_RA,             "RA/D" );
+    fDL3EventTree->Branch( "DEC"           , &fDL3EventTree_DEC,            "DEC/D" );
+    fDL3EventTree->Branch( "Az"            , &fDL3EventTree_Az,             "Az/D" );
+    fDL3EventTree->Branch( "El"            , &fDL3EventTree_El,             "El/D" );
+    fDL3EventTree->Branch( "EmissionHeight", &fDL3EventTree_EmissionHeight, "EmissionHeight/D" );
+    fDL3EventTree->Branch( "Xoff"          , &fDL3EventTree_Xoff          , "Xoff/D" );
+    fDL3EventTree->Branch( "Yoff"          , &fDL3EventTree_Yoff          , "Yoff/D" );
+    fDL3EventTree->Branch( "Acceptance"    , &fDL3EventTree_Acceptance    , "Acceptance/D" );
+    cout << endl;
+    
+    // init radial acceptance class
+    if( icounter < ( int )fRunPara->fRunList.size() )
     {
         fDL3_Acceptance = new VRadialAcceptance( fRunPara->fRunList[icounter].fAcceptanceFile ) ;
         fDL3_Acceptance->Set2DAcceptanceMode( fRunPara->fRunList[icounter].f2DAcceptanceMode ) ;
@@ -2217,23 +2217,23 @@ void VStereoAnalysis::fill_DL3Tree( CData* c , double i_xderot, double i_yderot,
         double i_Spherical_RA  = 0.;
         double i_Spherical_DEC = 0.;
         VAstronometry::vlaDtp2s( fDL3EventTree_Xderot * TMath::DegToRad(),
-                  fDL3EventTree_Yderot * TMath::DegToRad(),
-                  i_centerpoint_RA * TMath::DegToRad(), 
-                  i_centerpoint_dec * TMath::DegToRad(),
-                  &i_Spherical_RA, &i_Spherical_DEC);
+                                 fDL3EventTree_Yderot * TMath::DegToRad(),
+                                 i_centerpoint_RA * TMath::DegToRad(),
+                                 i_centerpoint_dec * TMath::DegToRad(),
+                                 &i_Spherical_RA, &i_Spherical_DEC );
         fDL3EventTree_RA  = i_Spherical_RA * TMath::RadToDeg();
         fDL3EventTree_DEC = i_Spherical_DEC * TMath::RadToDeg();
-
+        
         // Convert from spherical RA and DEC to Azimuth and Zenith
         // convert to degrees and do calculation
         fVsky->setTargetJ2000( i_Spherical_DEC * TMath::RadToDeg(), i_Spherical_RA * TMath::RadToDeg() );
         fVsky->precessTarget( fDL3EventTree_MJD, 0 ) ;
-
+        
         // calculate new param
         fVsky->updatePointing( fDL3EventTree_MJD, fDL3EventTree_Time ) ;
         fDL3EventTree_Az = fVsky->getTargetAzimuth();
         fDL3EventTree_El = fVsky->getTargetElevation();
-
+        
     }
     else
     {
@@ -2253,14 +2253,14 @@ void VStereoAnalysis::fill_DL3Tree( CData* c , double i_xderot, double i_yderot,
 */
 void VStereoAnalysis::write_DL3Tree()
 {
-	fDL3EventTree->Write();
-
-	fRunPara->SetName( "VAnaSumRunParameter" );
-	fRunPara->Write() ;
-
-        // cleanup
-        if( fDL3_Acceptance )
-        {
-            delete fDL3_Acceptance;
-        }
+    fDL3EventTree->Write();
+    
+    fRunPara->SetName( "VAnaSumRunParameter" );
+    fRunPara->Write() ;
+    
+    // cleanup
+    if( fDL3_Acceptance )
+    {
+        delete fDL3_Acceptance;
+    }
 }

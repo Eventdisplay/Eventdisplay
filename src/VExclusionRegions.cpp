@@ -98,12 +98,18 @@ VExclusionRegions::~VExclusionRegions()
 {
     for( unsigned int i = 0; i < fExclusionRegions.size(); i++ )
     {
-        if( fExclusionRegions[i] ) delete fExclusionRegions[i];
+        if( fExclusionRegions[i] )
+        {
+            delete fExclusionRegions[i];
+        }
     }
     fExclusionRegions.clear();
     for( unsigned int i = 0; i < fBrightStarSettings.size(); i++ )
     {
-        if( fBrightStarSettings[i] ) delete fBrightStarSettings[i];
+        if( fBrightStarSettings[i] )
+        {
+            delete fBrightStarSettings[i];
+        }
     }
 }
 

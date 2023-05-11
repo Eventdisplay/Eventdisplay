@@ -26,13 +26,13 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     fMCEnergy_min = -99.;
     fMCEnergy_max = -99.;
     fMCEnergy_index = 5.;
-
+    
     // IRF histogram bin definition
     fBiasBin = 300;                       // Energy bias (bias bins)
     fLogAngularBin = 100;                 // Angular resolution Log10 (bins)
     fhistoAngularBin_min = -4.;
     fhistoAngularBin_max =  1.;
-    fResponseMatricesEbinning = 500;      // bins in the ResponseMatrices 
+    fResponseMatricesEbinning = 500;      // bins in the ResponseMatrices
     fhistoNEbins = fEnergyAxisBins_log10; // E binning (affects 2D histograms only)
     fhistoNEbins_logTeV_min = fEnergyAxis_logTeV_min;
     fhistoNEbins_logTeV_max = fEnergyAxis_logTeV_max;
@@ -78,7 +78,7 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     fCREnergySpectrumFile = "";
     fCREnergySpectrumID = 0;
     fCREnergySpectrum = 0;
-
+    
     fWriteEventdatatrees = "FALSE";
 }
 
@@ -129,39 +129,39 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             else if( temp == "MONTECARLOENERGYRANGE" )
             {
                 cout << "readInputFileList: setting user defined Monte Carlo energy values (shouldn't be necessary)" << endl;
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fMCEnergy_min;
                 }
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fMCEnergy_max;
                 }
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fMCEnergy_index;
                 }
             }
-            // write event data tree with cuts 
+            // write event data tree with cuts
             else if( temp == "WRITEEVENTDATATREE" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
-                        is_stream >> fWriteEventdatatrees;
-                        if( fWriteEventdatatrees != "DL2"
-                         && fWriteEventdatatrees != "FULLTREES" 
-                         && fWriteEventdatatrees != "FALSE" )
-                        {
-                             cout << "readInputFileList: unknown event data tree option: ";
-                             cout << fWriteEventdatatrees << endl;
-                             exit( EXIT_FAILURE );
-                        }
+                    is_stream >> fWriteEventdatatrees;
+                    if( fWriteEventdatatrees != "DL2"
+                            && fWriteEventdatatrees != "FULLTREES"
+                            && fWriteEventdatatrees != "FALSE" )
+                    {
+                        cout << "readInputFileList: unknown event data tree option: ";
+                        cout << fWriteEventdatatrees << endl;
+                        exit( EXIT_FAILURE );
+                    }
                 }
             }
             // fill MC histograms
             else if( temp == "FILLMONTECARLOHISTOS" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fFillMCHistograms;
                 }
@@ -169,7 +169,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // get Tree with Xoff and Yoff (and derot) after cut
             else if( temp == "GETXOFFYOFFAFTERCUTS" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fgetXoff_Yoff_afterCut;
                 }
@@ -177,7 +177,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // energy reconstruction method
             else if( temp == "ENERGYRECONSTRUCTIONMETHOD" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fEnergyReconstructionMethod;
                     if( fEnergyReconstructionMethod == 0 && fReconstructionType == NOT_SET )
@@ -189,44 +189,71 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // number of bins on log10 energy axis
             else if( temp == "ENERGYAXISBINS" )
             {
-                if( !(is_stream>>std::ws).eof() ) is_stream >> fEnergyAxisBins_log10;
-                if( !(is_stream>>std::ws).eof() ) is_stream >> fEnergyAxis_logTeV_min;
-                if( !(is_stream>>std::ws).eof() ) is_stream >> fEnergyAxis_logTeV_max;
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> fEnergyAxisBins_log10;
+                }
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> fEnergyAxis_logTeV_min;
+                }
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> fEnergyAxis_logTeV_max;
+                }
             }
             // number of bins on log10 energy axis - IRF histograms only (allows re-binning)
             else if( temp == "ENERGYAXISBINHISTOS" )
             {
-                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoNEbins;
-                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoNEbins_logTeV_min;
-                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoNEbins_logTeV_max;
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> fhistoNEbins;
+                }
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> fhistoNEbins_logTeV_min;
+                }
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> fhistoNEbins_logTeV_max;
+                }
             }
             // number of bins on energy bias - IRF histograms only
             else if( temp == "EBIASBINHISTOS" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
-                        is_stream >> fBiasBin;
+                    is_stream >> fBiasBin;
                 }
             }
             // number of bins on angular resolution - IRF histograms only
             else if( temp == "ANGULARRESOLUTIONBINHISTOS" )
             {
-                if( !(is_stream>>std::ws).eof() ) is_stream >> fLogAngularBin;
-                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoAngularBin_min;
-                if( !(is_stream>>std::ws).eof() ) is_stream >> fhistoAngularBin_max;
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> fLogAngularBin;
+                }
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> fhistoAngularBin_min;
+                }
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> fhistoAngularBin_max;
+                }
             }
             // number of fine-bins for the response matrices (likelihood analysis)
             else if( temp == "RESPONSEMATRICESEBINS" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
-                        is_stream >> fResponseMatricesEbinning;
+                    is_stream >> fResponseMatricesEbinning;
                 }
             }
-			// energy reconstruction quality
+            // energy reconstruction quality
             else if( temp == "RECONSTRUCTIONTYPE" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     string temp2;
                     is_stream >> temp2;
@@ -267,7 +294,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // energy reconstruction quality
             else if( temp == "ENERGYRECONSTRUCTIONQUALITY" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fIgnoreEnergyReconstructionQuality;
                 }
@@ -275,7 +302,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // number of azimuth bins
             else if( temp == "AZIMUTHBINS" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fAzimuthBins;
                 }
@@ -283,7 +310,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // isotropic arrival directions
             else if( temp == "ISOTROPICARRIVALDIRECTIONS" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fIsotropicArrivalDirections;
                 }
@@ -291,7 +318,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // ignore first fraction NN of events, scale MC distributions accordingly
             else if( temp == "IGNOREFRACTIONOFEVENTS" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fIgnoreFractionOfEvents;
                 }
@@ -299,26 +326,26 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // telescope type dependent cuts
             else if( temp == "TELESCOPETYPECUTS" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fTelescopeTypeCuts;
                 }
             }
             else if( temp == "CUTFILE" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> temp;
                     fCutFileName.push_back( temp );
                 }
-                if( !(is_stream>>std::ws).eof() )
-                { 
-                   is_stream >> temp;
-                   fCutCharacteristicMCAZ.push_back( atof( temp.c_str() ) );
-                }
-                else 
+                if( !( is_stream >> std::ws ).eof() )
                 {
-                   fCutCharacteristicMCAZ.push_back( -999. );
+                    is_stream >> temp;
+                    fCutCharacteristicMCAZ.push_back( atof( temp.c_str() ) );
+                }
+                else
+                {
+                    fCutCharacteristicMCAZ.push_back( -999. );
                 }
             }
             // * SCATTERMODE <core scatter radius [m]> <type of CORSIKA simulations (FLAT or VIEWCONE)>
@@ -326,18 +353,18 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             {
                 cout << "readInputFileList: setting user defined scatter values (shouldn't be necessary)" << endl;
                 // read scatter radius
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fCoreScatterRadius;
                 }
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fCoreScatterMode;
                 }
             }
             else if( temp == "FILLINGMODE" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fFillingMode;
                 }
@@ -349,7 +376,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             }
             else if( temp == "SHORTOUTPUT" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fEffArea_short_writing;
                 }
@@ -357,7 +384,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // read input data file name
             else if( temp == "SIMULATIONFILE_DATA" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fdatafile;
                 }
@@ -365,7 +392,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // file with MC trees (set to "0" if not available)
             else if( temp == "SIMULATIONFILE_MC" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fMCdatafile_tree;
                 }
@@ -373,7 +400,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // file with MC histograms
             else if( temp == "SIMULATIONFILE_HISTO" || temp == "SIMULATIONFILE_MCHISTO" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fMCdatafile_histo;
                 }
@@ -381,7 +408,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // file with probabilities for gamma/hadron separation (should be a friend to the data tree)
             else if( temp == "GAMMAHADRONPROBABILITYFILE" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fGammaHadronProbabilityFile;
                 }
@@ -389,11 +416,11 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // name pointing to energy spectra used in event weighting
             else if( temp == "ESPECTRUM_FOR_WEIGHTING" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fCREnergySpectrumFile;
                 }
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fCREnergySpectrumID;
                 }
@@ -401,7 +428,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // manually input the zenith
             else if( temp == "ZENITH" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fze;
                 }
@@ -409,7 +436,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // manually input the zenith
             else if( temp == "NOISE" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fnoise;
                 }
@@ -417,7 +444,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             // manually input the wobble
             else if( temp == "WOBBLEISOTROPIC" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fWobbleIsotropic;
                 }
@@ -489,7 +516,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
     return true;
 }
 
-TTree *VInstrumentResponseFunctionRunParameter::getTelConfigTree()
+TTree* VInstrumentResponseFunctionRunParameter::getTelConfigTree()
 {
     TChain c( "data" );
     TFile* iF = 0;
@@ -504,15 +531,15 @@ TTree *VInstrumentResponseFunctionRunParameter::getTelConfigTree()
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    TTree *t = (TTree*)iF->Get( "telconfig" );
+    TTree* t = ( TTree* )iF->Get( "telconfig" );
     if( t )
     {
-       return t->CloneTree( -1 );
+        return t->CloneTree( -1 );
     }
-
+    
     return 0;
 }
-    
+
 
 
 VMonteCarloRunHeader* VInstrumentResponseFunctionRunParameter::readMCRunHeader()
@@ -870,9 +897,9 @@ bool VInstrumentResponseFunctionRunParameter::readCRSpectralParameters()
 
 string VInstrumentResponseFunctionRunParameter::getInstrumentEpoch( bool iMajor )
 {
-        if( iMajor )
-        {
-             return fInstrumentEpoch.substr( 0, fInstrumentEpoch.find( "_" ) );
-        }
-        return fInstrumentEpoch;
-} 
+    if( iMajor )
+    {
+        return fInstrumentEpoch.substr( 0, fInstrumentEpoch.find( "_" ) );
+    }
+    return fInstrumentEpoch;
+}

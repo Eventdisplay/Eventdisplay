@@ -75,11 +75,11 @@ class VPlotCompareDataWithMC : public VHistogramUtilities
         bool openDataFile( string ifile );
         bool isZombie()
         {
-             if( fDataFile )
-             {
-                 return fDataFile->IsZombie();
-             }
-             return true;
+            if( fDataFile )
+            {
+                return fDataFile->IsZombie();
+            }
+            return true;
         }
         void plot( string iPrintName = "" );
         TCanvas* plot_energyDependentDistributions( string iVariable, int iRebin = 1,

@@ -42,7 +42,7 @@ class VAnaSumRunParameterDataClass : public TNamed
         
         double fMJDOn;
         double fMJDOff;
-
+        
         double fMJDOnStart;
         double fMJDOnStop;
         
@@ -227,7 +227,7 @@ class VAnaSumRunParameter : public TNamed, public VGlobalRunParameter
         vector<VListOfExclusionRegions*> getExclusionRegions( unsigned int iRunCounter );
         VExclusionRegions* getExclusionRegions()
         {
-             return fExclusionRegions;
+            return fExclusionRegions;
         }
         void getEventdisplayRunParameter( string );
         double getLargestStarExlusionRadius();
@@ -258,7 +258,7 @@ class VAnaSumRunParameter : public TNamed, public VGlobalRunParameter
         int  readRunParameter( string i_filename, bool fIgnoreZeroExclusionRegion = false );
         bool setRunTimes( unsigned int irun, double iMJDStart, double iMJDStopp );
         bool setSkyMapCentreJ2000( unsigned int i, double ra, double dec );
-	bool setTargetRADecJ2000( unsigned int i, double ra, double dec, string iTargetName );
+        bool setTargetRADecJ2000( unsigned int i, double ra, double dec, string iTargetName );
         bool setTargetRADec_currentEpoch( unsigned int i, double ra, double dec );
         bool setTargetShifts( unsigned int i, double west, double north, double ra, double dec );
         bool writeListOfExcludedSkyRegions( int inonRun );

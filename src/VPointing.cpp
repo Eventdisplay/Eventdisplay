@@ -138,8 +138,8 @@ bool VPointing::updatePointingfromDB( int MJD, double iTime )
             double iPy = 0.;
             int j = 0;
             VAstronometry::vlaDs2tp( fTelAzimuthCalculated / TMath::RadToDeg(), fTelElevationCalculated / TMath::RadToDeg(),
-                      fTelAzimuthDB / TMath::RadToDeg(), fTelElevationDB / TMath::RadToDeg(),
-                      &iPx, &iPy, &j );
+                                     fTelAzimuthDB / TMath::RadToDeg(), fTelElevationDB / TMath::RadToDeg(),
+                                     &iPx, &iPy, &j );
             if( j == 0 )
             {
                 // azimuth from North to East

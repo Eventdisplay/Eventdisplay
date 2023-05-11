@@ -392,7 +392,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
             // (should work properly here, as these are
             // all events with multiplicity > 4)
             if( sqrt( ( x1 - x_off4 ) * ( x1 - x_off4 ) + ( y1 + y_off4 ) * ( y1 + y_off4 ) )
-                < sqrt( ( x2 - x_off4 ) * ( x2 - x_off4 ) + ( y2 + y_off4 ) * ( y2 + y_off4 ) ) )
+                    < sqrt( ( x2 - x_off4 ) * ( x2 - x_off4 ) + ( y2 + y_off4 ) * ( y2 + y_off4 ) ) )
             {
                 fdisp_xs_T[ii] = x1;
                 fdisp_ys_T[ii] = y1;
@@ -406,7 +406,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         }
         calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
     }
-
+    
     // apply a completely unnecessary sign flip
     if( ys > -9998. )
     {
@@ -437,7 +437,7 @@ void VDispAnalyzer::calculateMeanShowerDirection( vector< float > v_x, vector< f
         cout << "invalid vector size " << endl;
         exit( EXIT_FAILURE );
     }
-
+    
     // single image
     if( iMaxN == 1 && v_x.size() == 1 && v_y.size() == 1 && v_weight.size() == 1 )
     {
@@ -450,7 +450,7 @@ void VDispAnalyzer::calculateMeanShowerDirection( vector< float > v_x, vector< f
     float z = 0.;
     for( unsigned int n = 0; n < iMaxN; n++ )
     {
-		for( unsigned int m = n + 1; m < iMaxN; m++ )
+        for( unsigned int m = n + 1; m < iMaxN; m++ )
         {
             dispdiff += sqrt( ( v_x[n] - v_x[m] ) * ( v_x[n] - v_x[m] )
                               + ( v_y[n] - v_y[m] ) * ( v_y[n] - v_y[m] ) )
@@ -511,7 +511,7 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
     f_dispDiff = -99.;
     f_xs = -99.;
     f_ys = -99.;
-
+    
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
@@ -592,10 +592,10 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
     }
     
     // calculate expected direction
-    calculateMeanDirection( f_xs, f_ys, 
-            x, y, cosphi, sinphi, 
-            v_disp, v_weight, 
-            f_dispDiff, xoff_4, yoff_4 );
+    calculateMeanDirection( f_xs, f_ys,
+                            x, y, cosphi, sinphi,
+                            v_disp, v_weight,
+                            f_dispDiff, xoff_4, yoff_4 );
     fdisp_xy_weight_T = v_weight;
     fdisp_T = v_disp;
     fdisplist_T = v_displist;
@@ -772,7 +772,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     
     ////////////////////////////////////////////
     // calculate for each image an energy
-
+    
     // counter for good energy values
     float z = 0.;
     for( unsigned int i = 0; i < i_ntel; i++ )

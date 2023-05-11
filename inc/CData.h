@@ -204,8 +204,8 @@ class CData
         TBranch*        b_Yoff;                   //!
         TBranch*        b_Xoff_derot;             //!
         TBranch*        b_Yoff_derot;             //!
-	TBranch*        b_Xoff_intersect;             //!
-	TBranch*        b_Yoff_intersect;             //!
+        TBranch*        b_Xoff_intersect;             //!
+        TBranch*        b_Yoff_intersect;             //!
         TBranch*        b_stdS;                   //!
         TBranch*        b_theta2;                 //!
         TBranch*        b_Xcore;                  //!
@@ -411,14 +411,14 @@ class CData
         }
         float getDirectionReconstructionDifference()
         {
-               if( Xoff > -998. && Yoff > -998. && Xoff_intersect > -998. && Yoff_intersect > -998. )
-               {
-                   if( (Xoff-Xoff_intersect)*(Xoff-Xoff_intersect)+(Yoff-Yoff_intersect)*(Yoff-Yoff_intersect) > 0. )
-                   {
-                         return log10(sqrt((Xoff-Xoff_intersect)*(Xoff-Xoff_intersect)+(Yoff-Yoff_intersect)*(Yoff-Yoff_intersect)));
-                   }
-               }
-               return -999.;
+            if( Xoff > -998. && Yoff > -998. && Xoff_intersect > -998. && Yoff_intersect > -998. )
+            {
+                if( ( Xoff - Xoff_intersect ) * ( Xoff - Xoff_intersect ) + ( Yoff - Yoff_intersect ) * ( Yoff - Yoff_intersect ) > 0. )
+                {
+                    return log10( sqrt( ( Xoff - Xoff_intersect ) * ( Xoff - Xoff_intersect ) + ( Yoff - Yoff_intersect ) * ( Yoff - Yoff_intersect ) ) );
+                }
+            }
+            return -999.;
         }
         int getNImages()
         {
@@ -444,7 +444,7 @@ class CData
         }
         double* getR()
         {
-                return R;
+            return R;
         }
         double* getEnergy_per_telescope()
         {
@@ -723,22 +723,22 @@ void CData::Init( TTree* tree )
     {
         fChain->SetBranchAddress( "Yoff_derot", &Yoff_derot );
     }
-	if( fChain->GetBranchStatus( "Xoff_intersect" ) )
-	{
-		fChain->SetBranchAddress( "Xoff_intersect", &Xoff_intersect );
-	}
-        else
-        {
-              Xoff_intersect = 0.;
-        }
-	if( fChain->GetBranchStatus( "Yoff_intersect" ) )
-	{
-		fChain->SetBranchAddress( "Yoff_intersect", &Yoff_intersect );
-	}
-        else
-        {
-              Yoff_intersect = 0.;
-        }
+    if( fChain->GetBranchStatus( "Xoff_intersect" ) )
+    {
+        fChain->SetBranchAddress( "Xoff_intersect", &Xoff_intersect );
+    }
+    else
+    {
+        Xoff_intersect = 0.;
+    }
+    if( fChain->GetBranchStatus( "Yoff_intersect" ) )
+    {
+        fChain->SetBranchAddress( "Yoff_intersect", &Yoff_intersect );
+    }
+    else
+    {
+        Yoff_intersect = 0.;
+    }
     
     if( fChain->GetBranchStatus( "stdS" ) )
     {
@@ -1105,8 +1105,8 @@ Bool_t CData::Notify()
     b_dec = fChain->GetBranch( "dec" );
     b_Xoff_derot = fChain->GetBranch( "Xoff_derot" );
     b_Yoff_derot = fChain->GetBranch( "Yoff_derot" );
-	b_Xoff_intersect = fChain->GetBranch( "Xoff_intersect" );
-	b_Yoff_intersect = fChain->GetBranch( "Yoff_intersect" );
+    b_Xoff_intersect = fChain->GetBranch( "Xoff_intersect" );
+    b_Yoff_intersect = fChain->GetBranch( "Yoff_intersect" );
     b_Xoff = fChain->GetBranch( "Xoff" );
     b_Yoff = fChain->GetBranch( "Yoff" );
     b_stdS = fChain->GetBranch( "stdS" );
@@ -1190,7 +1190,7 @@ Bool_t CData::Notify()
         b_dl_gammaness = 0;
         b_dl_isGamma = 0;
     }
-
+    
     return kTRUE;
 }
 

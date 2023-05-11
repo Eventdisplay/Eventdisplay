@@ -37,7 +37,7 @@ void VGammaHadronCutsStatistics::initialize( string iname )
     fCutName.push_back( "IsGamma           " );
     fCutName.push_back( "EnergyRec         " );
     fCutName.push_back( "Unkown cut (problem?) " );
-
+    
     iname = "GammaHadronCutsStats_" + iname;
     
     fData = new TTree( iname.c_str(), "cut statistics for gamma/hadron cuts" );

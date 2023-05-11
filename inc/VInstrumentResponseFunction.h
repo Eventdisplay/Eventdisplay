@@ -30,10 +30,10 @@ class VInstrumentResponseFunction
         
         string fName;
         string fType;
-        VInstrumentResponseFunctionRunParameter *fRunPara;
-
+        VInstrumentResponseFunctionRunParameter* fRunPara;
+        
         // output file
-        TFile *fOutputFile;
+        TFile* fOutputFile;
         
         // data tree
         CData*   fData;
@@ -63,7 +63,7 @@ class VInstrumentResponseFunction
         
         // containment probabilities
         double  fContainmentProbability;
-	double  fContainmentProbabilityError;
+        double  fContainmentProbabilityError;
         
         bool    defineHistograms();
         bool    fillEventData();
@@ -115,18 +115,18 @@ class VInstrumentResponseFunction
         void   setDuplicationID( unsigned int iDuplicationID = 9999 );
         void   setEnergyReconstructionMethod( unsigned int iMethod );
         void   setCuts( vector< VGammaHadronCuts* > iCuts );
-	void   setContainmentProbability( double iP = 0.68, double iPError = 0.95 )
+        void   setContainmentProbability( double iP = 0.68, double iPError = 0.95 )
         {
             fContainmentProbability = iP;
-     	    fContainmentProbabilityError = iPError;
+            fContainmentProbabilityError = iPError;
         }
         void   setDataTree( CData* iData );
         void   setMonteCarloEnergyRange( double iMin, double iMax, double iMCIndex = 2. );
-        void   setOutputFile( TFile *iOutputFile )
+        void   setOutputFile( TFile* iOutputFile )
         {
-             fOutputFile = iOutputFile;
+            fOutputFile = iOutputFile;
         }
-	void   setRunParameter( VInstrumentResponseFunctionRunParameter* iRunPar = 0 );
+        void   setRunParameter( VInstrumentResponseFunctionRunParameter* iRunPar = 0 );
         void   setTelescopeTypeCuts( bool iB = true )
         {
             fTelescopeTypeCutsSet = iB;

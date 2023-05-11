@@ -660,7 +660,7 @@ bool VEffectiveAreaCalculatorMCHistograms::matchDataVectors( vector< double > iA
     }
     fVMinAz = iVMinAz_new;
     fVMaxAz = iVMaxAz_new;
-
+    
     // unweighted histogram
     vector< TH1D* > ihVEmcUnWeighted_new;
     for( unsigned int i = 0; i < iVAz_match.size(); i++ )
@@ -671,6 +671,6 @@ bool VEffectiveAreaCalculatorMCHistograms::matchDataVectors( vector< double > iA
         }
     }
     hVEmcUnWeighted = ihVEmcUnWeighted_new;
-
+    
     return true;
 }

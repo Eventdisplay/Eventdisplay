@@ -199,10 +199,10 @@ double VSkyCoordinatesUtilities::addToMeanAzimuth( double iMean, double iAz )
 double VSkyCoordinatesUtilities::getTargetShiftWest( double iTargetRA_deg, double iTargetDec_deg, double ira_deg, double idec_deg )
 {
     double sep  = VAstronometry::vlaDsep( iTargetRA_deg * TMath::DegToRad(), iTargetDec_deg * TMath::DegToRad(),
-                           ira_deg * TMath::DegToRad(), idec_deg * TMath::DegToRad() );
+                                          ira_deg * TMath::DegToRad(), idec_deg * TMath::DegToRad() );
     double bear = VAstronometry::vlaDbear( iTargetRA_deg * TMath::DegToRad(), iTargetDec_deg * TMath::DegToRad(),
-                            ira_deg * TMath::DegToRad(), idec_deg * TMath::DegToRad() );
-                            
+                                           ira_deg * TMath::DegToRad(), idec_deg * TMath::DegToRad() );
+                                           
     double iShift = sep * sin( bear ) * TMath::RadToDeg();
     
     if( TMath::Abs( iShift ) < 1.e-8 )
@@ -217,10 +217,10 @@ double VSkyCoordinatesUtilities::getTargetShiftWest( double iTargetRA_deg, doubl
 double VSkyCoordinatesUtilities::getTargetShiftNorth( double iTargetRA_deg, double iTargetDec_deg, double ira_deg, double idec_deg )
 {
     double sep  = VAstronometry::vlaDsep( iTargetRA_deg * TMath::DegToRad(), iTargetDec_deg * TMath::DegToRad(),
-                           ira_deg * TMath::DegToRad(), idec_deg * TMath::DegToRad() );
+                                          ira_deg * TMath::DegToRad(), idec_deg * TMath::DegToRad() );
     double bear = VAstronometry::vlaDbear( iTargetRA_deg * TMath::DegToRad(), iTargetDec_deg * TMath::DegToRad(),
-                            ira_deg * TMath::DegToRad(), idec_deg * TMath::DegToRad() );
-                            
+                                           ira_deg * TMath::DegToRad(), idec_deg * TMath::DegToRad() );
+                                           
     double iShift = sep * cos( bear ) * TMath::RadToDeg();
     
     if( TMath::Abs( iShift ) < 1.e-8 )
@@ -405,7 +405,7 @@ double VSkyCoordinatesUtilities::getDerotationAngle( double i_UTC, double iTelRA
         double iObservatoryLongitude, double iObservatoryLatitude )
 {
     return  -1.*VAstronometry::vlaPa( getHourAngle( i_UTC, iTelRA, iObservatoryLongitude ),
-                    iTelDec, iObservatoryLatitude );
+                                      iTelDec, iObservatoryLatitude );
 }
 
 double VSkyCoordinatesUtilities::getDerotationAngle( double iMJD, double iTime, double iTelRA, double iTelDec,

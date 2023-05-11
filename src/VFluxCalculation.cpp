@@ -1263,11 +1263,11 @@ unsigned int VFluxCalculation::loadFluxDataVectorFromAsciiFile( string iAsciiFil
         }
         else if( iTemp_string == "ENERGYRANGE_TEV" || iTemp_string == "ENERGYRANGE_KEV" )
         {
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> fMinEnergy_TeV;
             }
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> fMaxEnergy_TeV;
             }
@@ -1302,7 +1302,7 @@ unsigned int VFluxCalculation::loadFluxDataVectorFromAsciiFile( string iAsciiFil
                 iColumn.push_back( iTemp_string );
                 
             }
-            while( !(is_stream>>std::ws).eof() );
+            while( !( is_stream >> std::ws ).eof() );
             
             cout << "\t found the following data columns: ";
             for( unsigned int i = 0; i < iColumn.size(); i++ )
@@ -1333,7 +1333,7 @@ unsigned int VFluxCalculation::loadFluxDataVectorFromAsciiFile( string iAsciiFil
         // read in all columns
         for( unsigned int i = 0; i < iColumn.size(); i++ )
         {
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> iTemp_string;
             }

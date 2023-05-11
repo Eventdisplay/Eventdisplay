@@ -90,7 +90,7 @@ double getROCEnergy( string iBDTFile, bool iMin )
  *
  * (function called by user)
  */
-void plotROC( string iDirectory, int iEnergy_min = 0, int iEnergy_max = 8, 
+void plotROC( string iDirectory, int iEnergy_min = 0, int iEnergy_max = 8,
               int iZe = -1,
               string iMethodFileName = "mva",
               string iMethodName = "BDT", unsigned int iNMethods = 1,
@@ -99,48 +99,48 @@ void plotROC( string iDirectory, int iEnergy_min = 0, int iEnergy_max = 8,
     vector< TGraph* > fROC_Graph;
     vector< double > fROC_E_min;
     vector< double > fROC_E_max;
-
+    
     vector< string > fROC_FileName;
     
     for( unsigned int i = iEnergy_min; i <= iEnergy_max; i++ )
     {
-        for( int j = iZe; j < iZe+1; j++ )
+        for( int j = iZe; j < iZe + 1; j++ )
         {
-             ostringstream iFile;
-             iFile << iDirectory << "/" << iMethodFileName;
-             iFile << "_" << i << "_" << j;
-             iFile << ".root";
-             fROC_FileName.push_back( iFile.str() );
+            ostringstream iFile;
+            iFile << iDirectory << "/" << iMethodFileName;
+            iFile << "_" << i << "_" << j;
+            iFile << ".root";
+            fROC_FileName.push_back( iFile.str() );
         }
     }
-
+    
     // get energies
     for( unsigned int i = 0; i < fROC_FileName.size(); i++ )
     {
         fROC_E_min.push_back( getROCEnergy( fROC_FileName[i].c_str(), true ) );
         fROC_E_max.push_back( getROCEnergy( fROC_FileName[i].c_str(), false ) );
     }
-
+    
     TCanvas* cROC = new TCanvas( "cROC", "ROC", 10, 10, 900, 600 );
     cROC->SetGridx( 0 );
     cROC->SetGridy( 0 );
-    cROC->Divide( 2, TMath::Ceil((iEnergy_max-iEnergy_min+1)/2+0.5));
+    cROC->Divide( 2, TMath::Ceil( ( iEnergy_max - iEnergy_min + 1 ) / 2 + 0.5 ) );
     cROC->Draw();
-
-
+    
+    
     // loop over all mvas and retrieve ROC
     for( unsigned int i = 0; i < fROC_FileName.size(); i++ )
     {
-        cROC->cd( i+1 );
+        cROC->cd( i + 1 );
         
         for( unsigned m = 0; m < iNMethods; m++ )
         {
             cout << "Reading from " << fROC_FileName[i] << ", method " << m << endl;
-            TGraph *iG = getROCGraph( fROC_FileName[i].c_str(), m, iMethodName, minSignal );
-            if( m+1 != 10 )
+            TGraph* iG = getROCGraph( fROC_FileName[i].c_str(), m, iMethodName, minSignal );
+            if( m + 1 != 10 )
             {
-                iG->SetLineColor( m+1 );
-                iG->SetMarkerColor( m+1 );
+                iG->SetLineColor( m + 1 );
+                iG->SetMarkerColor( m + 1 );
             }
             else
             {
@@ -148,7 +148,7 @@ void plotROC( string iDirectory, int iEnergy_min = 0, int iEnergy_max = 8,
                 iG->SetMarkerColor( 11 );
             }
             cout << i << "\t" << iMethodName << "\t" << m << endl;
-
+            
             if( m == 0 )
             {
                 iG->Draw( "apl" );
@@ -161,48 +161,48 @@ void plotROC( string iDirectory, int iEnergy_min = 0, int iEnergy_max = 8,
             }
         }
     }
-
+    
     // plot FAUC
-    TCanvas *cFAUC = new TCanvas( "cFAUC", "FAUC", 300, 300, 600, 600 );
+    TCanvas* cFAUC = new TCanvas( "cFAUC", "FAUC", 300, 300, 600, 600 );
     cFAUC->SetLogx( 1 );
     cFAUC->Draw();
-
+    
     for( unsigned m = 0; m < iNMethods; m++ )
     {
-          TGraph *iF = new TGraph( 1 );
-          iF->SetTitle( "" );
-
-          for( unsigned int i = 0; i < fROC_FileName.size(); i++ )
-          {
-                TGraph *iG = getROCGraph( fROC_FileName[i].c_str(), m, iMethodName, minSignal );
-
-                iF->SetPoint( i, TMath::Power( 10., 0.5 * ( fROC_E_min[i] + fROC_E_max[i] ) ), iG->Integral() );
-          }
-          cout << "_______________________________ " << m << endl;
-          iF->Print();
-          if( m+1 != 10 )
-          {
-              iF->SetLineColor( m+1 );
-              iF->SetMarkerColor( m+1 );
-          }
-          else
-          {
-              iF->SetLineColor( 11 );
-              iF->SetMarkerColor( 11 );
-          }
-          iF->SetMarkerStyle( 20 );
-          iF->SetMarkerSize( 2. );
-          if( m == 0 )
-          {
-              iF->Draw( "apl" );
-              iF->GetHistogram()->GetXaxis()->SetTitle( "Energy [TeV]" );
-              iF->GetHistogram()->GetYaxis()->SetTitle( "Area under ROC" );
-          }
-          else
-          {
-              iF->Draw( "pl" );
-          }
-     }
-
+        TGraph* iF = new TGraph( 1 );
+        iF->SetTitle( "" );
+        
+        for( unsigned int i = 0; i < fROC_FileName.size(); i++ )
+        {
+            TGraph* iG = getROCGraph( fROC_FileName[i].c_str(), m, iMethodName, minSignal );
+            
+            iF->SetPoint( i, TMath::Power( 10., 0.5 * ( fROC_E_min[i] + fROC_E_max[i] ) ), iG->Integral() );
+        }
+        cout << "_______________________________ " << m << endl;
+        iF->Print();
+        if( m + 1 != 10 )
+        {
+            iF->SetLineColor( m + 1 );
+            iF->SetMarkerColor( m + 1 );
+        }
+        else
+        {
+            iF->SetLineColor( 11 );
+            iF->SetMarkerColor( 11 );
+        }
+        iF->SetMarkerStyle( 20 );
+        iF->SetMarkerSize( 2. );
+        if( m == 0 )
+        {
+            iF->Draw( "apl" );
+            iF->GetHistogram()->GetXaxis()->SetTitle( "Energy [TeV]" );
+            iF->GetHistogram()->GetYaxis()->SetTitle( "Area under ROC" );
+        }
+        else
+        {
+            iF->Draw( "pl" );
+        }
+    }
+    
 }
 

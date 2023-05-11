@@ -19,9 +19,9 @@
  *  (calculation of effective areas)
  *
  */
-VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter* iRunPara, 
-                                                    vector< VGammaHadronCuts* > icuts,
-                                                    TFile *iFile )
+VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionRunParameter* iRunPara,
+        vector< VGammaHadronCuts* > icuts,
+        TFile* iFile )
 {
     fRunPara = iRunPara;
     if( !fRunPara )
@@ -32,7 +32,10 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     }
     reset();
     fOutputFile = iFile;
-    if( fOutputFile ) fOutputFile->cd();
+    if( fOutputFile )
+    {
+        fOutputFile->cd();
+    }
     
     // no effective area file present
     bNOFILE = true;
@@ -40,13 +43,13 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     // number of bins for histograms
     nbins = fRunPara->fEnergyAxisBins_log10;
     nbins_MC = fRunPara->fEnergyAxisBins_log10;
-
+    
     // bin definition for 2D histograms (allows coarser binning in energy)
-    fBiasBin       = fRunPara->fBiasBin;      
-    fhistoNEbins   = fRunPara->fhistoNEbins; 
-    fLogAngularBin = fRunPara->fLogAngularBin; 
+    fBiasBin       = fRunPara->fBiasBin;
+    fhistoNEbins   = fRunPara->fhistoNEbins;
+    fLogAngularBin = fRunPara->fLogAngularBin;
     fResponseMatricesEbinning = fRunPara->fResponseMatricesEbinning;
-
+    
     // Important: changing this means probably that the values used in
     // VEffectiveAreaCalculatorMCHistograms have to be changed as well
     // this should not be changed
@@ -86,8 +89,8 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     hisVList    = new TList();
     
     // Gaussian function for approximating response matrix
-    fGauss = new TF1("fGauss", "gaus", -2.5,2.5);
-
+    fGauss = new TF1( "fGauss", "gaus", -2.5, 2.5 );
+    
     // these histograms are filled into the output tree
     char hname[400];
     char htitle[400];
@@ -96,76 +99,76 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     cout << "histogram parameters (bins, log10(Emin), log10(Emax)): " << nbins;
     cout << ", " << fEnergyAxis_minimum_defaultValue << ", " << fEnergyAxis_maximum_defaultValue << endl;
     sprintf( htitle, "title" );
-
-    newEffectiveAreaHistogram( "1D", E_Emc, 
-                        "energy spectrum",
-                        "energy_{MC} [TeV]", 
-                        "entries",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue );
-    newEffectiveAreaHistogram( "1D", E_EmcUW, 
-                        "energy spectrum (unweighted)",
-                        "energy_{MC} [TeV]", 
-                        "entries",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue );
-    newEffectiveAreaHistogram( "1D", E_Ecut, 
-                        "energy spectrum, after cuts",
-                        "energy_{MC} [TeV]", 
-                        "entries",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue );
+    
+    newEffectiveAreaHistogram( "1D", E_Emc,
+                               "energy spectrum",
+                               "energy_{MC} [TeV]",
+                               "entries",
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue );
+    newEffectiveAreaHistogram( "1D", E_EmcUW,
+                               "energy spectrum (unweighted)",
+                               "energy_{MC} [TeV]",
+                               "entries",
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue );
+    newEffectiveAreaHistogram( "1D", E_Ecut,
+                               "energy spectrum, after cuts",
+                               "energy_{MC} [TeV]",
+                               "entries",
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue );
     newEffectiveAreaHistogram( "1D", E_EcutUW,
-                        "unweighted energy spectrum, after cuts",
-                        "energy_{MC} [TeV]", 
-                        "entries (unweighted)",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue );
+                               "unweighted energy spectrum, after cuts",
+                               "energy_{MC} [TeV]",
+                               "entries (unweighted)",
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue );
     newEffectiveAreaHistogram( "1D", E_EcutNoTh2,
-                        "energy spectrum, no direction cut, after cuts",
-                        "energy_{MC} [TeV]", 
-                        "entries (no theta2 cut)",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue );
+                               "energy spectrum, no direction cut, after cuts",
+                               "energy_{MC} [TeV]",
+                               "entries (no theta2 cut)",
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue );
     newEffectiveAreaHistogram( "1D", E_Ecut500,
-                        "energy spectrum, after cuts",
-                        "energy_{MC} [TeV]", 
-                        "entries", 
-                        500, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue );
+                               "energy spectrum, after cuts",
+                               "energy_{MC} [TeV]",
+                               "entries",
+                               500, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue );
     newEffectiveAreaHistogram( "1D", E_EcutRec,
-                        "energy spectrum, no direction cutRecs",
-                        "energy_{rec} [TeV]", 
-                        "entries",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue );
+                               "energy spectrum, no direction cutRecs",
+                               "energy_{rec} [TeV]",
+                               "entries",
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue );
     newEffectiveAreaHistogram( "1D", E_EcutRecUW,
-                        "unweighted energy spectrum, after cutsRecs",
-                        "energy_{rec} [TeV]", 
-                        "entries (unweighted)",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue );
+                               "unweighted energy spectrum, after cutsRecs",
+                               "energy_{rec} [TeV]",
+                               "entries (unweighted)",
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue );
     newEffectiveAreaHistogram( "1D", E_EcutRecNoTh2,
-                        "energy spectrum, no direction cut, no direction cut, after cuts",
-                        "energy_{rec} [TeV]", 
-                        "entries (no theta2 cut)",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue );
+                               "energy spectrum, no direction cut, no direction cut, after cuts",
+                               "energy_{rec} [TeV]",
+                               "entries (no theta2 cut)",
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue );
     // weighted rate
     // (use CTA binning, 5 bins per decade)
     newEffectiveAreaHistogram( "1D", E_WeightedRate,
-                        "weighted rates",
-                        "energy_{rec} [TeV]", 
-                        "entries",
-                        30, -2.9, 3.1 );
+                               "weighted rates",
+                               "energy_{rec} [TeV]",
+                               "entries",
+                               30, -2.9, 3.1 );
     // weighted rate
     // (finner binning, primarily used for VTS analysis)
     newEffectiveAreaHistogram( "1D", E_WeightedRate005,
-                        "weighted rates",
-                        "energy_{rec} [TeV]", 
-                        "entries",
-                        120, -2.9, 3.1 );
-   
+                               "weighted rates",
+                               "energy_{rec} [TeV]",
+                               "entries",
+                               120, -2.9, 3.1 );
+                               
     // individual cuts
     vector< enum E_HIS1D > iCutName;
     iCutName.push_back( E_EcutTrigger );
@@ -178,11 +181,11 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     for( unsigned int i = 0; i < iCutName.size(); i++ )
     {
         newEffectiveAreaHistogram( "1D", iCutName[i],
-                            "energy spectrum, cut selection",
-                            "energy_{MC} [TeV]", 
-                            "entries",
-                            nbins, fEnergyAxis_minimum_defaultValue,
-                            fEnergyAxis_maximum_defaultValue );
+                                   "energy spectrum, cut selection",
+                                   "energy_{MC} [TeV]",
+                                   "entries",
+                                   nbins, fEnergyAxis_minimum_defaultValue,
+                                   fEnergyAxis_maximum_defaultValue );
     }
     
     sprintf( hname, "gEffAreaMC" );
@@ -208,93 +211,93 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     gEffAreaNoTh2Rec->SetName( hname );
     gEffAreaNoTh2Rec->SetTitle( "effective area vs E_{rec} (no direction cut)" );
     hisTreeList->Add( gEffAreaNoTh2Rec );
-
-    newEffectiveAreaHistogram( "1P", E_EmcSWeight,
-                        "eMCeweight",
-                        "log_{10} energy_{MC} [TeV]",
-                        "spectral weight",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
-                        -1, 0., 1.e12 );
-    newEffectiveAreaHistogram( "1P", E_EsysMCRelative,
-                        "energy reconstruction",
-                        "log_{10} energy_{MC} [TeV]",
-                        "energy bias (E_{rec}-E_{MC})/E_{MC}",
-                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
-                        -1, -1000., 1000., "s" );
-
-    newEffectiveAreaHistogram( "2D", E_EsysMCRelativeRMS,
-                        "energy reconstruction",
-                        "energy_{MC} [TeV]",
-                        "energy bias (E_{rec}-E_{MC})/E_{MC}",
-                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
-                        1000, -5., 5., "" );
-    newEffectiveAreaHistogram( "2D", E_EsysMCRelative2D,
-                        "energy reconstruction",
-                        "energy_{MC} [TeV]",
-                        "energy bias E_{rec}/E_{MC}",
-                        300, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
-                        fBiasBin, 0., 3., "" );
-    newEffectiveAreaHistogram( "2D", E_EsysMCRelative2DNoDirectionCut,
-                        "energy reconstruction, after gamma-selection cuts",
-                        "energy_{MC} [TeV]",
-                        "energy bias E_{rec}/E_{MC}",
-                        300, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
-                        fBiasBin, 0., 3., "" );
-    newEffectiveAreaHistogram( "2D", E_Esys2D,
-                        "energy reconstruction",
-                        "energy_{MC} [TeV]",
-                        "log_{10} E_{rec} - log_{10} E_{MC}",
-                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
-                        100, -0.98, 2.02, "" );
-    newEffectiveAreaHistogram( "2D", E_ResponseMatrix,
-                        "migration matrix",
-                        "energy_{rec} [TeV]",
-                        "energy_{MC} [TeV]",
-                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue, "" );
-    newEffectiveAreaHistogram( "2D", E_ResponseMatrixFine,
-                        "migration matrix, fine binning",
-                        "energy_{rec} [TeV]",
-                        "energy_{MC} [TeV]",
-                        fResponseMatricesEbinning, -2.3, 2.7,
-                        fResponseMatricesEbinning, -2.3, 2.7, "" );
-    newEffectiveAreaHistogram( "2D", E_ResponseMatrixQC,
-                        "migration matrix, after quality cuts",
-                        "energy_{rec} [TeV]",
-                        "energy_{MC} [TeV]",
-                        nbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
-                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue, "" );
-    newEffectiveAreaHistogram( "2D", E_ResponseMatrixFineQC,
-                        "migration matrix, fine binning",
-                        "energy_{rec} [TeV]",
-                        "energy_{MC} [TeV]",
-                        fResponseMatricesEbinning, -2., 2.7,
-                        fResponseMatricesEbinning, -2.3, 2.7, "" );
-    newEffectiveAreaHistogram( "2D", E_ResponseMatrixNoDirectionCut,
-                        "migration matrix",
-                        "energy_{rec} [TeV]",
-                        "energy_{MC} [TeV]",
-                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue,
-                        fhistoNEbins, fEnergyAxis_minimum_defaultValue,
-                        fEnergyAxis_maximum_defaultValue, "" );
-    newEffectiveAreaHistogram( "2D", E_ResponseMatrixFineNoDirectionCut,
-                        "migration matrix, fine binning",
-                        "energy_{rec} [TeV]",
-                        "energy_{MC} [TeV]",
-                        fResponseMatricesEbinning, -2., 2.7,
-                        fResponseMatricesEbinning, -2.3, 2.7, "" );
     
+    newEffectiveAreaHistogram( "1P", E_EmcSWeight,
+                               "eMCeweight",
+                               "log_{10} energy_{MC} [TeV]",
+                               "spectral weight",
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue,
+                               -1, 0., 1.e12 );
+    newEffectiveAreaHistogram( "1P", E_EsysMCRelative,
+                               "energy reconstruction",
+                               "log_{10} energy_{MC} [TeV]",
+                               "energy bias (E_{rec}-E_{MC})/E_{MC}",
+                               fhistoNEbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue,
+                               -1, -1000., 1000., "s" );
+                               
+    newEffectiveAreaHistogram( "2D", E_EsysMCRelativeRMS,
+                               "energy reconstruction",
+                               "energy_{MC} [TeV]",
+                               "energy bias (E_{rec}-E_{MC})/E_{MC}",
+                               fhistoNEbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue,
+                               1000, -5., 5., "" );
+    newEffectiveAreaHistogram( "2D", E_EsysMCRelative2D,
+                               "energy reconstruction",
+                               "energy_{MC} [TeV]",
+                               "energy bias E_{rec}/E_{MC}",
+                               300, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue,
+                               fBiasBin, 0., 3., "" );
+    newEffectiveAreaHistogram( "2D", E_EsysMCRelative2DNoDirectionCut,
+                               "energy reconstruction, after gamma-selection cuts",
+                               "energy_{MC} [TeV]",
+                               "energy bias E_{rec}/E_{MC}",
+                               300, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue,
+                               fBiasBin, 0., 3., "" );
+    newEffectiveAreaHistogram( "2D", E_Esys2D,
+                               "energy reconstruction",
+                               "energy_{MC} [TeV]",
+                               "log_{10} E_{rec} - log_{10} E_{MC}",
+                               fhistoNEbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue,
+                               100, -0.98, 2.02, "" );
+    newEffectiveAreaHistogram( "2D", E_ResponseMatrix,
+                               "migration matrix",
+                               "energy_{rec} [TeV]",
+                               "energy_{MC} [TeV]",
+                               fhistoNEbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue,
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue, "" );
+    newEffectiveAreaHistogram( "2D", E_ResponseMatrixFine,
+                               "migration matrix, fine binning",
+                               "energy_{rec} [TeV]",
+                               "energy_{MC} [TeV]",
+                               fResponseMatricesEbinning, -2.3, 2.7,
+                               fResponseMatricesEbinning, -2.3, 2.7, "" );
+    newEffectiveAreaHistogram( "2D", E_ResponseMatrixQC,
+                               "migration matrix, after quality cuts",
+                               "energy_{rec} [TeV]",
+                               "energy_{MC} [TeV]",
+                               nbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue,
+                               fhistoNEbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue, "" );
+    newEffectiveAreaHistogram( "2D", E_ResponseMatrixFineQC,
+                               "migration matrix, fine binning",
+                               "energy_{rec} [TeV]",
+                               "energy_{MC} [TeV]",
+                               fResponseMatricesEbinning, -2., 2.7,
+                               fResponseMatricesEbinning, -2.3, 2.7, "" );
+    newEffectiveAreaHistogram( "2D", E_ResponseMatrixNoDirectionCut,
+                               "migration matrix",
+                               "energy_{rec} [TeV]",
+                               "energy_{MC} [TeV]",
+                               fhistoNEbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue,
+                               fhistoNEbins, fEnergyAxis_minimum_defaultValue,
+                               fEnergyAxis_maximum_defaultValue, "" );
+    newEffectiveAreaHistogram( "2D", E_ResponseMatrixFineNoDirectionCut,
+                               "migration matrix, fine binning",
+                               "energy_{rec} [TeV]",
+                               "energy_{MC} [TeV]",
+                               fResponseMatricesEbinning, -2., 2.7,
+                               fResponseMatricesEbinning, -2.3, 2.7, "" );
+                               
     // log angular difference histogram (vs true energy)
     sprintf( hname, "hAngularLogDiffEmc_2D" );
     hAngularLogDiffEmc_2D = new TH2D( hname, "log angular difference histogram (vs true energy)",
@@ -339,20 +342,20 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     fEffArea->Branch( "eff", eff, "eff[nbins]/F" ); // effective area vs MC energy
     fEffArea->Branch( "eff_error", eff_error, "eff_error[nbins]/F" );
     fEffArea->Branch( "esys_rel", esys_rel, "esys_rel[nbins]/F" );
-    fEffArea->Branch( "effNoTh2", effNoTh2, "effNoTh2[nbins]/F" ); 
-    fEffArea->Branch( "effNoTh2_error", effNoTh2_error, "effNoTh2_error[nbins]/F" ); 
+    fEffArea->Branch( "effNoTh2", effNoTh2, "effNoTh2[nbins]/F" );
+    fEffArea->Branch( "effNoTh2_error", effNoTh2_error, "effNoTh2_error[nbins]/F" );
     fEffArea->Branch( "Rec_eff", Rec_eff, "Rec_eff[nbins]/F" ); // effective area vs reconstructed energy (approximation)
     fEffArea->Branch( "Rec_eff_error", Rec_eff_error, "Rec_eff_error[nbins]/F" );
-    fEffArea->Branch( "Rec_effNoTh2", Rec_effNoTh2, "Rec_effNoTh2[nbins]/F" ); 
-    fEffArea->Branch( "Rec_effNoTh2_error", Rec_effNoTh2_error, "Rec_effNoTh2_error[nbins]/F" );  
+    fEffArea->Branch( "Rec_effNoTh2", Rec_effNoTh2, "Rec_effNoTh2[nbins]/F" );
+    fEffArea->Branch( "Rec_effNoTh2_error", Rec_effNoTh2_error, "Rec_effNoTh2_error[nbins]/F" );
     fEffArea->Branch( "Rec_angRes_p68", Rec_angRes_p68, "Rec_angRes_p68[nbins]/F" );
     fEffArea->Branch( "Rec_angRes_p80", Rec_angRes_p80, "Rec_angRes_p80[nbins]/F" );
     fEffArea->Branch( "Rec_angRes_kingSigma", Rec_angRes_kingSigma, "Rec_angRes_kingSigma[nbins]/F" );
     fEffArea->Branch( "Rec_angRes_kingGamma", Rec_angRes_kingGamma, "Rec_angRes_kingGamma[nbins]/F" );
     if( !fRunPara->fEffArea_short_writing )
     {
-        fEffArea->Branch( hisTreeList, 64000, 1 ); 
-    } 
+        fEffArea->Branch( hisTreeList, 64000, 1 );
+    }
     // For reconstructing the response matrices
     fEffArea->Branch( "nbins_MC_Res", &nbins_MC_Res, "nbins_MC_Res/I" );
     fEffArea->Branch( "e_MC_Res", e_MC_Res, "e_MC_Res[nbins_MC_Res]/F" );
@@ -411,7 +414,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
         fDL2EventTree->Branch( "nimages", &fDL2_nimages, "nimages/b" );
         fDL2EventTree->Branch( "CutClass", &fDL2_Cut_Class, "Class/b" );
         fDL2EventTree->Branch( "MVA", &fDL2_Cut_MVA, "MVA/F" );
-
+        
         // extended trees
         if( fDL2_extendedTrees )
         {
@@ -442,14 +445,17 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
             fDL2EventTree->Branch( "NTrig", &fDL2_NTrig, "NTrig/i" );
             fDL2EventTree->Branch( "meanPedvar_Image", &fDL2_meanPedvar_Image, "meanPedvar_Image/F" );
             fDL2EventTree->Branch( "ES", fDL2_ES, "ES[nimages]/F" );
-       }
+        }
     }
     else
     {
-       fDL2EventTree = 0;
+        fDL2EventTree = 0;
     }
     fDL2WriteFullEventTree = false;
-    if( fRunPara->fWriteEventdatatrees == "FULLTREES" ) fDL2WriteFullEventTree = true;
+    if( fRunPara->fWriteEventdatatrees == "FULLTREES" )
+    {
+        fDL2WriteFullEventTree = true;
+    }
 }
 
 vector< TH1D* > VEffectiveAreaCalculator::initializeHistogramsVectorH1D( TH1D* h, string iName, unsigned int i )
@@ -542,36 +548,36 @@ void VEffectiveAreaCalculator::initializeHistograms( vector< double > iAzMin, ve
     {
         map< int, TH1D* >::iterator h_HIS1D_iterator;
         for( h_HIS1D_iterator = h_HIS1D.begin();
-               h_HIS1D_iterator !=  h_HIS1D.end();
-               h_HIS1D_iterator++ )
+                h_HIS1D_iterator !=  h_HIS1D.end();
+                h_HIS1D_iterator++ )
         {
             hV_HIS1D[h_HIS1D_iterator->first].push_back(
-                    initializeHistogramsVectorH1D( 
-                          h_HIS1D_iterator->second,
-                          getEffectiveAreaNamefromEnumInt(h_HIS1D_iterator->first, "1D" ) + "V",
-                          i ) );
+                initializeHistogramsVectorH1D(
+                    h_HIS1D_iterator->second,
+                    getEffectiveAreaNamefromEnumInt( h_HIS1D_iterator->first, "1D" ) + "V",
+                    i ) );
         }
         map< int, TProfile* >::iterator h_HIS1P_iterator;
         for( h_HIS1P_iterator = h_HIS1P.begin();
-               h_HIS1P_iterator !=  h_HIS1P.end();
-               h_HIS1P_iterator++ )
+                h_HIS1P_iterator !=  h_HIS1P.end();
+                h_HIS1P_iterator++ )
         {
             hV_HIS1P[h_HIS1P_iterator->first].push_back(
-                    initializeHistogramsVectorHProfile( 
-                          h_HIS1P_iterator->second,
-                          getEffectiveAreaNamefromEnumInt(h_HIS1P_iterator->first, "1P" ) + "V",
-                          i ) );
+                initializeHistogramsVectorHProfile(
+                    h_HIS1P_iterator->second,
+                    getEffectiveAreaNamefromEnumInt( h_HIS1P_iterator->first, "1P" ) + "V",
+                    i ) );
         }
         map< int, TH2D* >::iterator h_HIS2D_iterator;
         for( h_HIS2D_iterator = h_HIS2D.begin();
-               h_HIS2D_iterator !=  h_HIS2D.end();
-               h_HIS2D_iterator++ )
+                h_HIS2D_iterator !=  h_HIS2D.end();
+                h_HIS2D_iterator++ )
         {
             hV_HIS2D[h_HIS2D_iterator->first].push_back(
-                    initializeHistogramsVectorH2D( 
-                          h_HIS2D_iterator->second,
-                          getEffectiveAreaNamefromEnumInt(h_HIS2D_iterator->first, "2D" ) + "V",
-                          i ) );
+                initializeHistogramsVectorH2D(
+                    h_HIS2D_iterator->second,
+                    getEffectiveAreaNamefromEnumInt( h_HIS2D_iterator->first, "2D" ) + "V",
+                    i ) );
         }
     }
 }
@@ -629,7 +635,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( string iInputFile, double az
     gMeanEffectiveAreaMC->SetMarkerStyle( 21 );
     gMeanEffectiveAreaMC->SetMarkerColor( fEffectiveAreaVsEnergyMC + 2 );
     gMeanEffectiveAreaMC->SetLineColor( fEffectiveAreaVsEnergyMC + 2 );
-
+    
     // mean effective area for Time BINS
     
     gTimeBinnedMeanEffectiveArea = new TGraph2DErrors( 1 );
@@ -694,7 +700,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( string iInputFile, double az
 /*
  * get mean value between to azimuth angle
  * taking into account the Eventdisplay azimuth
- * definition 
+ * definition
  *
  * handles mix of neg/positive azimuth values
  *
@@ -816,7 +822,7 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
     }
     else
     {
-       nbins_MC_Res = 0;
+        nbins_MC_Res = 0;
     }
     // MC effective areas
     iEffArea->SetBranchAddress( "eff", eff_MC );
@@ -846,7 +852,7 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
     // temporary vectors filled into the effective area maps later
     // effective areas (energy axis depend on fEffectiveAreaVsEnergyMC)
     vector< float > i_temp_Eff( i_hEMC->GetNbinsX(), 0. );
-    vector< float > i_temp_Eff_MC(i_hEMC->GetNbinsX(), 0. );
+    vector< float > i_temp_Eff_MC( i_hEMC->GetNbinsX(), 0. );
     // bias in energy reconstruction (energy axis is in E_true)
     vector< float > i_temp_Esys( i_hEMC->GetNbinsX(), 0. );
     
@@ -855,7 +861,7 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
     vector< float > i_e_MC_Res( nbins_MC_Res, 0. );
     vector< float > i_e_Rec_Res( nbins_MC_Res, 0. );
     vector< float > i_e_Rec_Res_Err( nbins_MC_Res, 0. );
-
+    
     cout << "\t selecting effective areas for mean az " << iAzMean << " deg, spectral index ";
     cout << iSpectralIndex << ", noise level " << ipedvar << endl;
     cout << "\t\ttotal number of curves: " << iEffArea->GetEntries();
@@ -976,13 +982,13 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
                 }
                 else
                 {
-                     cout << "Error in ";
-                     cout << "VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms:";
-                     cout << " setting of wobble vector" << endl;
-                     cout << i_index_ze << " >= " << fEff_WobbleOffsets.size() << endl;
-                     exit( EXIT_FAILURE );
+                    cout << "Error in ";
+                    cout << "VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms:";
+                    cout << " setting of wobble vector" << endl;
+                    cout << i_index_ze << " >= " << fEff_WobbleOffsets.size() << endl;
+                    exit( EXIT_FAILURE );
                 }
-
+                
             }
             ///////////////////////////////////////////////////
             // noise level
@@ -1136,22 +1142,22 @@ bool VEffectiveAreaCalculator::initializeEffectiveAreasFromHistograms( TTree* iE
             fEffArea_map[i_ID]        = i_temp_Eff;
             fEffAreaMC_map[i_ID]      = i_temp_Eff_MC;
             fEff_EsysMCRelative[i_ID] = i_temp_Esys;
-
+            
             // Setting Values for the generating the migration matrix
             i_e_MC_Res.resize( nbins_MC_Res );
             i_e_Rec_Res.resize( nbins_MC_Res );
             i_e_Rec_Res_Err.resize( nbins_MC_Res );
-
-            for ( int j = 0; j < nbins_MC_Res; j++ )
+            
+            for( int j = 0; j < nbins_MC_Res; j++ )
             {
-                    i_e_MC_Res[j] = e_MC_Res[j];
-                    i_e_Rec_Res[j] = e_Rec_Res[j];
+                i_e_MC_Res[j] = e_MC_Res[j];
+                i_e_Rec_Res[j] = e_Rec_Res[j];
             }
             // Assigning Key to Map
             fe_MC_Res_map[i_ID] = i_e_MC_Res;
             fe_Rec_Res_map[i_ID] = i_e_Rec_Res;
             fe_Rec_Res_Err_map[i_ID] = i_e_Rec_Res_Err;
-
+            
             fEntry_map[i_ID] = i;
             
             // this is neeeded only if there are no azimuth dependent effective areas
@@ -1378,7 +1384,7 @@ void VEffectiveAreaCalculator::reset()
     
 }
 
-/* 
+/*
  * solid angle from MC simulations (cone)
  *
  */
@@ -1388,9 +1394,9 @@ double VEffectiveAreaCalculator::getMCSolidAngleNormalization()
     if( fCuts.size() > 0 && fCuts[0] && fRunPara )
     {
         if( fRunPara->fViewcone_max > 0.
-         && fCuts[0]->fCut_CameraFiducialSize_MC_max > 0.
-         && fCuts[0]->fCut_CameraFiducialSize_MC_max < 1000.
-         && fCuts[0]->fCut_CameraFiducialSize_MC_max < fRunPara->fViewcone_max )
+                && fCuts[0]->fCut_CameraFiducialSize_MC_max > 0.
+                && fCuts[0]->fCut_CameraFiducialSize_MC_max < 1000.
+                && fCuts[0]->fCut_CameraFiducialSize_MC_max < fRunPara->fViewcone_max )
         {
             // solid angle of simulated showers
             double iSN_mc = ( 1. - cos( fRunPara->fViewcone_max * TMath::DegToRad() ) );
@@ -1464,7 +1470,7 @@ bool VEffectiveAreaCalculator::getMonteCarloSpectra( VEffectiveAreaCalculatorMCH
                 }
                 else
                 {
-                   hV_HIS1D[E_EmcUW][s][i_az] = 0;
+                    hV_HIS1D[E_EmcUW][s][i_az] = 0;
                 }
             }
             // profiles with spectral weights
@@ -1624,10 +1630,13 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
     for( Long64_t i = i_start; i < d_nentries; i++ )
     {
         d->GetEntry( i );
-
+        
         // update cut statistics
-        VGammaHadronCuts *iAnaCuts = getGammaHadronCuts( d );
-        if( !iAnaCuts ) continue;
+        VGammaHadronCuts* iAnaCuts = getGammaHadronCuts( d );
+        if( !iAnaCuts )
+        {
+            continue;
+        }
         iAnaCuts->newEvent();
         
         if( bDebugCuts )
@@ -1644,7 +1653,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         
         if( !iAnaCuts->applyMCXYoffCut( d->MCxoff, d->MCyoff, true ) )
         {
-            fillDL2EventDataTree( d, (UChar_t)VGammaHadronCutsStatistics::eMC_XYoff, -1. );
+            fillDL2EventDataTree( d, ( UChar_t )VGammaHadronCutsStatistics::eMC_XYoff, -1. );
             continue;
         }
         
@@ -1793,7 +1802,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         }
         if( !iAnaCuts->isGamma( i, true ) )
         {
-            if( (fIsotropicArrivalDirections && !bDirectionCut) || !fIsotropicArrivalDirections )
+            if( ( fIsotropicArrivalDirections && !bDirectionCut ) || !fIsotropicArrivalDirections )
             {
                 fillDL2EventDataTree( d, 7, iAnaCuts->getTMVA_EvaluationResult() );
             }
@@ -1887,18 +1896,18 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
                 fillHistogram( E_1D, E_EcutRecUW, s, i_az, eRec, 1. );
                 fillHistogram( E_1P, E_EsysMCRelative, s, i_az, eMC, ( eRecLin - d->MCe0 ) / d->MCe0 );
                 fillHistogram( E_2D, E_EsysMCRelativeRMS, s, i_az, eMC, ( eRecLin - d->MCe0 ) / d->MCe0 );
-
+                
                 fillHistogram( E_2D, E_EsysMCRelative2D, s, i_az, eMC, eRecLin / d->MCe0 );
                 fillHistogram( E_2D, E_Esys2D, s, i_az, eMC,  eRec - eMC );
                 fillHistogram( E_2D, E_ResponseMatrix, s, i_az, eRec, eMC );
                 fillHistogram( E_2D, E_ResponseMatrixFine, s, i_az, eRec, eMC, i_weight );
                 // events weighted by CR spectra
-                fillHistogram( E_1D, E_WeightedRate, s, i_az, eRec, 
+                fillHistogram( E_1D, E_WeightedRate, s, i_az, eRec,
                                getCRWeight( d->MCe0, hV_HIS1D[E_Emc][s][i_az],
-                                   false, hV_HIS1D[E_WeightedRate][s][i_az] ) );
-                fillHistogram( E_1D, E_WeightedRate005, s, i_az, eRec, 
+                                            false, hV_HIS1D[E_WeightedRate][s][i_az] ) );
+                fillHistogram( E_1D, E_WeightedRate005, s, i_az, eRec,
                                getCRWeight( d->MCe0, hV_HIS1D[E_Emc][s][i_az],
-                                   false, hV_HIS1D[E_WeightedRate005][s][i_az] ) );
+                                            false, hV_HIS1D[E_WeightedRate005][s][i_az] ) );
             }
         }
         // don't do anything between here and the end of the loop! Never!
@@ -1921,7 +1930,7 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
     fXoff = fXWobble[ize];
     fYoff = fYWobble[ize];
     fWoff = sqrt( fXoff * fXoff + fYoff * fYoff );
-
+    
     cout << "calculating effective areas..." << endl;
     
     // loop over all spectral index
@@ -1934,35 +1943,35 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
             fAzBin = ( int )i_az;
             fMinAz = fVMinAz[i_az];
             fMaxAz = fVMaxAz[i_az];
-
+            
             resetEffAreaArray( e0 );
             for( int b = 0; b < hV_HIS1D[E_Emc][s][i_az]->GetNbinsX(); b++ )
             {
-                e0[b] = hV_HIS1D[E_Emc][s][i_az]->GetBinCenter( b+1 );
+                e0[b] = hV_HIS1D[E_Emc][s][i_az]->GetBinCenter( b + 1 );
             }
-
+            
             // bayesdivide works only for weights == 1
             // errors might be wrong, since histograms are filled with weights != 1
             if( !binomialDivide( gEffAreaMC, hV_HIS1D[E_Ecut][s][i_az], hV_HIS1D[E_Emc][s][i_az],
-                 eff, eff_error ) )
+                                 eff, eff_error ) )
             {
                 cout << "VEffectiveAreaCalculator::fill: error calculating effective area vs MC energy" << endl;
                 cout << "s : " << s << " , az: " << i_az << endl;
             }
             if( !binomialDivide( gEffAreaRec, hV_HIS1D[E_EcutRec][s][i_az], hV_HIS1D[E_Emc][s][i_az],
-                 Rec_eff, Rec_eff_error ) )
+                                 Rec_eff, Rec_eff_error ) )
             {
                 cout << "VEffectiveAreaCalculator::fill: error calculating effective area vs rec energy" << endl;
                 cout << "s : " << s << " , az: " << i_az << endl;
             }
             if( !binomialDivide( gEffAreaNoTh2MC, hV_HIS1D[E_EcutNoTh2][s][i_az], hV_HIS1D[E_Emc][s][i_az],
-                effNoTh2, effNoTh2_error ) )
+                                 effNoTh2, effNoTh2_error ) )
             {
                 cout << "VEffectiveAreaCalculator::fill: error calculating effective area vs MC energy" << endl;
                 cout << "s : " << s << " , az: " << i_az << endl;
             }
             if( !binomialDivide( gEffAreaNoTh2Rec, hV_HIS1D[E_EcutRecNoTh2][s][i_az], hV_HIS1D[E_Emc][s][i_az],
-               Rec_effNoTh2, Rec_effNoTh2_error ) )
+                                 Rec_effNoTh2, Rec_effNoTh2_error ) )
             {
                 cout << "VEffectiveAreaCalculator::fill: error calculating effective area vs rec energy" << endl;
                 cout << "s : " << s << " , az: " << i_az << endl;
@@ -1971,57 +1980,57 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
             VHistogramUtilities::normalizeTH2D_y( hV_HIS2D[E_ResponseMatrix][s][i_az] );
             VHistogramUtilities::normalizeTH2D_y( hV_HIS2D[E_ResponseMatrixQC][s][i_az] );
             VHistogramUtilities::normalizeTH2D_y( hV_HIS2D[E_ResponseMatrixNoDirectionCut][s][i_az] );
-
+            
             resetEffAreaArray( esys_rel );
             resetEffAreaArray( Rec_angRes_p68 );
             resetEffAreaArray( Rec_angRes_p80 );
             resetEffAreaArray( Rec_angRes_kingSigma );
-            resetEffAreaArray( Rec_angRes_kingGamma ); 
-
-            if( hV_HIS1P.find( E_EsysMCRelative ) != hV_HIS1P.end() 
-            && hV_HIS1P[E_EsysMCRelative][s][i_az] )
+            resetEffAreaArray( Rec_angRes_kingGamma );
+            
+            if( hV_HIS1P.find( E_EsysMCRelative ) != hV_HIS1P.end()
+                    && hV_HIS1P[E_EsysMCRelative][s][i_az] )
             {
                 for( int b = 0; b < hV_HIS1P[E_EsysMCRelative][s][i_az]->GetNbinsX(); b++ )
                 {
-                    esys_rel[b] = hV_HIS1P[E_EsysMCRelative][s][i_az]->GetBinContent( b+1 );
+                    esys_rel[b] = hV_HIS1P[E_EsysMCRelative][s][i_az]->GetBinContent( b + 1 );
                 }
             }
             
             // copy all histograms
             resetHistograms( ize );
-
+            
             map< int, TH1D* >::iterator h_HIS1D_iterator;
             for( h_HIS1D_iterator = h_HIS1D.begin();
-                   h_HIS1D_iterator !=  h_HIS1D.end();
-                   ++h_HIS1D_iterator )
+                    h_HIS1D_iterator !=  h_HIS1D.end();
+                    ++h_HIS1D_iterator )
             {
-                  copyHistograms( h_HIS1D_iterator->second,
-                         hV_HIS1D[h_HIS1D_iterator->first][s][i_az],
-                         false );
+                copyHistograms( h_HIS1D_iterator->second,
+                                hV_HIS1D[h_HIS1D_iterator->first][s][i_az],
+                                false );
             }
             map< int, TProfile* >::iterator h_HIS1P_iterator;
             for( h_HIS1P_iterator = h_HIS1P.begin();
-                   h_HIS1P_iterator !=  h_HIS1P.end();
-                   ++h_HIS1P_iterator )
+                    h_HIS1P_iterator !=  h_HIS1P.end();
+                    ++h_HIS1P_iterator )
             {
-                  copyProfileHistograms( h_HIS1P_iterator->second,
-                         hV_HIS1P[h_HIS1P_iterator->first][s][i_az] );
+                copyProfileHistograms( h_HIS1P_iterator->second,
+                                       hV_HIS1P[h_HIS1P_iterator->first][s][i_az] );
             }
             map< int, TH2D* >::iterator h_HIS2D_iterator;
             for( h_HIS2D_iterator = h_HIS2D.begin();
-                   h_HIS2D_iterator !=  h_HIS2D.end();
-                   ++h_HIS2D_iterator )
+                    h_HIS2D_iterator !=  h_HIS2D.end();
+                    ++h_HIS2D_iterator )
             {
-                  copyHistograms( h_HIS2D_iterator->second,
-                         hV_HIS2D[h_HIS2D_iterator->first][s][i_az],
-                         true );
+                copyHistograms( h_HIS2D_iterator->second,
+                                hV_HIS2D[h_HIS2D_iterator->first][s][i_az],
+                                true );
             }
             
             copyHistograms( hAngularLogDiffEmc_2D, hVAngularLogDiffEmc_2D[i_az], true );
             
             // fill angular resolution vs energy
             fillAngularResolution( i_az, false );
-            fillAngularResolution( i_az, true ); 
+            fillAngularResolution( i_az, true );
             
             // Memory Issue when trying to store all the response matrices in the
             // final effectivea area file.
@@ -2036,21 +2045,21 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
                 fGauss->SetParameter(0,0);
                 fGauss->SetParameter(1,0);
                 fGauss->SetParameter(2,0);
-
+            
                 // Getting a slice
                 TH1D *i_slice = hVResponseMatrixFineQC[s][i_az]->ProjectionX("i_slice_Project", i_ybin,i_ybin);
                 // Fitting quietly
                 if( i_slice->GetEntries() > 0 )
                 {
                     i_slice->Fit("fGauss","0q");
-
+            
                     e_MC_Res[i_ybin] = hVResponseMatrixFineQC[s][i_az]->GetYaxis()->GetBinCenter(i_ybin);
                     e_Rec_Res[i_ybin] = fGauss->GetParameter(1);
                     e_Rec_Res_Err[i_ybin] = fGauss->GetParameter(2);
                 }
                 delete i_slice;
             } */
-
+            
             fEffArea->Fill();
         }
     }
@@ -2178,10 +2187,10 @@ vector< unsigned int > VEffectiveAreaCalculator::getUpperLowBins( vector< double
  *
  *
  */
-double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms( 
-        double erec, double ze, double woff,
-        double iPedVar, double iSpectralIndex,
-        bool bAddtoMeanEffectiveArea )
+double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
+    double erec, double ze, double woff,
+    double iPedVar, double iSpectralIndex,
+    bool bAddtoMeanEffectiveArea )
 {
     vector< float > i_eff_temp( fEff_E0.size(), 0. );
     vector< float > i_eff_MC_temp;
@@ -2191,9 +2200,9 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
     vector< float > i_e_MC_Res_temp;
     vector< float > i_e_Rec_Res_temp;
     vector< float > i_e_Rec_Res_Err_temp;
-
+    
     vector< vector < float > > i_ze_eff_MC_temp;
-
+    
     // Response Matrix
     vector< vector < float > > i_ze_e_MC_Res_temp;
     vector< vector < float > > i_ze_e_Rec_Res_temp;
@@ -2218,36 +2227,36 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
     ////////////////////////////////////////////////////////
     vector< unsigned int > i_ze_bins = getUpperLowBins( fZe, ze );
     vector< vector< float > > i_ze_eff_temp( 2, i_eff_temp );
-
+    
     // Assigning and shaping vectors
-    if ( bLikelihoodAnalysis && bIsOn )
+    if( bLikelihoodAnalysis && bIsOn )
     {
         // Temp Response Matrix Vectors
         // Typically nbins_REC != nbins_MC hence requiring
         // the vectors being assigned this way
         i_eff_MC_temp.assign( nbins_MC, 0. );
-
+        
         // Temp EffectiveAreas Vector
         i_ze_eff_MC_temp.resize( 2 );
         i_ze_eff_MC_temp[0].resize( i_eff_MC_temp.size() );
         i_ze_eff_MC_temp[1].resize( i_eff_MC_temp.size() );
-
+        
         i_e_MC_Res_temp.assign( nbins_MC_Res, 0. );
         i_e_Rec_Res_temp.assign( nbins_MC_Res, 0. );
         i_e_Rec_Res_Err_temp.assign( nbins_MC_Res, 0. );
-
+        
         i_ze_e_MC_Res_temp.resize( 2 );
         i_ze_e_Rec_Res_temp.resize( 2 );
         i_ze_e_Rec_Res_Err_temp.resize( 2 );
-
+        
         i_ze_e_MC_Res_temp[0].resize( i_e_MC_Res_temp.size() );
         i_ze_e_Rec_Res_temp[0].resize( i_e_Rec_Res_temp.size() );
         i_ze_e_Rec_Res_Err_temp[0].resize( i_e_Rec_Res_Err_temp.size() );
-
+        
         i_ze_e_MC_Res_temp[1].resize( i_e_MC_Res_temp.size() );
         i_ze_e_Rec_Res_temp[1].resize( i_e_Rec_Res_temp.size() );
         i_ze_e_Rec_Res_Err_temp[1].resize( i_e_Rec_Res_Err_temp.size() );
-
+        
     }
     // following: step-by-step interpolation for
     // ze, az, NSB in effective areas
@@ -2265,22 +2274,22 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
             vector< vector< float > > i_woff_e_MC_Res_temp;
             vector< vector< float > > i_woff_e_Rec_Res_temp;
             vector< vector< float > > i_woff_e_Rec_Res_Err_temp;
-
-            if ( bLikelihoodAnalysis && bIsOn )
+            
+            if( bLikelihoodAnalysis && bIsOn )
             {
                 // Temp EffectiveAreas Vector
                 i_woff_e_MC_Res_temp.resize( 2 );
                 i_woff_e_Rec_Res_temp.resize( 2 );
                 i_woff_e_Rec_Res_Err_temp.resize( 2 );
                 i_woff_eff_MC_temp.resize( 2 );
-
+                
                 i_woff_e_MC_Res_temp[0].resize( i_e_MC_Res_temp.size() );
                 i_woff_e_Rec_Res_temp[0].resize( i_e_Rec_Res_temp.size() );
                 i_woff_e_Rec_Res_Err_temp[0].resize( i_e_Rec_Res_Err_temp.size() );
-
+                
                 i_woff_eff_MC_temp[0].resize( i_eff_MC_temp.size() );
                 i_woff_eff_MC_temp[1].resize( i_eff_MC_temp.size() );
-
+                
                 i_woff_e_MC_Res_temp[1].resize( i_e_MC_Res_temp.size() );
                 i_woff_e_Rec_Res_temp[1].resize( i_e_Rec_Res_temp.size() );
                 i_woff_e_Rec_Res_Err_temp[1].resize( i_e_Rec_Res_Err_temp.size() );
@@ -2299,22 +2308,22 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
                     vector< vector< float > > i_noise_e_MC_Res_temp;
                     vector< vector< float > > i_noise_e_Rec_Res_temp;
                     vector< vector< float > > i_noise_e_Rec_Res_Err_temp;
-
-                    if ( bLikelihoodAnalysis && bIsOn )
+                    
+                    if( bLikelihoodAnalysis && bIsOn )
                     {
                         // Temp EffectiveAreas Vector
                         i_noise_eff_MC_temp.resize( 2 );
                         i_noise_e_MC_Res_temp.resize( 2 );
                         i_noise_e_Rec_Res_temp.resize( 2 );
                         i_noise_e_Rec_Res_Err_temp.resize( 2 );
-
+                        
                         i_noise_e_MC_Res_temp[0].resize( i_e_MC_Res_temp.size() );
                         i_noise_e_Rec_Res_temp[0].resize( i_e_Rec_Res_temp.size() );
                         i_noise_e_Rec_Res_Err_temp[0].resize( i_e_Rec_Res_Err_temp.size() );
-
+                        
                         i_noise_eff_MC_temp[0].resize( i_eff_MC_temp.size() );
                         i_noise_eff_MC_temp[1].resize( i_eff_MC_temp.size() );
-
+                        
                         i_noise_e_MC_Res_temp[1].resize( i_e_MC_Res_temp.size() );
                         i_noise_e_Rec_Res_temp[1].resize( i_e_Rec_Res_temp.size() );
                         i_noise_e_Rec_Res_Err_temp[1].resize( i_e_Rec_Res_Err_temp.size() );
@@ -2338,35 +2347,35 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
                                                   fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
                                                   fEffArea_map[i_ID_0],
                                                   fEffArea_map[i_ID_1], false );
-
-                            if ( bLikelihoodAnalysis && bIsOn )
+                                                  
+                            if( bLikelihoodAnalysis && bIsOn )
                             {
-
+                            
                                 // cout << "Map Entry: " << fEntry_map[i_ID_0] << " " <<  fEntry_map[i_ID_1] << endl;
                                 // Interpolated over index
                                 i_noise_eff_MC_temp[n] = interpolate_effectiveArea( iSpectralIndex,
-                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
-                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
-                                                      fEffAreaMC_map[i_ID_0],
-                                                      fEffAreaMC_map[i_ID_1], false );
-
+                                                         fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
+                                                         fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
+                                                         fEffAreaMC_map[i_ID_0],
+                                                         fEffAreaMC_map[i_ID_1], false );
+                                                         
                                 i_noise_e_MC_Res_temp[n] = interpolate_effectiveArea( iSpectralIndex,
-                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
-                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
-                                                                                  fe_MC_Res_map[i_ID_0],
-                                                                                  fe_MC_Res_map[i_ID_1], false );
-
+                                                           fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
+                                                           fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
+                                                           fe_MC_Res_map[i_ID_0],
+                                                           fe_MC_Res_map[i_ID_1], false );
+                                                           
                                 i_noise_e_Rec_Res_temp[n] = interpolate_effectiveArea( iSpectralIndex,
-                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
-                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
-                                                                                  fe_Rec_Res_map[i_ID_0],
-                                                                                  fe_Rec_Res_map[i_ID_1], false );
-
+                                                            fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
+                                                            fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
+                                                            fe_Rec_Res_map[i_ID_0],
+                                                            fe_Rec_Res_map[i_ID_1], false );
+                                                            
                                 i_noise_e_Rec_Res_Err_temp[n] = interpolate_effectiveArea( iSpectralIndex,
-                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
-                                                      fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
-                                                                                  fe_Rec_Res_Err_map[i_ID_0],
-                                                                                  fe_Rec_Res_Err_map[i_ID_1], false );
+                                                                fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[0]],
+                                                                fEff_SpectralIndex[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[n]][i_index_bins[1]],
+                                                                fe_Rec_Res_Err_map[i_ID_0],
+                                                                fe_Rec_Res_Err_map[i_ID_1], false );
                             }
                         }
                         else
@@ -2391,33 +2400,33 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
                                          fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[1]],
                                          i_noise_eff_temp[0],
                                          i_noise_eff_temp[1], false );
-                    if ( bLikelihoodAnalysis && bIsOn )
+                    if( bLikelihoodAnalysis && bIsOn )
                     {
-
+                    
                         // Interpolating noise
                         i_woff_eff_MC_temp[w] = interpolate_effectiveArea( iPedVar,
-                                             fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[0]],
-                                             fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[1]],
-                                             i_noise_eff_MC_temp[0],
-                                             i_noise_eff_MC_temp[1], false );
-
+                                                fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[0]],
+                                                fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[1]],
+                                                i_noise_eff_MC_temp[0],
+                                                i_noise_eff_MC_temp[1], false );
+                                                
                         i_woff_e_MC_Res_temp[w] = interpolate_effectiveArea( iPedVar,
-                                         fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[0]],
-                                         fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[1]],
-                                         i_noise_e_MC_Res_temp[0],
-                                         i_noise_e_MC_Res_temp[1], false );
-
+                                                  fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[0]],
+                                                  fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[1]],
+                                                  i_noise_e_MC_Res_temp[0],
+                                                  i_noise_e_MC_Res_temp[1], false );
+                                                  
                         i_woff_e_Rec_Res_temp[w] = interpolate_effectiveArea( iPedVar,
-                                         fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[0]],
-                                         fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[1]],
-                                         i_noise_e_Rec_Res_temp[0],
-                                         i_noise_e_Rec_Res_temp[1], false );
-
+                                                   fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[0]],
+                                                   fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[1]],
+                                                   i_noise_e_Rec_Res_temp[0],
+                                                   i_noise_e_Rec_Res_temp[1], false );
+                                                   
                         i_woff_e_Rec_Res_Err_temp[w] = interpolate_effectiveArea( iPedVar,
-                                         fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[0]],
-                                         fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[1]],
-                                         i_noise_e_Rec_Res_Err_temp[0],
-                                         i_noise_e_Rec_Res_Err_temp[1], false );
+                                                       fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[0]],
+                                                       fEff_Noise[i_ze_bins[i]][i_woff_bins[w]][i_noise_bins[1]],
+                                                       i_noise_e_Rec_Res_Err_temp[0],
+                                                       i_noise_e_Rec_Res_Err_temp[1], false );
                     }
                 }
                 else
@@ -2437,34 +2446,34 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
                                fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[1]],
                                i_woff_eff_temp[0],
                                i_woff_eff_temp[1], false );
-            if ( bLikelihoodAnalysis && bIsOn )
+            if( bLikelihoodAnalysis && bIsOn )
             {
                 // Interpolating Wobble
                 i_ze_eff_MC_temp[i] = interpolate_effectiveArea( woff,
-                                   fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[0]],
-                                   fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[1]],
-                                   i_woff_eff_MC_temp[0],
-                                   i_woff_eff_MC_temp[1], false );
-
+                                      fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[0]],
+                                      fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[1]],
+                                      i_woff_eff_MC_temp[0],
+                                      i_woff_eff_MC_temp[1], false );
+                                      
                 i_ze_e_MC_Res_temp[i] = interpolate_effectiveArea( woff,
-                                  fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[0]],
-                                  fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[1]],
-                                  i_woff_e_MC_Res_temp[0],
-                                  i_woff_e_MC_Res_temp[1], false );
-
+                                        fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[0]],
+                                        fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[1]],
+                                        i_woff_e_MC_Res_temp[0],
+                                        i_woff_e_MC_Res_temp[1], false );
+                                        
                 i_ze_e_Rec_Res_temp[i] = interpolate_effectiveArea( woff,
-                                  fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[0]],
-                                  fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[1]],
-                                  i_woff_e_Rec_Res_temp[0],
-                                  i_woff_e_Rec_Res_temp[1], false );
-
+                                         fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[0]],
+                                         fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[1]],
+                                         i_woff_e_Rec_Res_temp[0],
+                                         i_woff_e_Rec_Res_temp[1], false );
+                                         
                 i_ze_e_Rec_Res_Err_temp[i] = interpolate_effectiveArea( woff,
-                                  fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[0]],
-                                  fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[1]],
-                                  i_woff_e_Rec_Res_Err_temp[0],
-                                  i_woff_e_Rec_Res_Err_temp[1], false );
+                                             fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[0]],
+                                             fEff_WobbleOffsets[i_ze_bins[i]][i_woff_bins[1]],
+                                             i_woff_e_Rec_Res_Err_temp[0],
+                                             i_woff_e_Rec_Res_Err_temp[1], false );
             }
-
+            
         }
         else
         {
@@ -2475,19 +2484,19 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
     }
     i_eff_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], i_ze_eff_temp[0], i_ze_eff_temp[1], true );
     
-    if ( bLikelihoodAnalysis && bIsOn )
+    if( bLikelihoodAnalysis && bIsOn )
     {
-
+    
         // Interpolating Zenith
         i_eff_MC_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]],
-                                                   i_ze_eff_MC_temp[0], i_ze_eff_MC_temp[1], true );
-        i_e_MC_Res_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], 
-                                                   i_ze_e_MC_Res_temp[0], i_ze_e_MC_Res_temp[1], true );
-        i_e_Rec_Res_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], 
-                                                   i_ze_e_Rec_Res_temp[0], i_ze_e_Rec_Res_temp[1], true );
-        i_e_Rec_Res_Err_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]], 
-                                                   i_ze_e_Rec_Res_Err_temp[0], i_ze_e_Rec_Res_Err_temp[1], true );
-
+                        i_ze_eff_MC_temp[0], i_ze_eff_MC_temp[1], true );
+        i_e_MC_Res_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]],
+                          i_ze_e_MC_Res_temp[0], i_ze_e_MC_Res_temp[1], true );
+        i_e_Rec_Res_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]],
+                           i_ze_e_Rec_Res_temp[0], i_ze_e_Rec_Res_temp[1], true );
+        i_e_Rec_Res_Err_temp = interpolate_effectiveArea( ze, fZe[i_ze_bins[0]], fZe[i_ze_bins[1]],
+                               i_ze_e_Rec_Res_Err_temp[0], i_ze_e_Rec_Res_Err_temp[1], true );
+                               
     }
     if( fEff_E0.size() == 0 )
     {
@@ -2504,22 +2513,22 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
         fNTimeBinnedMeanEffectiveArea++;
     }
     
-    if ( bLikelihoodAnalysis && bIsOn )
+    if( bLikelihoodAnalysis && bIsOn )
     {
         // Adding to mean effective area (MC)
-        if( bAddtoMeanEffectiveArea && fVTimeBinnedMeanEffectiveAreaMC.size() == i_eff_MC_temp.size())
+        if( bAddtoMeanEffectiveArea && fVTimeBinnedMeanEffectiveAreaMC.size() == i_eff_MC_temp.size() )
         {
-          for (unsigned int i = 0; i < fEff_E0.size() ; i++)
-          {
-                if ( i_eff_MC_temp[i] > 1.e-9 )
+            for( unsigned int i = 0; i < fEff_E0.size() ; i++ )
+            {
+                if( i_eff_MC_temp[i] > 1.e-9 )
                 {
                     fVTimeBinnedMeanEffectiveAreaMC[i] += i_eff_MC_temp[i];
                 }
-          }
-          fNTimeBinnedMeanEffectiveAreaMC++;
+            }
+            fNTimeBinnedMeanEffectiveAreaMC++;
         }
         // adding to mean response matrix
-        addMeanResponseMatrix(i_e_MC_Res_temp, i_e_Rec_Res_temp, i_e_Rec_Res_Err_temp);
+        addMeanResponseMatrix( i_e_MC_Res_temp, i_e_Rec_Res_temp, i_e_Rec_Res_Err_temp );
     }
     /////////////////////////////////////////
     // effective area for a specific energy
@@ -2551,13 +2560,13 @@ double VEffectiveAreaCalculator::getEffectiveAreasFromHistograms(
     
     ///////////////////////////////////
     // final result on effective area:
-    // linear interpolate between two 
+    // linear interpolate between two
     // adjacent energy bins
     ///////////////////////////////////
-    i_eff_e = VStatistics::interpolate( i_eff_temp[ie0_low], fEff_E0[ie0_low], 
-                                        i_eff_temp[ie0_up], fEff_E0[ie0_up], 
+    i_eff_e = VStatistics::interpolate( i_eff_temp[ie0_low], fEff_E0[ie0_low],
+                                        i_eff_temp[ie0_up], fEff_E0[ie0_up],
                                         lerec, false );
-
+                                        
     if( i_eff_e > 0. )
     {
         return 1. / i_eff_e;
@@ -2677,20 +2686,20 @@ void VEffectiveAreaCalculator::setAzimuthCut( int iAzBin, double iAzMin, double 
     fMaxAz = iAzMax;
 }
 
-void VEffectiveAreaCalculator::resetEffAreaArray( float *v )
+void VEffectiveAreaCalculator::resetEffAreaArray( float* v )
 {
     if( v )
     {
         for( unsigned int i = 0; i < VMAXBINS; i++ )
         {
-             v[i] = 0.;
+            v[i] = 0.;
         }
     }
 }
 
 
 bool VEffectiveAreaCalculator::binomialDivide( TGraphAsymmErrors* g, TH1D* hrec, TH1D* hmc,
-         float *i_eff, float* i_eff_error )
+        float* i_eff, float* i_eff_error )
 {
     if( !g )
     {
@@ -2718,9 +2727,9 @@ bool VEffectiveAreaCalculator::binomialDivide( TGraphAsymmErrors* g, TH1D* hrec,
     
     for( int b = 0; b < hmc->GetNbinsX(); b++ )
     {
-        if( hmc->GetBinContent( b+1 ) > 0 && hrec->GetBinContent( b+1 ) > 0 )
+        if( hmc->GetBinContent( b + 1 ) > 0 && hrec->GetBinContent( b + 1 ) > 0 )
         {
-            pj = hrec->GetBinContent( b+1 ) / hmc->GetBinContent( b+1 );
+            pj = hrec->GetBinContent( b + 1 ) / hmc->GetBinContent( b + 1 );
             // error calculation for effective areas
             //  this far from being straightforward!
             //  none of the methods works consistently, therefore the simplest (normal) solution
@@ -2729,12 +2738,12 @@ bool VEffectiveAreaCalculator::binomialDivide( TGraphAsymmErrors* g, TH1D* hrec,
             //
             // error calculation assuming binomial distributions
             // (see Blobel/Lohrmann; chapter 11.2 (Akzeptanzkorrekturen)
-            pr = hrec->GetBinError( b+1 );
-            pm = hmc->GetBinError( b+1 );
+            pr = hrec->GetBinError( b + 1 );
+            pm = hmc->GetBinError( b + 1 );
             if( pj != 1. )
             {
                 sj = TMath::Abs( ( ( 1. - 2.*pj ) * pr * pr + pj * pj * pm * pm )
-                         / ( hmc->GetBinContent( b+1 ) * hmc->GetBinContent( b+1 ) ) );
+                                 / ( hmc->GetBinContent( b + 1 ) * hmc->GetBinContent( b + 1 ) ) );
             }
             else
             {
@@ -2743,7 +2752,7 @@ bool VEffectiveAreaCalculator::binomialDivide( TGraphAsymmErrors* g, TH1D* hrec,
             sj = sqrt( sj ) * fMC_ScatterArea;
             pj *= fMC_ScatterArea;
             // fill effective area graphs
-            g->SetPoint( z, hmc->GetBinCenter( b+1 ), pj );
+            g->SetPoint( z, hmc->GetBinCenter( b + 1 ), pj );
             g->SetPointError( z, 0., 0., sj, sj );
             if( i_eff )
             {
@@ -2950,14 +2959,14 @@ TGraphAsymmErrors* VEffectiveAreaCalculator::getMeanEffectiveAreaMC()
         double z = 0;
         double x = 0.;
         double y = 0.;
-
+        
         // set energies
         // energy dimension of fEffArea_time is alway of same size
         for( unsigned int i = 0; i < fEff_E0.size(); i++ )
         {
             gMeanEffectiveAreaMC->SetPoint( i, fEff_E0[i], 0. );
         }
-
+        
         for( unsigned int i = 0; i < fEffAreaMC_time.size(); i++ )
         {
             for( unsigned int j = 0; j < fEffAreaMC_time[i].size(); j++ )
@@ -2966,7 +2975,7 @@ TGraphAsymmErrors* VEffectiveAreaCalculator::getMeanEffectiveAreaMC()
                 gMeanEffectiveAreaMC->SetPoint( j, x, y + fEffAreaMC_time[i][j] );
             }
         }
-
+        
         z = ( double )fEffAreaMC_time.size();
         for( int i = 0; i < gMeanEffectiveAreaMC->GetN(); i++ )
         {
@@ -2978,7 +2987,7 @@ TGraphAsymmErrors* VEffectiveAreaCalculator::getMeanEffectiveAreaMC()
         }
         return gMeanEffectiveAreaMC;
     }
-
+    
     return 0;
 }
 /*
@@ -3036,22 +3045,22 @@ void VEffectiveAreaCalculator::setTimeBinnedMeanEffectiveArea( double i_time )
     }
     
     fEffArea_time.push_back( inter );
-    if ( bLikelihoodAnalysis && bIsOn )
+    if( bLikelihoodAnalysis && bIsOn )
     {
-      vector < double > interMC;
-      for( unsigned int i = 0; i < fVTimeBinnedMeanEffectiveAreaMC.size(); i++ )
-      {
-          if( fNTimeBinnedMeanEffectiveAreaMC > 0. )
-          {
-              interMC.push_back( fVTimeBinnedMeanEffectiveAreaMC[i] / fNTimeBinnedMeanEffectiveAreaMC );
-          }
-          else
-          {
-              interMC.push_back( 0. );
-          }
-      }
-
-      fEffAreaMC_time.push_back( interMC );
+        vector < double > interMC;
+        for( unsigned int i = 0; i < fVTimeBinnedMeanEffectiveAreaMC.size(); i++ )
+        {
+            if( fNTimeBinnedMeanEffectiveAreaMC > 0. )
+            {
+                interMC.push_back( fVTimeBinnedMeanEffectiveAreaMC[i] / fNTimeBinnedMeanEffectiveAreaMC );
+            }
+            else
+            {
+                interMC.push_back( 0. );
+            }
+        }
+        
+        fEffAreaMC_time.push_back( interMC );
     }
     
     resetTimeBin();
@@ -3255,7 +3264,7 @@ double VEffectiveAreaCalculator::getCRWeight( double iEMC_TeV_lin, TH1* h, bool 
     {
         n_cr *= fRunPara->fCREnergySpectrum->Eval( log10( iEMC_TeV_lin ) );
     }
-
+    
     // (DL3) for the acceptance map construction, the weight is in #/s ()
     if( for_back_map )
     {
@@ -3413,8 +3422,8 @@ void VEffectiveAreaCalculator::fillAngularResolution( unsigned int i_az, bool iC
     // if on 68% containment, also fill king gamma/sigma parameters
     // (so they only get filled once, not twice (once for each containment radius) )
     if( !iContainment_80p
-        && i_az < fGraph_AngularResolutionKingSigma.size()
-        && fGraph_AngularResolutionKingSigma[i_az] )
+            && i_az < fGraph_AngularResolutionKingSigma.size()
+            && fGraph_AngularResolutionKingSigma[i_az] )
     {
     
         // fill sigma parameter
@@ -3474,11 +3483,11 @@ void VEffectiveAreaCalculator::fillAngularResolution( unsigned int i_az, bool iC
     }
 }
 
-void VEffectiveAreaCalculator::setAngularResolution2D(  unsigned int i_az, vector< TH2D* > h )
+void VEffectiveAreaCalculator::setAngularResolution2D( unsigned int i_az, vector< TH2D* > h )
 {
     if( i_az < hVAngularLogDiffEmc_2D.size() && h.size() == 4 )
     {
-          hVAngularLogDiffEmc_2D[i_az] = h[3];
+        hVAngularLogDiffEmc_2D[i_az] = h[3];
     }
 }
 
@@ -3521,8 +3530,8 @@ void VEffectiveAreaCalculator::fillEcutSub( double iE, enum E_HIS1D iCutIndex )
         {
             for( unsigned int s = 0; s < fVSpectralIndex.size(); s++ )
             {
-                if( s < hV_HIS1D[iCutIndex].size()  
-                   && i_az < hV_HIS1D[iCutIndex][s].size() )
+                if( s < hV_HIS1D[iCutIndex].size()
+                        && i_az < hV_HIS1D[iCutIndex][s].size() )
                 {
                     hV_HIS1D[iCutIndex][s][i_az]->Fill( iE, 1. );
                 }
@@ -3531,7 +3540,7 @@ void VEffectiveAreaCalculator::fillEcutSub( double iE, enum E_HIS1D iCutIndex )
     }
 }
 
-/* 
+/*
  * fill tree with cut numbers and MVA values per event
  * (same cut numbering as in VEffectiveAreaCalculator::fillEcutSub()
  *
@@ -3554,71 +3563,74 @@ void VEffectiveAreaCalculator::fillEcutSub( double iE, enum E_HIS1D iCutIndex )
  *   fDL2EventTree->Draw("MVA", "Class==0||Class==7||Class==5", "");
  *
  */
-void VEffectiveAreaCalculator::fillDL2EventDataTree( CData *c, UChar_t iCutClass, float iMVA )
+void VEffectiveAreaCalculator::fillDL2EventDataTree( CData* c, UChar_t iCutClass, float iMVA )
 {
-      // apply minimal quality cuts:
-      // - require successful direction and energy reconstruction
-      // - only applied for DL2 cases, not when data tree is also 
-      //   copied (otherwise event numbers don't fit)
-      if( !fDL2WriteFullEventTree )
-      {
-          if( c->Xoff < -90. 
-           || c->Yoff < -90. 
-           || c->Ze < 0.
-           || c->ErecS < 0. ) return;
-      }
-
-      if( fDL2EventTree && c )
-      {
-          fDL2_runNumber = (UInt_t)c->runNumber;
-          fDL2_eventNumber = (UInt_t)c->eventNumber;
-          fDL2_MCaz = c->MCaz;
-          fDL2_MCel = 90. - c->MCze;
-          fDL2_MCxoff = c->MCxoff;
-          fDL2_MCyoff = c->MCyoff;
-          fDL2_MCe0 = c->MCe0;
-          fDL2_ArrayPointing_Azimuth = c->ArrayPointing_Azimuth;
-          fDL2_ArrayPointing_Elevation = c->ArrayPointing_Elevation;
-          fDL2_az = c->Az;
-          fDL2_el = 90. - c->Ze;
-          fDL2_xoff = c->Xoff;
-          fDL2_yoff = c->Yoff;
-          fDL2_erec = c->ErecS;
-          fDL2_nimages = (UChar_t)c->NImages;
-          fDL2_Cut_Class = iCutClass;
-          if( fDL2_extendedTrees )
-          {
-              fDL2_Xcore = c->Xcore;
-              fDL2_Ycore = c->Ycore;
-              fDL2_Xoff_intersect = c->Xoff_intersect;
-              fDL2_Yoff_intersect = c->Yoff_intersect;
-              fDL2_img2_ang = c->img2_ang;
-              fDL2_SizeSecondMax = c->SizeSecondMax;
-              fDL2_NTelPairs = (UChar_t)c->NTelPairs;
-              fDL2_MSCW = c->MSCW;
-              fDL2_MSCL = c->MSCL;
-              fDL2_EmissionHeight = c->EmissionHeight;
-              fDL2_EmissionHeightChi2 = c->EmissionHeightChi2;
-              fDL2_DispDiff = c->DispDiff;
-              fDL2_dESabs = c->getEnergyDelta();
-              fDL2_NTrig = (UChar_t)c->NTrig;
-              fDL2_meanPedvar_Image = c->meanPedvar_Image;
-              for( int i = 0; i < c->NImages; i++ )
-              {
-                  fDL2_size[i] = c->size[i];
-                  fDL2_dist[i] = c->dist[i];
-                  fDL2_loss[i] = c->loss[i];
-                  fDL2_fui[i] = c->fui[i];
-                  fDL2_cross[i] = c->cross[i];
-                  fDL2_asym[i] = c->asym[i];
-                  fDL2_tgrad_x[i] = c->tgrad_x[i];
-                  fDL2_R[i] = c->R[i];
-                  fDL2_ES[i] = c->ES[i];
-              }
-          }
-          fDL2_Cut_MVA = iMVA;
-          fDL2EventTree->Fill();
-      }
+    // apply minimal quality cuts:
+    // - require successful direction and energy reconstruction
+    // - only applied for DL2 cases, not when data tree is also
+    //   copied (otherwise event numbers don't fit)
+    if( !fDL2WriteFullEventTree )
+    {
+        if( c->Xoff < -90.
+                || c->Yoff < -90.
+                || c->Ze < 0.
+                || c->ErecS < 0. )
+        {
+            return;
+        }
+    }
+    
+    if( fDL2EventTree && c )
+    {
+        fDL2_runNumber = ( UInt_t )c->runNumber;
+        fDL2_eventNumber = ( UInt_t )c->eventNumber;
+        fDL2_MCaz = c->MCaz;
+        fDL2_MCel = 90. - c->MCze;
+        fDL2_MCxoff = c->MCxoff;
+        fDL2_MCyoff = c->MCyoff;
+        fDL2_MCe0 = c->MCe0;
+        fDL2_ArrayPointing_Azimuth = c->ArrayPointing_Azimuth;
+        fDL2_ArrayPointing_Elevation = c->ArrayPointing_Elevation;
+        fDL2_az = c->Az;
+        fDL2_el = 90. - c->Ze;
+        fDL2_xoff = c->Xoff;
+        fDL2_yoff = c->Yoff;
+        fDL2_erec = c->ErecS;
+        fDL2_nimages = ( UChar_t )c->NImages;
+        fDL2_Cut_Class = iCutClass;
+        if( fDL2_extendedTrees )
+        {
+            fDL2_Xcore = c->Xcore;
+            fDL2_Ycore = c->Ycore;
+            fDL2_Xoff_intersect = c->Xoff_intersect;
+            fDL2_Yoff_intersect = c->Yoff_intersect;
+            fDL2_img2_ang = c->img2_ang;
+            fDL2_SizeSecondMax = c->SizeSecondMax;
+            fDL2_NTelPairs = ( UChar_t )c->NTelPairs;
+            fDL2_MSCW = c->MSCW;
+            fDL2_MSCL = c->MSCL;
+            fDL2_EmissionHeight = c->EmissionHeight;
+            fDL2_EmissionHeightChi2 = c->EmissionHeightChi2;
+            fDL2_DispDiff = c->DispDiff;
+            fDL2_dESabs = c->getEnergyDelta();
+            fDL2_NTrig = ( UChar_t )c->NTrig;
+            fDL2_meanPedvar_Image = c->meanPedvar_Image;
+            for( int i = 0; i < c->NImages; i++ )
+            {
+                fDL2_size[i] = c->size[i];
+                fDL2_dist[i] = c->dist[i];
+                fDL2_loss[i] = c->loss[i];
+                fDL2_fui[i] = c->fui[i];
+                fDL2_cross[i] = c->cross[i];
+                fDL2_asym[i] = c->asym[i];
+                fDL2_tgrad_x[i] = c->tgrad_x[i];
+                fDL2_R[i] = c->R[i];
+                fDL2_ES[i] = c->ES[i];
+            }
+        }
+        fDL2_Cut_MVA = iMVA;
+        fDL2EventTree->Fill();
+    }
 }
 
 
@@ -3628,81 +3640,81 @@ void VEffectiveAreaCalculator::addMeanResponseMatrix( vector <float> i_emc, vect
     // Getting binning
     float i_binw = i_emc[1] - i_emc[0] ;
     float* i_bins = new float[i_emc.size() + 1];
-    vector <float> i_binc (i_emc.size(),0);
-
-    i_bins[0] = i_emc[0] - i_binw/2.;
-
-    for (unsigned int i = 0; i < i_emc.size() ; i++ )
+    vector <float> i_binc( i_emc.size(), 0 );
+    
+    i_bins[0] = i_emc[0] - i_binw / 2.;
+    
+    for( unsigned int i = 0; i < i_emc.size() ; i++ )
     {
         i_binc[i] = i_emc[i];
-        i_bins[i+1] = i_bins[i] + i_binw;
+        i_bins[i + 1] = i_bins[i] + i_binw;
     }
-
+    
     // cout << i_emc.size() << " bins: " << i_emc[0] << " - " << i_emc[i_emc.size() -1] << endl;
     int i_nbins = i_binc.size();
-
-    TH2F *i_hist = new TH2F("i_tmp", "i_tmp", i_nbins , i_bins, i_nbins, i_bins );
-    TF1 *i_gaussian = new TF1("i_gaussian", "gaus", -2,2.5);
-
+    
+    TH2F* i_hist = new TH2F( "i_tmp", "i_tmp", i_nbins , i_bins, i_nbins, i_bins );
+    TF1* i_gaussian = new TF1( "i_gaussian", "gaus", -2, 2.5 );
+    
     // Filling Histograms
-    for (int  i = 0; i < i_hist->GetYaxis()->GetNbins(); i++ )
+    for( int  i = 0; i < i_hist->GetYaxis()->GetNbins(); i++ )
     {
-
-        for (unsigned int j = 0; j < i_emc.size(); j++)
+    
+        for( unsigned int j = 0; j < i_emc.size(); j++ )
         {
             // Assuming a gaussian shape
             i_gaussian->SetParameter( 0, 1 );
             i_gaussian->SetParameter( 1, i_erec[j] );
             i_gaussian->SetParameter( 2, i_erec_err[j] );
-
+            
             // Filling bins
-            if ( fabs( i_hist->GetYaxis()->GetBinCenter(i+1) -  i_emc[j]) < 1.e-4 && fabs(i_emc[j]) > 1.e-9 )
+            if( fabs( i_hist->GetYaxis()->GetBinCenter( i + 1 ) -  i_emc[j] ) < 1.e-4 && fabs( i_emc[j] ) > 1.e-9 )
             {
                 double j_tot = 0;
-
-                for (int  k = 0; k < i_hist->GetXaxis()->GetNbins(); k++ )
+                
+                for( int  k = 0; k < i_hist->GetXaxis()->GetNbins(); k++ )
                 {
-                    j_tot += i_gaussian->Eval( i_hist->GetXaxis()->GetBinCenter(k+1) );
-                    i_hist->SetBinContent( k+1, i+1,  i_gaussian->Eval( i_hist->GetXaxis()->GetBinCenter(k+1) ) );
-
+                    j_tot += i_gaussian->Eval( i_hist->GetXaxis()->GetBinCenter( k + 1 ) );
+                    i_hist->SetBinContent( k + 1, i + 1,  i_gaussian->Eval( i_hist->GetXaxis()->GetBinCenter( k + 1 ) ) );
+                    
                 }
-                for (int  k = 0; k < i_hist->GetXaxis()->GetNbins(); k++ )
+                for( int  k = 0; k < i_hist->GetXaxis()->GetNbins(); k++ )
                 {
-                    double i_entry = i_hist->GetBinContent( k+1, i+1);
+                    double i_entry = i_hist->GetBinContent( k + 1, i + 1 );
                     // j_tot += i_gaussian->Eval( i_hist->GetXaxis()->GetBinCenter(k+1) );
-                    i_hist->SetBinContent( k+1, i+1,  i_entry/j_tot );
-
+                    i_hist->SetBinContent( k + 1, i + 1,  i_entry / j_tot );
+                    
                 }
             }
         }
-
-
-
+        
+        
+        
     }
-
+    
     // Normalization not required until final stage
     // Hist scaled by NEntries (normalization will div by (n+const))
     // VHistogramUtilities::normalizeTH2D_y(i_hist);
-
+    
     // Checking if mean histogram exists
-    VHistogramUtilities::normalizeTH2D_y(i_hist);
-    if (!hMeanResponseMatrix)
+    VHistogramUtilities::normalizeTH2D_y( i_hist );
+    if( !hMeanResponseMatrix )
     {
         cout << "\t\tVEffectiveAreaCalculator::addMeanResponseMatrix Creating new histogram" << endl;
-
-        hMeanResponseMatrix = new TH2D("hMeanResponseMatrix", "hMeanResponseMatrix", i_nbins , i_bins, i_nbins, i_bins );
-        hMeanResponseMatrix->Add(i_hist);
-
+        
+        hMeanResponseMatrix = new TH2D( "hMeanResponseMatrix", "hMeanResponseMatrix", i_nbins , i_bins, i_nbins, i_bins );
+        hMeanResponseMatrix->Add( i_hist );
+        
     }
-
-
+    
+    
     else
     {
         // cout << "VEffectiveAreaCalculator::addMeanResponseMatrix Adding Hist" << endl;
-        hMeanResponseMatrix->Add(i_hist);
-        VHistogramUtilities::normalizeTH2D_y(hMeanResponseMatrix);
+        hMeanResponseMatrix->Add( i_hist );
+        VHistogramUtilities::normalizeTH2D_y( hMeanResponseMatrix );
     }
-
+    
     delete i_hist;
     delete[] i_bins;
     // fNMeanResponseMatrix++ ;
@@ -3716,177 +3728,180 @@ void VEffectiveAreaCalculator::addMeanResponseMatrix( vector <float> i_emc, vect
 */
 string VEffectiveAreaCalculator::getEffectiveAreaNamefromEnumInt( int iHisID, string iType )
 {
-      if( iType == "1D" )
-      {
-          switch (iHisID)
-          {
-               case E_Emc:
-                   return "hEmc";
-               case E_Ecut:
-                   return "hEcut";
-               case E_EcutUW:
-                   return "hEcutUW";
-               case E_EcutNoTh2:
-                   return "hEcutNoTh2";
-               case E_Ecut500:
-                   return "hEcut500";
-               case E_EcutRec:
-                   return "hEcutRec";
-               case E_EcutRecUW:
-                   return "hEcutRecUW";
-               case E_EcutRecNoTh2:
-                   return "hEcutRecNoTh2";
-               case E_WeightedRate:
-                   return "hWeightedRate";
-               case E_WeightedRate005:
-                   return "hWeightedRate005";
-               case E_EcutTrigger:
-                   return "hEcutTrigger";
-               case E_EcutFiducialArea:
-                   return "hEcutFiducialArea";
-               case E_EcutStereoQuality:
-                   return "hEcutStereoQuality";
-               case E_EcutTelType:
-                   return "hEcutTelType";
-               case E_EcutDirection:
-                   return "hEcutDirection";
-               case E_EcutEnergyReconstruction:
-                   return "hEcutEnergyReconstruction";
-               case E_EcutGammaHadron:
-                   return "hEcutGammaHadron";
-               case E_EmcUW:
-                   return "hEmcUW";
-          }
-      }
-      else if( iType == "1P" )
-      {
-           switch (iHisID)
-           {
-               case E_EmcSWeight:
-                   return "hEmcSWeight";
-               case E_EsysMCRelative:
-                   return "hEsysMCRelative";
-          }
-      }
-      else if( iType == "2D" )
-      {
-          switch (iHisID)
-          {
-               case E_EsysMCRelativeRMS:
-                  return "hEsysMCRelativeRMS";
-               case E_EsysMCRelative2D:
-                  return "hEsysMCRelative2D";
-               case E_EsysMCRelative2DNoDirectionCut:
-                  return "hEsysMCRelative2DNoDirectionCut";
-               case E_Esys2D:
-                  return "hEsys2D";
-               case E_ResponseMatrix:
-                  return "hResponseMatrix";
-               case E_ResponseMatrixFine:
-                  return "hResponseMatrixFine";
-               case E_ResponseMatrixQC:
-                  return "hResponseMatrixQC";
-               case E_ResponseMatrixFineQC:
-                  return "hResponseMatrixFineQC";
-               case E_ResponseMatrixNoDirectionCut:
-                  return "hResponseMatrixNoDirectionCut";
-               case E_ResponseMatrixFineNoDirectionCut:
-                  return "hResponseMatrixFineNoDirectionCut";
-           }
-      }
-
-      return "";
+    if( iType == "1D" )
+    {
+        switch( iHisID )
+        {
+            case E_Emc:
+                return "hEmc";
+            case E_Ecut:
+                return "hEcut";
+            case E_EcutUW:
+                return "hEcutUW";
+            case E_EcutNoTh2:
+                return "hEcutNoTh2";
+            case E_Ecut500:
+                return "hEcut500";
+            case E_EcutRec:
+                return "hEcutRec";
+            case E_EcutRecUW:
+                return "hEcutRecUW";
+            case E_EcutRecNoTh2:
+                return "hEcutRecNoTh2";
+            case E_WeightedRate:
+                return "hWeightedRate";
+            case E_WeightedRate005:
+                return "hWeightedRate005";
+            case E_EcutTrigger:
+                return "hEcutTrigger";
+            case E_EcutFiducialArea:
+                return "hEcutFiducialArea";
+            case E_EcutStereoQuality:
+                return "hEcutStereoQuality";
+            case E_EcutTelType:
+                return "hEcutTelType";
+            case E_EcutDirection:
+                return "hEcutDirection";
+            case E_EcutEnergyReconstruction:
+                return "hEcutEnergyReconstruction";
+            case E_EcutGammaHadron:
+                return "hEcutGammaHadron";
+            case E_EmcUW:
+                return "hEmcUW";
+        }
     }
+    else if( iType == "1P" )
+    {
+        switch( iHisID )
+        {
+            case E_EmcSWeight:
+                return "hEmcSWeight";
+            case E_EsysMCRelative:
+                return "hEsysMCRelative";
+        }
+    }
+    else if( iType == "2D" )
+    {
+        switch( iHisID )
+        {
+            case E_EsysMCRelativeRMS:
+                return "hEsysMCRelativeRMS";
+            case E_EsysMCRelative2D:
+                return "hEsysMCRelative2D";
+            case E_EsysMCRelative2DNoDirectionCut:
+                return "hEsysMCRelative2DNoDirectionCut";
+            case E_Esys2D:
+                return "hEsys2D";
+            case E_ResponseMatrix:
+                return "hResponseMatrix";
+            case E_ResponseMatrixFine:
+                return "hResponseMatrixFine";
+            case E_ResponseMatrixQC:
+                return "hResponseMatrixQC";
+            case E_ResponseMatrixFineQC:
+                return "hResponseMatrixFineQC";
+            case E_ResponseMatrixNoDirectionCut:
+                return "hResponseMatrixNoDirectionCut";
+            case E_ResponseMatrixFineNoDirectionCut:
+                return "hResponseMatrixFineNoDirectionCut";
+        }
+    }
+    
+    return "";
+}
 
-bool VEffectiveAreaCalculator::newEffectiveAreaHistogram( 
-                   string iType,
-                   int iHisN, string iHisTitle,
-                   string iTitleX, string iTitleY,
-                   int i_nbins_x, double i_xmin, double i_xmax,
-                   int i_nbins_y, double i_ymin, double i_ymax, 
-                   string iPOpt )
+bool VEffectiveAreaCalculator::newEffectiveAreaHistogram(
+    string iType,
+    int iHisN, string iHisTitle,
+    string iTitleX, string iTitleY,
+    int i_nbins_x, double i_xmin, double i_xmax,
+    int i_nbins_y, double i_ymin, double i_ymax,
+    string iPOpt )
 {
-     string iHName = getEffectiveAreaNamefromEnumInt( iHisN, iType );
-     if( iHName.size() > 0 )
-     {
-          if( iType == "1D" )
-          {
-              h_HIS1D[iHisN] = new TH1D( iHName.c_str(),
-                          iHisTitle.c_str(), i_nbins_x,
-                          i_xmin, i_xmax ); 
-              h_HIS1D[iHisN]->Sumw2();
-              h_HIS1D[iHisN]->SetXTitle( iTitleX.c_str() );
-              h_HIS1D[iHisN]->SetYTitle( iTitleY.c_str() );
-              hisTreeList->Add( h_HIS1D[iHisN] );
-              hisTreeListofHistograms->Add( h_HIS1D[iHisN] );
-          }
-          else if( iType == "1P" )
-          {
-              h_HIS1P[iHisN] = new TProfile( iHName.c_str(),
-                          iHisTitle.c_str(), i_nbins_x,
-                          i_xmin, i_xmax,
-                          i_ymin, i_ymax, iPOpt.c_str() );
-              h_HIS1P[iHisN]->Sumw2();
-              h_HIS1P[iHisN]->SetXTitle( iTitleX.c_str() );
-              h_HIS1P[iHisN]->SetYTitle( iTitleY.c_str() );
-              hisTreeList->Add( h_HIS1P[iHisN] );
-              hisTreeListofHistograms->Add( h_HIS1P[iHisN] );
-          }
-          else if( iType == "2D" )
-          {
-              h_HIS2D[iHisN] = new TH2D( iHName.c_str(),
-                          iHisTitle.c_str(), 
-                          i_nbins_x, i_xmin, i_xmax,
-                          i_nbins_y, i_ymin, i_ymax );
-              h_HIS2D[iHisN]->SetXTitle( iTitleX.c_str() );
-              h_HIS2D[iHisN]->SetYTitle( iTitleY.c_str() );
-              hisTreeList->Add( h_HIS2D[iHisN] );
-              hisTreeListofHistograms->Add( h_HIS2D[iHisN] );
-          }
-          return true;
-      }
-      return false;
+    string iHName = getEffectiveAreaNamefromEnumInt( iHisN, iType );
+    if( iHName.size() > 0 )
+    {
+        if( iType == "1D" )
+        {
+            h_HIS1D[iHisN] = new TH1D( iHName.c_str(),
+                                       iHisTitle.c_str(), i_nbins_x,
+                                       i_xmin, i_xmax );
+            h_HIS1D[iHisN]->Sumw2();
+            h_HIS1D[iHisN]->SetXTitle( iTitleX.c_str() );
+            h_HIS1D[iHisN]->SetYTitle( iTitleY.c_str() );
+            hisTreeList->Add( h_HIS1D[iHisN] );
+            hisTreeListofHistograms->Add( h_HIS1D[iHisN] );
+        }
+        else if( iType == "1P" )
+        {
+            h_HIS1P[iHisN] = new TProfile( iHName.c_str(),
+                                           iHisTitle.c_str(), i_nbins_x,
+                                           i_xmin, i_xmax,
+                                           i_ymin, i_ymax, iPOpt.c_str() );
+            h_HIS1P[iHisN]->Sumw2();
+            h_HIS1P[iHisN]->SetXTitle( iTitleX.c_str() );
+            h_HIS1P[iHisN]->SetYTitle( iTitleY.c_str() );
+            hisTreeList->Add( h_HIS1P[iHisN] );
+            hisTreeListofHistograms->Add( h_HIS1P[iHisN] );
+        }
+        else if( iType == "2D" )
+        {
+            h_HIS2D[iHisN] = new TH2D( iHName.c_str(),
+                                       iHisTitle.c_str(),
+                                       i_nbins_x, i_xmin, i_xmax,
+                                       i_nbins_y, i_ymin, i_ymax );
+            h_HIS2D[iHisN]->SetXTitle( iTitleX.c_str() );
+            h_HIS2D[iHisN]->SetYTitle( iTitleY.c_str() );
+            hisTreeList->Add( h_HIS2D[iHisN] );
+            hisTreeListofHistograms->Add( h_HIS2D[iHisN] );
+        }
+        return true;
+    }
+    return false;
 }
 
 void VEffectiveAreaCalculator::fillHistogram( int iHisType, int iHisN,
-                            unsigned int s, unsigned i_az,
-                            double i_x, double i_w, double i_w2D )
+        unsigned int s, unsigned i_az,
+        double i_x, double i_w, double i_w2D )
 {
-     if( iHisType == E_1D
-     && hV_HIS1D.find( iHisN ) != hV_HIS1D.end()
-     && hV_HIS1D[iHisN][s][i_az] )
-     {
-          hV_HIS1D[iHisN][s][i_az]->Fill( i_x, i_w );
-     }
-     else if( iHisType == E_1P
-     && hV_HIS1P.find( iHisN ) != hV_HIS1P.end()
-     && hV_HIS1P[iHisN][s][i_az] )
-     {
-          hV_HIS1P[iHisN][s][i_az]->Fill( i_x, i_w );
-     }
-     else if( iHisType == E_2D
-     && hV_HIS2D.find( iHisN ) != hV_HIS2D.end()
-     && hV_HIS2D[iHisN][s][i_az] )
-     {
-          hV_HIS2D[iHisN][s][i_az]->Fill( i_x, i_w, i_w2D );
-     }
+    if( iHisType == E_1D
+            && hV_HIS1D.find( iHisN ) != hV_HIS1D.end()
+            && hV_HIS1D[iHisN][s][i_az] )
+    {
+        hV_HIS1D[iHisN][s][i_az]->Fill( i_x, i_w );
+    }
+    else if( iHisType == E_1P
+             && hV_HIS1P.find( iHisN ) != hV_HIS1P.end()
+             && hV_HIS1P[iHisN][s][i_az] )
+    {
+        hV_HIS1P[iHisN][s][i_az]->Fill( i_x, i_w );
+    }
+    else if( iHisType == E_2D
+             && hV_HIS2D.find( iHisN ) != hV_HIS2D.end()
+             && hV_HIS2D[iHisN][s][i_az] )
+    {
+        hV_HIS2D[iHisN][s][i_az]->Fill( i_x, i_w, i_w2D );
+    }
 }
 
 
 VGammaHadronCuts* VEffectiveAreaCalculator::getGammaHadronCuts( CData* c )
 {
-    if( !c ) return 0;
-
-    if( fCuts.size() == 1 ) 
+    if( !c )
+    {
+        return 0;
+    }
+    
+    if( fCuts.size() == 1 )
     {
         return fCuts[0];
     }
     for( unsigned int i = 0; i < fCuts.size(); i++ )
     {
-         if( fCuts[i] && fCuts[i]->useThisCut( c ) )
-         {
-             return fCuts[i];
-         }
+        if( fCuts[i] && fCuts[i]->useThisCut( c ) )
+        {
+            return fCuts[i];
+        }
     }
     return 0;
 }

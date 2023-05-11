@@ -76,8 +76,8 @@ VAtmosphereSoundings::VAtmosphereSoundings( string iRootFile, unsigned int npoin
  * read sounding data from root file
  *
  */
-bool VAtmosphereSoundings::readSoundingsFromRootFile( 
-          string iRootFile, unsigned int npoints_min )
+bool VAtmosphereSoundings::readSoundingsFromRootFile(
+    string iRootFile, unsigned int npoints_min )
 {
     fDataFile = new TFile( iRootFile.c_str() );
     if( fDataFile->IsZombie() )
@@ -152,9 +152,9 @@ bool VAtmosphereSoundings::readSoundingsFromTextFile( string iFileList )
             ///////////////////////// search for a valid date
             if( is_line.find( fTXTSearch_DataString ) < is_line.size() )
             {
-                istringstream is_stream( is_line.substr( is_line.find( fTXTSearch_DataString ) 
-                                    + fTXTSearch_DataString.size(), fTXTSearch_DataString.size() ) );
-                
+                istringstream is_stream( is_line.substr( is_line.find( fTXTSearch_DataString )
+                                         + fTXTSearch_DataString.size(), fTXTSearch_DataString.size() ) );
+                                         
                 is_stream >> iTemp;
                 int iHour = atoi( iTemp.substr( 0, 2 ).c_str() );
                 is_stream >> iTemp;
@@ -205,7 +205,7 @@ bool VAtmosphereSoundings::readSoundingsFromTextFile( string iFileList )
                         double iT = 0.;
                         istringstream is_stream( is_line );
                         iT = -9999.;
-                        if( !(is_stream>>std::ws).eof() )
+                        if( !( is_stream >> std::ws ).eof() )
                         {
                             is_stream >> iT;
                         }
@@ -218,7 +218,7 @@ bool VAtmosphereSoundings::readSoundingsFromTextFile( string iFileList )
                             fData.back()->fPressure_Pa.push_back( -9999. );
                         }
                         iT = -9999.;
-                        if( !(is_stream>>std::ws).eof() )
+                        if( !( is_stream >> std::ws ).eof() )
                         {
                             is_stream >> iT;
                         }
@@ -231,7 +231,7 @@ bool VAtmosphereSoundings::readSoundingsFromTextFile( string iFileList )
                             fData.back()->fHeight_m.push_back( -9999. );
                         }
                         iT = -9999.;
-                        if( !(is_stream>>std::ws).eof() )
+                        if( !( is_stream >> std::ws ).eof() )
                         {
                             is_stream >> iT;
                             iT += 273.15;
@@ -246,7 +246,7 @@ bool VAtmosphereSoundings::readSoundingsFromTextFile( string iFileList )
                         }
                         
                         iT = -9999.;
-                        if( !(is_stream>>std::ws).eof() )
+                        if( !( is_stream >> std::ws ).eof() )
                         {
                             is_stream >> iT;
                             iT += 273.15;
@@ -261,7 +261,7 @@ bool VAtmosphereSoundings::readSoundingsFromTextFile( string iFileList )
                         }
                         
                         iT = -9999.;
-                        if( !(is_stream>>std::ws).eof() )
+                        if( !( is_stream >> std::ws ).eof() )
                         {
                             is_stream >> iT;
                             //iT /= 1.e2;                // % to fraction HF: is this needed?
@@ -276,7 +276,7 @@ bool VAtmosphereSoundings::readSoundingsFromTextFile( string iFileList )
                         }
                         // mixing ratio
                         iT = -9999.;
-                        if( !(is_stream>>std::ws).eof() )
+                        if( !( is_stream >> std::ws ).eof() )
                         {
                             is_stream >> iT;
                         }
@@ -290,7 +290,7 @@ bool VAtmosphereSoundings::readSoundingsFromTextFile( string iFileList )
                         }
                         // wind direction
                         iT = -9999.;
-                        if( !(is_stream>>std::ws).eof() )
+                        if( !( is_stream >> std::ws ).eof() )
                         {
                             is_stream >> iT;
                         }
@@ -304,7 +304,7 @@ bool VAtmosphereSoundings::readSoundingsFromTextFile( string iFileList )
                         }
                         // wind speed
                         iT = -9999.;
-                        if( !(is_stream>>std::ws).eof() )
+                        if( !( is_stream >> std::ws ).eof() )
                         {
                             is_stream >> iT;
                             iT *= 0.514444;  // [knots] to [m/s]
@@ -2080,13 +2080,13 @@ bool VAtmosphereSoundings::readRootFile( unsigned npoints_min )
     for( unsigned int i = 0; i < fDataTree->GetEntries(); i++ )
     {
         fDataTree->GetEntry( i );
-
-        // require a minimum amount of data points in 
+        
+        // require a minimum amount of data points in
         // sounding profile
-       if( npoints_min > 0 && npoints_min > nPoints )
+        if( npoints_min > 0 && npoints_min > nPoints )
         {
             continue;
-        } 
+        }
         
         fData.push_back( new VAtmosphereSoundingData() );
         
@@ -2931,11 +2931,11 @@ bool VAtmosphereSoundings::write_CORSIKA_UserProfile( unsigned int iMODTRANIndex
  * average atmosphere over a certain period
  *
 */
-int VAtmosphereSoundings::push_average_atmosphere( string name = "", 
-                              vector<int>* years = 0, vector<int>* months = 0, 
-                              vector<int>* days = 0, vector<int>* hours = 0, 
-                              vector<double>* mjds = 0, 
-                              unsigned int nMinPoints = 20, int nMinFlights = 1 )
+int VAtmosphereSoundings::push_average_atmosphere( string name = "",
+        vector<int>* years = 0, vector<int>* months = 0,
+        vector<int>* days = 0, vector<int>* hours = 0,
+        vector<double>* mjds = 0,
+        unsigned int nMinPoints = 20, int nMinFlights = 1 )
 {
     // average profile
     VAtmosphereSoundingData* Average =  new VAtmosphereSoundingData();
@@ -2950,28 +2950,28 @@ int VAtmosphereSoundings::push_average_atmosphere( string name = "",
     }
     heightbins.push_back( 1.5 * fHeights[fHeights.size() - 1] - 0.5 * fHeights[fHeights.size() - 2] );
     
-    TProfile* averagePressure = new TProfile( 
-            "averagePressure", "average pressure; pressure [Pa]; height [m]", 
-            heightbins.size() - 1, &( heightbins[0] ), 0, 2e5, "s" );
-    TProfile* averageDensity = new TProfile( 
-            "averageDensity", "average density; density [g/cm^{3}]; height [m]",
-            heightbins.size() - 1, &( heightbins[0] ), 0, 2e5, "s" );
+    TProfile* averagePressure = new TProfile(
+        "averagePressure", "average pressure; pressure [Pa]; height [m]",
+        heightbins.size() - 1, &( heightbins[0] ), 0, 2e5, "s" );
+    TProfile* averageDensity = new TProfile(
+        "averageDensity", "average density; density [g/cm^{3}]; height [m]",
+        heightbins.size() - 1, &( heightbins[0] ), 0, 2e5, "s" );
     TProfile* averageTemperature = new TProfile(
-            "averageTemperature", "average temperature; temperature [K]; height [m]",
-            heightbins.size() - 1, &( heightbins[0] ), 0, 5e2, "s" );
+        "averageTemperature", "average temperature; temperature [K]; height [m]",
+        heightbins.size() - 1, &( heightbins[0] ), 0, 5e2, "s" );
     TProfile* averageDewpoint = new TProfile(
-            "averageDewpoint", "average dewpoint; dewpoint [K]; height [m]",
-            heightbins.size() - 1, &( heightbins[0] ), 0, 5e2 );
+        "averageDewpoint", "average dewpoint; dewpoint [K]; height [m]",
+        heightbins.size() - 1, &( heightbins[0] ), 0, 5e2 );
     TProfile* averageMixingRatio = new TProfile(
-            "averageMixingRatio", "average mixing ratio; mixing ratio [g/kg]; height [m]",
-            heightbins.size() - 1, &( heightbins[0] ), 0, 1e3 );
-    TProfile* averageRelativeHumidity = new TProfile( 
-            "averageRelativeHumidity", "average relative humidity; relative humidity [%]; height [m]",
-            heightbins.size() - 1, &( heightbins[0] ), 0, 1e2, "s" );
-    TProfile* averageIndexofRefraction = new TProfile( 
-            "averageIndexofRefraction", "average index of refraction; index of refraction; height [m]",
-            heightbins.size() - 1, &( heightbins[0] ), 0, 2, "s" );
-    
+        "averageMixingRatio", "average mixing ratio; mixing ratio [g/kg]; height [m]",
+        heightbins.size() - 1, &( heightbins[0] ), 0, 1e3 );
+    TProfile* averageRelativeHumidity = new TProfile(
+        "averageRelativeHumidity", "average relative humidity; relative humidity [%]; height [m]",
+        heightbins.size() - 1, &( heightbins[0] ), 0, 1e2, "s" );
+    TProfile* averageIndexofRefraction = new TProfile(
+        "averageIndexofRefraction", "average index of refraction; index of refraction; height [m]",
+        heightbins.size() - 1, &( heightbins[0] ), 0, 2, "s" );
+        
     for( unsigned int iData = 0; iData < fDataInterpol.size(); iData++ )
     {
         VAtmosphereSoundingData* Data = fDataInterpol.at( iData );
@@ -3149,7 +3149,7 @@ VAtmosphereSoundingData* VAtmosphereSoundings::makeDefaultAtmosphere( string sea
         months.push_back( 6 );
         months.push_back( 9 );
     }
-
+    
     if( year == 0 )
     {
         if( push_average_atmosphere( name, 0, &months, 0, 0, 0, 20, 5 ) )
@@ -3166,7 +3166,7 @@ VAtmosphereSoundingData* VAtmosphereSoundings::makeDefaultAtmosphere( string sea
             return fAverageProfile.back();
         }
     }
-
+    
     cout << "VAtmosphereSoundings::makeDefaultWinterAtmosphere: Error: average atmosphere not pushed" << endl;
     return 0;
 }
@@ -3242,8 +3242,8 @@ VAtmosphereSoundingData* VAtmosphereSoundings::makeOneFlightAtmosphere( int year
     
 }
 
-VAtmosphereSoundingData* VAtmosphereSoundings::makeMeanAtmosphereMJD( 
-        double minMJD, double maxMJD, string name = "", string opt = "" )
+VAtmosphereSoundingData* VAtmosphereSoundings::makeMeanAtmosphereMJD(
+    double minMJD, double maxMJD, string name = "", string opt = "" )
 {
     //do not re-make atmosphere unless forced
     if( opt != "redo" && opt != "force" && name != "" )
@@ -3319,13 +3319,13 @@ TGraph* VAtmosphereSoundings::getResidualGraph( TGraph* data, TGraph* model, int
     
     for( int iA = 0; iA < data->GetN(); iA++ )
     {
-        newgraph->SetPoint( iA , data->GetX()[iA], 100.*(data->GetY()[iA] / model->Eval( data->GetX()[iA] ) - 1.0) );
+        newgraph->SetPoint( iA , data->GetX()[iA], 100.*( data->GetY()[iA] / model->Eval( data->GetX()[iA] ) - 1.0 ) );
     }
     
     return newgraph;
 }
 
-/* 
+/*
  * return color codes for different seasons
  *
  * winter (61) colors are blueish
@@ -3343,23 +3343,23 @@ Color_t VAtmosphereSoundings::getSeasonColor( int counter, int atmo )
     {
         season_color = kRed;
     }
-
+    
     return season_color - 10 + 2 * counter;
 }
 
 Color_t VAtmosphereSoundings::getSeasonColor( int iMonth )
 {
     map< int, Color_t > season_color;
-
+    
     if( iMonth > 12 )
     {
         iMonth -= 12;
     }
-
+    
     // winter
     season_color[12] = kBlue + 2;
     season_color[1] = kBlue - 3;
-    season_color[2] = kBlue -7;
+    season_color[2] = kBlue - 7;
     season_color[3] = kBlue - 10;
     // summer
     season_color[6] = kRed + 2;
@@ -3371,7 +3371,7 @@ Color_t VAtmosphereSoundings::getSeasonColor( int iMonth )
     season_color[5] = kGreen - 3;
     season_color[10] = kGreen - 7;
     season_color[11] = kGreen - 10;
-
+    
     if( season_color.find( iMonth ) != season_color.end() )
     {
         return season_color[iMonth];
@@ -3383,13 +3383,13 @@ Color_t VAtmosphereSoundings::getSeasonColor( int iMonth )
  * plot density profiles for a particular season
  *
  */
-TCanvas* VAtmosphereSoundings::plot_season( 
-        vector<VAtmosphereSoundingData*> v,
-        TString season_name, string value, TString outfileprefix = "" )
+TCanvas* VAtmosphereSoundings::plot_season(
+    vector<VAtmosphereSoundingData*> v,
+    TString season_name, string value, TString outfileprefix = "" )
 {
 
     // average winter / summer (or from CORSIKA)
-
+    
     VAtmosphereSoundingData* winter = 0;
     VAtmosphereSoundingData* summer = 0;
     if( read_CORSIKA_Atmosphere( "$VERITAS_EVNDISP_AUX_DIR/Atmospheres/atmprof61.dat", "Winter", 4 )
@@ -3397,25 +3397,25 @@ TCanvas* VAtmosphereSoundings::plot_season(
     {
         winter = getDataMODTRAN( 0 );
     }
-    if( read_CORSIKA_Atmosphere( "$VERITAS_EVNDISP_AUX_DIR/Atmospheres/atmprof62.dat", "Summer", 2 ) 
+    if( read_CORSIKA_Atmosphere( "$VERITAS_EVNDISP_AUX_DIR/Atmospheres/atmprof62.dat", "Summer", 2 )
             && getDataMODTRAN( 1 ) )
     {
         summer = getDataMODTRAN( 1 );
     }
-    if( !summer || !winter ) 
+    if( !summer || !winter )
     {
         cout << "Error defining summer / winter atmosphere" << endl;
         return 0;
     }
-
+    
     // VAtmosphereSoundingData* summer = makeDefaultSummerAtmosphere( "summer", "" );
     // VAtmosphereSoundingData* winter = makeDefaultWinterAtmosphere( "winter", "" );
-
+    
     TGraph* temp = 0;
     
     char hname[200];
     char htitle[200];
-
+    
     /////////////////////////////////////
     // value vs height plotting
     sprintf( hname, "c_%s", season_name.Data() );
@@ -3440,13 +3440,13 @@ TCanvas* VAtmosphereSoundings::plot_season(
     TAxis* axisY = winter->getGraph( value )->GetYaxis();
     axisY->SetTitleOffset( 1.5 );
     summer->getGraph( value )->Draw( "l same" );
-
+    
     for( unsigned int i = 0; i < v.size(); i++ )
     {
-         if( v[i] )
-         {
+        if( v[i] )
+        {
             v[i]->getGraph( value )->Draw( "lx" );
-         }
+        }
     }
     
     TLegend* legend = 0;
@@ -3471,11 +3471,11 @@ TCanvas* VAtmosphereSoundings::plot_season(
     legend->SetNColumns( 2 );
     legend->SetBorderSize( 0 );
     legend->SetDrawOption();
-
+    
     // plot again CORSIKA atmospheres
     winter->getGraph( value )->Draw( "l" );
     summer->getGraph( value )->Draw( "l" );
-
+    
     ///////////////////////////////////
     // residual graphs to average winter
     sprintf( hname, "cRW_%s", season_name.Data() );
@@ -3502,8 +3502,8 @@ TCanvas* VAtmosphereSoundings::plot_season(
     
     for( unsigned int i = 0; i < v.size(); i++ )
     {
-        TGraph* temp = getResidualGraph( v[i]->getGraph( value ), 
-                winter->getGraph( value ), v[i]->getGraph( value )->GetMarkerColor() );
+        TGraph* temp = getResidualGraph( v[i]->getGraph( value ),
+                                         winter->getGraph( value ), v[i]->getGraph( value )->GetMarkerColor() );
         if( temp )
         {
             temp->SetLineWidth( 2 );
@@ -3536,8 +3536,8 @@ TCanvas* VAtmosphereSoundings::plot_season(
     
     for( unsigned int i = 0; i < v.size(); i++ )
     {
-        TGraph* temp = getResidualGraph( v[i]->getGraph( value ), 
-                summer->getGraph( value ), v[i]->getGraph( value )->GetMarkerColor() );
+        TGraph* temp = getResidualGraph( v[i]->getGraph( value ),
+                                         summer->getGraph( value ), v[i]->getGraph( value )->GetMarkerColor() );
         if( temp )
         {
             temp->SetLineWidth( 2 );
@@ -3549,18 +3549,18 @@ TCanvas* VAtmosphereSoundings::plot_season(
     // print everything into pdfs
     if( gSystem->mkdir( "figures", true ) )
     {
-        TString filename = TString::Format( "figures/%sseason-%s-%s.pdf", 
-                outfileprefix.Data(), season_name.Data(), value.c_str() );
+        TString filename = TString::Format( "figures/%sseason-%s-%s.pdf",
+                                            outfileprefix.Data(), season_name.Data(), value.c_str() );
         c->SaveAs( filename.Data() );
         filename = TString::Format( "figures/%sseason-relativeWinter-%s-%s.pdf",
-                outfileprefix.Data(), season_name.Data(), value.c_str() );
+                                    outfileprefix.Data(), season_name.Data(), value.c_str() );
         cRW->SaveAs( filename.Data() );
         filename = TString::Format( "figures/%sseason-relativeSummer-%s-%s.pdf",
-                outfileprefix.Data(), season_name.Data(), value.c_str() );
+                                    outfileprefix.Data(), season_name.Data(), value.c_str() );
         cRS->SaveAs( filename.Data() );
     }
     
-    return c; 
+    return c;
 }
 
 /*
@@ -3575,19 +3575,19 @@ TCanvas* VAtmosphereSoundings::plot_season(
    VAtmosphereSoundings * a = new VAtmosphereSoundings();
    a->setHeights(0.0, 30000.0, 1000.0);
    a->readSoundingsFromTextFile("list.dat");
-    
+
    a->plot_season(( 56524, 56820, "2013/14", "temperature");
    a->plot_season( 2006, 9, 7, 2007, 6, 1, "temperature");
-    
-    
+
+
 */
-TCanvas* VAtmosphereSoundings::plot_season( 
-        int year_start, int month_start, int day_start, 
-        int year_end, int month_end , int day_end, 
-        string value,
-        int bWriteCorsika )
+TCanvas* VAtmosphereSoundings::plot_season(
+    int year_start, int month_start, int day_start,
+    int year_end, int month_end , int day_end,
+    string value,
+    int bWriteCorsika )
 {
-    
+
     double mjd_start = 0.;
     double mjd_end = 0.;
     int j = 0;
@@ -3598,9 +3598,9 @@ TCanvas* VAtmosphereSoundings::plot_season(
     // average length of synodic month
     double month = 29.53;
     int Nmonth = TMath::CeilNint( ( mjd_end - mjd_start ) / month ) ;
-
+    
     vector< VAtmosphereSoundingData* > v;
-
+    
     // color counters
     int w = 0;
     int s = 0;
@@ -3612,25 +3612,25 @@ TCanvas* VAtmosphereSoundings::plot_season(
         int y1, y2, m1, m2, d1, d2, j;
         double f = 0.;
         double start = mjd_start + i * month + 1;
-        double end = mjd_start + ( i + 1 )*month - 1;
-
+        double end = mjd_start + ( i + 1 ) * month - 1;
+        
         VAstronometry::vlaDjcl( start, &y1, &m1, &d1, &f, &j );
         VAstronometry::vlaDjcl( end, &y2, &m2, &d2, &f, &j );
         TString name = TString::Format( "%d-%d-%d - %d-%d-%d", y1, m1, d1, y2, m2, d2 );
-        VAtmosphereSoundingData* t = 
+        VAtmosphereSoundingData* t =
             makeMeanAtmosphereMJD( start, end, name.Data(), name.Data() );
-
+            
         // get epoch / pre-defined summer/winter atmosphere
         TString name_start = TString::Format( "%d-%d-%d", y1, m1, d1 );
         int atm = readEpochsAndAtmospheres( name_start.Data(), month );
         cout << name_start << "\t" << atm << "\t" << endl;
-
+        
         if( t && t->getGraph( value ) && t->getGraph( value )->GetN() > 0 )
         {
             if( atm < 0 )
             {
                 t->setColor( getSeasonColor( g, atm ) );
-                cout << "\t GREEN " << getSeasonColor( 9+g ) << endl;
+                cout << "\t GREEN " << getSeasonColor( 9 + g ) << endl;
                 g++;
             }
             else if( atm == 61 )
@@ -3646,14 +3646,14 @@ TCanvas* VAtmosphereSoundings::plot_season(
                 s++;
             }
             t->getGraph( value )->SetTitle( name.Data() );
-            if( m1 >= 6. && m1 <=9. )
+            if( m1 >= 6. && m1 <= 9. )
             {
                 t->getGraph( value )->SetMarkerStyle( 24 );
             }
             v.push_back( t );
         }
     }
-
+    
     // write CORSIKA files (if requested)
     if( bWriteCorsika > 0 )
     {
@@ -3664,39 +3664,39 @@ TCanvas* VAtmosphereSoundings::plot_season(
                 continue;
             }
             stringstream i_fname;
-            i_fname << "ATM" << (bWriteCorsika + i) << ".dat";
+            i_fname << "ATM" << ( bWriteCorsika + i ) << ".dat";
             cout << "Writing CORSIKA file: " << endl;
             cout << "\t" << i_fname.str() << endl;
             v[i]->write_CORSIKA_UserProfile( bWriteCorsika + i, i_fname.str() );
         }
     }
-
+    
     return plot_season( v, season_name, value );
 }
 
-/* 
+/*
  * plot montly averages for the years given
  *
  */
-TCanvas* VAtmosphereSoundings::plot_monthly( 
-        vector< int > year, vector< int > month, vector< int > day,
-        double intervall_days, int offset_months,
-        string value )
+TCanvas* VAtmosphereSoundings::plot_monthly(
+    vector< int > year, vector< int > month, vector< int > day,
+    double intervall_days, int offset_months,
+    string value )
 {
     TString season_name = TString::Format( "%d", offset_months );
-
+    
     double mjd_start = 0.;
     int j = 0;
-
+    
     vector<VAtmosphereSoundingData*> v;
     
     vector<double> start, end;
     for( unsigned int i = 0; i < year.size(); i++ )
     {
         VAstronometry::vlaCldj( year[i], month[i], day[i], &mjd_start, &j );
-
+        
         start.push_back( mjd_start + intervall_days * offset_months );
-        end.push_back( mjd_start + intervall_days * (offset_months+1) );
+        end.push_back( mjd_start + intervall_days * ( offset_months + 1 ) );
         
         int y1, y2, m1, m2, d1, d2, j;
         double f = 0.;
@@ -3705,7 +3705,7 @@ TCanvas* VAtmosphereSoundings::plot_monthly(
         TString output = TString::Format( "%d\t%d-%d-%d\t%d-%d-%d", i + 1, y1, m1, d1, y2, m2, d2 );
         cout << output << endl;
     }
-
+    
     // prepare average montly atmospheres
     for( unsigned int i = 0; i < start.size(); i++ )
     {
@@ -3714,20 +3714,20 @@ TCanvas* VAtmosphereSoundings::plot_monthly(
         VAstronometry::vlaDjcl( start[i] , &y1, &m1, &d1, &f, &j );
         VAstronometry::vlaDjcl( end[i] , &y2, &m2, &d2, &f, &j );
         TString name = TString::Format( "%d-%d-%d - %d-%d-%d", y1, m1, d1, y2, m2, d2 );
-        VAtmosphereSoundingData* t = 
+        VAtmosphereSoundingData* t =
             makeMeanAtmosphereMJD( start[i], end[i], name.Data(), name.Data() );
         if( t && t->getGraph( value ) && t->getGraph( value )->GetN() > 0 )
         {
-            t->setColor( i+1 );
+            t->setColor( i + 1 );
             t->getGraph( value )->SetTitle( name.Data() );
-            if( m1 >= 6. && m1 <=9. )
+            if( m1 >= 6. && m1 <= 9. )
             {
                 t->getGraph( value )->SetMarkerStyle( 24 );
             }
             v.push_back( t );
         }
     }
-
+    
     return plot_season( v, season_name, value );
 }
 
@@ -3739,9 +3739,9 @@ TCanvas* VAtmosphereSoundings::plot_monthly(
  *  an epoch might be summer or winter
  *
  */
-int VAtmosphereSoundings::readEpochsAndAtmospheres( 
-             TString iDstart, double iMonthLength_days,
-             string iEpochFile )
+int VAtmosphereSoundings::readEpochsAndAtmospheres(
+    TString iDstart, double iMonthLength_days,
+    string iEpochFile )
 {
     ifstream is;
     char* iFileName = gSystem->ExpandPathName( iEpochFile.c_str() );
@@ -3753,12 +3753,12 @@ int VAtmosphereSoundings::readEpochsAndAtmospheres(
     }
     string is_line;
     string temp;
-
+    
     // start and end date of period
-    TDatime d_min( (iDstart+" 12:00:00").Data() );
+    TDatime d_min( ( iDstart + " 12:00:00" ).Data() );
     TDatime d_max;
-    d_max.Set( d_min.Convert(kTRUE) + iMonthLength_days * 86400. );
-
+    d_max.Set( d_min.Convert( kTRUE ) + iMonthLength_days * 86400. );
+    
     while( getline( is, is_line ) )
     {
         if( is_line.size() > 0 )
@@ -3770,7 +3770,7 @@ int VAtmosphereSoundings::readEpochsAndAtmospheres(
             {
                 continue;
             }
-            if( (is_stream>>std::ws).eof() )
+            if( ( is_stream >> std::ws ).eof() )
             {
                 continue;
             }
@@ -3780,32 +3780,32 @@ int VAtmosphereSoundings::readEpochsAndAtmospheres(
                 string atmo = "";
                 string date_min = "";
                 string date_max = "";
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> atmo;
                 }
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> date_min;
                 }
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> date_max;
                 }
-                TDatime e_min( (date_min+" 12:00:00").c_str() );
-                TDatime e_max( (date_max+" 12:00:00").c_str() );
+                TDatime e_min( ( date_min + " 12:00:00" ).c_str() );
+                TDatime e_max( ( date_max + " 12:00:00" ).c_str() );
                 if( d_min.Get() >= e_min.Get() && d_max.Get() < e_max.Get() )
                 {
-                    return atoi(atmo.c_str());
+                    return atoi( atmo.c_str() );
                 }
                 // overlap minus 1 week
                 else if( d_min.Get() >= e_min.Get() && d_max.Get() < e_max.Get() + 7.*86400. )
                 {
-                    return atoi(atmo.c_str());
+                    return atoi( atmo.c_str() );
                 }
                 else if( d_min.Get() >= e_min.Get() - 7.*86400. && d_max.Get() < e_max.Get() )
                 {
-                    return atoi(atmo.c_str());
+                    return atoi( atmo.c_str() );
                 }
             }
         }
@@ -3813,4 +3813,4 @@ int VAtmosphereSoundings::readEpochsAndAtmospheres(
     is.close();
     
     return -1;
-} 
+}

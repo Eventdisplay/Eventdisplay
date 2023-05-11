@@ -22,7 +22,7 @@ VAnaSumRunParameterDataClass::VAnaSumRunParameterDataClass()
     
     fMJDOn = 0.;
     fMJDOff = 0.;
-
+    
     fMJDOnStart = 0.;
     fMJDOnStop = 0.;
     
@@ -91,10 +91,10 @@ VAnaSumRunParameterDataClass::VAnaSumRunParameterDataClass()
 
 VAnaSumRunParameterDataClass::~VAnaSumRunParameterDataClass()
 {
-/*        if( fListOfExclusionRegions )
-        {
-             delete fListOfExclusionRegions;
-        } */
+    /*        if( fListOfExclusionRegions )
+            {
+                 delete fListOfExclusionRegions;
+            } */
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,8 +160,8 @@ VAnaSumRunParameter::VAnaSumRunParameter()
     fWriteEventTree = 2;
     
     // Binned Likelihood
-    fLikelihoodAnalysis = false; 
-
+    fLikelihoodAnalysis = false;
+    
     // if 0, use default 1D radial acceptance
     // if >0, use alternate 2D-dependent acceptance
     f2DAcceptanceMode = 0 ; // USE2DACCEPTANCE
@@ -243,12 +243,12 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
             }
             // print runparameter to stdout
             cout << is_line << endl;
-            if( (is_stream>>std::ws).eof() )
+            if( ( is_stream >> std::ws ).eof() )
             {
                 return returnWithError( "VAnaSumRunParameter::readRunParameter: not enough parameters", is_line );
             }
             is_stream >> temp;
-            if( (is_stream>>std::ws).eof() )
+            if( ( is_stream >> std::ws ).eof() )
             {
                 return returnWithError( "VAnaSumRunParameter::readRunParameter: not enough parameters", is_line );
             }
@@ -293,7 +293,7 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
             {
                 fTMPL_fBackgroundModel = eREFLECTEDREGION;
                 fTMPL_RE_distanceSourceOff = atof( temp2.c_str() );
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> temp2;
                     fTMPL_RE_nMinoffsource = atoi( temp2.c_str() );
@@ -302,7 +302,7 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
                 {
                     returnWithError( "VAnaSumRunparameter: not enough parameters: ", is_line, "* REFLECTEDREGION dist noff_min noff_max" );
                 }
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> temp2;
                     fTMPL_RE_nMaxoffsource = atoi( temp2.c_str() );
@@ -314,7 +314,7 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
             }
             else if( temp == "REFLECTEDREGION_OFFREMOVAL" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> temp2;
                     fTMPL_RE_RemoveOffRegionsRandomly = bool( atoi( temp2.c_str() ) );
@@ -326,7 +326,7 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
                 fTMPL_RM_RingRadius = atof( temp2.c_str() );
                 // important: filling here temporary the
                 // area ratio of off-to-on regions
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> temp2;
                     fTMPL_RM_RingWidth = atof( temp2.c_str() );
@@ -368,11 +368,11 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
                 double iMinBrightness = atof( temp2.c_str() );
                 double iExclusionRadiusDeg = -1.;
                 string iStarBand = "";
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iExclusionRadiusDeg;
                 }
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iStarBand;
                 }
@@ -522,7 +522,7 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
                     return returnWithError( "VAnaSumRunparameter: wrong number of parameters: ", is_line, "Check if you want point or extended source in AnasumRunParameter file!" );
                 }
                 // read name in
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iExcludeFromBackground_Name;
                 }
@@ -597,7 +597,7 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
                     return returnWithError( "VAnaSumRunparameter: wrong number of parameters: ", is_line, "Check if you want point or extended source in AnasumRunParameter file!" );
                 }
                 // read name in
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iExcludeFromBackground_Name;
                 }
@@ -739,13 +739,13 @@ int VAnaSumRunParameter::readRunParameter( string i_filename, bool fIgnoreZeroEx
                 fWriteEventTree = ( unsigned int )atoi( temp2.c_str() );
             }
             /// enable likelihood analysis ///
-            else if (temp == "ENABLEBINNEDLIKELIHOOD")
+            else if( temp == "ENABLEBINNEDLIKELIHOOD" )
             {
-                 unsigned int tmpLikelihood = ( unsigned int )atoi( temp2.c_str() ) ;
-                 if( tmpLikelihood == 1)
-                 {
-                      fLikelihoodAnalysis = true;
-                 }
+                unsigned int tmpLikelihood = ( unsigned int )atoi( temp2.c_str() ) ;
+                if( tmpLikelihood == 1 )
+                {
+                    fLikelihoodAnalysis = true;
+                }
             }
             else
             {
@@ -919,7 +919,7 @@ int VAnaSumRunParameter::loadLongFileList( string i_listfilename, bool bShortLis
             {
                 is_stream >> temp;
                 i_sT.fCutFile = temp;
-
+                
                 // source radius (actually (source radius)^2 )
                 // (read theta2 cut from cut file)
                 if( !bTotalAnalysisOnly )
@@ -1201,14 +1201,14 @@ int VAnaSumRunParameter::checkNumberOfArguments( string is )
     {
         is = is.substr( 0, is.size() - 1 );
     }
-	// Need to remove newline character from the string
-	// since it is counted as an additional parameter 
-	is.erase(std::remove(is.begin(), is.end(), '\n'), is.end());
-	is.erase(std::remove(is.begin(), is.end(), '\r'), is.end());
+    // Need to remove newline character from the string
+    // since it is counted as an additional parameter
+    is.erase( std::remove( is.begin(), is.end(), '\n' ), is.end() );
+    is.erase( std::remove( is.begin(), is.end(), '\r' ), is.end() );
     istringstream is_stream( is );
     string itemp;
     int z = 0;
-    while( !(is_stream>>std::ws).eof() )
+    while( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> itemp;
         z++;
@@ -1330,7 +1330,7 @@ void VAnaSumRunParameter::reset( VAnaSumRunParameterDataClass it )
     it.fTE_mscl_max = 0.;
 }
 
-/* 
+/*
  * calculate ring width for the ring background model
  *
  * a_on = Area of on region
@@ -1440,18 +1440,18 @@ VGammaHadronCuts* VAnaSumRunParameter::getGammaHadronCuts( string ifile )
 
 bool VAnaSumRunParameter::setRunTimes( unsigned int i, double iMJDStart, double iMJDStopp )
 {
-       if( i >= fRunList.size() )
-       {
-            return false;
-       }
-       fRunList[i].fMJDOnStart = iMJDStart;
-       fRunList[i].fMJDOnStop = iMJDStopp;
-       if( fMapRunList.find( fRunList[i].fRunOn ) != fMapRunList.end() )
-       {
-           fMapRunList[fRunList[i].fRunOn].fMJDOnStart = iMJDStart;
-           fMapRunList[fRunList[i].fRunOn].fMJDOnStop = iMJDStopp;
-       }
-       return true;
+    if( i >= fRunList.size() )
+    {
+        return false;
+    }
+    fRunList[i].fMJDOnStart = iMJDStart;
+    fRunList[i].fMJDOnStop = iMJDStopp;
+    if( fMapRunList.find( fRunList[i].fRunOn ) != fMapRunList.end() )
+    {
+        fMapRunList[fRunList[i].fRunOn].fMJDOnStart = iMJDStart;
+        fMapRunList[fRunList[i].fRunOn].fMJDOnStop = iMJDStopp;
+    }
+    return true;
 }
 
 /*

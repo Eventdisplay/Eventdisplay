@@ -152,7 +152,7 @@ int main( int argc, char* argv[] )
     double fEnergy_max =  2.3; // 200 TeV
     // standard binning with 5 logarithmic bins per decade
     int fNbins_diffBining = ( int )( ( fEnergy_max - fEnergy_min ) / 0.2 + 0.5 );
-    int fNbins_fineBinning = (fNbins_diffBining-1) * 25;   // used e.g. for migration matrix
+    int fNbins_fineBinning = ( fNbins_diffBining - 1 ) * 25; // used e.g. for migration matrix
     
     cout << "IRF binning:" << endl;
     cout << "\t log_10 E [" << fEnergy_min << ", " << fEnergy_max << "]" << endl;

@@ -241,7 +241,7 @@ class VAtmosphereSoundings
         bool isDateInRange( VAtmosphereSoundingData* Data, double minMJD, double max_MJD , unsigned int nMinPoints );
         VAtmosphereSoundingData* makeDefaultAtmosphere( string season, string name = "noname", string opt = "", int year = 0 );
         VAtmosphereSoundingData* makeDefaultWinterAtmosphere( string name = "winter", string opt = "", int year = 0 ) ;
-        VAtmosphereSoundingData* makeDefaultSummerAtmosphere( string name = "summer", string opt = "", int year = 0) ;
+        VAtmosphereSoundingData* makeDefaultSummerAtmosphere( string name = "summer", string opt = "", int year = 0 ) ;
         VAtmosphereSoundingData* makeMeanMonthlyAtmosphere( int month, string name, string opt, int yearMin, int yearMax );
         VAtmosphereSoundingData* makeOneFlightAtmosphere( int year, int month, int day, int hour, string name, string opt );
         VAtmosphereSoundingData* makeMeanAtmosphereMJD( double minMJD, double maxMJD, string name, string opt );
@@ -298,14 +298,14 @@ class VAtmosphereSoundings
         bool write_2C1( unsigned int iIndexAverageData, string filename, double max_height );
         
         TGraph* getResidualGraph( TGraph* data, TGraph* model , int color = 2 ) ;
-        TCanvas *plot_season( vector<VAtmosphereSoundingData*> v, TString season_name, string value, TString outfileprefix ) ;
+        TCanvas* plot_season( vector<VAtmosphereSoundingData*> v, TString season_name, string value, TString outfileprefix ) ;
         TCanvas* plot_season( int year_start, int month_start, int day_start, int year_end, int month_end , int day_end, string value, int bWriteCorsika = -1 );
         TCanvas* plot_monthly( vector< int > year, vector< int > month, vector< int > day, double intervall_days, int offset_months, string value );
-
+        
         int readEpochsAndAtmospheres( TString iDstart, double iMonthLength_days,
-                   string iEpochFile = "$VERITAS_EVNDISP_AUX_DIR/ParameterFiles/VERITAS.Epochs.runparameter" );
-        
-        
+                                      string iEpochFile = "$VERITAS_EVNDISP_AUX_DIR/ParameterFiles/VERITAS.Epochs.runparameter" );
+                                      
+                                      
 };
 
 #endif

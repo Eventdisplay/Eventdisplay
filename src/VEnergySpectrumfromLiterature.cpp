@@ -728,7 +728,7 @@ TCanvas* VEnergySpectrumfromLiterature::plot( string iSelection, TCanvas* c )
     
     string itemp;
     istringstream is_stream( iSelection );
-    while( !(is_stream>>std::ws).eof() )
+    while( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> itemp;
         v_id.push_back( ( unsigned int )atoi( itemp.c_str() ) );

@@ -79,8 +79,8 @@ string VUtilities::testFileLocation( string iFile, string iDirectory, bool bEVND
             iFile = "";
             if( bExitIfFailure )
             {
-                 cout << "exiting..." << endl;
-                 exit( EXIT_FAILURE );
+                cout << "exiting..." << endl;
+                exit( EXIT_FAILURE );
             }
             return iFile;
         }
@@ -227,7 +227,7 @@ unsigned int VUtilities::count_number_of_textblocks( string str )
     unsigned int z = 0;
     string iTemp;
     istringstream is_stream( str );
-    while( !(is_stream>>std::ws).eof() )
+    while( !( is_stream >> std::ws ).eof() )
     {
         is_stream >> iTemp;
         z++;

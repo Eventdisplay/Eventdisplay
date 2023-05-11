@@ -125,20 +125,20 @@ VEnergyThreshold::VEnergyThreshold( double iEnergyThresholdFixed, string iEnergy
 
 VEnergyThreshold::~VEnergyThreshold()
 {
-       if( fEffArea )
-       {
-            delete fEffArea;
-       }
+    if( fEffArea )
+    {
+        delete fEffArea;
+    }
 }
 
 bool VEnergyThreshold::closeOutputFile()
 {
-       if( fOutFile )
-       {
-           fOutFile->Close();
-           return true;
-       }
-       return false;
+    if( fOutFile )
+    {
+        fOutFile->Close();
+        return true;
+    }
+    return false;
 }
 
 bool VEnergyThreshold::openEffectiveAreaFile( string iname )
@@ -231,7 +231,7 @@ bool VEnergyThreshold::calculateEnergyThreshold( int nentries )
         feffFract_20p = 0;
         feffFract_50p = 0;
         feffFract_90p = 0;
-
+        
         feff_300GeV = 0.;
         feff_500GeV = 0.;
         feff_1TeV = 0.;
@@ -255,14 +255,14 @@ bool VEnergyThreshold::calculateEnergyThreshold( int nentries )
         TGraph* hG = fEffArea->gEffAreaRec;
         if( !hG )
         {
-             hG = new TGraph( 1 );
-             for( int b = 0; b < fEffArea->nbins; b++ )
-             {
-                 hG->SetPoint( b, fEffArea->e0[b], fEffArea->eff[b] );
-             }
-             feff_300GeV = hG->Eval( log10( 0.3 ) );
-             feff_500GeV = hG->Eval( log10( 0.5 ) );
-             feff_1TeV = hG->Eval( log10( 1. ) );
+            hG = new TGraph( 1 );
+            for( int b = 0; b < fEffArea->nbins; b++ )
+            {
+                hG->SetPoint( b, fEffArea->e0[b], fEffArea->eff[b] );
+            }
+            feff_300GeV = hG->Eval( log10( 0.3 ) );
+            feff_500GeV = hG->Eval( log10( 0.5 ) );
+            feff_1TeV = hG->Eval( log10( 1. ) );
         }
         if( hG )
         {
@@ -299,7 +299,7 @@ double VEnergyThreshold::getEnergy_maxSystematic( TObject* h, double iSys, doubl
     }
     vector< double > x;
     vector< double > y;
-
+    
     // input bias curve can be given as TProfile or as TGraphErrors
     // --> copy data into a vector
     if( strcmp( "TProfile", h->ClassName() ) == 0 )
@@ -327,29 +327,29 @@ double VEnergyThreshold::getEnergy_maxSystematic( TObject* h, double iSys, doubl
             y.push_back( b );
         }
     }
-
+    
     // require at least a few points in the bias curve
     if( x.size() < 2 )
     {
-         return 0.;
+        return 0.;
     }
     
     double x1, x2, y1, y2, a, b;
     
     // loop over all points in the bias curve
     // starting at the lowest energy
-    for( unsigned int i = 0; i < x.size()-1; i++ )
+    for( unsigned int i = 0; i < x.size() - 1; i++ )
     {
         // check for absolute minimum requirement
         if( TMath::Power( 10., x[i] ) < iE_min_absolute_TeV )
         {
-             continue;
+            continue;
         }
-
+        
         y1 =  y[i];
         // test if this and the next point is below
         // the requirement on the systematic shift
-        if( y[i] < iSys && y[i+1] < iSys )
+        if( y[i] < iSys && y[i + 1] < iSys )
         {
             x1 = x[i];
             // return interpolated value (linear)
@@ -440,9 +440,9 @@ bool VEnergyThreshold::setUpThresholdTree()
     fTreeEth->Branch( "E_effFract_20p", &feffFract_20p, "E_effFract_20p/D" );
     fTreeEth->Branch( "E_effFract_50p", &feffFract_50p, "E_effFract_50p/D" );
     fTreeEth->Branch( "E_effFract_90p", &feffFract_90p, "E_effFract_90p/D" );
-	fTreeEth->Branch( "EffArea_300GeV", &feff_300GeV, "EffArea_300GeV/D" );
-	fTreeEth->Branch( "EffArea_500GeV", &feff_500GeV, "EffArea_500GeV/D" );
-	fTreeEth->Branch( "EffArea_1TeV", &feff_1TeV, "EffArea_1TeV/D" );
+    fTreeEth->Branch( "EffArea_300GeV", &feff_300GeV, "EffArea_300GeV/D" );
+    fTreeEth->Branch( "EffArea_500GeV", &feff_500GeV, "EffArea_500GeV/D" );
+    fTreeEth->Branch( "EffArea_1TeV", &feff_1TeV, "EffArea_1TeV/D" );
     
     return true;
 }
@@ -542,16 +542,16 @@ double VEnergyThreshold::interpolateEnergyThreshold( VRunList* iRunData )
     return 0.001;
 }
 
-/* 
+/*
  * plot energy threshold
  *
  * - parameters are fixed except the ones given
  *
  */
-void VEnergyThreshold::plot_energyThresholds( string var, 
-                    double ze, double woff, 
-                    int noise, double index, int az, 
-                    bool bPlot, string plot_option )
+void VEnergyThreshold::plot_energyThresholds( string var,
+        double ze, double woff,
+        int noise, double index, int az,
+        bool bPlot, string plot_option )
 {
     if( !fTreeEth )
     {
@@ -568,7 +568,7 @@ void VEnergyThreshold::plot_energyThresholds( string var,
     gStyle->SetTitleAlign( 23 );
     gStyle->SetTitleFontSize( 0.05 );
     gStyle->SetTitleX( 0.5 );
-
+    
     setPlottingStyle( 36, 20, 1.5, 1.5 );
     
     vector< string > iDraw;

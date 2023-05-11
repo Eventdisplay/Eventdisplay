@@ -134,7 +134,7 @@ class VCamera
         void           drawAnaResults();          //!< draw analysis results in form of ellipse
         void           drawEventText();           //!< draw basic event info and analysis results
         void           drawStarsInFOV();
-                vector< unsigned int > getDrawingMask( unsigned int iSelectionMask, valarray<double> i_data, double iMinValue = -999., bool iLowGain = false );
+        vector< unsigned int > getDrawingMask( unsigned int iSelectionMask, valarray<double> i_data, double iMinValue = -999., bool iLowGain = false );
         //!< get maximum, exclude dead channels
         double         getMax( valarray<double>& );
         //!< get minimum, exclude dead channels
@@ -151,10 +151,10 @@ class VCamera
         //!< fill fgraphTubesEntry values
         void           setPMTColorScheme( vector<unsigned int>, vector< unsigned int > iPixelDrawMask, bool i_select, double zmin, double zmax, string i_axisTitle, bool i_scale, bool iDrawDead, bool iLowGain = false );
         void           setPMTColorScheme( vector<float>, vector< unsigned int > iPixelDrawMask, bool i_select, double zmin, double zmax, string i_axisTitle,
-                                                                          bool i_scale, bool iDrawDead, bool iLowGain = false );
+                                          bool i_scale, bool iDrawDead, bool iLowGain = false );
         void           setPMTColorScheme( valarray<unsigned int>, vector< unsigned int > iPixelDrawMask, bool i_select, double zmin, double zmax, string i_axisTitle, bool i_scale, bool iDrawDead, bool iLowGain = false );
         void           setPMTColorScheme( valarray<double>, vector< unsigned int > iPixelDrawMask, bool i_select, double zmin, double zmax, string i_axisTitle,
-                                                                          bool i_scale, bool iDrawDead = false, bool iLowGain = false );
+                                          bool i_scale, bool iDrawDead = false, bool iLowGain = false );
         void           setUpCamera();             //!< initialize the camera
         //!< setup camera in charge/timing mode
         void           setPMTColorForChargeTiming();

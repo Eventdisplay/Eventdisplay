@@ -1,13 +1,13 @@
 /* \class VAstronometry
  * \brief wrapper class for positional astronomy access
- * 
+ *
  * Allows to use
  *
  * - slalib
  * - sofa (preferred)
  *
 */
- 
+
 #include "VAstronometry.h"
 
 VAstronometry::VAstronometry()
@@ -97,7 +97,7 @@ void VAstronometry::vlaDe2h( double ha, double dec, double phi, double* az, doub
  *  assume always FK5 precession
  *
  */
-void VAstronometry::vlaPreces( double MJD_ep0, double MJD_ep1, double *ra, double *dc )
+void VAstronometry::vlaPreces( double MJD_ep0, double MJD_ep1, double* ra, double* dc )
 {
 #ifdef ASTROSLALIB
     int  oy, om, od, j, ny, nd;
@@ -108,44 +108,44 @@ void VAstronometry::vlaPreces( double MJD_ep0, double MJD_ep1, double *ra, doubl
     slaDjcl( MJD_ep1, &oy, &om, &od, &ofd, &j );
     slaClyd( oy, om, od, &ny, &nd, &j );
     ep1  = ny + nd / 365.25;
-
+    
     slaPreces( "FK5", ep0, ep1, ra, dc );
-
+    
 #elif ASTROSOFA
     
-   // precession matrix
-   double rot_prec[3][3];
-
-   // days since year 2000
-   double ep0_days_2000 = MJD_ep0 - DJM00;
-   double ep1_days_2000 = MJD_ep1 - DJM00;
-
-   /////////////////////////////////
-   // Three cases in the following
-
-   // MJD_ep0 is J2000
-   if( ep0_days_2000 == 2000.0 )
-   {
-      iauPmat06( DJ00, ep1_days_2000, rot_prec );
-   }
-   // MJD_ep1 is J2000
-   else if( ep1_days_2000 == 2000.0 )
-   {
-      iauPmat06( DJ00, ep0_days_2000, rot_prec );
-      iauTr( rot_prec, rot_prec );
-   }
-   // all other cases
-   else
-   {
-      double temp_tot_mat[3][3];
-      iauPmat06( DJ00, ep0_days_2000, rot_prec );
-      iauTr( rot_prec, rot_prec);
-      iauPmat06( DJ00, ep1_days_2000, temp_tot_mat );
-      iauRxr( rot_prec, temp_tot_mat, rot_prec );
-   }
+    // precession matrix
+    double rot_prec[3][3];
+    
+    // days since year 2000
+    double ep0_days_2000 = MJD_ep0 - DJM00;
+    double ep1_days_2000 = MJD_ep1 - DJM00;
+    
+    /////////////////////////////////
+    // Three cases in the following
+    
+    // MJD_ep0 is J2000
+    if( ep0_days_2000 == 2000.0 )
+    {
+        iauPmat06( DJ00, ep1_days_2000, rot_prec );
+    }
+    // MJD_ep1 is J2000
+    else if( ep1_days_2000 == 2000.0 )
+    {
+        iauPmat06( DJ00, ep0_days_2000, rot_prec );
+        iauTr( rot_prec, rot_prec );
+    }
+    // all other cases
+    else
+    {
+        double temp_tot_mat[3][3];
+        iauPmat06( DJ00, ep0_days_2000, rot_prec );
+        iauTr( rot_prec, rot_prec );
+        iauPmat06( DJ00, ep1_days_2000, temp_tot_mat );
+        iauRxr( rot_prec, temp_tot_mat, rot_prec );
+    }
     double e1[3];
     double e2[3];
-
+    
     // Convert spherical coordinates to Cartesian
     iauS2c( *ra, *dc, e1 );
     // apply precession matrix
@@ -184,7 +184,7 @@ double VAstronometry::vlaDsep( double a1, double b1, double a2, double b2 )
  * Transform tangent plane coordinates into spherical
 */
 void VAstronometry::vlaDtp2s( double xi, double eta, double raz, double decz,
-        double* ra, double* dec )
+                              double* ra, double* dec )
 {
 #ifdef ASTROSLALIB
     slaDtp2s( xi, eta, raz, decz, ra, dec );
@@ -197,7 +197,7 @@ void VAstronometry::vlaDtp2s( double xi, double eta, double raz, double decz,
  *  Projection of spherical coordinates onto tangent plane ('gnomonic' projection - 'standard coordinates').
 */
 void VAstronometry::vlaDs2tp( double ra, double dec, double raz, double decz,
-        double* xi, double* eta, int* j )
+                              double* xi, double* eta, int* j )
 {
 #ifdef ASTROSLALIB
     slaDs2tp( ra, dec, raz, decz, xi, eta, j );
@@ -222,7 +222,7 @@ void VAstronometry::vlaDr2tf( int ndp, double angle, char* sign, int ihmsf[4] )
  * Bearing (position angle) of one point on a sphere relative to another.
 */
 
-double VAstronometry::vlaDbear(double a1, double b1, double a2, double b2 )
+double VAstronometry::vlaDbear( double a1, double b1, double a2, double b2 )
 {
 #ifdef ASTROSLALIB
     return slaDbear( a1, b1, a2, b2 );
@@ -272,20 +272,20 @@ string VAstronometry::getAstronometryLibrary()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-/* 
+/*
  * testing routines
  *
 */
 
 void VAstronometry::test_vlaDjcl()
 {
-     double fd;
-     int iy, im, id, j;
-
-     VAstronometry::vlaDjcl( 58401.87500000, &iy, &im, &id, &fd, &j );
-     cout << "VAstronometry::vlaDjcl " << getAstronometryLibrary();
-     cout << " (2018, 10, 10, 0.853) \t\t";
-     cout << iy << ", " << im << ", " << id << ", " << fd << ", " << endl;
+    double fd;
+    int iy, im, id, j;
+    
+    VAstronometry::vlaDjcl( 58401.87500000, &iy, &im, &id, &fd, &j );
+    cout << "VAstronometry::vlaDjcl " << getAstronometryLibrary();
+    cout << " (2018, 10, 10, 0.853) \t\t";
+    cout << iy << ", " << im << ", " << id << ", " << fd << ", " << endl;
 }
 
 void VAstronometry::test_vlaCldj()
@@ -304,25 +304,25 @@ void VAstronometry::test_vlaPreces()
     double MJD_ep1 = 58082.4;
     double ra = 83.6333 * DD2R;
     double dec = 22.0145 * DD2R;
-
+    
     vlaPreces( MJD_ep0, MJD_ep1, &ra, &dec );
-
+    
     cout << "VAstronometry::vlaPreces " << getAstronometryLibrary();
     cout << " (83.9027, 22.0253) \t\t";
-    cout << setprecision(16) << ra * DR2D << "\t" << dec * DR2D << endl;
+    cout << setprecision( 16 ) << ra* DR2D << "\t" << dec* DR2D << endl;
 }
 
 void VAstronometry::test_vlaGmsta()
 {
     cout << "VAstronometry::vlaGmsta " << getAstronometryLibrary();
-    cout << " (0.559428)  \t\t" << setprecision(16) << vlaGmsta(  50123.5, 0.2 );
+    cout << " (0.559428)  \t\t" << setprecision( 16 ) << vlaGmsta( 50123.5, 0.2 );
     cout << endl;
 }
 
 void VAstronometry::test_vlaGmst()
 {
     cout << "VAstronometry::vlaGmst " << getAstronometryLibrary();
-    cout << " (0.559428)  \t\t" << setprecision(16) << vlaGmst( 0.2 );
+    cout << " (0.559428)  \t\t" << setprecision( 16 ) << vlaGmst( 0.2 );
     cout << endl;
 }
 
@@ -330,7 +330,7 @@ void VAstronometry::test_vlaDranrm()
 {
     cout << "VAstronometry::vlaDranrm " << getAstronometryLibrary();
     cout << " (6.08319) \t\t";
-    cout << setprecision(16) << vlaDranrm( 2.*6.183185307179586477 ) << endl;
+    cout << setprecision( 16 ) << vlaDranrm( 2.*6.183185307179586477 ) << endl;
 }
 
 void VAstronometry::test_vlaDe2h()
@@ -338,8 +338,8 @@ void VAstronometry::test_vlaDe2h()
     double az, el;
     VAstronometry::vlaDe2h( 1.1, 1.2, 0.3, &az, &el );
     cout << "VAstronometry::vlaDe2h " << getAstronometryLibrary();
-    cout << setprecision(16) << " (" << 5.916889243730066194 * DR2D << ", " << 0.4472186304990486228 * DR2D << " ) \t\t";
-    cout << az * DR2D << "\t" << el  * DR2D << endl;
+    cout << setprecision( 16 ) << " (" << 5.916889243730066194 * DR2D << ", " << 0.4472186304990486228 * DR2D << " ) \t\t";
+    cout << az* DR2D << "\t" << el*   DR2D << endl;
 }
 
 void VAstronometry::test_vlaDh2e()
@@ -356,17 +356,17 @@ void VAstronometry::test_vlaEqgal()
 {
     double b, l;
     VAstronometry::vlaEqgal( 83.633076 * DD2R, 22.014493 * DD2R, &b, &l );
-
+    
     cout << "VAstronometry::vlaEqgal " << getAstronometryLibrary();
     cout << " (184.557451, -5.784369) \t\t";
-    cout << setprecision(16) << b * DR2D << ", " << l * DR2D << endl;
+    cout << setprecision( 16 ) << b* DR2D << ", " << l* DR2D << endl;
 }
 
 void VAstronometry::test_vlaDsep()
 {
     cout << "VAstronometry::vlaDsep " << getAstronometryLibrary();
     cout << " (2.346722016996998842) \t\t";
-    cout << setprecision(16) << VAstronometry::vlaDsep( 1.0, 0.1, 0.2, -3. ) << endl;
+    cout << setprecision( 16 ) << VAstronometry::vlaDsep( 1.0, 0.1, 0.2, -3. ) << endl;
 }
 
 void VAstronometry::test_vlaDtp2s()
@@ -374,8 +374,8 @@ void VAstronometry::test_vlaDtp2s()
     double ra, dec;
     VAstronometry::vlaDtp2s( -0.03, 0.07, 2.3, 1.5, &ra, &dec );
     cout << "VAstronometry::vlaDtp2s " << getAstronometryLibrary();
-    cout << setprecision(16) << " (" << 0.7596127167359629775 * DR2D << ", " << 1.540864645109263028 * DR2D << ") \t\t";
-    cout << ra * DR2D << ", " << dec * DR2D << endl;
+    cout << setprecision( 16 ) << " (" << 0.7596127167359629775 * DR2D << ", " << 1.540864645109263028 * DR2D << ") \t\t";
+    cout << ra* DR2D << ", " << dec* DR2D << endl;
 }
 
 void VAstronometry::test_vlaDs2tp()
@@ -384,7 +384,7 @@ void VAstronometry::test_vlaDs2tp()
     int j;
     VAstronometry::vlaDs2tp( 0.7596127167359629775, 1.540864645109263028, 2.3, 1.5, &xi, &eta, &j );
     cout << "VAstronometry::vlaDs2tp " << getAstronometryLibrary();
-    cout << setprecision(16) << " (-0.03, 0.07 ) \t\t" << xi << ", " << eta << ", " << j << endl;
+    cout << setprecision( 16 ) << " (-0.03, 0.07 ) \t\t" << xi << ", " << eta << ", " << j << endl;
 }
 
 void VAstronometry::test_vlaDr2tf()
@@ -401,33 +401,33 @@ void VAstronometry::test_vlaDbear()
 {
     cout << "VAstronometry::vlaDbear " << getAstronometryLibrary();
     cout << " (-2.724544922932270424) \t\t";
-    cout << setprecision(16) << VAstronometry::vlaDbear( 1.0, 0.1, 0.2, -1. ) << endl;
+    cout << setprecision( 16 ) << VAstronometry::vlaDbear( 1.0, 0.1, 0.2, -1. ) << endl;
 }
 
 void VAstronometry::test_vlaPa()
 {
     cout << "VAstronometry::vlaPa " << getAstronometryLibrary();
     cout << " (1.906227428001995580) \t\t";
-    cout << setprecision(16) << VAstronometry::vlaPa( 1.1, 1.2, 0.3 ) << endl;
+    cout << setprecision( 16 ) << VAstronometry::vlaPa( 1.1, 1.2, 0.3 ) << endl;
 }
 
 
 void VAstronometry::test()
 {
-     test_vlaDjcl();
-     test_vlaCldj();
-     test_vlaDranrm();
-     test_vlaDsep();
-     test_vlaGmst();
-     test_vlaGmsta();
-     test_vlaGmst();
-     test_vlaEqgal();
-     test_vlaDe2h();
-     test_vlaDh2e();
-     test_vlaDtp2s();
-     test_vlaDs2tp();
-     test_vlaPreces();
-     test_vlaDr2tf();
-     test_vlaDbear();
-     test_vlaPa();
+    test_vlaDjcl();
+    test_vlaCldj();
+    test_vlaDranrm();
+    test_vlaDsep();
+    test_vlaGmst();
+    test_vlaGmsta();
+    test_vlaGmst();
+    test_vlaEqgal();
+    test_vlaDe2h();
+    test_vlaDh2e();
+    test_vlaDtp2s();
+    test_vlaDs2tp();
+    test_vlaPreces();
+    test_vlaDr2tf();
+    test_vlaDbear();
+    test_vlaPa();
 }

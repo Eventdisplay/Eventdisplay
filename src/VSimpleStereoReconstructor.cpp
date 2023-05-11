@@ -30,7 +30,7 @@ void VSimpleStereoReconstructor::initialize( unsigned int iNImages_min,
 
 void VSimpleStereoReconstructor::reset()
 {
-    
+
     fiangdiff = 0.;
     fShower_Xoffset = -9999.;
     fShower_Yoffset = -9999.;
@@ -79,7 +79,7 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
     // telescope pointings
     fTelElevation = iArrayElevation;
     fTelAzimuth   = iArrayAzimuth;
-
+    
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
@@ -361,21 +361,21 @@ bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
     // ze / az
     double ze = 0.;
     double az = 0.;
-    VAstronometry::vlaDtp2s( fShower_Xoffset*TMath::DegToRad(), 
-                             -1.*fShower_Yoffset*TMath::DegToRad(),
+    VAstronometry::vlaDtp2s( fShower_Xoffset * TMath::DegToRad(),
+                             -1.*fShower_Yoffset * TMath::DegToRad(),
                              fTelAzimuth * TMath::DegToRad(),
                              fTelElevation * TMath::DegToRad(),
                              &az, &ze );
     az *= TMath::RadToDeg();
     ze = 90. - ze * TMath::RadToDeg();
-            
+    
     if( TMath::IsNaN( ze ) )
     {
         fShower_Ze = -99999.;
     }
     fShower_Ze = ze;
     fShower_Az = VAstronometry::vlaDranrm( az * TMath::DegToRad() ) * TMath::RadToDeg();
-
+    
     return true;
 }
 

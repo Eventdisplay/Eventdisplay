@@ -25,18 +25,18 @@ using namespace std;
  *  combine several effective area files into one
  *
  */
-void merge( vector< string > file_list, 
-            string outputfile, 
-            bool bFull = false , 
+void merge( vector< string > file_list,
+            string outputfile,
+            bool bFull = false ,
             bool bMergeLogs = true )
 {
-	if( file_list.size() == 0 )
-	{
-		cout << "error: no files found to merge" << endl;
-		cout << "exiting.." << endl;
-		exit( EXIT_FAILURE );
-	}
-	TChain f( "fEffArea" );
+    if( file_list.size() == 0 )
+    {
+        cout << "error: no files found to merge" << endl;
+        cout << "exiting.." << endl;
+        exit( EXIT_FAILURE );
+    }
+    TChain f( "fEffArea" );
     for( unsigned int i = 0; i < file_list.size(); i++ )
     {
         f.Add( file_list[i].c_str() );
@@ -45,9 +45,9 @@ void merge( vector< string > file_list,
     {
         outputfile += ".root";
     }
-	cout << "merging " << file_list.size() << " files to " << outputfile << endl;
+    cout << "merging " << file_list.size() << " files to " << outputfile << endl;
     
-	// set branches to be included in merged files
+    // set branches to be included in merged files
     if( !bFull )
     {
         f.SetBranchStatus( "*", 0 );
@@ -64,7 +64,7 @@ void merge( vector< string > file_list,
         f.SetBranchStatus( "nbins", 1 );
         f.SetBranchStatus( "e0", 1 );
         f.SetBranchStatus( "eff", 1 );
-		f.SetBranchStatus( "effNoTh2", 1 );
+        f.SetBranchStatus( "effNoTh2", 1 );
         f.SetBranchStatus( "esys_rel", 1 );
         f.SetBranchStatus( "Rec_eff", 1 );
         f.SetBranchStatus( "Rec_eff_error", 1 );
@@ -80,12 +80,12 @@ void merge( vector< string > file_list,
         f.SetBranchStatus( "hEsysMCRelative2DNoDirectionCut", 1 );
         f.SetBranchStatus( "hAngularLogDiffEmc_2D", 1 );
     }
-	f.Merge( outputfile.c_str() );
+    f.Merge( outputfile.c_str() );
     cout << "done.." << endl;
     
     // get one example of hEmc
     // (this is needed later to get the binning right)
-	TFile* fO = new TFile( outputfile.c_str(), "UPDATE" );
+    TFile* fO = new TFile( outputfile.c_str(), "UPDATE" );
     if( fO->IsZombie() )
     {
         cout << "error writing hEmc to output file" << endl;
@@ -154,24 +154,24 @@ void merge( vector< string > file_list,
 
 void write_log_files( vector< string > file_list, string outputfile )
 {
-	// merge all log files
-        ostringstream i_sys;
-        for( unsigned int i = 0; i < file_list.size(); i++ )
+    // merge all log files
+    ostringstream i_sys;
+    for( unsigned int i = 0; i < file_list.size(); i++ )
+    {
+        if( file_list[i].find( ".root" ) != string::npos )
         {
-            if( file_list[i].find( ".root" ) != string::npos )
-            {
-                    i_sys << "cat " << file_list[i].substr( 0, file_list[i].size() - 5 ).c_str() << ".log > ";
-            }
-            else
-            {
-                    i_sys << "cat " << file_list[i] << ".log > ";
-            }
+            i_sys << "cat " << file_list[i].substr( 0, file_list[i].size() - 5 ).c_str() << ".log > ";
         }
-
-        i_sys << outputfile << ".combine.log";
-	cout << "merge log files into " << i_sys.str() << endl;
-	system( i_sys.str().c_str() );
-	cout << "done.." << endl;
+        else
+        {
+            i_sys << "cat " << file_list[i] << ".log > ";
+        }
+    }
+    
+    i_sys << outputfile << ".combine.log";
+    cout << "merge log files into " << i_sys.str() << endl;
+    system( i_sys.str().c_str() );
+    cout << "done.." << endl;
 }
 
 /*
@@ -181,26 +181,26 @@ void write_log_files( vector< string > file_list, string outputfile )
  */
 vector< string > readListOfFiles( string iFile )
 {
-	vector< string > iList;
-	
-	ifstream is;
-	is.open( iFile.c_str() );
-	if( !is )
-	{
-		cout << "error while reading file list " << iFile << endl;
-		cout << "exiting...." << endl;
-		exit( EXIT_FAILURE );
-	}
-	string is_line;
-	
-	while( getline( is, is_line ) )
-	{
-		iList.push_back( is_line );
-	}
-	
-	is.close();
-	
-	return iList;
+    vector< string > iList;
+    
+    ifstream is;
+    is.open( iFile.c_str() );
+    if( !is )
+    {
+        cout << "error while reading file list " << iFile << endl;
+        cout << "exiting...." << endl;
+        exit( EXIT_FAILURE );
+    }
+    string is_line;
+    
+    while( getline( is, is_line ) )
+    {
+        iList.push_back( is_line );
+    }
+    
+    is.close();
+    
+    return iList;
 }
 
 
@@ -215,13 +215,13 @@ int main( int argc, char* argv[] )
         {
             VGlobalRunParameter fRunPara;
             cout << fRunPara.getEVNDISP_VERSION() << endl;
-			exit( EXIT_FAILURE );
+            exit( EXIT_FAILURE );
         }
     }
     if( argc < 4 )
     {
         cout << endl;
-		cout << "combineEffectiveAreas <effective area file list> <combined file> <tree type>" << endl; 
+        cout << "combineEffectiveAreas <effective area file list> <combined file> <tree type>" << endl;
         cout << endl;
         cout << "  <effective area file list>  list of effective files to be merged" << endl;
         cout << "  <tree type>  effective area tree type (defines size of combined tree)" << endl;
@@ -230,7 +230,7 @@ int main( int argc, char* argv[] )
         cout << "                - anasum       : entries required for anasum analysis only (smallest)" << endl;
         cout << "                - DL3reduced   : histograms are written as regular arrays for DL3 analysis" << endl;
         cout << endl;
-		cout << endl;
+        cout << endl;
         exit( EXIT_SUCCESS );
     }
     cout << endl;
