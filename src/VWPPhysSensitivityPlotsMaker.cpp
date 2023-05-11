@@ -57,7 +57,8 @@ VWPPhysSensitivityPlotsMaker::VWPPhysSensitivityPlotsMaker()
     fERes = 0;
     fAngRes = 0;
     fPlotCurrentInstrumentVectorLabel = false;
-
+    
+    setPlotIRFLegend();
     setPlotNoLegend();
     setTransparentLegend();
     
@@ -114,8 +115,8 @@ void VWPPhysSensitivityPlotsMaker::plotAllInOneCanvas( bool iCanvasBatch )
         fAngResRatio = 0;
         fERes = new TPad( "cERes", "energy resolution", 0.40, 0.01, 0.68, 0.34 );
     }
-
-
+    
+    
     if( fSensitivityTitlePad )
     {
         fSensitivityTitlePad->SetLeftMargin( 0.15 );
@@ -191,46 +192,52 @@ void VWPPhysSensitivityPlotsMaker::plotAllInOneCanvas( bool iCanvasBatch )
    plot ratios of graphs in a canvas
 
 */
-void VWPPhysSensitivityPlotsMaker::plotRatioPlot( TPad *corg,
-                                                  TPad *cplot,
-                                                  double ymin,
-                                                  double ymax,
-	                                          bool revert_ratio )
+void VWPPhysSensitivityPlotsMaker::plotRatioPlot( TPad* corg,
+        TPad* cplot,
+        double ymin,
+        double ymax,
+        bool revert_ratio )
 {
-    if( !corg ) return;
-    if( !cplot ) return;
+    if( !corg )
+    {
+        return;
+    }
+    if( !cplot )
+    {
+        return;
+    }
     cplot->cd();
-
+    
     unsigned int z = 0;
-    TGraphAsymmErrors *iNullGraph = 0;
-
-    TIter next(corg->GetListOfPrimitives());
-    while (TObject *obj = next() )
+    TGraphAsymmErrors* iNullGraph = 0;
+    
+    TIter next( corg->GetListOfPrimitives() );
+    while( TObject* obj = next() )
     {
         string objname = obj->GetName();
         string objclass = obj->ClassName();
-	string iYTitle;
+        string iYTitle;
         if( objclass == "TH1D" || objclass == "TH1F" )
         {
-            TH1F *h = (TH1F*)obj;
-            TH1F *hR = new TH1F( (objname+"ratio").c_str(), "",
-                                  h->GetXaxis()->GetNbins(),
-                                  h->GetXaxis()->GetXmin(), 
-                                  h->GetXaxis()->GetXmax() );
+            TH1F* h = ( TH1F* )obj;
+            TH1F* hR = new TH1F( ( objname + "ratio" ).c_str(), "",
+                                 h->GetXaxis()->GetNbins(),
+                                 h->GetXaxis()->GetXmin(),
+                                 h->GetXaxis()->GetXmax() );
             hR->SetXTitle( h->GetXaxis()->GetTitle() );
             iYTitle = h->GetYaxis()->GetTitle();
             iYTitle = iYTitle.substr( 0, iYTitle.find( "[" ) );
-            hR->SetYTitle( (iYTitle + "ratio" ).c_str() );
+            hR->SetYTitle( ( iYTitle + "ratio" ).c_str() );
             hR->SetMinimum( ymin );
             hR->SetMaximum( ymax );
             hR->SetStats( 0 );
             hR->Draw( "" );
             hR->Draw( "AH" );
-            plot_nullHistogram( cplot, hR, 
-                                true, false, 1.2, 
+            plot_nullHistogram( cplot, hR,
+                                true, false, 1.2,
                                 TMath::Power( 10., h->GetXaxis()->GetXmin() ),
                                 TMath::Power( 10., h->GetXaxis()->GetXmax() ) );
-            TLine *iL = new TLine( h->GetXaxis()->GetXmin(), 1., 
+            TLine* iL = new TLine( h->GetXaxis()->GetXmin(), 1.,
                                    h->GetXaxis()->GetXmax(), 1. );
             iL->SetLineStyle( 2 );
             iL->Draw();
@@ -238,31 +245,31 @@ void VWPPhysSensitivityPlotsMaker::plotRatioPlot( TPad *corg,
         else if( objclass == "TGraphAsymmErrors" ||
                  objclass == "TGraphErrors" )
         {
-            TGraphAsymmErrors *r = (TGraphAsymmErrors*)obj;
+            TGraphAsymmErrors* r = ( TGraphAsymmErrors* )obj;
             if( z == 0 )
             {
                 iNullGraph = r;
             }
             else if( r->GetN() > 1 )
             {
-                TGraphAsymmErrors *n = new TGraphAsymmErrors( 1 );
+                TGraphAsymmErrors* n = new TGraphAsymmErrors( 1 );
                 bool divide_success = false;
                 if( revert_ratio )
                 {
                     divide_success = VHistogramUtilities::divide( n,
-                                          r,
-                                          iNullGraph,
-                                          1.e-3,
-                                          true );
-                        }
+                                     r,
+                                     iNullGraph,
+                                     1.e-3,
+                                     true );
+                }
                 else
                 {
                     divide_success = VHistogramUtilities::divide( n,
-                                          iNullGraph,
-                                          r,
-                                          1.e-3,
-                                          true );
-                        }
+                                     iNullGraph,
+                                     r,
+                                     1.e-3,
+                                     true );
+                }
                 if( divide_success )
                 {
                     n->SetLineColor( r->GetLineColor() );
@@ -295,7 +302,7 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
     if( fCurrentInstrumentVector.size() > 0 )
     {
         a.setCurrentInstrumentPlotVector( fCurrentInstrumentVector,
-		                          fPlotCurrentInstrumentVectorLabel );
+                                          fPlotCurrentInstrumentVectorLabel );
     }
     if( iRatioCounter == 9999 )
     {
@@ -308,10 +315,10 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
         setSensitivityRatioLimits( 0. , 3.7 );
     }
     //	a.setUseIntegratedSensitivityForOffAxisPlots( iUseIntegratedSensitivityForOffAxisPlots );
-    a.setPlotCTARequirements( fPlotCTARequirementsString, 
-            fRequirementsScalingFactor, 
-            fRequirementsLineWidth,
-            fRequirementsSystematics );
+    a.setPlotCTARequirements( fPlotCTARequirementsString,
+                              fRequirementsScalingFactor,
+                              fRequirementsLineWidth,
+                              fRequirementsSystematics );
     // (outdated, orginal requirements plotting)
     a.setEnergyRange_Lin_TeV( fMinEnergy_TeV, fMaxEnergy_TeV );
     if( !a.addDataSets( iDataSetFile, iDirectionString ) )
@@ -323,7 +330,7 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
                fAngularResolution_min, fAngularResolution_max,
                fEnergyResolution_min, fEnergyResolution_max,
                fEffAreaPad, fAngRes, fERes, false,
-               fPlotAngResLogY );
+               fPlotAngResLogY, bPlotIRFLegend );
     a.plotSensitivity( fPrintingOptions, fSensitivity_min, fSensitivity_max, fSensitivity_Unit, fSensitivityPad, fBckRatesPad, fTransparentLegend );
     //fPlotProjectedSensitivity = a.plotProjectedSensitivities( 0, 5. );
     if( iRatioCounter == 998 )
