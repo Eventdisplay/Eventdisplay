@@ -162,13 +162,13 @@ void VDisplayBirdsEye::drawEventText()
     {
         if( fData->getShowerParameters()->fTelIDImageSelected_list[iM][i] )
         {
-	    i_stext << " " << ( int )( i + 1 );
+            i_stext << " " << ( int )( i + 1 );
         }
     }
     fTextRec.push_back( new TText( 0.02, 0.09, i_stext.str().c_str() ) );
     // triggered events
     // (any trigger condition)
-    i_stext.str("");
+    i_stext.str( "" );
     i_stext << fData->getShowerParameters()->fNTrig << " tel triggered: ";
     for( unsigned int i = 0; i < fData->getShowerParameters()->fNTrig; i++ )
     {

@@ -59,7 +59,7 @@ VDSTTree::VDSTTree()
             fDSTMeanPulseTiming_N[i][j] = 0.;
         }
     }
-
+    
     resetDataVectors();
     
 }
@@ -935,27 +935,27 @@ map< unsigned int, VDSTTelescopeConfiguration> VDSTTree::readArrayConfig( string
             is_stream >> iT1;
             // FOV
             fDST_list_of_telescopes[atoi( iT1.c_str() )].FOV = 20.5;
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> fDST_list_of_telescopes[atoi( iT1.c_str() )].FOV;
             }
             // Dynamic range (in cfg file in BIT)
             fDST_list_of_telescopes[atoi( iT1.c_str() )].DynamicRange = -1.;
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> iT2;
                 fDST_list_of_telescopes[atoi( iT1.c_str() )].DynamicRange = TMath::Power( 2., atof( iT2.c_str() ) );
             }
             // use RAW sum or calibrated sum (default)
             fDST_list_of_telescopes[atoi( iT1.c_str() )].RAWsum = false;
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> iT2;
                 fDST_list_of_telescopes[atoi( iT1.c_str() )].RAWsum = ( bool )atoi( iT2.c_str() );
             }
             // read telescope name
             fDST_list_of_telescopes[atoi( iT1.c_str() )].TelescopeName = "";
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> iT2;
                 fDST_list_of_telescopes[atoi( iT1.c_str() )].TelescopeName = iT2;
@@ -971,7 +971,7 @@ map< unsigned int, VDSTTelescopeConfiguration> VDSTTree::readArrayConfig( string
     {
         cout << "\t Telescope ID " << iter->first << "  FOV " << iter->second.FOV;
         cout << "  Dyn " << iter->second.DynamicRange << " RAW " << iter->second.RAWsum;
-        if(  iter->second.TelescopeName.size() > 0 )
+        if( iter->second.TelescopeName.size() > 0 )
         {
             cout << " Name " << iter->second.TelescopeName;
         }

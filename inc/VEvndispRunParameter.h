@@ -139,7 +139,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         string fcalibrationfile;                  // file with file names for calibration
         bool freadCalibfromDB;                    // if true, calibration information are read in VOFFLINE DB
         int freadCalibfromDB_versionquery;        // require a given version of calibration
-		bool freadCalibfromDB_save_file;          // calibration information read from the DB are stored in VGlobalRunParameter::getDirectory_EVNDISPCalibrationData() +/Tel_?
+        bool freadCalibfromDB_save_file;          // calibration information read from the DB are stored in VGlobalRunParameter::getDirectory_EVNDISPCalibrationData() +/Tel_?
         bool fNoCalibNoPb;                        // if true, when no information for gain and toff can be found, the analysis is done filling thenm with 1 and 0 respectively (in VCalibrator)
         bool fNextDayGainHack;            //if true, and > 100 channels in one telescope have gain=0, all gains in that tel will be set to 1; gains won't be tested in the dead channel finder.
         bool fWriteExtraCalibTree;        // write additional tree into .gain.root file with channel charges/monitor charge/nHiLo for each event
@@ -312,8 +312,8 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         ~VEvndispRunParameter();
         
         unsigned int getAtmosphereID( bool iUpdateInstrumentEpoch = false );
-        string       getInstrumentEpoch(  bool iMajor = false,
-                                          bool iUpdateInstrumentEpoch = false );
+        string       getInstrumentEpoch( bool iMajor = false,
+                                         bool iUpdateInstrumentEpoch = false );
         bool         isMC()
         {
             return fIsMC;
@@ -321,9 +321,9 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         void         setDefaultParameters( string iObservatory );
         void         setPulseZeroIndex();
         void         setSystemParameters();
-        bool         updateInstrumentEpochFromFile( 
-                                       string iEpocheFile = "usedefault", 
-                                       bool iReadInstrumentEpoch = true );
+        bool         updateInstrumentEpochFromFile(
+            string iEpocheFile = "usedefault",
+            bool iReadInstrumentEpoch = true );
         bool         useDB()
         {
             return fuseDB;

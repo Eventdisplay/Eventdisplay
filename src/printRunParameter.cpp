@@ -24,50 +24,53 @@ using namespace std;
  * read wobble offset and print it to screen
  *
  */
-bool readWobbleOffset( TFile *fIn, bool printInteger )
+bool readWobbleOffset( TFile* fIn, bool printInteger )
 {
-	if( !fIn )
-	{
-		return false;
-	}
-	VEvndispRunParameter *fPar = ( VEvndispRunParameter* )fIn->Get( "runparameterV2" );
-        if( fPar )
-        {
-             cout << "Wobble offset: ";
-             if( printInteger )
-             {
-                 cout << TMath::Nint( sqrt( fPar->fWobbleNorth*fPar->fWobbleNorth + fPar->fWobbleEast*fPar->fWobbleEast ) * 100. );
-             }
-             else
-             {
-                 cout << sqrt( fPar->fWobbleNorth*fPar->fWobbleNorth + fPar->fWobbleEast*fPar->fWobbleEast );
-             }
-             cout << endl;
-             return true;
-        }
+    if( !fIn )
+    {
         return false;
+    }
+    VEvndispRunParameter* fPar = ( VEvndispRunParameter* )fIn->Get( "runparameterV2" );
+    if( fPar )
+    {
+        cout << "Wobble offset: ";
+        if( printInteger )
+        {
+            cout << TMath::Nint( sqrt( fPar->fWobbleNorth * fPar->fWobbleNorth + fPar->fWobbleEast * fPar->fWobbleEast ) * 100. );
+        }
+        else
+        {
+            cout << sqrt( fPar->fWobbleNorth * fPar->fWobbleNorth + fPar->fWobbleEast * fPar->fWobbleEast );
+        }
+        cout << endl;
+        return true;
+    }
+    return false;
 }
 
 
 /*
-    calculate approx mean elevation of run 
+    calculate approx mean elevation of run
     from mscw_energy data tree
 */
-bool readMeanElevation( TFile *fIn )
+bool readMeanElevation( TFile* fIn )
 {
     if( !fIn )
     {
-            return false;
+        return false;
     }
     // get total number of telescopes available
-    TTree *telconfig = (TTree*)fIn->Get( "telconfig" );
+    TTree* telconfig = ( TTree* )fIn->Get( "telconfig" );
     if( !telconfig )
     {
         return false;
     }
-    unsigned int iNTel = (unsigned int)telconfig->GetEntries();
-    if( iNTel >= VDST_MAXTELESCOPES ) iNTel = VDST_MAXTELESCOPES;
-    TTree *data = (TTree*)fIn->Get( "data" );
+    unsigned int iNTel = ( unsigned int )telconfig->GetEntries();
+    if( iNTel >= VDST_MAXTELESCOPES )
+    {
+        iNTel = VDST_MAXTELESCOPES;
+    }
+    TTree* data = ( TTree* )fIn->Get( "data" );
     if( data )
     {
         Double_t TelElevation[VDST_MAXTELESCOPES];
@@ -105,12 +108,12 @@ bool readMeanElevation( TFile *fIn )
     {
         cout << "not implemented" << endl;
     }
-
+    
     return true;
 }
 
 /*
- * for CTA: get name of telescope depending on the 
+ * for CTA: get name of telescope depending on the
  * telescope type ID
  */
 
@@ -142,7 +145,7 @@ string getTelTypeName( ULong64_t ttype )
         return "MST";
     }
     else if( ttype == 207308707
-            || ttype == 205008707 )
+             || ttype == 205008707 )
     {
         return "MSCT";
     }
@@ -318,13 +321,13 @@ bool readNTelescopeTypes( TFile* fIn, string iPara )
             z++;
         }
         else if( ( TelType == 10408418
-                   || TelType == 10408618 
+                   || TelType == 10408618
                    || TelType == 10608418 ) && iPara == "-nMST" )
         {
             z++;
         }
         else if( ( TelType == 207308707
-                || TelType == 205008707 ) && iPara == "-nMSCT" )
+                   || TelType == 205008707 ) && iPara == "-nMSCT" )
         {
             z++;
         }
@@ -351,17 +354,17 @@ bool readRunParameter( TFile* fIn, string iPara )
     // possibly a anasum file -> check first (!) run directory
     if( !fPar )
     {
-       TIter next( fIn->GetListOfKeys() );
-       TKey *key = 0;
-       while( ( key = ( TKey * )next() ) )
-       {
-           string key_name = key->GetName();
-           if( key_name.find( "run_" ) != string::npos )
-           {
-               fPar = ( VEvndispRunParameter* )fIn->Get( (key_name+"/stereo/runparameterV2").c_str() );
-               break;
-           }
-       }
+        TIter next( fIn->GetListOfKeys() );
+        TKey* key = 0;
+        while( ( key = ( TKey* )next() ) )
+        {
+            string key_name = key->GetName();
+            if( key_name.find( "run_" ) != string::npos )
+            {
+                fPar = ( VEvndispRunParameter* )fIn->Get( ( key_name + "/stereo/runparameterV2" ).c_str() );
+                break;
+            }
+        }
     }
     if( !fPar )
     {
@@ -402,11 +405,11 @@ bool readRunParameter( TFile* fIn, string iPara )
     }
     else if( iPara == "-epoch" )
     {
-		cout << fPar->getInstrumentEpoch() << endl;
-	}
-	else if( iPara == "-majorepoch" )
-	{
-		cout << fPar->getInstrumentEpoch( true ) << endl;
+        cout << fPar->getInstrumentEpoch() << endl;
+    }
+    else if( iPara == "-majorepoch" )
+    {
+        cout << fPar->getInstrumentEpoch( true ) << endl;
     }
     else if( iPara == "-runtype" )
     {
@@ -418,10 +421,10 @@ bool readRunParameter( TFile* fIn, string iPara )
     }
     else if( iPara.find( "runinfo" ) != string::npos )
     {
-	cout << fPar->getInstrumentEpoch( false,
+        cout << fPar->getInstrumentEpoch( false,
                                           iPara.find( "updated-runinfo" ) != string::npos );
         cout << "\t";
-	cout << fPar->getInstrumentEpoch( true ) << "\t";
+        cout << fPar->getInstrumentEpoch( true ) << "\t";
         cout << fPar->getAtmosphereID( iPara.find( "updated-runinfo" ) != string::npos );
         cout << "\t";
         cout << fPar->fDBRunType << "\t";
@@ -461,15 +464,15 @@ bool readMCParameter( TFile* fIn, string iPara )
     }
     else if( iPara == "-MCruninfo" )
     {
-            cout << "RUN " << fMC->runnumber;
-            cout << " Ze " << 90.-fMC->alt_range[0]*TMath::RadToDeg();
-            cout << " " << 90.-fMC->alt_range[1]*TMath::RadToDeg();
-            cout << " Az " << fMC->az_range[0]*TMath::RadToDeg();
-            cout << " " << fMC->az_range[1]*TMath::RadToDeg();
-            cout << " Primary " << fMC->primary_id;
-            cout << " NShower " << fMC->num_showers << " " << fMC->num_use;
-            cout << " HighE details " << fMC->corsika_high_E_detail;
-            cout << endl;
+        cout << "RUN " << fMC->runnumber;
+        cout << " Ze " << 90. - fMC->alt_range[0]*TMath::RadToDeg();
+        cout << " " << 90. - fMC->alt_range[1]*TMath::RadToDeg();
+        cout << " Az " << fMC->az_range[0]*TMath::RadToDeg();
+        cout << " " << fMC->az_range[1]*TMath::RadToDeg();
+        cout << " Primary " << fMC->primary_id;
+        cout << " NShower " << fMC->num_showers << " " << fMC->num_use;
+        cout << " HighE details " << fMC->corsika_high_E_detail;
+        cout << endl;
     }
     else
     {
@@ -569,11 +572,11 @@ int main( int argc, char* argv[] )
     {
         if( fOption == "-elevation" )
         {
-                readMeanElevation( fIn );
+            readMeanElevation( fIn );
         }
         else if( fOption.find( "-wobble" ) != string::npos )
         {
-               readWobbleOffset( fIn, (fOption.find( "-wobbleInt" ) != string::npos) );
+            readWobbleOffset( fIn, ( fOption.find( "-wobbleInt" ) != string::npos ) );
         }
         else if( fOption == "-mcaz" || fOption == "-runnumber" || fOption == "-MCruninfo" )
         {
@@ -602,31 +605,31 @@ int main( int argc, char* argv[] )
     fPar = ( VEvndispRunParameter* )fIn->Get( "runparameterV2" );
     if( !fPar )
     {
-       fPar = ( VEvndispRunParameter* )fIn->Get( "runparameterDST" );
+        fPar = ( VEvndispRunParameter* )fIn->Get( "runparameterDST" );
     }
     // possibly a anasum file -> check first (!) run directory
     if( !fPar )
     {
-       TIter next( fIn->GetListOfKeys() );
-       TKey *key = 0;
-       while( ( key = ( TKey * )next() ) )
-       {
-           string key_name = key->GetName();
-           if( key_name.find( "run_" ) != string::npos )
-           {
-               fPar = ( VEvndispRunParameter* )fIn->Get( (key_name+"/stereo/runparameterV2").c_str() );
-               cout << "Reading run parameters from key_name" << endl;
-               break;
-           }
-       }
+        TIter next( fIn->GetListOfKeys() );
+        TKey* key = 0;
+        while( ( key = ( TKey* )next() ) )
+        {
+            string key_name = key->GetName();
+            if( key_name.find( "run_" ) != string::npos )
+            {
+                fPar = ( VEvndispRunParameter* )fIn->Get( ( key_name + "/stereo/runparameterV2" ).c_str() );
+                cout << "Reading run parameters from key_name" << endl;
+                break;
+            }
+        }
     }
-
+    
     if( fPar )
     {
         cout << "reading eventdisplay runparameter for version ";
         cout << fPar->GetTitle();
         cout << " (" << fPar->fEventDisplayUser << ")" << endl;
-
+        
         if( fPar->fEventDisplayUser != "CTA-DST" )
         {
             fPar->print( 2 );
@@ -668,7 +671,7 @@ int main( int argc, char* argv[] )
         cout << "===========================================" << endl;
         fMC->print();
     }
-
+    
     
     fIn->Close();
     

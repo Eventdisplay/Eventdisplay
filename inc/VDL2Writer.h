@@ -21,43 +21,43 @@ using namespace std;
 
 class VTMVA_eval_dist
 {
-   public:
-    VTMVAEvaluator *fTMVAEvaluator;
-    string fInstrumentEpoch;
-    string fTMVA_MVAMethod;
-    unsigned int fTMVA_MVAMethodCounter;
-    unsigned int fTMVAWeightFileIndex_Emin;
-    unsigned int fTMVAWeightFileIndex_Emax;
-    unsigned int fTMVAWeightFileIndex_Zmin;
-    unsigned int fTMVAWeightFileIndex_Zmax;
-    double fTMVAEnergyStepSize;
-    string fTMVAWeightFile;
-
-    bool fIsZombie;
-
-    VTMVA_eval_dist( string i_fTMVA_MVAMethod,
-                     unsigned int i_fTMVA_MVAMethodCounter,
-                     string i_fTMVAWeightFile,
-                     unsigned int i_fTMVAWeightFileIndex_Emin, unsigned int i_fTMVAWeightFileIndex_Emax,
-                     unsigned int i_fTMVAWeightFileIndex_Zmin, unsigned int i_fTMVAWeightFileIndex_Zmax,
-                     double i_fTMVAEnergyStepSize, string i_fInstrumentEpoch,
-                     CData *d );
-   ~VTMVA_eval_dist();
-    double evaluate();
-    
+    public:
+        VTMVAEvaluator* fTMVAEvaluator;
+        string fInstrumentEpoch;
+        string fTMVA_MVAMethod;
+        unsigned int fTMVA_MVAMethodCounter;
+        unsigned int fTMVAWeightFileIndex_Emin;
+        unsigned int fTMVAWeightFileIndex_Emax;
+        unsigned int fTMVAWeightFileIndex_Zmin;
+        unsigned int fTMVAWeightFileIndex_Zmax;
+        double fTMVAEnergyStepSize;
+        string fTMVAWeightFile;
+        
+        bool fIsZombie;
+        
+        VTMVA_eval_dist( string i_fTMVA_MVAMethod,
+                         unsigned int i_fTMVA_MVAMethodCounter,
+                         string i_fTMVAWeightFile,
+                         unsigned int i_fTMVAWeightFileIndex_Emin, unsigned int i_fTMVAWeightFileIndex_Emax,
+                         unsigned int i_fTMVAWeightFileIndex_Zmin, unsigned int i_fTMVAWeightFileIndex_Zmax,
+                         double i_fTMVAEnergyStepSize, string i_fInstrumentEpoch,
+                         CData* d );
+        ~VTMVA_eval_dist();
+        double evaluate();
+        
 };
 
 class VDL2Writer
 {
     private:
-
+    
         string fdatafile;
-
+        
         // distance (xoff bins)
         vector< string > dist_mean;
         vector< float > dist_min;
         vector< float > dist_max;
-
+        
         // TMVA
         vector< VTMVA_eval_dist* > fTMVA;
         string fInstrumentEpoch;
@@ -71,8 +71,8 @@ class VDL2Writer
         vector< string > fTMVAWeightFile;
         
         // event data
-        TTree *fDL2DataTree;
-
+        TTree* fDL2DataTree;
+        
         Int_t runNumber;
         Int_t eventNumber;
         Float_t         ArrayPointing_Elevation;
@@ -112,20 +112,23 @@ class VDL2Writer
         UInt_t          NImages_Ttype[VDST_MAXTELESCOPES];
         Double_t        R[VDST_MAXTELESCOPES];
         float fCut_MVA;
-
+        
         void fillEventDataTree( float iMVA );
-        bool initializeTMVAEvaluators( CData *d );
+        bool initializeTMVAEvaluators( CData* d );
         bool readConfigFile( string iConfigFile );
         
     public:
     
         VDL2Writer( string iConfigFile );
-       ~VDL2Writer();
+        ~VDL2Writer();
         bool  fill( CData* d );
-        string getDataFile() { return fdatafile; }
+        string getDataFile()
+        {
+            return fdatafile;
+        }
         TTree* getEventDataTree()
         {
-             return fDL2DataTree;
+            return fDL2DataTree;
         }
 };
 #endif

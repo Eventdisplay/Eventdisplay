@@ -307,17 +307,17 @@ VEvndispRunParameter::~VEvndispRunParameter()
     
 }
 
-/* 
+/*
  * this is the only function where observatory (e.g. VTS or CTA) dependend parameter settings should appear
 */
 void VEvndispRunParameter::setDefaultParameters( string iObservatory )
 {
-        if( iObservatory.find( "CTA" ) != string::npos )
-        {
-              fsetSpecialChannels = "nofile";
-              faverageTZeroFiducialRadius = 0.;
+    if( iObservatory.find( "CTA" ) != string::npos )
+    {
+        fsetSpecialChannels = "nofile";
+        faverageTZeroFiducialRadius = 0.;
         //      fIgnoreDSTGains = true;
-        }
+    }
 }
 
 
@@ -525,7 +525,7 @@ void VEvndispRunParameter::print( int iEv )
     }
     if( fFirstEvent > 0 )
     {
-           cout << "starting analysis at event:  " << fFirstEvent << endl;
+        cout << "starting analysis at event:  " << fFirstEvent << endl;
     }
     if( fTimeCutsMin_min > 0 )
     {
@@ -562,7 +562,7 @@ void VEvndispRunParameter::print( int iEv )
     }
     if( fIgnoreDSTGains )
     {
-       cout << "Ignoring gains from DST file" << endl;
+        cout << "Ignoring gains from DST file" << endl;
     }
     if( frunmode == 1 )
     {
@@ -896,13 +896,13 @@ void VEvndispRunParameter::printCTA_DST()
     {
         cout << fpulsetiminglevels[i] << ", ";
     }
-        cout << " (tzero index: " << fpulsetiming_tzero_index;
-        cout << ", max index: " << fpulsetiming_max_index;
-        if( fpulsetiming_triggertime_index != 9999 )
-        {
-            cout << ", trigger time index: " << fpulsetiming_max_index;
-        }
-        cout << ")" << endl;
+    cout << " (tzero index: " << fpulsetiming_tzero_index;
+    cout << ", max index: " << fpulsetiming_max_index;
+    if( fpulsetiming_triggertime_index != 9999 )
+    {
+        cout << ", trigger time index: " << fpulsetiming_max_index;
+    }
+    cout << ")" << endl;
     cout << "L2 timing correct: " << fL2TimeCorrect << endl;
     cout << endl;
 }
@@ -949,13 +949,16 @@ void VEvndispRunParameter::setSystemParameters()
  */
 string VEvndispRunParameter::getInstrumentEpoch( bool iMajor, bool iUpdateInstrumentEpoch )
 {
-        // re-read instrument epoch 
-        if( iUpdateInstrumentEpoch )  updateInstrumentEpochFromFile();
-        if( iMajor )
-        {
-             return fInstrumentEpoch.substr( 0, fInstrumentEpoch.find( "_" ) );
-        }
-        return fInstrumentEpoch;
+    // re-read instrument epoch
+    if( iUpdateInstrumentEpoch )
+    {
+        updateInstrumentEpochFromFile();
+    }
+    if( iMajor )
+    {
+        return fInstrumentEpoch.substr( 0, fInstrumentEpoch.find( "_" ) );
+    }
+    return fInstrumentEpoch;
 }
 
 
@@ -964,69 +967,111 @@ string VEvndispRunParameter::getInstrumentEpoch( bool iMajor, bool iUpdateInstru
    (typically VERITAS.Epochs.runparameter)
 */
 bool VEvndispRunParameter::updateInstrumentEpochFromFile( string iEpocheFile,
-                                                          bool iReadInstrumentEpoch )
+        bool iReadInstrumentEpoch )
 {
-       if( iEpocheFile != "usedefault" ) fEpochFile = iEpocheFile;
-       if( fEpochFile.size() == 0 ) return true;
-
-       ifstream is;
-       is.open( fEpochFile.c_str(), ifstream::in );
-       if( !is )
-       {
-            string iTemp = getDirectory_EVNDISPParameterFiles() + fEpochFile;
-            is.open( iTemp.c_str(), ifstream::in );
-            if( !is )
+    if( iEpocheFile != "usedefault" )
+    {
+        fEpochFile = iEpocheFile;
+    }
+    if( fEpochFile.size() == 0 )
+    {
+        return true;
+    }
+    
+    ifstream is;
+    is.open( fEpochFile.c_str(), ifstream::in );
+    if( !is )
+    {
+        string iTemp = getDirectory_EVNDISPParameterFiles() + fEpochFile;
+        is.open( iTemp.c_str(), ifstream::in );
+        if( !is )
+        {
+            cout << "error opening epoch parameter file " << fEpochFile << endl;
+            cout << iTemp << endl;
+            exit( EXIT_FAILURE );
+        }
+    }
+    string is_line;
+    string temp;
+    string itemp_epoch = "not_found";
+    int itemp_atmo = 0;
+    int run_min = 0;
+    int run_max = 0;
+    while( getline( is, is_line ) )
+    {
+        if( is_line.size() == 0 )
+        {
+            continue;
+        }
+        istringstream is_stream( is_line );
+        is_stream >> temp >> temp;
+        if( iReadInstrumentEpoch && temp == "EPOCH" )
+        {
+            if( !( is_stream >> std::ws ).eof() )
             {
-                    cout << "error opening epoch parameter file " << fEpochFile << endl;
-                    cout << iTemp << endl;
-                    exit( EXIT_FAILURE );
+                is_stream >> itemp_epoch;
             }
-       }
-       string is_line;
-       string temp;
-       string itemp_epoch = "not_found";
-       int itemp_atmo = 0;
-       int run_min = 0;
-       int run_max = 0;
-       while( getline( is, is_line ) )
-       {
-           if( is_line.size() == 0 ) continue;
-           istringstream is_stream( is_line );
-           is_stream >> temp >> temp;
-           if( iReadInstrumentEpoch && temp == "EPOCH" )
-           { 
-               if( !(is_stream>>std::ws).eof() ) is_stream >> itemp_epoch;
-               if( !(is_stream>>std::ws).eof() ) is_stream >> run_min;
-               if( !(is_stream>>std::ws).eof() ) is_stream >> run_max;
-               if( frunnumber >= run_min && frunnumber <= run_max )
-               {
-                   break;
-               }
-           }
-           else if( temp == "ATMOSPHERE" )
-           {
-               if( !(is_stream>>std::ws).eof() ) is_stream >> itemp_atmo;
-               if( !(is_stream>>std::ws).eof() ) is_stream >> temp;
-               if( !(is_stream>>std::ws).eof() ) is_stream >> temp;
-               int mjd_min = 0;
-               if( !(is_stream>>std::ws).eof() ) is_stream >> mjd_min;
-               int mjd_max = 0;
-               if( !(is_stream>>std::ws).eof() ) is_stream >> mjd_max;
-               if( fDBDataStartTimeMJD >= mjd_min && fDBDataStoppTimeMJD <= mjd_max )
-               {
-                   break;
-               }
-           }
-       }
-       if( iReadInstrumentEpoch ) fInstrumentEpoch = itemp_epoch;
-       else                       fAtmosphereID = itemp_atmo;
-       is.close();
-       return true;
+            if( !( is_stream >> std::ws ).eof() )
+            {
+                is_stream >> run_min;
+            }
+            if( !( is_stream >> std::ws ).eof() )
+            {
+                is_stream >> run_max;
+            }
+            if( frunnumber >= run_min && frunnumber <= run_max )
+            {
+                break;
+            }
+        }
+        else if( temp == "ATMOSPHERE" )
+        {
+            if( !( is_stream >> std::ws ).eof() )
+            {
+                is_stream >> itemp_atmo;
+            }
+            if( !( is_stream >> std::ws ).eof() )
+            {
+                is_stream >> temp;
+            }
+            if( !( is_stream >> std::ws ).eof() )
+            {
+                is_stream >> temp;
+            }
+            int mjd_min = 0;
+            if( !( is_stream >> std::ws ).eof() )
+            {
+                is_stream >> mjd_min;
+            }
+            int mjd_max = 0;
+            if( !( is_stream >> std::ws ).eof() )
+            {
+                is_stream >> mjd_max;
+            }
+            if( fDBDataStartTimeMJD >= mjd_min && fDBDataStoppTimeMJD <= mjd_max )
+            {
+                break;
+            }
+        }
+    }
+    if( iReadInstrumentEpoch )
+    {
+        fInstrumentEpoch = itemp_epoch;
+    }
+    else
+    {
+        fAtmosphereID = itemp_atmo;
+    }
+    is.close();
+    return true;
 }
 
 unsigned int VEvndispRunParameter::getAtmosphereID( bool iUpdateInstrumentEpoch )
 {
-       if( iUpdateInstrumentEpoch ) updateInstrumentEpochFromFile( "usedefault", false );
-
-       return fAtmosphereID;
+    if( iUpdateInstrumentEpoch )
+    {
+        updateInstrumentEpochFromFile( "usedefault", false );
+    }
+    
+    return fAtmosphereID;
 }

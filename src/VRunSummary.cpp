@@ -33,7 +33,7 @@ bool VRunSummary::setBranches()
     fRunSummaryTree->Branch( "MJDOff_runStopp", &MJDOff_runStopp, "MJDOff_runStopp/D" );
     fRunSummaryTree->Branch( "RunDurationOff", &RunDurationOff, "RunDurationOff/D" );
     
-    fRunSummaryTree->Branch( "TargetName", &fTargetName, "TargetName/C"  );
+    fRunSummaryTree->Branch( "TargetName", &fTargetName, "TargetName/C" );
     fRunSummaryTree->Branch( "TargetRA", &fTargetRA, "TargetRA/D" );
     fRunSummaryTree->Branch( "TargetDec", &fTargetDec, "TargetDec/D" );
     fRunSummaryTree->Branch( "TargetRAJ2000", &fTargetRAJ2000, "TargetRAJ2000/D" );
@@ -47,7 +47,7 @@ bool VRunSummary::setBranches()
     fRunSummaryTree->Branch( "WobbleNorth", &fWobbleNorth, "WobbleNorth/D" );
     fRunSummaryTree->Branch( "WobbleWest", &fWobbleWest, "WobbleWest/D" );
     fRunSummaryTree->Branch( "NTel", &fNTel, "NTel/i" );
-    fRunSummaryTree->Branch( "TelList", &fTelList, "TelList/C"  );
+    fRunSummaryTree->Branch( "TelList", &fTelList, "TelList/C" );
     fRunSummaryTree->Branch( "tOn", &tOn, "tOn/D" );
     fRunSummaryTree->Branch( "tOff", &tOff, "tOff/D" );
     fRunSummaryTree->Branch( "elevationOn", &elevationOn, "elevationOn/D" );
@@ -242,22 +242,22 @@ void VRunSummary::print()
    called for summary runs only
 
 */
-bool VRunSummary::fill( string iDataDirectory, 
-                        string i_inputfile_total_directory, 
+bool VRunSummary::fill( string iDataDirectory,
+                        string i_inputfile_total_directory,
                         vector< VAnaSumRunParameterDataClass > iRunList )
 {
     char i_temp[2000];
-
+    
     // current directory
     TDirectory* iCurrentDirectory = gDirectory;
     // copy relevant entries
-    TChain *i_runSumChain = new TChain( "total_1/stereo/tRunSummary");
+    TChain* i_runSumChain = new TChain( "total_1/stereo/tRunSummary" );
     for( unsigned int i = 0; i < iRunList.size(); i++ )
     {
         sprintf( i_temp, "%s/%d.anasum.root", iDataDirectory.c_str(), iRunList[i].fRunOn );
         i_runSumChain->Add( i_temp );
     }
-    fRunSummaryTree = i_runSumChain->CopyTree( "runOn>0");
+    fRunSummaryTree = i_runSumChain->CopyTree( "runOn>0" );
     fRunSummaryTree->SetDirectory( iCurrentDirectory );
     fRunSummaryTree->AutoSave();
     
@@ -289,8 +289,8 @@ bool VRunSummary::fill( string iDataDirectory,
     for( int n = 0; n < i_runSum.fChain->GetEntries(); n++ )
     {
         i_runSum.GetEntry( n );
-         for( unsigned int i = 0; i < iRunList.size(); i++ )
-         {
+        for( unsigned int i = 0; i < iRunList.size(); i++ )
+        {
             if( i_runSum.runOn == iRunList[i].fRunOn )
             {
                 runOn = iRunList[i].fRunOn;
@@ -332,7 +332,7 @@ bool VRunSummary::fill( string iDataDirectory,
                 break;
             }
         }
-    }     
+    }
     // set target coordinates
     fTotTargetRA = iTargetRA;
     fTotTargetDec = iTargetDec;
@@ -340,7 +340,7 @@ bool VRunSummary::fill( string iDataDirectory,
     fTotTargetDecJ2000 = iTargetDecJ2000;
     
     iCurrentDirectory->cd();
-
+    
     return true;
 }
 

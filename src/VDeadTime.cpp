@@ -567,7 +567,7 @@ double VDeadTime::getDeadTimeFraction( double iT_run_s, bool iTimeDiff, bool iCh
 {
     double iDeadTime = 0.;
     // method of time difference: no time dependence (dead times might change during a run)
-	if( iTimeDiff )
+    if( iTimeDiff )
     {
         iDeadTime = fDeadTimeFrac;
     }
@@ -584,16 +584,16 @@ double VDeadTime::getDeadTimeFraction( double iT_run_s, bool iTimeDiff, bool iCh
         }
         else
         {
-                 iDeadTime = fScalarDeadTimeFrac;
+            iDeadTime = fScalarDeadTimeFrac;
         }
-	}
-        // scalar dead time does not provide consistent values for a very small
-        // number of runs
-        if( iCheckForConsistentDeadTime && iDeadTime > 0.98 )
-        {
-            return fDeadTimeFrac;
-        }
-	return iDeadTime;
+    }
+    // scalar dead time does not provide consistent values for a very small
+    // number of runs
+    if( iCheckForConsistentDeadTime && iDeadTime > 0.98 )
+    {
+        return fDeadTimeFrac;
+    }
+    return iDeadTime;
 }
 
 /*

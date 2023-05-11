@@ -934,7 +934,7 @@ TGraphErrors* VInstrumentResponseFunctionReader::getEnergyResolutionMPropInterva
             hDist = ( TH1F* )migmatrix->ProjectionY( "hy", i, i );
             energy = migmatrix->GetXaxis()->GetBinCenter( i );
         }
-
+        
         // require at least a few entries
         if( hDist->GetEntries() < fMProp_minEvents )
         {

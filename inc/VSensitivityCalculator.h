@@ -193,7 +193,7 @@ class VSensitivityCalculator : public TObject, public VPlotUtilities, public VHi
         // values of Crab fluxes to be plotted as lines into the sensitivity vs energy graph (in Crab Units)
         vector< double > fPlottingCrabFlux_CU;
         bool bPlotCrabLines;
-
+        
         // private functions
         void       applyEnergyBiasCut( TH1F*, TGraphAsymmErrors*, double iMaxEBias );
         bool       checkCutOptimization( double iEnergy, bool iPrint = false );
@@ -220,9 +220,9 @@ class VSensitivityCalculator : public TObject, public VPlotUtilities, public VHi
         
         
         TGraphAsymmErrors* getSensitivityGraphFromWPPhysFile( string bUnit,
-                                                              double iEnergyMin_TeV_lin, 
-                                                              double iEnergyMax_TeV_lin, 
-                                                              double dE_Log10 );
+                double iEnergyMin_TeV_lin,
+                double iEnergyMax_TeV_lin,
+                double dE_Log10 );
         void       plot_guidingLines( double x, TGraph* g, bool iHours );
         void       plotEffectiveArea();
         void       plotDebugPlotsBackgroundParticleNumbers( vector< VDifferentialFluxData > iDifferentialFlux,

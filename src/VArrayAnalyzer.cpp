@@ -22,7 +22,7 @@ VArrayAnalyzer::VArrayAnalyzer()
     
     // set up data storage class (all analysis results are stored here)
     fShowerParameters = new VShowerParameters( getNTel(), getRunParameter()->fShortTree,
-         getEvndispReconstructionParameter()->getNReconstructionCuts() );
+            getEvndispReconstructionParameter()->getNReconstructionCuts() );
     // set up MC data storage class
     fMCParameters = new VMCParameters( fDebug );
     // test if number of telescopes exceeds value in fShowerParameters
@@ -112,10 +112,10 @@ void VArrayAnalyzer::doAnalysis()
         }
         else
         {
-            getShowerParameters()->fArrayPointing_deRotationAngle_deg = 
-                         getArrayPointing()->getDerotationAngle( getShowerParameters()->MJD, getShowerParameters()->time )
-                         *  TMath::RadToDeg();
-
+            getShowerParameters()->fArrayPointing_deRotationAngle_deg =
+                getArrayPointing()->getDerotationAngle( getShowerParameters()->MJD, getShowerParameters()->time )
+                *  TMath::RadToDeg();
+                
         }
         getShowerParameters()->fWobbleNorth             = getArrayPointing()->getWobbleNorth();
         getShowerParameters()->fWobbleEast              = getArrayPointing()->getWobbleEast();
@@ -807,7 +807,7 @@ void VArrayAnalyzer::selectShowerImages( unsigned int iMeth )
         {
             getShowerParameters()->fTelIDImageSelected[iMeth].back() = false;
         }
-        if( getImageParameters()->Fitstat >=0 && getImageParameters()->Fitstat < 2 )
+        if( getImageParameters()->Fitstat >= 0 && getImageParameters()->Fitstat < 2 )
         {
             getShowerParameters()->fTelIDImageSelected[iMeth].back() = false;
         }
@@ -971,7 +971,7 @@ int VArrayAnalyzer::rcs_method_0( unsigned int iMethod )
     
     // are there enough images the run an array analysis
     if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min &&
-        num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
+            num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
     {
         prepareforDirectionReconstruction( iMethod, 0 );
     }
@@ -1154,10 +1154,10 @@ void VArrayAnalyzer::checkPointing()
             if( i < getPointing().size() && getPointing()[i] )
             {
                 float iPointingDiff = VAstronometry::vlaDsep( getPointing()[i]->getTelAzimuth() * TMath::DegToRad(),
-                                                             getPointing()[i]->getTelElevation() * TMath::DegToRad(),
-                                                             getReader()->getArrayTrigger()->getAzimuth( ivbf )* TMath::DegToRad() ,
-                                                             getReader()->getArrayTrigger()->getAltitude( ivbf ) * TMath::DegToRad() )
-                                                             * TMath::RadToDeg();
+                                      getPointing()[i]->getTelElevation() * TMath::DegToRad(),
+                                      getReader()->getArrayTrigger()->getAzimuth( ivbf ) * TMath::DegToRad() ,
+                                      getReader()->getArrayTrigger()->getAltitude( ivbf ) * TMath::DegToRad() )
+                                      * TMath::RadToDeg();
                 getShowerParameters()->fTelPointingMismatch[i] = iPointingDiff;
                 getShowerParameters()->fTelPointingErrorX[i] = getPointing()[i]->getPointingErrorX();
                 getShowerParameters()->fTelPointingErrorY[i] = getPointing()[i]->getPointingErrorY();
@@ -1227,7 +1227,7 @@ float VArrayAnalyzer::recalculateImagePhi( double iDeltaX, double iDeltaY )
     // LL: fits without good error matrix
     // LL: f_d, s_s and f_sdevxy depend on the state of the error matrix
     if( getImageParameters( getRunParameter()->fImageLL )->Fitstat == 1
-       || (TMath::Abs(iDeltaX) < 1.e-7 && TMath::Abs(iDeltaY) < 1.e-7) )
+            || ( TMath::Abs( iDeltaX ) < 1.e-7 && TMath::Abs( iDeltaY ) < 1.e-7 ) )
     {
         return getImageParameters( getRunParameter()->fImageLL )->phi;
     }
@@ -1290,7 +1290,7 @@ int VArrayAnalyzer::rcs_method_3( unsigned int iMethod )
     
     // are there enough images the run an array analysis
     if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min &&
-        num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
+            num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
     {
         prepareforDirectionReconstruction( iMethod, 3 );
     }
@@ -1444,7 +1444,7 @@ int VArrayAnalyzer::rcs_method_4( unsigned int iMethod )
     
     // are there enough images the run an array analysis
     if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min &&
-        num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
+            num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
     {
         prepareforDirectionReconstruction( iMethod, 4 );
     }
@@ -1623,12 +1623,12 @@ bool VArrayAnalyzer::fillShowerDirection( unsigned int iMethod, float xs, float 
     if( getArrayPointing() )
     {
         VAstronometry::vlaDtp2s( -1.*getShowerParameters()->fShower_Xoffset[iMethod] * TMath::DegToRad(),
-                                     getShowerParameters()->fShower_Yoffset[iMethod] * TMath::DegToRad(),
-                                     getArrayPointing()->getTelAzimuth() * TMath::DegToRad(),
-                                     getArrayPointing()->getTelElevation() * TMath::DegToRad(),
-                                     &az, &ze );
+                                 getShowerParameters()->fShower_Yoffset[iMethod] * TMath::DegToRad(),
+                                 getArrayPointing()->getTelAzimuth() * TMath::DegToRad(),
+                                 getArrayPointing()->getTelElevation() * TMath::DegToRad(),
+                                 &az, &ze );
         az *= TMath::RadToDeg();
-        ze = 90. - ze*TMath::RadToDeg();
+        ze = 90. - ze * TMath::RadToDeg();
     }
     if( TMath::IsNaN( ze ) )
     {
@@ -1895,8 +1895,8 @@ int VArrayAnalyzer::rcs_method_5( unsigned int iMethod, unsigned int iDisp )
     float yoff_4 = getShowerParameters()->fShower_Yoffset[iMethod];
     
     // are there enough images the run an array analysis
-    if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min && 
-        num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
+    if( num_images >= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_min &&
+            num_images <= ( int )getEvndispReconstructionParameter( iMethod )->fNImages_max )
     {
         prepareforDirectionReconstruction( iMethod, 5 );
     }
@@ -1922,8 +1922,8 @@ int VArrayAnalyzer::rcs_method_5( unsigned int iMethod, unsigned int iDisp )
     {
         // calculate displacement from image values
         float disp = fDispAnalyzer[iMethod]->evaluate( width[ii], length[ii], asym[ii], dist[ii], w[ii], pedvar[ii], tgrad[ii],
-                loss[ii], cen_x[ii], cen_y[ii], xoff_4, yoff_4,
-                teltype[ii], ze[ii], az[ii], true );
+                     loss[ii], cen_x[ii], cen_y[ii], xoff_4, yoff_4,
+                     teltype[ii], ze[ii], az[ii], true );
         v_disp.push_back( disp );
         
         // weigth for averaging
@@ -2207,7 +2207,7 @@ string VArrayAnalyzer::getTMVAFileNameForAngularReconstruction( unsigned int iSt
         else
         {
             // if the fInstrumentEpoch has the format "<epoch>", add it to the existing "V"
-            epostr.append( getRunParameter()->getInstrumentEpoch( true )) ;
+            epostr.append( getRunParameter()->getInstrumentEpoch( true ) ) ;
         }
         
         cout << "scanned fInstrumentEpoch : converted '" << getRunParameter()->getInstrumentEpoch( true ) << "' to '" << epostr << "' ..." << endl;

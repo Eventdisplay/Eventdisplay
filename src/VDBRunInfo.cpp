@@ -384,8 +384,14 @@ void VDBRunInfo::readRunInfoFromDB( string iDBserver )
     }
     fWobbleNorth = dist * cos( angl * TMath::DegToRad() );
     fWobbleEast = dist * sin( angl * TMath::DegToRad() );
-    if( TMath::Abs( fWobbleNorth ) < 1.e-15 ) fWobbleNorth = 0.;
-    if( TMath::Abs( fWobbleEast ) < 1.e-15 ) fWobbleEast = 0.;
+    if( TMath::Abs( fWobbleNorth ) < 1.e-15 )
+    {
+        fWobbleNorth = 0.;
+    }
+    if( TMath::Abs( fWobbleEast ) < 1.e-15 )
+    {
+        fWobbleEast = 0.;
+    }
     
     // get config mask
     if( db_row->GetField( 10 ) )

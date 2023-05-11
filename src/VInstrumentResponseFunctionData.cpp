@@ -542,12 +542,12 @@ void VInstrumentResponseFunctionData::fill( double iWeight )
     // log10 difference vs energy
     if( E_LOGDIFF < f2DHisto.size() && f2DHisto[E_LOGDIFF] && iDiff > 0. )
     {
-        f2DHisto[E_LOGDIFF]->Fill( log10( iErec_lin ), log10(iDiff), iWeight );
+        f2DHisto[E_LOGDIFF]->Fill( log10( iErec_lin ), log10( iDiff ), iWeight );
     }
     // log10 difference vs true energy
     if( E_LOGDIFF_MC < f2DHisto.size() && f2DHisto[E_LOGDIFF_MC] && iDiff > 0. )
     {
-        f2DHisto[E_LOGDIFF_MC]->Fill( log10( fData->MCe0 ), log10(iDiff), iWeight );
+        f2DHisto[E_LOGDIFF_MC]->Fill( log10( fData->MCe0 ), log10( iDiff ), iWeight );
     }
     
     // difference vs number of images
@@ -581,8 +581,8 @@ void VInstrumentResponseFunctionData::fill( double iWeight )
  *
  * calculate containment graphs
 */
-bool VInstrumentResponseFunctionData::terminate( double iContainmentProbability, 
-                                             double iContainmentProbabilityError )
+bool VInstrumentResponseFunctionData::terminate( double iContainmentProbability,
+        double iContainmentProbabilityError )
 {
     for( unsigned int i = 0; i < f2DHisto.size(); i++ )
     {
@@ -590,7 +590,7 @@ bool VInstrumentResponseFunctionData::terminate( double iContainmentProbability,
         fContainmentProbability[i] = iContainmentProbability;
         if( i != E_RELA )
         {
-            calculateResolution( f2DHisto[i], fResolutionGraph[i], f2DHisto[i]->GetName(), 
+            calculateResolution( f2DHisto[i], fResolutionGraph[i], f2DHisto[i]->GetName(),
                                  iContainmentProbability );
         }
         // for relative plots get mean and spread from each bin in the histogram
@@ -611,9 +611,9 @@ bool VInstrumentResponseFunctionData::terminate( double iContainmentProbability,
     iHistogram is a 2D histogram (e.g. angular difference vs energy)
 
 */
-TList*  VInstrumentResponseFunctionData::calculateResolution( 
-        TH2D* iHistogram, TGraphErrors* iResult, string iHistoName, 
-        double iContainmentProbability )
+TList*  VInstrumentResponseFunctionData::calculateResolution(
+    TH2D* iHistogram, TGraphErrors* iResult, string iHistoName,
+    double iContainmentProbability )
 {
     if( !iHistogram || !iResult )
     {

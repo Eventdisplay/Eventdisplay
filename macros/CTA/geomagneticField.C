@@ -48,10 +48,10 @@ void printBField_at_CTA_sites( bool bCTA = true )
     vector< double > fB_tot;
     vector< double > fInclination_deg;
     vector< double > fDeclination_deg;
-
+    
     if( bCTA )
     {
-        
+    
         /*	fSiteName.push_back( "Leoncito" );
             fB_tot.push_back( 23.5536 );
             fInclination_deg.push_back( -32.3406 );
@@ -71,11 +71,11 @@ void printBField_at_CTA_sites( bool bCTA = true )
             fB_tot.push_back( 23.1594 );
             fInclination_deg.push_back( -22.6642 );
             fDeclination_deg.push_back( 0. );
-    
-    	fSiteName.push_back( "Tenerife" );
-    	fB_tot.push_back( 38.5314 );
-    	fInclination_deg.push_back( 36.952 );
-    	fDeclination_deg.push_back( 0. ); */
+        
+        fSiteName.push_back( "Tenerife" );
+        fB_tot.push_back( 38.5314 );
+        fInclination_deg.push_back( 36.952 );
+        fDeclination_deg.push_back( 0. ); */
         
         /*	fSiteName.push_back( "SPM" );
             fB_tot.push_back( 45.8194 );

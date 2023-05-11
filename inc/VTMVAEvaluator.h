@@ -213,25 +213,25 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         double           readAverageCountsFromFile( TFile* iF, double i_e_min, double i_e_max, double i_ze_min, double i_ze_max, bool bIsOn = true );
         void             reset();
         string           setFullMVAFileName( string iWeightFileName,
-                                     unsigned intiWeightFileIndex_Emin, unsigned int i,
-                                     unsigned int iWeightFileIndex_Zmin, unsigned int j,
-                                     string fTMVAMethodName, int fTMVAMethodCounter,
-                                     string iInstrumentEpoch,
-                                     string iFileSuffix );
+                                             unsigned intiWeightFileIndex_Emin, unsigned int i,
+                                             unsigned int iWeightFileIndex_Zmin, unsigned int j,
+                                             string fTMVAMethodName, int fTMVAMethodCounter,
+                                             string iInstrumentEpoch,
+                                             string iFileSuffix );
         void             smoothAndInterpolateMVAValue( unsigned int iE_min, unsigned int iE_max,
                 unsigned int iZ_min, unsigned int iZ_max, double iEnergyStepSize );
         TGraphAsymmErrors* fillSmoothedEfficencyGraph( TGraphAsymmErrors* g, unsigned int iZe, bool iSignalEff = true );
         TGraphAsymmErrors* fillSmoothedMVACutGraph( TGraphAsymmErrors* g, unsigned int iZe );
-        TGraphAsymmErrors* smoothMVAGraph( TGraphAsymmErrors* g, 
+        TGraphAsymmErrors* smoothMVAGraph( TGraphAsymmErrors* g,
                                            double iCutGraphSmoothing = 0.25,
                                            double iCutGraphSmoothingMax = 1.e5,
                                            double iCutGraphConstantCutEnergy_TeV = 1.e5,
                                            string iName = "", unsigned int iZe = 0 );
-        vector< TGraphAsymmErrors* > smoothSignalEfficiencyMVAGraph( TGraphAsymmErrors* g, 
-                                           double iCutGraphSmoothing = 0.25,
-                                           double iCutGraphSmoothingMax = 1.e5,
-                                           double iCutGraphConstantCutEnergy_TeV = 1.e5,
-                                           string iName = "", unsigned int iZe = 0 );
+        vector< TGraphAsymmErrors* > smoothSignalEfficiencyMVAGraph( TGraphAsymmErrors* g,
+                double iCutGraphSmoothing = 0.25,
+                double iCutGraphSmoothingMax = 1.e5,
+                double iCutGraphConstantCutEnergy_TeV = 1.e5,
+                string iName = "", unsigned int iZe = 0 );
                 
     public:
     
@@ -296,9 +296,9 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         }
         
         void   setSensitivityOptimizationFixedSignalEfficiency( double iOptimizationFixedSignalEfficiency = 1. );
-        void   setSensitivityOptimizationSourceStrength( 
-                             double iOptimizationMinSourceStrength = 0.001,
-                             double iOptimizationMaxSourceStrength = 30. );
+        void   setSensitivityOptimizationSourceStrength(
+            double iOptimizationMinSourceStrength = 0.001,
+            double iOptimizationMaxSourceStrength = 30. );
         void   setOptimizeAngularContainment( bool iO = false )
         {
             fTMVA_OptimizeAngularContainment = iO;
@@ -336,11 +336,11 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         }
         void   setTMVACutValue( double iE = -99. );
         void   setTMVACutValue( map< unsigned int, double > iMVA );
-        vector< TGraphAsymmErrors* > setTMVACutValueFromGraph( string iFileName, 
-                                                               double iCutGraphSmoothing = 0.25,
-                                                               double iCutGraphSmoothingMax = 1.e5,
-                                                               double iCutGraphConstantCutEnergy_TeV = 1.e5,
-                                                               bool iSmoothTMVAGraph = true );
+        vector< TGraphAsymmErrors* > setTMVACutValueFromGraph( string iFileName,
+                double iCutGraphSmoothing = 0.25,
+                double iCutGraphSmoothingMax = 1.e5,
+                double iCutGraphConstantCutEnergy_TeV = 1.e5,
+                bool iSmoothTMVAGraph = true );
         void   setTMVAErrorFraction( double iTMVAErrorFraction_min = 0.2 )
         {
             fTMVAErrorFraction_min = iTMVAErrorFraction_min;

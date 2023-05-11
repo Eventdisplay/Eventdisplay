@@ -383,8 +383,8 @@ bool VPointingDB::getDBRunInfo()
         fDBSourceName = db_row->GetField( 19 );
         getDBSourceCoordinates( fDBSourceName, fDBTargetDec, fDBTargetRA );
         
-		float dist = atof( db_row->GetField( 17 ) );
-		float angl = atof( db_row->GetField( 18 ) );
+        float dist = atof( db_row->GetField( 17 ) );
+        float angl = atof( db_row->GetField( 18 ) );
         fDBWobbleNorth = dist * cos( angl * TMath::DegToRad() );
         fDBWobbleEast = dist * sin( angl * TMath::DegToRad() );
     }
@@ -432,7 +432,7 @@ bool VPointingDB::readPointingFromVPMTextFile( string iDirectory )
         // test line for completeness (expect 11 columns)
         int nC = 0;
         istringstream is_streamT( is_line );
-        while( !(is_streamT>>std::ws).eof() )
+        while( !( is_streamT >> std::ws ).eof() )
         {
             is_streamT >> iTemp;
             nC++;
@@ -910,8 +910,8 @@ TTree* VPointingDB::getTreePointingDB()
     tD->Branch( "ElTelExpected", &iTelElT, "ElTelExpected/F" );
     tD->Branch( "AzTelExpected", &iTelAzT, "AzTelExpected/F" );
     // ra/dec as read from DB
-    tD->Branch("RA", &iTelRA, "RA/F" );
-    tD->Branch("Dec", &iTelDec, "Dec/F" );
+    tD->Branch( "RA", &iTelRA, "RA/F" );
+    tD->Branch( "Dec", &iTelDec, "Dec/F" );
     
     for( unsigned int i = 0; i < fDBMJD.size(); i++ )
     {
@@ -942,7 +942,7 @@ void VPointingDB::getHorizonCoordinates( int MJD, double time, double decJ2000, 
     decJ2000 /= degrad;
     
     // first precess target to current epoch
-    VAstronometry::vlaPreces( 2451545.0 - 2400000.5, (double)(MJD+0.5), &raJ2000, &decJ2000 );
+    VAstronometry::vlaPreces( 2451545.0 - 2400000.5, ( double )( MJD + 0.5 ), &raJ2000, &decJ2000 );
     
     // convert ra into hour angle
     double ha = 0.;

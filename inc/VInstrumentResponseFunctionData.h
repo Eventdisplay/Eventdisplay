@@ -33,17 +33,17 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
         int     fHistogrambinningEnergy_TeV_Log;
         double  fHistogrambinningEnergy_Min_Tev_Log;
         double  fHistogrambinningEnergy_Max_Tev_Log;
-
+        
         // angular binning
         int     fHistogrambinningAngular_Log;
-	double  fHistogrambinningAngular_Min_Log;
-	double  fHistogrambinningAngular_Max_Log;
+        double  fHistogrambinningAngular_Min_Log;
+        double  fHistogrambinningAngular_Max_Log;
         
         // array centre
         double  fArrayCentre_X;
         double  fArrayCentre_Y;
         
-        TList*   calculateResolution( TH2D* iHistogram, TGraphErrors* iResult, string iHistoName, 
+        TList*   calculateResolution( TH2D* iHistogram, TGraphErrors* iResult, string iHistoName,
                                       double iContainmentProbability );
         double   getResolutionErrorfromToyMC( double i68, double iN );
         int      testResponseFunctionType( string iType );
@@ -77,7 +77,8 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
         
         // list of histogram types
         enum    E_HISTOID { E_DIFF, E_DIFF2, E_LOGDIFF, E_NIMAG, E_DIST, E_ERROR, E_RELA,
-                                    E_DIFF_MC, E_DIFF2_MC, E_LOGDIFF_MC };
+                            E_DIFF_MC, E_DIFF2_MC, E_LOGDIFF_MC
+                          };
         TList*                     fHistogramList;
         vector< TH2D* >            f2DHisto;
         vector< TGraphErrors* >    fResolutionGraph;
@@ -107,14 +108,14 @@ class VInstrumentResponseFunctionData : public TObject, public VHistogramUtiliti
         {
             fEnergyReconstructionMethod = iMethod;
         }
-	void   setHistogramEbinning( int iN = 60, double iMin = -2.0, double iMax = 4.0 )
+        void   setHistogramEbinning( int iN = 60, double iMin = -2.0, double iMax = 4.0 )
         {
             fHistogrambinningEnergy_TeV_Log = iN;
             fHistogrambinningEnergy_Min_Tev_Log = iMin;
             fHistogrambinningEnergy_Max_Tev_Log = iMax;
         }
         void   setHistogramLogAngbinning( int iN = 20, double iMin = -4.0, double iMax = 1.0 )
-	{
+        {
             fHistogrambinningAngular_Log = iN;
             fHistogrambinningAngular_Min_Log = iMin;
             fHistogrambinningAngular_Max_Log = iMax;

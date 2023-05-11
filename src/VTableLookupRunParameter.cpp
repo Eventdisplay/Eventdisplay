@@ -138,7 +138,7 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         }
         else if( iTemp.find( "updateEpoch" ) < iTemp.size() )
         {
-            fUpdateInstrumentEpoch = (bool)atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
+            fUpdateInstrumentEpoch = ( bool )atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
         }
         else if( iTemp.find( "noise" ) < iTemp.size() )
         {
@@ -317,9 +317,9 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         {
             fSpectralIndex = atof( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
         }
-        else if( iTemp.find( "-maxdist" ) < iTemp.size() 
-           && !( iTemp.find( "-maxdistancetocameracenter" ) < iTemp.size() )
-           && !( iTemp.find( "-maxdistfraction" ) < iTemp.size() ) )
+        else if( iTemp.find( "-maxdist" ) < iTemp.size()
+                 && !( iTemp.find( "-maxdistancetocameracenter" ) < iTemp.size() )
+                 && !( iTemp.find( "-maxdistfraction" ) < iTemp.size() ) )
         {
             fmaxdist = atof( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
         }
@@ -437,7 +437,7 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         }
         else if( iTemp.find( "-limitEnergyReconstruction" ) < iTemp.size() )
         {
-             cout << "obsolete run parameter -limitEnergyReconstruction; ignored" << endl;
+            cout << "obsolete run parameter -limitEnergyReconstruction; ignored" << endl;
         }
         else
         {
@@ -490,7 +490,7 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
     {
         if( !readRunParameters( fRunParameterFile ) )
         {
-             exit( EXIT_FAILURE );
+            exit( EXIT_FAILURE );
         }
     }
     // read telescope type dependent weights (optional)
@@ -558,7 +558,7 @@ void VTableLookupRunParameter::fillTelescopeTypeDependentWeights()
 */
 bool VTableLookupRunParameter::readRunParameters( string iFile )
 {
-    
+
     ifstream is;
     is.open( iFile.c_str(), ifstream::in );
     if( !is )
@@ -585,27 +585,27 @@ bool VTableLookupRunParameter::readRunParameters( string iFile )
                 continue;
             }
             is_stream >> iS2;
-            if( VUtilities::lowerCase(iS2) == "maxloss" )
+            if( VUtilities::lowerCase( iS2 ) == "maxloss" )
             {
                 is_stream >> fEventSelectionCut_lossCutMax;
             }
-            else if( VUtilities::lowerCase(iS2) == "maxdist" )
+            else if( VUtilities::lowerCase( iS2 ) == "maxdist" )
             {
                 is_stream >> fmaxdist;
             }
-            else if( VUtilities::lowerCase(iS2) == "minfui" )
+            else if( VUtilities::lowerCase( iS2 ) == "minfui" )
             {
                 is_stream >> fminfui;
             }
-            else if( VUtilities::lowerCase(iS2) == "maxdist_energy" )
+            else if( VUtilities::lowerCase( iS2 ) == "maxdist_energy" )
             {
                 is_stream >> fEventSelectionCut_distanceCutMax;;
             }
-            else if( VUtilities::lowerCase(iS2) == "median_energy" )
+            else if( VUtilities::lowerCase( iS2 ) == "median_energy" )
             {
                 is_stream >> fUseMedianEnergy;
             }
-            else if( VUtilities::lowerCase(iS2) == "minangle_stereoreconstruction" )
+            else if( VUtilities::lowerCase( iS2 ) == "minangle_stereoreconstruction" )
             {
                 is_stream >> fRerunStereoReconstruction_minAngle;
             }
@@ -742,18 +742,18 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim
             iW = 1.;
             unsigned int z = 0;
             istringstream is_stream( iLine );
-
+            
             while( is_stream >> iT2 )
             {
                 if( z == 0 )
                 {
-                     iT1 = atoi( iT2.c_str() );
+                    iT1 = atoi( iT2.c_str() );
                 }
                 // expected weighting for stereo reconstruction
                 // in column 5
                 else if( z == 5 )
                 {
-                     iW = atof( iT2.c_str() );
+                    iW = atof( iT2.c_str() );
                 }
                 z++;
             }
@@ -807,10 +807,10 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
         iRunParT = iPar->fTelToAnalyze;
         if( iPar->getObservatory().find( "VERITAS" ) == string::npos )
         {
-             cout << "VTableLookupRunParameter::readTelescopeToAnalyze warning: ";
-             cout << "reading without telescope lists not enabled for non-VERITAS observatories";
-             cout << endl;
-             return false;
+            cout << "VTableLookupRunParameter::readTelescopeToAnalyze warning: ";
+            cout << "reading without telescope lists not enabled for non-VERITAS observatories";
+            cout << endl;
+            return false;
         }
     }
     else
@@ -952,7 +952,7 @@ void VTableLookupRunParameter::print( int iP )
         cout << fMC_distance_to_cameracenter_max << " [deg]" << endl;
         if( fTableFilling_useStereoMCParameter )
         {
-             cout << "\t using MC core and direction for table filling " << endl;
+            cout << "\t using MC core and direction for table filling " << endl;
         }
     }
     if( fRerunStereoReconstruction )

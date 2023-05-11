@@ -26,8 +26,8 @@ VCalibrator::VCalibrator()
  *
  */
 bool VCalibrator::initializePedestalHistograms( ULong64_t iTelType, bool iLowGain,
-                                                vector< double > minSumPerSumWindow, 
-                                                vector< double > maxSumPerSumWindow )
+        vector< double > minSumPerSumWindow,
+        vector< double > maxSumPerSumWindow )
 {
     if( getDebugFlag() )
     {
@@ -84,18 +84,21 @@ bool VCalibrator::initializePedestalHistograms( ULong64_t iTelType, bool iLowGai
         // loop over all sumwindows
         for( unsigned int i = 0; i < hped_vec[iTelType].size(); i++ )
         {
-                double min = 0.;
-                if( i < minSumPerSumWindow.size() )
-                {
-                    min = minSumPerSumWindow[i] * 0.9;
-                }
-                double max = 1.;
-                if( i < maxSumPerSumWindow.size() )
-                {
-                    max = maxSumPerSumWindow[i] * 1.1;
-                }
-                unsigned int nBins = static_cast<int>( max - min );
-                if (nBins > 2000) nBins = 2000;
+            double min = 0.;
+            if( i < minSumPerSumWindow.size() )
+            {
+                min = minSumPerSumWindow[i] * 0.9;
+            }
+            double max = 1.;
+            if( i < maxSumPerSumWindow.size() )
+            {
+                max = maxSumPerSumWindow[i] * 1.1;
+            }
+            unsigned int nBins = static_cast<int>( max - min );
+            if( nBins > 2000 )
+            {
+                nBins = 2000;
+            }
             /////////////////////////////////////////
             // histograms for pedestal calculation
             
@@ -122,8 +125,8 @@ bool VCalibrator::initializePedestalHistograms( ULong64_t iTelType, bool iLowGai
             
             /////////////////////////////////////////
             // histograms for IPR graph calculation
-                min = 0.;
-                // max /= iMeanGain;
+            min = 0.;
+            // max /= iMeanGain;
             
             // loop over all channels
             for( unsigned int j = 0; j < hpedPerTelescopeType[iTelType][i].size(); j++ )
@@ -218,7 +221,7 @@ void VCalibrator::calculatePedestals( bool iLowGain )
                     {
                         if( fReader->getChannelHitIndex( j ).first )
                         {
-                            if (maxSum < getSums()[j])
+                            if( maxSum < getSums()[j] )
                             {
                                 maxSum = getSums()[j];
                             }
@@ -247,10 +250,10 @@ void VCalibrator::calculatePedestals( bool iLowGain )
         
         initializePedestalHistograms( iTelType, iLowGain, minSumPerSumWindow, maxSumPerSumWindow );
     }
-
+    
     // reset and fill vectors
     resetAnaData();
-
+    
     fillHiLo();
     
     // fill pedestal sum for current telescope type
@@ -427,7 +430,7 @@ void VCalibrator::writePeds( bool iLowGain, VPedestalCalculator* iPedestalCalcul
                     // (require at least 100 entries in pedestal events)
                     os << t << " " << i << " ";
                     if( hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]
-                     && hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetEntries() > 100 )
+                            && hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetEntries() > 100 )
                     {
                         os << hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetMean() / ( double )fRunPar->fCalibrationSumWindow << " ";
                     }
@@ -633,7 +636,7 @@ bool VCalibrator::fillPedestalTree( unsigned int tel, VPedestalCalculator* iPede
         cout << t << "\t" << hped_vec.size() << endl;
         return false;
     }
-    cout << "\t filling pedestal tree for telescope " << t+1 << " (telescope type " << iTelType << ")" << endl;
+    cout << "\t filling pedestal tree for telescope " << t + 1 << " (telescope type " << iTelType << ")" << endl;
     
     char iname[800];
     char ititle[800];
@@ -2051,7 +2054,7 @@ bool VCalibrator::readPeds_from_textfile( string iFile, bool iLowGain, unsigned 
                 do
                 {
                     count += 1;
-                    if( !(is_stream>>std::ws).eof() )
+                    if( !( is_stream >> std::ws ).eof() )
                     {
                         is_stream >> rms;
                     }
@@ -2081,7 +2084,7 @@ bool VCalibrator::readPeds_from_textfile( string iFile, bool iLowGain, unsigned 
                         getPedrms( iLowGain )[ch] = rms;
                     }
                 }
-                while( !(is_stream>>std::ws).eof() );
+                while( !( is_stream >> std::ws ).eof() );
                 if( count < i_SumWindow )
                 {
                     cout << "VCalibrator::readPeds_from_textfile error:";
@@ -3441,14 +3444,14 @@ int VCalibrator::readLowGainCalibrationValues_fromCalibFile( string iVariable, u
                 continue;
             }
             
-            if( (is_stream>>std::ws).eof() )
+            if( ( is_stream >> std::ws ).eof() )
             {
                 continue;
             }
             is_stream >> is_Temp;
             if( is_Temp == iVariable )
             {
-                if( (is_stream>>std::ws).eof() )
+                if( ( is_stream >> std::ws ).eof() )
                 {
                     continue;
                 }
@@ -3463,12 +3466,12 @@ int VCalibrator::readLowGainCalibrationValues_fromCalibFile( string iVariable, u
                 
                 is_stream >> iTel;
                 iTel--;              // internal counting starts at 0
-                if( (is_stream>>std::ws).eof() )
+                if( ( is_stream >> std::ws ).eof() )
                 {
                     continue;
                 }
                 is_stream >> iRunMin;
-                if( (is_stream>>std::ws).eof() )
+                if( ( is_stream >> std::ws ).eof() )
                 {
                     continue;
                 }
@@ -3480,7 +3483,7 @@ int VCalibrator::readLowGainCalibrationValues_fromCalibFile( string iVariable, u
                     {
                         cout << "reading low-gain parameters for run range " << iRunMin << ", " << iRunMax << endl;
                     }
-                    if( (is_stream>>std::ws).eof() )
+                    if( ( is_stream >> std::ws ).eof() )
                     {
                         continue;
                     }
@@ -3631,25 +3634,25 @@ int VCalibrator::getCalibrationRunNumbers_fromCalibFile()
             is_stream >> iPed;
             
             // get gain file number
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> iGain;
             }
             
             // get toff file number
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> iToff;
             }
             
             // get pixel status number
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> iPix;
             }
             
             // get pad file number
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> iPad;
             }
@@ -3657,7 +3660,7 @@ int VCalibrator::getCalibrationRunNumbers_fromCalibFile()
             // get low gain pedestal file number
             if( fCalibrationfileVersion > 1 )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iLowGainPeds;
                 }
@@ -3679,11 +3682,11 @@ int VCalibrator::getCalibrationRunNumbers_fromCalibFile()
             // low gain gains and time offsets
             if( fCalibrationfileVersion > 3 )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iLowGainGains;
                 }
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iLowGainToff;
                 }
@@ -3692,7 +3695,7 @@ int VCalibrator::getCalibrationRunNumbers_fromCalibFile()
             // get low gain multiplier file name
             if( fCalibrationfileVersion > 2 )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iLowGainMultiplier;
                 }

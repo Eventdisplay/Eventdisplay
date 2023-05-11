@@ -371,12 +371,12 @@ bool VEventLoop::initEventLoop( string iFileName )
             // allow for FADC trace amplitude correction
             if( fRawDataReader && fRunPar->fthroughoutCorrectionSFactor.size() > 0 )
             {
-                    if( !fRawDataReader->initThroughputCorrection( fRunPar->fsimu_pedestalfile_DefaultPed,
-                                                              fRunPar->fthroughoutCorrectionSFactor,
-                                                              fRunPar->fthroughoutCorrectionGFactor ) )
-                    {
-                          exit( EXIT_FAILURE );
-                    }
+                if( !fRawDataReader->initThroughputCorrection( fRunPar->fsimu_pedestalfile_DefaultPed,
+                        fRunPar->fthroughoutCorrectionSFactor,
+                        fRunPar->fthroughoutCorrectionGFactor ) )
+                {
+                    exit( EXIT_FAILURE );
+                }
             }
         }
     }

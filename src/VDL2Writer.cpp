@@ -11,9 +11,9 @@
 VDL2Writer::VDL2Writer( string iConfigFile )
 {
     readConfigFile( iConfigFile );
-
+    
     // tree with cut results for each event
-
+    
     runNumber = 0;
     eventNumber = 0;
     ArrayPointing_Azimuth = 0.;
@@ -49,7 +49,7 @@ VDL2Writer::VDL2Writer( string iConfigFile )
     EmissionHeightChi2 = 0.;
     NTtype = 0;
     fCut_MVA = 0.;
-
+    
     for( unsigned int i = 0; i < VDST_MAXTELESCOPES; i++ )
     {
         R[i] = 0.;
@@ -63,7 +63,7 @@ VDL2Writer::VDL2Writer( string iConfigFile )
     // length
     // dist
     //
-
+    
     fDL2DataTree = new TTree( "data", "event data (shortened version)" );
     fDL2DataTree->Branch( "MVA", &fCut_MVA, "MVA/F" );
 }
@@ -74,7 +74,10 @@ VDL2Writer::~VDL2Writer()
 {
     for( unsigned int i = 0; i < fTMVA.size(); i++ )
     {
-        if( fTMVA[i] ) delete fTMVA[i];
+        if( fTMVA[i] )
+        {
+            delete fTMVA[i];
+        }
     }
 }
 
@@ -117,7 +120,7 @@ bool VDL2Writer::readConfigFile( string iConfigFile )
             }
             else if( temp == "SIMULATIONFILE_DATA" )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> fdatafile;
                 }
@@ -139,13 +142,13 @@ bool VDL2Writer::readConfigFile( string iConfigFile )
                 is_stream >> iWeightFileName;
                 for( unsigned int i = 0; i < dist_mean.size(); i++ )
                 {
-                    fTMVAWeightFile.push_back( gSystem->ExpandPathName( (iWeightFileDirectory+dist_mean[i]).c_str() ) );
+                    fTMVAWeightFile.push_back( gSystem->ExpandPathName( ( iWeightFileDirectory + dist_mean[i] ).c_str() ) );
                     // check if path name is complete
                     // note: this method returns FALSE if one **can** access the file
                     if( gSystem->AccessPathName( fTMVAWeightFile.back().c_str() ) )
                     {
-                        fTMVAWeightFile.back() = VGlobalRunParameter::getDirectory_EVNDISPAnaData() 
-                                                + "/" + fTMVAWeightFile.back();
+                        fTMVAWeightFile.back() = VGlobalRunParameter::getDirectory_EVNDISPAnaData()
+                                                 + "/" + fTMVAWeightFile.back();
                         if( gSystem->AccessPathName( fTMVAWeightFile.back().c_str() ) )
                         {
                             cout << "error, weight file directory not found: ";
@@ -155,7 +158,7 @@ bool VDL2Writer::readConfigFile( string iConfigFile )
                         }
                     }
                     fTMVAWeightFile.back() += "/" + iWeightFileName;
-               }
+                }
             }
         }
     }
@@ -164,7 +167,7 @@ bool VDL2Writer::readConfigFile( string iConfigFile )
 
 /*
  *
- *  event loop 
+ *  event loop
  *
  */
 bool VDL2Writer::fill( CData* d )
@@ -175,7 +178,7 @@ bool VDL2Writer::fill( CData* d )
         cout << "VDL2Writer::fill error: no data tree" << endl;
         return false;
     }
-     
+    
     if( !initializeTMVAEvaluators( d ) )
     {
         return false;
@@ -191,7 +194,7 @@ bool VDL2Writer::fill( CData* d )
     ///////////////////////////////////////////////////////
     Long64_t d_nentries = d->fChain->GetEntries();
     cout << "\t number of data events in source tree: " << d_nentries << endl;
-
+    
     unsigned int i_dist_bin = 0;
     float dist = 0.;
     
@@ -199,11 +202,14 @@ bool VDL2Writer::fill( CData* d )
     for( Long64_t i = 0; i < d_nentries; i++ )
     {
         d->GetEntry( i );
-
-        if( d->Xoff < -50. || d->Yoff  < -50. ) continue;
-
-        dist = sqrt( d->Xoff*d->Xoff + d->Yoff*d->Yoff );
-
+        
+        if( d->Xoff < -50. || d->Yoff  < -50. )
+        {
+            continue;
+        }
+        
+        dist = sqrt( d->Xoff * d->Xoff + d->Yoff * d->Yoff );
+        
         i_dist_bin = 999;
         for( unsigned int b = 0; b < dist_min.size(); b++ )
         {
@@ -213,12 +219,12 @@ bool VDL2Writer::fill( CData* d )
                 break;
             }
         }
-
+        
         if( i_dist_bin < fTMVA.size() )
         {
-           fillEventDataTree( fTMVA[i_dist_bin]->evaluate() );
+            fillEventDataTree( fTMVA[i_dist_bin]->evaluate() );
         }
-           
+        
     }
     if( fDL2DataTree )
     {
@@ -229,7 +235,7 @@ bool VDL2Writer::fill( CData* d )
 }
 
 
-/* 
+/*
  * fill tree with cut numbers and MVA values per event
  *
  * 1    hhEcutTrigger_R (color: 1, marker: 20)
@@ -252,14 +258,14 @@ bool VDL2Writer::fill( CData* d )
  */
 void VDL2Writer::fillEventDataTree( float iMVA )
 {
-      if( fDL2DataTree )
-      {
-          fCut_MVA = iMVA;
-          fDL2DataTree->Fill();
-      }
+    if( fDL2DataTree )
+    {
+        fCut_MVA = iMVA;
+        fDL2DataTree->Fill();
+    }
 }
 
-bool VDL2Writer::initializeTMVAEvaluators( CData *d )
+bool VDL2Writer::initializeTMVAEvaluators( CData* d )
 {
     bool fZombie = true;
     for( unsigned int i = 0; i < fTMVAWeightFile.size(); i++ )
@@ -282,42 +288,48 @@ VTMVA_eval_dist::VTMVA_eval_dist( string i_fTMVA_MVAMethod,
                                   string i_fTMVAWeightFile,
                                   unsigned int i_fTMVAWeightFileIndex_Emin, unsigned int i_fTMVAWeightFileIndex_Emax,
                                   unsigned int i_fTMVAWeightFileIndex_Zmin, unsigned int i_fTMVAWeightFileIndex_Zmax,
-                                  double i_fTMVAEnergyStepSize, 
+                                  double i_fTMVAEnergyStepSize,
                                   string i_fInstrumentEpoch,
-                                  CData *d )
+                                  CData* d )
 {
     fTMVAEvaluator = new VTMVAEvaluator();
     fTMVAEvaluator->setTMVAMethod( i_fTMVA_MVAMethod, i_fTMVA_MVAMethodCounter );
-   
-    if( !fTMVAEvaluator->initializeWeightFiles( 
-            i_fTMVAWeightFile, 
-            i_fTMVAWeightFileIndex_Emin, i_fTMVAWeightFileIndex_Emax,
-            i_fTMVAWeightFileIndex_Zmin, i_fTMVAWeightFileIndex_Zmax, 
-            i_fTMVAEnergyStepSize, i_fInstrumentEpoch ) )
+    
+    if( !fTMVAEvaluator->initializeWeightFiles(
+                i_fTMVAWeightFile,
+                i_fTMVAWeightFileIndex_Emin, i_fTMVAWeightFileIndex_Emax,
+                i_fTMVAWeightFileIndex_Zmin, i_fTMVAWeightFileIndex_Zmax,
+                i_fTMVAEnergyStepSize, i_fInstrumentEpoch ) )
     {
         cout << "initTMVAEvaluator: error while initializing TMVA weight files" << endl;
         cout << "exiting... " << endl;
         exit( EXIT_FAILURE );
     }
-
+    
     fTMVAEvaluator->initializeDataStrutures( d );
-
+    
     fIsZombie = fTMVAEvaluator->IsZombie();
 }
 
 VTMVA_eval_dist::~VTMVA_eval_dist()
 {
-   if( fTMVAEvaluator )
-   {
-       delete fTMVAEvaluator;
-   }
+    if( fTMVAEvaluator )
+    {
+        delete fTMVAEvaluator;
+    }
 }
 
 double VTMVA_eval_dist::evaluate()
 {
-    if( fIsZombie ) return -1.;
-    if( !fTMVAEvaluator ) return -1.;
-
+    if( fIsZombie )
+    {
+        return -1.;
+    }
+    if( !fTMVAEvaluator )
+    {
+        return -1.;
+    }
+    
     fTMVAEvaluator->evaluate();
     return fTMVAEvaluator->getTMVA_EvaluationResult();
 }

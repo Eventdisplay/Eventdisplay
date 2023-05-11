@@ -61,9 +61,9 @@ void VAnaSum::initialize( string i_LongListFilename, unsigned int iRunType, stri
     int i_npair = fRunPara->loadLongFileList( i_LongListFilename, false, ( fAnalysisRunMode == 1 ) );
     if( i_npair == 0 && iRunType == 1 )
     {
-         cout << "\t run list not of long type, try simple format" << endl;
-         i_npair = fRunPara->loadSimpleFileList( i_LongListFilename );
-         cout << "\t found " << i_npair << " runs in simple run list" << endl;
+        cout << "\t run list not of long type, try simple format" << endl;
+        i_npair = fRunPara->loadSimpleFileList( i_LongListFilename );
+        cout << "\t found " << i_npair << " runs in simple run list" << endl;
     }
     if( i_npair == 0 )
     {
@@ -731,7 +731,7 @@ void VAnaSum::fillRunSummary( int onrun, int offrun, double iexp_on, double iexp
                 for( unsigned int t = 0; t < fRunPara->fRunList[p].fTelToAnalyze.size(); t++ )
                 {
                     iTelCombination << "T";
-                    iTelCombination << fRunPara->fRunList[p].fTelToAnalyze[t]+1;
+                    iTelCombination << fRunPara->fRunList[p].fTelToAnalyze[t] + 1;
                 }
                 if( iTelCombination.str().size() < 300 )
                 {
@@ -739,9 +739,9 @@ void VAnaSum::fillRunSummary( int onrun, int offrun, double iexp_on, double iexp
                 }
                 else
                 {
-                    sprintf( fRunSummary->fTelList, "%s", iTelCombination.str().substr(0,299).c_str() );
+                    sprintf( fRunSummary->fTelList, "%s", iTelCombination.str().substr( 0, 299 ).c_str() );
                 }
-            }    
+            }
         }
         fRunSummary->fTheta2Max = fRunPara->fMapRunList[onrun].fSourceRadius;
     }
@@ -766,14 +766,14 @@ void VAnaSum::fillRunSummary( int onrun, int offrun, double iexp_on, double iexp
     }
     if( onrun != -1 )
     {
-           if( fRunPara->fMapRunList[onrun].fTarget.size() < 300 )
-           {
-                sprintf( fRunSummary->fTargetName, "%s", fRunPara->fMapRunList[onrun].fTarget.c_str() );
-           }
-           else
-           {
-                sprintf( fRunSummary->fTargetName, "%s", fRunPara->fMapRunList[onrun].fTarget.substr( 0, 299 ).c_str() );
-           }
+        if( fRunPara->fMapRunList[onrun].fTarget.size() < 300 )
+        {
+            sprintf( fRunSummary->fTargetName, "%s", fRunPara->fMapRunList[onrun].fTarget.c_str() );
+        }
+        else
+        {
+            sprintf( fRunSummary->fTargetName, "%s", fRunPara->fMapRunList[onrun].fTarget.substr( 0, 299 ).c_str() );
+        }
     }
     if( onrun != -1 && fRunPara->fMapRunList.find( onrun ) != fRunPara->fMapRunList.end() )
     {

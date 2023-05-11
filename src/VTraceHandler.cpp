@@ -278,9 +278,9 @@ vector<float> VTraceHandler::getFADCTiming( unsigned int fFirst, unsigned int fL
 */
 
 vector< float >& VTraceHandler::getPulseTiming(
-           unsigned int fFirst, unsigned int fLast,
-           unsigned int fTFirst, unsigned int fTLast,
-           bool iReverseSearchinLowGain )
+    unsigned int fFirst, unsigned int fLast,
+    unsigned int fTFirst, unsigned int fTLast,
+    bool iReverseSearchinLowGain )
 {
     // reset pulse timing vector
     for( unsigned int i = 0; i < fpulsetiming.size(); i++ )
@@ -383,10 +383,10 @@ vector< float >& VTraceHandler::getPulseTiming(
  *
  */
 void VTraceHandler::getTraceMax(
-        unsigned int fFirst, unsigned int fLast,
-        double& tmax, unsigned int& maxpos,
-        unsigned int& n255,
-        bool iReverseSearchinLowGain )
+    unsigned int fFirst, unsigned int fLast,
+    double& tmax, unsigned int& maxpos,
+    unsigned int& n255,
+    bool iReverseSearchinLowGain )
 {
     unsigned int nMax = ( unsigned int )( fDynamicRange * tmax );
     n255 = 0;

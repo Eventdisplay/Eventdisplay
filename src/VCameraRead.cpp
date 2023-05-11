@@ -215,7 +215,7 @@ bool VCameraRead::readCameraFile( string iCameraFile )
             // reading neighbours
             is_stream >> i_char;
             unsigned int j = 0;
-            while( !(is_stream>>std::ws).eof() && i_char.substr( 0, 1 ) == "N" )
+            while( !( is_stream >> std::ws ).eof() && i_char.substr( 0, 1 ) == "N" )
             {
                 if( j < fNeighbour[fTelID][i_ch].size() )
                 {
@@ -225,11 +225,11 @@ bool VCameraRead::readCameraFile( string iCameraFile )
                 j++;
             }
             // maybe there is some information about triggers and dead channels
-            if( !(is_stream>>std::ws).eof() && i_char.substr( 0, 4 ) == "TRIG" )
+            if( !( is_stream >> std::ws ).eof() && i_char.substr( 0, 4 ) == "TRIG" )
             {
                 is_stream >> fTrigTube[fTelID][i_ch];
             }
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> i_char;
                 if( i_char.substr( 0, 3 ) == "ANA" )
@@ -238,7 +238,7 @@ bool VCameraRead::readCameraFile( string iCameraFile )
                 }
             }
             // get convertion from MC tube numbering to real data tube numbering
-            if( !(is_stream>>std::ws).eof() )
+            if( !( is_stream >> std::ws ).eof() )
             {
                 is_stream >> i_char;
                 if( i_char.substr( 0, 3 ) == "MIX" )
@@ -522,7 +522,7 @@ bool VCameraRead::readGrisucfg( string iFile, unsigned int iNTel )
             {
                 i_stream >> fMaxNeighbour[i_telID];
             }
-
+            
             if( fDebug )
             {
                 cout << "VCameraRead: total number of channels: " << fCNChannels[i_telID] << " (" << i_telID + 1 << ")" << endl;
@@ -862,7 +862,7 @@ void VCameraRead::readPixelFile( string iFile )
                 }
                 for( unsigned int j = 0; j < fMaxNeighbour[i_telID]; j++ )
                 {
-                    if( !(is_stream>>std::ws).eof() )
+                    if( !( is_stream >> std::ws ).eof() )
                     {
                         if( j < fNeighbour[i_telID][i_chan].size() )
                         {
@@ -1330,16 +1330,16 @@ bool VCameraRead::makeNeighbourList( vector< float > iNeighbourDistanceFactor,
             }
         }
         iTubeDistance_min *= 0.5;
-
+        
         if( i < iNeighbourDistanceFactor.size() )
         {
             iTubeDistance_min *= iNeighbourDistanceFactor[i];
         }
-                
+        
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Now find all neighbouring pixels
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+        
         double maxDist = 1.1; // Distance in diameters to adjacent pixel
         // In the case of square pixels, increase the distance to go over the gaps in square cameras.
         if( iSquarePixels[i] )
@@ -1372,14 +1372,14 @@ bool VCameraRead::makeNeighbourList( vector< float > iNeighbourDistanceFactor,
                         fNeighbour[i][k].push_back( j );
                     }
                 }
-
-
+                
+                
                 // In counting neighbours to determine edge pixels, consider only directly adjacent neighbours (no diagonals)
-                // The tolerance is set to 20% of the pixel diameter due to the CHEC-S and ASTRI cameras, 
+                // The tolerance is set to 20% of the pixel diameter due to the CHEC-S and ASTRI cameras,
                 // where pixels in the same row/column were observed to be shifted in x/y positions due to the camera curvature.
                 float maxShift = 0.2 * 2 * iTubeDistance_min; // Multiply by 2 because iTubeDistance_min is the pixel radius
-                if ((iSquarePixels[i] && ( abs( getX_MM( i )[j] - getX_MM( i )[k] ) < maxShift || abs( getY_MM( i )[j] - getY_MM( i )[k] ) < maxShift ) ) 
-                    || !iSquarePixels[i])
+                if( ( iSquarePixels[i] && ( abs( getX_MM( i )[j] - getX_MM( i )[k] ) < maxShift || abs( getY_MM( i )[j] - getY_MM( i )[k] ) < maxShift ) )
+                        || !iSquarePixels[i] )
                 {
                     if( itemp < 2 * maxDist * iTubeDistance_min )
                     {
@@ -1414,11 +1414,11 @@ bool VCameraRead::makeNeighbourList( vector< float > iNeighbourDistanceFactor,
                 maxForEdgePixels = nnForEdgePixels[j];
             }
         }
-
+        
         /////////////////////////////////////////////////////////////
         // determine edge pixels
         /////////////////////////////////////////////////////////////
-
+        
         // The number of adjacent neighbours is 6 or 4 for hexagonal and square cameras respectivley
         if( maxForEdgePixels == 6 || maxForEdgePixels == 4 )
         {
@@ -1443,7 +1443,7 @@ bool VCameraRead::makeNeighbourList( vector< float > iNeighbourDistanceFactor,
             exit( EXIT_FAILURE );
         }
     }
-
+    
     return true;
 }
 
@@ -1505,7 +1505,7 @@ unsigned int VCameraRead::getTelType_Counter( ULong64_t iTelType )
     {
         s.insert( fTelType[i] );
     }
-
+    
     unsigned int z = 0;
     for( set< ULong64_t >::iterator i_s = s.begin(); i_s != s.end(); i_s++ )
     {
@@ -1515,7 +1515,7 @@ unsigned int VCameraRead::getTelType_Counter( ULong64_t iTelType )
         }
         z++;
     }
-
+    
     // unsuccessfull search
     return 9999;
 }
@@ -1661,7 +1661,7 @@ vector< unsigned int > VCameraRead::getNumChannelVector()
 }
 
 /*
- * adjust pixel IDs 
+ * adjust pixel IDs
  * (e.g. handle differences between counting from zero or one)
  *
  * default:
@@ -1674,7 +1674,7 @@ unsigned int VCameraRead::adjustPixelCounting( unsigned int i_chan )
     {
         return i_chan;
     }
-
+    
     return i_chan - 1;
 }
 

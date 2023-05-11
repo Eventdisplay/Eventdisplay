@@ -96,9 +96,9 @@ TF1* VSpectralFitter::fit( TGraph* g, string fitname )
                     rho /= sqrt( fitter->GetCovarianceMatrixElement( 0, 0 ) * fitter->GetCovarianceMatrixElement( 1, 1 ) );
                     
                     cout << "\tCorrelation coefficient: " << rho << endl;
-	   	    double i_decorr = fSpectralFitFluxNormalisationEnergy ;
-		    i_decorr *= TMath::Exp( fitter->GetCovarianceMatrixElement( 0, 1 ) / fFitFunction->GetParameter(0) / fitter->GetCovarianceMatrixElement( 1, 1 )  );
-		    cout << "\tDecorrelation Energy: " << i_decorr << " " << fSpectralFitFluxNormalisationEnergy << endl;
+                    double i_decorr = fSpectralFitFluxNormalisationEnergy ;
+                    i_decorr *= TMath::Exp( fitter->GetCovarianceMatrixElement( 0, 1 ) / fFitFunction->GetParameter( 0 ) / fitter->GetCovarianceMatrixElement( 1, 1 ) );
+                    cout << "\tDecorrelation Energy: " << i_decorr << " " << fSpectralFitFluxNormalisationEnergy << endl;
                 }
             }
         }
@@ -176,7 +176,7 @@ bool VSpectralFitter::defineFitFunction()
     // curved power law fit
     else if( fSpectralFitFunction == 3 )
     {
-		cout << "Fitfunction: curved power law fit" << endl;
+        cout << "Fitfunction: curved power law fit" << endl;
         sprintf( hname, "[0] * TMath::Power( TMath::Power( 10, x ) / %f, [1]+[2]*TMath::Power( 10, x ) / %f )", fSpectralFitFluxNormalisationEnergy, fSpectralFitFluxNormalisationEnergy );
         fFitFunction = new TF1( fFitName.c_str(), hname, log10( fSpectralFitEnergy_min ), log10( fSpectralFitEnergy_max ) );
         fFitFunction->SetParameter( 0, 1.e-7 );
@@ -184,15 +184,15 @@ bool VSpectralFitter::defineFitFunction()
         fFitFunction->SetParameter( 2, -0.01 );
         fFitFunction->SetParLimits( 2, -0.3, 0. );
     }
-	// curved power law fit  (e.g. ApJ 674, 1037 (2008))
-	else if( fSpectralFitFunction == 4 )
-	{
-		cout << "Fitfunction: curved power law fit (4)" << endl;
-		sprintf( hname, "[0] * TMath::Power( TMath::Power( 10, x ) / %f, [1]+[2]*log10( TMath::Power( 10, x ) / %f ) )", fSpectralFitFluxNormalisationEnergy, fSpectralFitFluxNormalisationEnergy );
-		fFitFunction = new TF1( fFitName.c_str(), hname, log10( fSpectralFitEnergy_min ), log10( fSpectralFitEnergy_max ) );
-		fFitFunction->SetParameter( 0, 1.e-7 );
-		fFitFunction->SetParameter( 1, -2. );
-		fFitFunction->SetParameter( 2, -0.01 );
+    // curved power law fit  (e.g. ApJ 674, 1037 (2008))
+    else if( fSpectralFitFunction == 4 )
+    {
+        cout << "Fitfunction: curved power law fit (4)" << endl;
+        sprintf( hname, "[0] * TMath::Power( TMath::Power( 10, x ) / %f, [1]+[2]*log10( TMath::Power( 10, x ) / %f ) )", fSpectralFitFluxNormalisationEnergy, fSpectralFitFluxNormalisationEnergy );
+        fFitFunction = new TF1( fFitName.c_str(), hname, log10( fSpectralFitEnergy_min ), log10( fSpectralFitEnergy_max ) );
+        fFitFunction->SetParameter( 0, 1.e-7 );
+        fFitFunction->SetParameter( 1, -2. );
+        fFitFunction->SetParameter( 2, -0.01 );
         fFitFunction->SetParLimits( 2, -0.3, 0. );
     }
     else

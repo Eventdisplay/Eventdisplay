@@ -35,15 +35,15 @@ VOnOff::~VOnOff()
     if( hList )
     {
         TIter next( hList );
-        while (TObject *obj = next())
+        while( TObject* obj = next() )
         {
             if( obj->TestBit( kCanDelete ) )
             {
-               obj->Delete();
+                obj->Delete();
             }
         }
         delete hList;
-    } 
+    }
 }
 
 

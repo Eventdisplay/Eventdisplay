@@ -167,7 +167,7 @@ bool VPlotSensitivityfromLisFiles::addLisFile( string iFile, string iCut )
                     fData.back()->fVar[fVarName[i]].push_back( log10( 0.5 * ( TMath::Power( 10., fData.back()->fVar["E1"].back() ) + TMath::Power( 10., fData.back()->fVar["E2"].back() ) ) ) );
                     continue;
                 }
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> temp;
                     fData.back()->fVar[fVarName[i]].push_back( atof( temp.c_str() ) );

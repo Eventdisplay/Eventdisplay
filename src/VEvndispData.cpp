@@ -814,19 +814,19 @@ bool VEvndispData::isTeltoAna( unsigned int iTel )
  */
 valarray<double>& VEvndispData::getPulseTime( bool iCorrected )
 {
-     // in run parameter file: FADCSUMMATIONSTART set to TZERO
+    // in run parameter file: FADCSUMMATIONSTART set to TZERO
     if( getSumWindowStart_T_method() == 1 )
     {
         return fAnaData[fTelID]->getTZeros( iCorrected );
     }
-     // in run parameter file: FADCSUMMATIONSTART set to TTRIGGER
-     else if( getSumWindowStart_T_method() == 3 )
-     {
-         return fAnaData[fTelID]->getTTrigger();
-     }
+    // in run parameter file: FADCSUMMATIONSTART set to TTRIGGER
+    else if( getSumWindowStart_T_method() == 3 )
+    {
+        return fAnaData[fTelID]->getTTrigger();
+    }
     
     // default: return average pulse time
-     // in run parameter file: FADCSUMMATIONSTART set to TAVERAGE
+    // in run parameter file: FADCSUMMATIONSTART set to TAVERAGE
     return fAnaData[fTelID]->getTraceAverageTime( iCorrected );
 }
 

@@ -615,7 +615,7 @@ void VTableCalculator::terminate( TDirectory* iOut, char* xtitle )
      return value is energy (linear scale)
 
 */
-double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double *d, double* w,
+double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double* d, double* w,
                                double* mt, double& chi2, double& dE, double* s_sigma )
 {
     int tel = 0;
@@ -680,10 +680,10 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
         // loop over all telescopes
         for( tel = 0; tel < ntel; tel++ )
         {
-            if( s[tel] > 0. && r[tel] >= 0. 
-                  && l[tel] < fEventSelectionCut_lossCutMax
-                  && d[tel] < fEventSelectionCut_distanceCutMax
-                  && w_fill[tel] > fBinning1DXlow && w_fill[tel] < fBinning1DXhigh )
+            if( s[tel] > 0. && r[tel] >= 0.
+                    && l[tel] < fEventSelectionCut_lossCutMax
+                    && d[tel] < fEventSelectionCut_distanceCutMax
+                    && w_fill[tel] > fBinning1DXlow && w_fill[tel] < fBinning1DXhigh )
             {
                 // check limits (to avoid under/overflows)
                 ir = hMedian->GetYaxis()->FindFixBin( r[tel] ) - 1;
@@ -788,9 +788,9 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
         ////////////////////////////////////////////////////
         for( tel = 0; tel < ntel; tel++ )
         {
-            if( r[tel] >= 0. && s[tel] > 0 
-            && l[tel] < fEventSelectionCut_lossCutMax 
-            && d[tel] < fEventSelectionCut_distanceCutMax )
+            if( r[tel] >= 0. && s[tel] > 0
+                    && l[tel] < fEventSelectionCut_lossCutMax
+                    && d[tel] < fEventSelectionCut_distanceCutMax )
             {
                 // get expected value and sigma of expected value
                 if( hMedian )
@@ -854,9 +854,9 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                     if( !fEnergy && sigma > 0. )
                     {
                         // handle showers with (width==0.) correctly
-                        if( w_fill[tel] > 0. 
-                           && l[tel] < fEventSelectionCut_lossCutMax 
-                           && d[tel] < fEventSelectionCut_distanceCutMax )
+                        if( w_fill[tel] > 0.
+                                && l[tel] < fEventSelectionCut_lossCutMax
+                                && d[tel] < fEventSelectionCut_distanceCutMax )
                         {
                             value  += ( w_fill[tel] - med ) / sigma * ( med * med ) / ( sigma * sigma );
                             weight += ( med * med ) / ( sigma * sigma );
@@ -883,8 +883,8 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                         {
                             sigma2_tel.back() = sigma2_tel.back() * 100.*exp( -1.*( r[tel] - scaleDistance ) / 200. );
                         }
-                        if( l[tel] < fEventSelectionCut_lossCutMax 
-                           && d[tel] < fEventSelectionCut_distanceCutMax )
+                        if( l[tel] < fEventSelectionCut_lossCutMax
+                                && d[tel] < fEventSelectionCut_distanceCutMax )
                         {
                             good_image.push_back( true );
                         }
@@ -952,8 +952,8 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                 double z1 = 0;
                 for( unsigned int j = 0; j < energy_tel.size(); j++ )
                 {
-                    if( sigma2_tel_noRadiusWeigth[j] != 0. 
-                    && good_image[j] )
+                    if( sigma2_tel_noRadiusWeigth[j] != 0.
+                            && good_image[j] )
                     {
                         chi2 += ( value - energy_tel[j] ) * ( value - energy_tel[j] ) * sigma2_tel_noRadiusWeigth[j];
                         z1++;
@@ -972,7 +972,7 @@ double VTableCalculator::calc( int ntel, double* r, double* s, double* l, double
                 for( unsigned int j = 0; j < sigma_tel.size(); j++ )
                 {
                     if( sigma_tel[j] > 0.
-                    && good_image[j] )
+                            && good_image[j] )
                     {
                         dE += 1. / ( energy_tel[j] * sigma_tel[j] );
                         z1++;

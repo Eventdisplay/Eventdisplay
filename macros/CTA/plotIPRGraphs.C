@@ -24,7 +24,7 @@
  * from the most recent ones
  *
  */
-ULong64_t find_tel_type( TFile *f, string iTelType, unsigned int i_sum_window )
+ULong64_t find_tel_type( TFile* f, string iTelType, unsigned int i_sum_window )
 {
     if( !f || f->IsZombie() )
     {
@@ -67,7 +67,7 @@ ULong64_t find_tel_type( TFile *f, string iTelType, unsigned int i_sum_window )
     {
         fTelType.push_back( 909924 );
     }
-
+    
     for( unsigned int i = 0; i < fTelType.size(); i++ )
     {
         std::ostringstream iGraphName;
@@ -84,9 +84,9 @@ ULong64_t find_tel_type( TFile *f, string iTelType, unsigned int i_sum_window )
  *  plot IPR graphs (from two or one file)
  *
 */
-void plotIPRGraphs( string iFile1, string iFile2 = "", 
-        float plot_min = 20., float plot_max = 9.e7,
-        string Production = "PROD6" )
+void plotIPRGraphs( string iFile1, string iFile2 = "",
+                    float plot_min = 20., float plot_max = 9.e7,
+                    string Production = "PROD6" )
 {
     // root files with IPR graphs (...ped.root)
     vector< string > fFile;
@@ -109,7 +109,7 @@ void plotIPRGraphs( string iFile1, string iFile2 = "",
     fSumWindow.push_back( 4 );
     fTelTypeName.push_back( "SC-MST" );
     fSumWindow.push_back( 4 );
-
+    
     if( Production == "PROD3" )
     {
         fTelTypeName.push_back( "ASTRI-SST" );
@@ -129,7 +129,7 @@ void plotIPRGraphs( string iFile1, string iFile2 = "",
     
     for( unsigned int i = 0; i < fTelTypeName.size(); i++ )
     {
-        
+    
         std::ostringstream iCanvasName;
         iCanvasName << "cIPRcharge_TelType" << fTelTypeName[i] << "_SW" << fSumWindow[i];
         

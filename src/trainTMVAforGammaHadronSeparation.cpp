@@ -42,21 +42,21 @@ bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, un
  */
 string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal, unsigned int iRequiredEvents )
 {
-   Long64_t n_fix = (Long64_t)(n*0.5-1);
-   stringstream r_a;
-   if( n_fix > iRequiredEvents )
-   {
-      n_fix = iRequiredEvents;
-   }
-   if( iSignal ) 
-   {
-       r_a << a << ":nTrain_Signal=" << n_fix << ":nTest_Signal=" << n_fix;
-   }
-   else
-   {
-       r_a << a << ":nTrain_Background=" << n_fix << ":nTest_Background=" << n_fix;
-   }
-   return r_a.str();
+    Long64_t n_fix = ( Long64_t )( n * 0.5 - 1 );
+    stringstream r_a;
+    if( n_fix > iRequiredEvents )
+    {
+        n_fix = iRequiredEvents;
+    }
+    if( iSignal )
+    {
+        r_a << a << ":nTrain_Signal=" << n_fix << ":nTest_Signal=" << n_fix;
+    }
+    else
+    {
+        r_a << a << ":nTrain_Background=" << n_fix << ":nTest_Background=" << n_fix;
+    }
+    return r_a.str();
 }
 
 /*
@@ -67,7 +67,7 @@ string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal, unsigned
  *   - delete full trees (IMPORTANT)
  *
  */
-TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut, 
+TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
                                   bool iSignal, Long64_t iResetEventNumbers )
 {
     if( !iRun )
@@ -89,7 +89,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
         iDataTree_reducedName = "data_background";
     }
     // reduced tree (and name)
-    TTree *iDataTree_reduced = 0;
+    TTree* iDataTree_reduced = 0;
     // list of variables copied.
     // must be at least the variables used for the training
     Double_t MSCW = 0.;
@@ -103,7 +103,10 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Int_t NImages = 0;
     // fixed max number of telescope types
     UInt_t NImages_Ttype[20];
-    for( unsigned int i = 0; i < 20; i++ ) NImages_Ttype[i] = 0;
+    for( unsigned int i = 0; i < 20; i++ )
+    {
+        NImages_Ttype[i] = 0;
+    }
     Float_t EmissionHeight = 0.;
     Float_t EmissionHeightChi2 = 0.;
     Double_t SizeSecondMax = 0.;
@@ -125,78 +128,78 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "SizeSecondMax", &SizeSecondMax, "SizeSecondMax/D" );
     iDataTree_reduced->Branch( "DispDiff", &DispDiff, "DispDiff/D" );
     iDataTree_reduced->Branch( "MCe0", &MCe0, "MCe0/D" );
-
+    
     Long64_t n = 0;
     
     for( unsigned  int i = 0; i < iTreeVector.size(); i++ )
     {
         if( iTreeVector[i] )
         {
-             iTreeVector[i]->SetBranchAddress( "MSCW", &MSCW );
-             iTreeVector[i]->SetBranchAddress( "MSCL", &MSCL );
-             iTreeVector[i]->SetBranchAddress( "ErecS", &ErecS );
-             iTreeVector[i]->SetBranchAddress( "EChi2S", &EChi2S );
-             iTreeVector[i]->SetBranchAddress( "Xcore", &Xcore );
-             iTreeVector[i]->SetBranchAddress( "Ycore", &Ycore );
-             iTreeVector[i]->SetBranchAddress( "Xoff_derot", &Xoff_derot );
-             iTreeVector[i]->SetBranchAddress( "Yoff_derot", &Yoff_derot );
-             iTreeVector[i]->SetBranchAddress( "NImages", &NImages );
-             iTreeVector[i]->SetBranchAddress( "NImages_Ttype", NImages_Ttype );
-             iTreeVector[i]->SetBranchAddress( "EmissionHeight", &EmissionHeight );
-             iTreeVector[i]->SetBranchAddress( "EmissionHeightChi2", &EmissionHeightChi2 );
-             iTreeVector[i]->SetBranchAddress( "SizeSecondMax", &SizeSecondMax );
-             iTreeVector[i]->SetBranchAddress( "DispDiff", &DispDiff );
-             if( iTreeVector[i]->GetBranchStatus( "MCe0" ) )
-             {
-                 iTreeVector[i]->SetBranchAddress( "MCe0", &MCe0 );
-             }
-             if( !iDataTree_reduced )
-             {
-                 cout << "Error preparing reduced tree" << endl;
-                 cout << "exiting..." << endl;
-                 exit( EXIT_FAILURE );
-             }
-             iTreeVector[i]->Draw( ">>elist", iCut, "entrylist" );
-             TEntryList *elist = (TEntryList*)gDirectory->Get("elist");
-             if( elist )
-             {
-                  for( Long64_t el = 0; el < elist->GetN(); el++)
-                  {
-                       Long64_t treeEntry = elist->GetEntry( el );
-                       iTreeVector[i]->GetEntry( treeEntry );
-                       iDataTree_reduced->Fill();
-                       n++;
-                  }
-             }
-             // remove this tree
-             if( iSignal )
-             {
+            iTreeVector[i]->SetBranchAddress( "MSCW", &MSCW );
+            iTreeVector[i]->SetBranchAddress( "MSCL", &MSCL );
+            iTreeVector[i]->SetBranchAddress( "ErecS", &ErecS );
+            iTreeVector[i]->SetBranchAddress( "EChi2S", &EChi2S );
+            iTreeVector[i]->SetBranchAddress( "Xcore", &Xcore );
+            iTreeVector[i]->SetBranchAddress( "Ycore", &Ycore );
+            iTreeVector[i]->SetBranchAddress( "Xoff_derot", &Xoff_derot );
+            iTreeVector[i]->SetBranchAddress( "Yoff_derot", &Yoff_derot );
+            iTreeVector[i]->SetBranchAddress( "NImages", &NImages );
+            iTreeVector[i]->SetBranchAddress( "NImages_Ttype", NImages_Ttype );
+            iTreeVector[i]->SetBranchAddress( "EmissionHeight", &EmissionHeight );
+            iTreeVector[i]->SetBranchAddress( "EmissionHeightChi2", &EmissionHeightChi2 );
+            iTreeVector[i]->SetBranchAddress( "SizeSecondMax", &SizeSecondMax );
+            iTreeVector[i]->SetBranchAddress( "DispDiff", &DispDiff );
+            if( iTreeVector[i]->GetBranchStatus( "MCe0" ) )
+            {
+                iTreeVector[i]->SetBranchAddress( "MCe0", &MCe0 );
+            }
+            if( !iDataTree_reduced )
+            {
+                cout << "Error preparing reduced tree" << endl;
+                cout << "exiting..." << endl;
+                exit( EXIT_FAILURE );
+            }
+            iTreeVector[i]->Draw( ">>elist", iCut, "entrylist" );
+            TEntryList* elist = ( TEntryList* )gDirectory->Get( "elist" );
+            if( elist )
+            {
+                for( Long64_t el = 0; el < elist->GetN(); el++ )
+                {
+                    Long64_t treeEntry = elist->GetEntry( el );
+                    iTreeVector[i]->GetEntry( treeEntry );
+                    iDataTree_reduced->Fill();
+                    n++;
+                }
+            }
+            // remove this tree
+            if( iSignal )
+            {
                 iRun->fSignalTree[i]->Delete();
                 iRun->fSignalTree[i] = 0;
-             }
-             else
-             {
+            }
+            else
+            {
                 iRun->fBackgroundTree[i]->Delete();
                 iRun->fBackgroundTree[i] = 0;
-             }
-             // factor of 2: here for training and testing events
-             if( iResetEventNumbers > 0 && n > iResetEventNumbers * 2 )
-             {
-                 cout << "\t reached required ";
-                 if( iSignal )
-                 {
-                     cout << "signal";
-                 }
-                 else
-                 {
-                     cout << "background";
-                 }
-                 cout << " event numbers ";
-                 cout << "(" << iResetEventNumbers << ")";
-                 cout << " after " << i+1 << " tree(s)" << endl;
-                 cout << "\t applied cut: " << iCut << endl;
+            }
+            // factor of 2: here for training and testing events
+            if( iResetEventNumbers > 0 && n > iResetEventNumbers * 2 )
+            {
+                cout << "\t reached required ";
+                if( iSignal )
+                {
+                    cout << "signal";
+                }
+                else
+                {
+                    cout << "background";
+                }
+                cout << " event numbers ";
+                cout << "(" << iResetEventNumbers << ")";
+                cout << " after " << i + 1 << " tree(s)" << endl;
+                cout << "\t applied cut: " << iCut << endl;
                 break;
-             }
+            }
         }
     }
     if( iSignal && iDataTree_reduced )
@@ -229,7 +232,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
             iRun->fBackgroundTree[i] = 0;
         }
     }
-
+    
     return iDataTree_reduced;
 }
 
@@ -239,23 +242,23 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
 
 */
 
-bool trainGammaHadronSeparation( VTMVARunData* iRun, 
-                                 unsigned int iEnergyBin, unsigned int iZenithBin, 
+bool trainGammaHadronSeparation( VTMVARunData* iRun,
+                                 unsigned int iEnergyBin, unsigned int iZenithBin,
                                  string fRunOption )
 {
     return train( iRun, iEnergyBin, iZenithBin, true, fRunOption );
 }
 
-bool trainReconstructionQuality( VTMVARunData* iRun, 
-                                 unsigned int iEnergyBin, unsigned int iZenithBin, 
+bool trainReconstructionQuality( VTMVARunData* iRun,
+                                 unsigned int iEnergyBin, unsigned int iZenithBin,
                                  string fRunOption )
 {
     return train( iRun, iEnergyBin, iZenithBin, false, fRunOption );
 }
 
 
-bool train( VTMVARunData* iRun, 
-            unsigned int iEnergyBin, unsigned int iZenithBin, 
+bool train( VTMVARunData* iRun,
+            unsigned int iEnergyBin, unsigned int iZenithBin,
             bool iTrainGammaHadronSeparation,
             string fRunOption )
 {
@@ -275,18 +278,18 @@ bool train( VTMVARunData* iRun,
         return false;
     }
     // quality cuts before training
-    TCut iCutSignal = iRun->fQualityCuts && iRun->fQualityCutsSignal 
-                   && iRun->fMCxyoffCut && iRun->fAzimuthCut &&
-                   iRun->fMultiplicityCuts &&
-                   iRun->fEnergyCutData[iEnergyBin]->fEnergyCut 
+    TCut iCutSignal = iRun->fQualityCuts && iRun->fQualityCutsSignal
+                      && iRun->fMCxyoffCut && iRun->fAzimuthCut &&
+                      iRun->fMultiplicityCuts &&
+                      iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
+                      && iRun->fZenithCutData[iZenithBin]->fZenithCut;
+                      
+    TCut iCutBck = iRun->fQualityCuts && iRun->fQualityCutsBkg
+                   && iRun->fAzimuthCut
+                   && iRun->fMultiplicityCuts
+                   && iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
                    && iRun->fZenithCutData[iZenithBin]->fZenithCut;
-
-    TCut iCutBck = iRun->fQualityCuts && iRun->fQualityCutsBkg 
-                && iRun->fAzimuthCut 
-                && iRun->fMultiplicityCuts
-                && iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
-                && iRun->fZenithCutData[iZenithBin]->fZenithCut;
-
+                   
     if( !iRun->fMCxyoffCutSignalOnly )
     {
         iCutBck = iCutBck && iRun->fMCxyoffCut;
@@ -298,93 +301,102 @@ bool train( VTMVARunData* iRun,
         cout << "train: error: training-variable vectors have different size" << endl;
         return false;
     }
-
-     // prepare trees for training and testing with selected events only
-     // this step is necessary to minimise the memory impact for the BDT
-     // training
-     TTree *iSignalTree_reduced = 0;
-     TTree *iBackgroundTree_reduced = 0;
-     if( fRunOption == "WRITETRAININGEVENTS" )
-     {
-         iSignalTree_reduced = prepareSelectedEventsTree( iRun,
-                           iCutSignal, true,
-                           iRun->fResetNumberOfTrainingEvents );
-         iBackgroundTree_reduced = prepareSelectedEventsTree( iRun, 
-                           iCutBck, false,
-                           iRun->fResetNumberOfTrainingEvents );
-     
-         if( iSignalTree_reduced ) iSignalTree_reduced->Write();
-         if( iBackgroundTree_reduced ) iBackgroundTree_reduced->Write();
-         if( iRun->getTLRunParameter() ) iRun->getTLRunParameter()->Write();
-         cout << "Writing reduced event lists for training: ";
-         cout << gDirectory->GetName() << endl;
-         exit( EXIT_SUCCESS );
-     }
-     else
-     {
-         cout << "Reading training / testing trees from ";
-         cout << iRun->fSelectedEventTreeName << endl;
-         TFile *iF = new TFile( iRun->fSelectedEventTreeName.c_str() );
-         if( iF->IsZombie() )
-         {
-             cout << "Error open file with pre-selected events: ";
-             cout << iRun->fSelectedEventTreeName << endl;
-             exit( EXIT_FAILURE );
-         }
-         iSignalTree_reduced = (TTree*)iF->Get( "data_signal" );
-         iBackgroundTree_reduced = (TTree*)iF->Get( "data_background" );
-     }
-     if( !iSignalTree_reduced || !iBackgroundTree_reduced )
-     {
-         cout << "Error: failed preparing traing / testing trees" << endl;
-         cout << "exiting..." << endl;
-         exit( EXIT_SUCCESS );
-     }
+    
+    // prepare trees for training and testing with selected events only
+    // this step is necessary to minimise the memory impact for the BDT
+    // training
+    TTree* iSignalTree_reduced = 0;
+    TTree* iBackgroundTree_reduced = 0;
+    if( fRunOption == "WRITETRAININGEVENTS" )
+    {
+        iSignalTree_reduced = prepareSelectedEventsTree( iRun,
+                              iCutSignal, true,
+                              iRun->fResetNumberOfTrainingEvents );
+        iBackgroundTree_reduced = prepareSelectedEventsTree( iRun,
+                                  iCutBck, false,
+                                  iRun->fResetNumberOfTrainingEvents );
+                                  
+        if( iSignalTree_reduced )
+        {
+            iSignalTree_reduced->Write();
+        }
+        if( iBackgroundTree_reduced )
+        {
+            iBackgroundTree_reduced->Write();
+        }
+        if( iRun->getTLRunParameter() )
+        {
+            iRun->getTLRunParameter()->Write();
+        }
+        cout << "Writing reduced event lists for training: ";
+        cout << gDirectory->GetName() << endl;
+        exit( EXIT_SUCCESS );
+    }
+    else
+    {
+        cout << "Reading training / testing trees from ";
+        cout << iRun->fSelectedEventTreeName << endl;
+        TFile* iF = new TFile( iRun->fSelectedEventTreeName.c_str() );
+        if( iF->IsZombie() )
+        {
+            cout << "Error open file with pre-selected events: ";
+            cout << iRun->fSelectedEventTreeName << endl;
+            exit( EXIT_FAILURE );
+        }
+        iSignalTree_reduced = ( TTree* )iF->Get( "data_signal" );
+        iBackgroundTree_reduced = ( TTree* )iF->Get( "data_background" );
+    }
+    if( !iSignalTree_reduced || !iBackgroundTree_reduced )
+    {
+        cout << "Error: failed preparing traing / testing trees" << endl;
+        cout << "exiting..." << endl;
+        exit( EXIT_SUCCESS );
+    }
     // check for number of training and background events
-     cout << "Reading number of events before / after cuts: " << endl;
-     Long64_t nEventsSignal = iSignalTree_reduced->GetEntries();
-     cout << "\t total number of signal events before cuts: ";
-     cout << nEventsSignal << endl;
-     iSignalTree_reduced->Draw( ">>elist", iRun->fEnergyCutData[iEnergyBin]->fEnergyCut && iRun->fMultiplicityCuts, "entrylist" );
-     TEntryList *elist = (TEntryList*)gDirectory->Get("elist");
-     if( elist )
-     {
-         nEventsSignal = elist->GetN();
-         cout << "\t total number of signal events after cuts:  ";
-         cout << elist->GetN();
-         cout << " (required are " << iRun->fMinSignalEvents << ")" << endl;
-     }
-     Long64_t nEventsBck = iBackgroundTree_reduced->GetEntries();
-     cout << "\t total number of background events before cuts: ";
-     cout << nEventsBck << endl;
-     iBackgroundTree_reduced->Draw( ">>elist", iRun->fEnergyCutData[iEnergyBin]->fEnergyCut && iRun->fMultiplicityCuts, "entrylist" );
-     elist = (TEntryList*)gDirectory->Get("elist");
-     if( elist )
-     {
-         nEventsBck = elist->GetN();
-         cout << "\t total number of background events after cuts:  ";
-         cout << elist->GetN();
-         cout << " (required are " << iRun->fMinSignalEvents << ")" << endl;
-         cout << " (required are " << iRun->fMinBackgroundEvents << ")" << endl;
-     }
-     if( nEventsSignal < iRun->fMinSignalEvents || nEventsBck < iRun->fMinBackgroundEvents  )
-     {
-         cout << "Error: not enough training events" << endl;
-         cout << "exiting..." << endl;
-         exit( EXIT_SUCCESS );
-     }
-     // check if this number if consistent with requested number of training events
-     // required at least 10 events
-     if( iRun->fResetNumberOfTrainingEvents > 0 )
-     {
-          cout << "Checking number of training events: " << endl;
-          iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions, 
-                                           nEventsSignal, true, iRun->fResetNumberOfTrainingEvents );
-          iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions,
-                                           nEventsBck, false, iRun->fResetNumberOfTrainingEvents );
-          cout << "\t Updated training options: " <<  iRun->fPrepareTrainingOptions << endl;
-     }
-             
+    cout << "Reading number of events before / after cuts: " << endl;
+    Long64_t nEventsSignal = iSignalTree_reduced->GetEntries();
+    cout << "\t total number of signal events before cuts: ";
+    cout << nEventsSignal << endl;
+    iSignalTree_reduced->Draw( ">>elist", iRun->fEnergyCutData[iEnergyBin]->fEnergyCut && iRun->fMultiplicityCuts, "entrylist" );
+    TEntryList* elist = ( TEntryList* )gDirectory->Get( "elist" );
+    if( elist )
+    {
+        nEventsSignal = elist->GetN();
+        cout << "\t total number of signal events after cuts:  ";
+        cout << elist->GetN();
+        cout << " (required are " << iRun->fMinSignalEvents << ")" << endl;
+    }
+    Long64_t nEventsBck = iBackgroundTree_reduced->GetEntries();
+    cout << "\t total number of background events before cuts: ";
+    cout << nEventsBck << endl;
+    iBackgroundTree_reduced->Draw( ">>elist", iRun->fEnergyCutData[iEnergyBin]->fEnergyCut && iRun->fMultiplicityCuts, "entrylist" );
+    elist = ( TEntryList* )gDirectory->Get( "elist" );
+    if( elist )
+    {
+        nEventsBck = elist->GetN();
+        cout << "\t total number of background events after cuts:  ";
+        cout << elist->GetN();
+        cout << " (required are " << iRun->fMinSignalEvents << ")" << endl;
+        cout << " (required are " << iRun->fMinBackgroundEvents << ")" << endl;
+    }
+    if( nEventsSignal < iRun->fMinSignalEvents || nEventsBck < iRun->fMinBackgroundEvents )
+    {
+        cout << "Error: not enough training events" << endl;
+        cout << "exiting..." << endl;
+        exit( EXIT_SUCCESS );
+    }
+    // check if this number if consistent with requested number of training events
+    // required at least 10 events
+    if( iRun->fResetNumberOfTrainingEvents > 0 )
+    {
+        cout << "Checking number of training events: " << endl;
+        iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions,
+                                        nEventsSignal, true, iRun->fResetNumberOfTrainingEvents );
+        iRun->fPrepareTrainingOptions = resetNumberOfTrainingEvents( iRun->fPrepareTrainingOptions,
+                                        nEventsBck, false, iRun->fResetNumberOfTrainingEvents );
+        cout << "\t Updated training options: " <<  iRun->fPrepareTrainingOptions << endl;
+    }
+    
     TMVA::Tools::Instance();
     
     // set output directory
@@ -433,12 +445,12 @@ bool train( VTMVARunData* iRun,
         cout << "Preparing training and test tree" << endl;
         // cuts after pre-selection
         TCut iCutSignal_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
-                            && iRun->fMultiplicityCuts;
+                               && iRun->fMultiplicityCuts;
         TCut iCutBck_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
                             && iRun->fMultiplicityCuts;
-
+                            
         dataloader->PrepareTrainingAndTestTree( iCutSignal_post,
-                                                iCutBck_post, 
+                                                iCutBck_post,
                                                 iRun->fPrepareTrainingOptions );
     }
     else
@@ -457,11 +469,11 @@ bool train( VTMVARunData* iRun,
         {
             i_tmva_type = TMVA::Types::kBDT;
         }
-        else if( iRun->fMVAMethod[i] == "MLP" ) 
+        else if( iRun->fMVAMethod[i] == "MLP" )
         {
             i_tmva_type = TMVA::Types::kMLP;
         }
-
+        
         //////////////////////////
         // BOOSTED DECISION TREES
         if( iRun->fMVAMethod[i] != "BOXCUTS" )
@@ -522,7 +534,7 @@ bool train( VTMVARunData* iRun,
     factory->EvaluateAllMethods();
     
     factory->Delete();
-
+    
     return true;
 }
 
@@ -574,7 +586,7 @@ int main( int argc, char* argv[] )
     string fRunOption = "TRAIN";
     if( argc == 3 )
     {
-       fRunOption = "WRITETRAININGEVENTS";
+        fRunOption = "WRITETRAININGEVENTS";
     }
     // randomize list of input files
     fData->shuffleFileVectors();
@@ -654,35 +666,35 @@ int main( int argc, char* argv[] )
                 VTMVARunDataZenithCut* fDataZenithCut = ( VTMVARunDataZenithCut* )root_file->Get( "fDataZenithCut" );
                 TH1D* MVA_effS = 0;
                 TH1D* MVA_effB = 0;
-
+                
                 char hname[200];
                 for( unsigned int d = 0; d < fData->fMVAMethod.size(); d++ )
                 {
                     // naming of directories is different for different TMVA versions
-                    sprintf( hname, "Method_%s_%u/%s_%u/MVA_%s_%u_effS", 
-                               fData->fMVAMethod[d].c_str(), d,
-                               fData->fMVAMethod[d].c_str(), d,
-                               fData->fMVAMethod[d].c_str(), d );
+                    sprintf( hname, "Method_%s_%u/%s_%u/MVA_%s_%u_effS",
+                             fData->fMVAMethod[d].c_str(), d,
+                             fData->fMVAMethod[d].c_str(), d,
+                             fData->fMVAMethod[d].c_str(), d );
                     if( ( TH1D* )root_file->Get( hname ) )
                     {
                         MVA_effS = ( TH1D* )root_file->Get( hname );
-                        sprintf( hname, "Method_%s_%u/%s_%u/MVA_%s_%u_effB", 
-                                   fData->fMVAMethod[d].c_str(), d,
-                                   fData->fMVAMethod[d].c_str(), d,
-                                   fData->fMVAMethod[d].c_str(), d );
+                        sprintf( hname, "Method_%s_%u/%s_%u/MVA_%s_%u_effB",
+                                 fData->fMVAMethod[d].c_str(), d,
+                                 fData->fMVAMethod[d].c_str(), d,
+                                 fData->fMVAMethod[d].c_str(), d );
                         MVA_effB = ( TH1D* )root_file->Get( hname );
                     }
                     else
                     {
-                        sprintf( hname, "Method_%s/%s_%u/MVA_%s_%u_effS", 
-                                   fData->fMVAMethod[d].c_str(),
-                                   fData->fMVAMethod[d].c_str(), d,
-                                   fData->fMVAMethod[d].c_str(), d );
+                        sprintf( hname, "Method_%s/%s_%u/MVA_%s_%u_effS",
+                                 fData->fMVAMethod[d].c_str(),
+                                 fData->fMVAMethod[d].c_str(), d,
+                                 fData->fMVAMethod[d].c_str(), d );
                         MVA_effS = ( TH1D* )root_file->Get( hname );
-                        sprintf( hname, "Method_%s/%s_%u/MVA_%s_%u_effB", 
-                                   fData->fMVAMethod[d].c_str(),
-                                   fData->fMVAMethod[d].c_str(), d,
-                                   fData->fMVAMethod[d].c_str(), d );
+                        sprintf( hname, "Method_%s/%s_%u/MVA_%s_%u_effB",
+                                 fData->fMVAMethod[d].c_str(),
+                                 fData->fMVAMethod[d].c_str(), d,
+                                 fData->fMVAMethod[d].c_str(), d );
                         MVA_effB = ( TH1D* )root_file->Get( hname );
                     }
                     

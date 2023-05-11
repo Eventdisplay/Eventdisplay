@@ -238,7 +238,7 @@ class VEnergySpectrum : public VAnalysisUtilities, public VPlotUtilities
             fEnergyThresholdFileName = a;
         }
         void setEnergyThresholdDefinition( unsigned int iDef = 1, double iSys = 0.1,
-                                           double iMaxEff = 0.2, double iE_min_absolute_TeV = 0.07  )
+                                           double iMaxEff = 0.2, double iE_min_absolute_TeV = 0.07 )
         {
             fAnalysisEnergyThresholdDefinition = iDef;
             fAnalysisMaxEnergySystematic = iSys;

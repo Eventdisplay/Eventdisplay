@@ -436,21 +436,21 @@ bool VDST::writeCalibrationData()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // DST analysis
     // (same code as in c_VDST)
-
+    
     // max channels very different for CTA and VERITAS; adjust
-    float *fPedvar_high = 0;
-    float *fPedvar_low = 0;
+    float* fPedvar_high = 0;
+    float* fPedvar_low = 0;
     if( fRunPar->getObservatory() == "VERITAS" )
     {
-         fPedvar_high = new float[500*120];
-         fPedvar_low= new float[500*120];
+        fPedvar_high = new float[500 * 120];
+        fPedvar_low = new float[500 * 120];
     }
     else
     {
-         fPedvar_high = new float[VDST_MAXCHANNELS * VDST_MAXSUMWINDOW];
-         fPedvar_low= new float[VDST_MAXCHANNELS * VDST_MAXSUMWINDOW];
+        fPedvar_high = new float[VDST_MAXCHANNELS * VDST_MAXSUMWINDOW];
+        fPedvar_low = new float[VDST_MAXCHANNELS * VDST_MAXSUMWINDOW];
     }
-
+    
     int fTelID = 0;
     unsigned int nPixel = 0;
     // integration window
@@ -495,11 +495,11 @@ bool VDST::writeCalibrationData()
     t->Branch( "pedvar_high", fPedvar_high, hname );
     t->Branch( "ped_low", fPed_low, "ped_low[NPixel]/F" );
     sprintf( hname, "pedvar_low[%d]/F", VDST_MAXCHANNELS * VDST_MAXSUMWINDOW );
-     t->Branch( "pedvar_low", fPedvar_low, hname );
+    t->Branch( "pedvar_low", fPedvar_low, hname );
     t->Branch( "conv_high", fConv_high, "conv_high[NPixel]/F" );
     t->Branch( "conv_low", fConv_low, "conv_low[NPixel]/F" );
     t->Branch( "tzero", fTZero, "tzero[NPixel]/F" );
-
+    
     fnum_sumwindow = getRunParameter()->fCalibrationSumWindow;
     for( unsigned int i = 0; i < ( unsigned int )getRunParameter()->fCalibrationSumWindow; i++ )
     {
@@ -542,7 +542,7 @@ bool VDST::writeCalibrationData()
             }
             else
             {
-               fTZero[p] = 0.;
+                fTZero[p] = 0.;
             }
         }
         
@@ -554,7 +554,7 @@ bool VDST::writeCalibrationData()
     {
         cout << "END VDST::writeCalibrationData()" << endl;
     }
-
+    
     delete [] fPedvar_high;
     delete [] fPedvar_low;
     

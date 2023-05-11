@@ -866,7 +866,7 @@ void VDisplay::drawFADC( bool iFit )
         sprintf( histitle, "sample number [%.1fns]", fEventLoop->getDetectorGeo()->getLengthOfSampleTimeSlice( fTelescope ) );
     }
     fHisFADC->GetXaxis()->SetTitle( histitle );
-	fHisFADC->GetXaxis()->SetTitleColor( 1 );
+    fHisFADC->GetXaxis()->SetTitleColor( 1 );
     
     TH1D* iTraceFits;
     iTraceFits = 0;
@@ -927,7 +927,7 @@ void VDisplay::drawFADC( bool iFit )
         }
         else
         {
-            fHisFADC->SetMaximum( -1.*0.8*fEventLoop->getPed_min( fEventLoop->getHiLo()[fSelectedChan - 200000] ) );
+            fHisFADC->SetMaximum( -1.*0.8 * fEventLoop->getPed_min( fEventLoop->getHiLo()[fSelectedChan - 200000] ) );
         }
         //fHis <<FADC->SetMaximum( -1111 );
         fHisFADC->SetStats( 0 );
@@ -1516,7 +1516,7 @@ void VDisplay::setFADCText()
     iSTRTextTemp << "pulse timing (raw): ";
     for( unsigned int p = 0; p < fEventLoop->getRunParameter()->fpulsetiminglevels.size(); p++ )
     {
-	    iSTRTextTemp << ( int )( fEventLoop->getRunParameter()->fpulsetiminglevels[p] * 100. );
+        iSTRTextTemp << ( int )( fEventLoop->getRunParameter()->fpulsetiminglevels[p] * 100. );
         iSTRTextTemp << " : ";
         iSTRTextTemp << setprecision( 2 ) << fEventLoop->getPulseTiming( false )[p][iChannel];
         iSTRTextTemp << "  ";

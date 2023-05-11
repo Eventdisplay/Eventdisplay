@@ -41,7 +41,7 @@ class VImageParameterCalculation
         bool fboolCalcGeo;                        //!< switch to show if there was a geometrical analysis
         bool fboolCalcTiming;                     //!< switch to show if there was a timing analysis
         VImageParameter* fParLL;                  //!< image parameters (log lik.)
-        VImageParameterFitter *fImageFitter;
+        VImageParameterFitter* fImageFitter;
         
         VEvndispData* fData;
         
@@ -55,8 +55,8 @@ class VImageParameterCalculation
     
         VImageParameterCalculation( unsigned int iShortTree = 0, VEvndispData* iData = 0 );
         ~VImageParameterCalculation();
-        vector<bool> calcLL( bool iUseSums2 = false, 
-                             bool i_reInitializeLL = false, 
+        vector<bool> calcLL( bool iUseSums2 = false,
+                             bool i_reInitializeLL = false,
                              bool iEqualSummationWindows = false );          //!< calculate image parameters (log like)
         void muonRingFinder();                     //!< fit a single ring to the image to look for muons
         void sizeInMuonRing();                     //! calculate the brightness of the muon ring

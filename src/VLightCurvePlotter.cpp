@@ -366,8 +366,8 @@ TCanvas* VLightCurvePlotter::plotLightCurve( TCanvas* iCanvasLightCurve, string 
         {
             sprintf( htitle, "hLightCurve_%d_%d", ( int )fOrbitalPhaseData.fZeroPhase_MJD, ( int )fOrbitalPhaseData.fOrbit_days );
         }
-	      else
-	      {
+        else
+        {
             sprintf( htitle, "hLightCurve" );
         }
         hLightCurve = ( TH1D* )fCanvasLightCurve->GetListOfPrimitives()->FindObject( htitle );

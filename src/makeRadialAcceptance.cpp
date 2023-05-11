@@ -89,11 +89,11 @@ int main( int argc, char* argv[] )
     }
     else
     {
-       cout << "No exclusion regions defined" << endl;
+        cout << "No exclusion regions defined" << endl;
     }
     if( fRemoveTargetRegionFromAcceptanceFilling )
     {
-       cout << "Removing target region from radial acceptance filling" << endl;
+        cout << "Removing target region from radial acceptance filling" << endl;
     }
     
     ///////////////////////////////////////////
@@ -101,7 +101,7 @@ int main( int argc, char* argv[] )
     for( unsigned int i = 0; i < teltoanastring.length(); i++ )
     {
         string i_tel = teltoanastring.substr( i, 1 );
-		teltoana.push_back(atoi( i_tel.c_str()) - 1 );
+        teltoana.push_back( atoi( i_tel.c_str() ) - 1 );
     }
     
     ///////////////////////////////////////////
@@ -353,13 +353,13 @@ int main( int argc, char* argv[] )
         cout << "Camera centre at (ra,dec) J2000 : ( " << raJ2000_deg << ", " << decJ2000_deg << ")" << endl;
         ////////////////////////////////////////////
         // initialize exclusion regions
-
+        
         // exclude source direction
         if( fRunPara->getExclusionRegions() )
         {
-              fRunPara->getExclusionRegions()->addExclusionRegion( -1., -1.,
-                                       fRunPara->fRunList[i].fTargetRAJ2000, fRunPara->fRunList[i].fTargetDecJ2000,
-                                       0.25, 0.25, 0., "on source" );
+            fRunPara->getExclusionRegions()->addExclusionRegion( -1., -1.,
+                    fRunPara->fRunList[i].fTargetRAJ2000, fRunPara->fRunList[i].fTargetDecJ2000,
+                    0.25, 0.25, 0., "on source" );
         }
         if( exclusionregionfile.size() > 0 )
         {
@@ -375,10 +375,10 @@ int main( int argc, char* argv[] )
             facc->setRegionToExcludeAcceptance( fRunPara->getExclusionRegions( i ) );
             for( unsigned int a = 0; a < facc_az.size(); a++ )
             {
-                 if( facc_az[a] )
-                 {
-                      facc_az[a]->setRegionToExcludeAcceptance( fRunPara->getExclusionRegions( i ) );
-                 }
+                if( facc_az[a] )
+                {
+                    facc_az[a]->setRegionToExcludeAcceptance( fRunPara->getExclusionRegions( i ) );
+                }
             }
         }
         
@@ -443,14 +443,14 @@ int main( int argc, char* argv[] )
         facc->correctRadialAcceptancesForExclusionRegions( facc_dir, fRunPara->fRunList[i].fRunOff );
         for( unsigned int a = 0; a < facc_az.size(); a++ )
         {
-             if( facc_az[a] )
-             {
-                  if( facc_az[a] )
-                  {
-                      facc_az[a]->correctRadialAcceptancesForExclusionRegions( facc_az_dir[a],
-                                                                               fRunPara->fRunList[i].fRunOff );
-                  }
-             }
+            if( facc_az[a] )
+            {
+                if( facc_az[a] )
+                {
+                    facc_az[a]->correctRadialAcceptancesForExclusionRegions( facc_az_dir[a],
+                            fRunPara->fRunList[i].fRunOff );
+                }
+            }
         }
     }
     
@@ -568,17 +568,17 @@ int parseOptions( int argc, char* argv[] )
                 break;
             case 'c':
                 cutfilename = optarg;
-				cout << "Cut File Name is " << cutfilename << endl;
+                cout << "Cut File Name is " << cutfilename << endl;
                 if( cutfilename == "IGNOREEFFECTIVEAREA" )
                 {
-                     cout << "error: cannot read cuts (IGNOREEFFECTIVEAREA given)" << endl;
-                     cout << "exiting..." << endl;
-                     exit( EXIT_FAILURE );
-                }  
+                    cout << "error: cannot read cuts (IGNOREEFFECTIVEAREA given)" << endl;
+                    cout << "exiting..." << endl;
+                    exit( EXIT_FAILURE );
+                }
                 break;
             case 'm':
                 fMaxDistanceAllowed = atof( optarg );
-				cout << "Maximum allowed distance from camera centre: " << fMaxDistanceAllowed << endl;
+                cout << "Maximum allowed distance from camera centre: " << fMaxDistanceAllowed << endl;
                 break;
             case 'i':
                 fInstrumentEpoch = optarg;
@@ -594,7 +594,7 @@ int parseOptions( int argc, char* argv[] )
                 break;
             case 't':
                 teltoanastring = optarg;
-				cout << "Telescopes to analyse: " << teltoanastring << endl;
+                cout << "Telescopes to analyse: " << teltoanastring << endl;
                 break;
             case 'p':
                 production_shortIO = ( int )atoi( optarg );
@@ -602,7 +602,7 @@ int parseOptions( int argc, char* argv[] )
                 exclusionregionfile = optarg;
                 break;
             case 'r':
-                fRemoveTargetRegionFromAcceptanceFilling = (bool)atoi(optarg);
+                fRemoveTargetRegionFromAcceptanceFilling = ( bool )atoi( optarg );
                 break;
             case '?':
                 break;

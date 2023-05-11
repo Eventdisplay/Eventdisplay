@@ -397,7 +397,7 @@ void VPlotInstrumentResponseFunction::plotCutEfficiency( unsigned int iDataSetID
     }
     hceff->Draw( "" );
     hceff->Draw( "AH" );
-
+    
     plot_nullHistogram( iCutEfficencyPlottingCanvas, hceff, getPlottingAxis( "energy_Lin" )->fLogAxis, true,
                         hceff->GetYaxis()->GetTitleOffset(), getPlottingAxis( "energy_Lin" )->fMinValue, getPlottingAxis( "energy_Lin" ) ->fMaxValue );
                         
@@ -567,7 +567,7 @@ void VPlotInstrumentResponseFunction::plotEnergyReconstructionMatrix( unsigned i
     }
     if( iMatrixType != "default" )
     {
-	htitle << ", " << iMatrixType;
+        htitle << ", " << iMatrixType;
     }
     TCanvas* iEnergyReconstructionMatrixCanvas = new TCanvas( hname.str().c_str(), htitle.str().c_str(), 610, 10, fCanvasSize_X, fCanvasSize_Y );
     iEnergyReconstructionMatrixCanvas->SetGridx( 0 );
@@ -768,7 +768,7 @@ TCanvas* VPlotInstrumentResponseFunction::plotCutEfficiencyRatio( unsigned int i
             }
         }
     }
-
+    
     return iCutEfficencyRatioPlottingCanvas;
     
 }

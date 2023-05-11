@@ -585,7 +585,7 @@ bool VEvndispReconstructionParameter::readKeyWord_FADCSUMMATIONSTART( vector< st
                     // pixel trigger time
                     else if( iTemp[3] == "TTRIGGER" || atoi( iTemp[3].c_str() ) == 3 )
                     {
-                           fRunPara->fsumfirst_startingMethod[i] = 3;
+                        fRunPara->fsumfirst_startingMethod[i] = 3;
                     }
                     // fixed window start
                     else if( iTemp[3] == "FIXED" || atoi( iTemp[3].c_str() ) == 0 )
@@ -623,7 +623,7 @@ bool VEvndispReconstructionParameter::readKeyWord_FADCSUMMATIONSTART( vector< st
             {
                 if( i < fRunPara->fSumWindow_searchmaxreverse.size() )
                 {
-                    fRunPara->fSumWindow_searchmaxreverse[i] = (bool)( atoi( iTemp[6].c_str() ) );
+                    fRunPara->fSumWindow_searchmaxreverse[i] = ( bool )( atoi( iTemp[6].c_str() ) );
                 }
             }
         }
@@ -712,28 +712,28 @@ bool VEvndispReconstructionParameter::readKeyWord_NEIGHBOURS( vector< string > i
 
 bool VEvndispReconstructionParameter::readKeyWord_SQUARE( vector< string > iTemp, int t_temp )
 {
-        if( !fRunPara || iTemp.size() < 2 )
-        {
+    if( !fRunPara || iTemp.size() < 2 )
+    {
         return false;
-        }  
-        for( unsigned int i = 0; i < fTel_type_perTelescope.size(); i++ )
+    }
+    for( unsigned int i = 0; i < fTel_type_perTelescope.size(); i++ )
+    {
+        if( t_temp < 0 || getTelescopeType_counter( fTel_type_perTelescope[i] ) == t_temp )
         {
-            if( t_temp < 0 || getTelescopeType_counter( fTel_type_perTelescope[i] ) == t_temp )
+            if( i < fRunPara->fSquarePixels.size() && iTemp[1].size() > 0 )
             {
-                if( i < fRunPara->fSquarePixels.size() && iTemp[1].size() > 0 )
+                if( iTemp[1] == "TRUE" )
                 {
-                    if (iTemp[1] == "TRUE")
-                    {
-                        fRunPara->fSquarePixels[i] = true;
-                    }
-                    else
-                    {
-                        fRunPara->fSquarePixels[i] = false;
-                    }
+                    fRunPara->fSquarePixels[i] = true;
+                }
+                else
+                {
+                    fRunPara->fSquarePixels[i] = false;
                 }
             }
         }
-        return true;
+    }
+    return true;
 }
 
 bool VEvndispReconstructionParameter::readKeyWord_LLEDGEFIT( vector< string > iTemp, int t_temp )
@@ -1253,7 +1253,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
             // read variable identifieres
             for( unsigned int i = 0; i < iTemp.size(); i++ )
             {
-                if( !(is_stream>>std::ws).eof() )
+                if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iTemp[i];
                 }

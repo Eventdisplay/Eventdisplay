@@ -51,7 +51,7 @@ class VBaseRawDataReader : public VVirtualDataReader, public VSimulationDataRead
         TRandom3*         fRandomInjectGaussianNoise;
         
         vector< uint16_t > fDefaultMaxNChannels;
-
+        
         // trace amplitude correction
         vector< float > fTraceAmplitudeCorrectionS;
         vector< float > fTraceAmplitudeCorrectionG;
@@ -349,7 +349,7 @@ class VBaseRawDataReader : public VVirtualDataReader, public VSimulationDataRead
         {
             return fMonteCarloHeader;
         }
-
+        
         void setDefaultMaxNChannels( vector< uint16_t > i_nChannels )
         {
             fDefaultMaxNChannels = i_nChannels;

@@ -852,29 +852,29 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
                 i++;
             }
         }
-		else if( iTemp.find( "throughputcorrection" ) < iTemp.size() )
-		{
-			if( iTemp2.size() > 0 )
-			{
-				fRunPara->fthroughputCorrectionFile = iTemp2;
-				if( fRunPara->fthroughputCorrectionFile == "nofile" )
-				{
-					fRunPara->fthroughputCorrectionFile = "";
-				}
-				i++;
-			}
-		}
-		else if( iTemp.find( "traceamplitudecorrection" ) < iTemp.size() )
-		{
-			if( iTemp2.size() > 0 )
-			{
-				fRunPara->ftraceamplitudecorrectionFile = iTemp2;
-				if( fRunPara->ftraceamplitudecorrectionFile == "nofile" )
-				{
-					fRunPara->ftraceamplitudecorrectionFile = "";
-				}
-				i++;
-			}
+        else if( iTemp.find( "throughputcorrection" ) < iTemp.size() )
+        {
+            if( iTemp2.size() > 0 )
+            {
+                fRunPara->fthroughputCorrectionFile = iTemp2;
+                if( fRunPara->fthroughputCorrectionFile == "nofile" )
+                {
+                    fRunPara->fthroughputCorrectionFile = "";
+                }
+                i++;
+            }
+        }
+        else if( iTemp.find( "traceamplitudecorrection" ) < iTemp.size() )
+        {
+            if( iTemp2.size() > 0 )
+            {
+                fRunPara->ftraceamplitudecorrectionFile = iTemp2;
+                if( fRunPara->ftraceamplitudecorrectionFile == "nofile" )
+                {
+                    fRunPara->ftraceamplitudecorrectionFile = "";
+                }
+                i++;
+            }
         }
         else if( iTemp.find( "tracelib" ) < iTemp.size() )
         {
@@ -954,13 +954,13 @@ bool VReadRunParameter::readCommandline( int argc, char* argv[] )
     
     // test and adjust some parameters
     test_and_adjustParams();
-
+    
     // read trace amplitude corrections
     if( fRunPara->ftraceamplitudecorrectionFile.size() > 0 )
     {
-            readTraceAmplitudeCorrections( fRunPara->ftraceamplitudecorrectionFile );
+        readTraceAmplitudeCorrections( fRunPara->ftraceamplitudecorrectionFile );
     }
-
+    
     
     return true;
 }
@@ -982,8 +982,8 @@ void VReadRunParameter::test_and_adjustParams()
     // test if this is a DST file
     getRunParametersFromDST();
     // standard VTS analysis
-    if( (fRunPara->frunmode == 0 || fRunPara->frunmode == 4 )
-      && fRunPara->getObservatory().find( "VERITAS" ) != string::npos
+    if( ( fRunPara->frunmode == 0 || fRunPara->frunmode == 4 )
+            && fRunPara->getObservatory().find( "VERITAS" ) != string::npos
             && fRunPara->fIsMC == 0 )
     {
         if( !fRunPara->fNoCalibNoPb && fRunPara->fcalibrationfile == "" )
@@ -1854,82 +1854,82 @@ bool VReadRunParameter::checkSecondArgument( string iPara1, string iPara2, bool 
 
 bool VReadRunParameter::readTraceAmplitudeCorrections( string ifile )
 {
-       if( ifile.size() == 0 )
-       {
-            return true;
-       }
-       string iEpoch = fRunPara->getInstrumentEpoch();
-       string iDirectory = fRunPara->getDirectory_EVNDISPParameterFiles();
-       ifile = iDirectory + "/" + ifile;
-       ifstream is;
-       is.open( ifile.c_str(), ifstream::in );
-       if( !is )
-       {
-            cout << "error reading amplitude correction for telescope from " << ifile << endl;
-            return false;
-       }
-       cout << "reading amplitude correction from: ";
-       cout << ifile << endl;
-
-       fRunPara->fthroughoutCorrectionSFactor.clear();
-
-       string is_line;
-       string is_temp;
-       while( getline( is, is_line ) )
-       {
-            if( is_line.size() <= 0 )
-            {
-                    continue;
-            }
-            if( is_line.substr( 0, 1 ) != "*" )
-            {
-                    continue;
-            }
-            
-            istringstream is_stream( is_line );
+    if( ifile.size() == 0 )
+    {
+        return true;
+    }
+    string iEpoch = fRunPara->getInstrumentEpoch();
+    string iDirectory = fRunPara->getDirectory_EVNDISPParameterFiles();
+    ifile = iDirectory + "/" + ifile;
+    ifstream is;
+    is.open( ifile.c_str(), ifstream::in );
+    if( !is )
+    {
+        cout << "error reading amplitude correction for telescope from " << ifile << endl;
+        return false;
+    }
+    cout << "reading amplitude correction from: ";
+    cout << ifile << endl;
+    
+    fRunPara->fthroughoutCorrectionSFactor.clear();
+    
+    string is_line;
+    string is_temp;
+    while( getline( is, is_line ) )
+    {
+        if( is_line.size() <= 0 )
+        {
+            continue;
+        }
+        if( is_line.substr( 0, 1 ) != "*" )
+        {
+            continue;
+        }
+        
+        istringstream is_stream( is_line );
+        is_stream >> is_temp;
+        
+        // check epoch
+        is_stream >> is_temp;
+        if( is_temp == "s" )
+        {
             is_stream >> is_temp;
-
-            // check epoch
+            if( is_temp == iEpoch )
+            {
+                double iSFactor = 1.;
+                while( !is_stream.eof() )
+                {
+                    is_stream >> iSFactor;
+                    fRunPara->fthroughoutCorrectionSFactor.push_back( iSFactor );
+                };
+            }
+        }
+        else if( is_temp == "G" )
+        {
             is_stream >> is_temp;
-            if( is_temp == "s" )
+            if( is_temp == iEpoch )
             {
-                is_stream >> is_temp;
-                if( is_temp == iEpoch )
+                double iGFactor = 1.;
+                while( !is_stream.eof() )
                 {
-                    double iSFactor = 1.;
-                    while( !is_stream.eof() )
-                    {
-                        is_stream >> iSFactor;
-                        fRunPara->fthroughoutCorrectionSFactor.push_back( iSFactor );
-                    };
-                }
+                    is_stream >> iGFactor;
+                    fRunPara->fthroughoutCorrectionGFactor.push_back( iGFactor );
+                };
             }
-            else if( is_temp == "G" )
-            {
-                is_stream >> is_temp;
-                if( is_temp == iEpoch )
-                {
-                    double iGFactor = 1.;
-                    while( !is_stream.eof() )
-                    {
-                        is_stream >> iGFactor;
-                        fRunPara->fthroughoutCorrectionGFactor.push_back( iGFactor );
-                    };
-                }
-            }
-       }
-       cout << "\t amplitude scaling s-factors: ";
-       for( unsigned int i = 0; i < fRunPara->fthroughoutCorrectionSFactor.size(); i++ )
-       {
-           cout << "T" << i+1 << ": " << fRunPara->fthroughoutCorrectionSFactor[i] << " ";
-       }
-       cout << endl;
-       cout << "\t amplitude scaling G-factors: ";
-       for( unsigned int i = 0; i < fRunPara->fthroughoutCorrectionGFactor.size(); i++ )
-       {
-           cout << "T" << i+1 << ": " << fRunPara->fthroughoutCorrectionGFactor[i] << " ";
-       }
-       return true;
+        }
+    }
+    cout << "\t amplitude scaling s-factors: ";
+    for( unsigned int i = 0; i < fRunPara->fthroughoutCorrectionSFactor.size(); i++ )
+    {
+        cout << "T" << i + 1 << ": " << fRunPara->fthroughoutCorrectionSFactor[i] << " ";
+    }
+    cout << endl;
+    cout << "\t amplitude scaling G-factors: ";
+    for( unsigned int i = 0; i < fRunPara->fthroughoutCorrectionGFactor.size(); i++ )
+    {
+        cout << "T" << i + 1 << ": " << fRunPara->fthroughoutCorrectionGFactor[i] << " ";
+    }
+    return true;
 }
 
 
@@ -1941,34 +1941,34 @@ bool VReadRunParameter::readTraceAmplitudeCorrections( string ifile )
  */
 bool VReadRunParameter::readEpochsAndAtmospheres()
 {
-	if( !fRunPara )
-	{
-		return false;
-	}
-	
-	if( fRunPara->fEpochFile.size() == 0 )
-	{
-		return true;
-	}
-	cout << endl;
-	cout << "========================================" << endl;
-	cout << "reading epoch for given run and date from " << fRunPara->fEpochFile << endl;
-        if( fRunPara->fInstrumentEpoch == "noepoch" )
-        {
-            fRunPara->updateInstrumentEpochFromFile( fRunPara->fEpochFile, true );
-        }
-        else
-        {
-	    cout << "   (epoch is set from command line - ignoring values in epoch parameter file" << endl;
-        }
-	if( fRunPara->fAtmosphereID == 0 )
-        {
-           fRunPara->updateInstrumentEpochFromFile( fRunPara->fEpochFile, false );
-        }
-        else
-	{
-	    cout << "   (atmosphere ID is set from command line - ignoring values in epoch parameter file" << endl;
-	}
-	
-	return true;
+    if( !fRunPara )
+    {
+        return false;
+    }
+    
+    if( fRunPara->fEpochFile.size() == 0 )
+    {
+        return true;
+    }
+    cout << endl;
+    cout << "========================================" << endl;
+    cout << "reading epoch for given run and date from " << fRunPara->fEpochFile << endl;
+    if( fRunPara->fInstrumentEpoch == "noepoch" )
+    {
+        fRunPara->updateInstrumentEpochFromFile( fRunPara->fEpochFile, true );
+    }
+    else
+    {
+        cout << "   (epoch is set from command line - ignoring values in epoch parameter file" << endl;
+    }
+    if( fRunPara->fAtmosphereID == 0 )
+    {
+        fRunPara->updateInstrumentEpochFromFile( fRunPara->fEpochFile, false );
+    }
+    else
+    {
+        cout << "   (atmosphere ID is set from command line - ignoring values in epoch parameter file" << endl;
+    }
+    
+    return true;
 }

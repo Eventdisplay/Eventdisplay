@@ -1,5 +1,5 @@
 /*! \file  fill DL2 trees
- *  
+ *
  *  applying gamma / hadron separation (e.g., TMVA)
  *
  *   input is a file list of mscw_energy output file from gamma-ray simulations
@@ -29,7 +29,7 @@
 using namespace std;
 
 VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c );
-bool writeMCRunHeader( TChain *c, TFile *iOutFile );
+bool writeMCRunHeader( TChain* c, TFile* iOutFile );
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ int main( int argc, char* argv[] )
     }
     string fConfigFile = argv[1];
     string fOutputfileName = argv[2];
-
+    
     // open output file and write results to dist
     TFile* fOutputfile = new TFile( fOutputfileName.c_str(), "RECREATE" );
     if( fOutputfile->IsZombie() )
@@ -90,7 +90,7 @@ int main( int argc, char* argv[] )
     CData d( c, true, true );
     
     // MC histograms
-    VEffectiveAreaCalculatorMCHistograms *fMC_histo = copyMCHistograms( c );
+    VEffectiveAreaCalculatorMCHistograms* fMC_histo = copyMCHistograms( c );
     if( fMC_histo )
     {
         fMC_histo->print();
@@ -115,10 +115,10 @@ int main( int argc, char* argv[] )
         {
             fDL2Writer.getEventDataTree()->Write();
         }
-/*        if( c )
-        {
-            c->Merge(fOutputfile, 0, "keep" );
-        } */
+        /*        if( c )
+                {
+                    c->Merge(fOutputfile, 0, "keep" );
+                } */
     }
     writeMCRunHeader( c, fOutputfile );
     
@@ -166,15 +166,21 @@ VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c )
     return iMC_his;
 }
 
-bool writeMCRunHeader( TChain *c, 
-                       TFile *iOutFile )
+bool writeMCRunHeader( TChain* c,
+                       TFile* iOutFile )
 {
-    if( !c || !iOutFile ) return false;
-
+    if( !c || !iOutFile )
+    {
+        return false;
+    }
+    
     // writing monte carlo header to disk
-    TFile* iF = (TFile*)c->GetFile();
-    if( !iF ) return false;
-    VMonteCarloRunHeader* iMC = (VMonteCarloRunHeader*)iF->Get( "MC_runheader" );
+    TFile* iF = ( TFile* )c->GetFile();
+    if( !iF )
+    {
+        return false;
+    }
+    VMonteCarloRunHeader* iMC = ( VMonteCarloRunHeader* )iF->Get( "MC_runheader" );
     iOutFile->cd();
     if( iMC )
     {

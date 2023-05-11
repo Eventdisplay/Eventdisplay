@@ -233,7 +233,7 @@ void VTableLookup::setMCTableFiles_forTableWriting( string itablefile, double iz
         
         //////////////////
         // TELESCOPE TYPES
-        for( iter_i_list_of_Tel_type = i_list_of_Tel_type.begin(); 
+        for( iter_i_list_of_Tel_type = i_list_of_Tel_type.begin();
                 iter_i_list_of_Tel_type != i_list_of_Tel_type.end();
                 ++iter_i_list_of_Tel_type )
         {
@@ -354,7 +354,7 @@ void VTableLookup::setMCTableFiles_forTableWriting( string itablefile, double iz
                         if( iTableData->fEnergy )
                         {
                             i_LT.back()->setEventSelectionCut( fTLRunParameter->fEventSelectionCut_lossCutMax,
-                                                                fTLRunParameter->fEventSelectionCut_distanceCutMax );
+                                                               fTLRunParameter->fEventSelectionCut_distanceCutMax );
                         }
                     }   // az
                     ii_LT.push_back( i_LT );
@@ -789,7 +789,7 @@ void VTableLookup::fillLookupTable()
                 double* i_d         = fData->getDistance( t );
                 // number of telescope of this particular type
                 unsigned int iN_type = fData->getNTel_type( t );
-
+                
                 ////////////////////////////////////////////////
                 // for zenith-angle == 0 deg fill all az bins
                 if( fabs( fData->getMCZe() ) < 3. )
@@ -923,7 +923,7 @@ void VTableLookup::readLookupTable()
         
         // get zenith angle for first valid MC event from MC files
         if( bFirst && fData->getMCEnergy() > 0.001
-          && fTLRunParameter->ze < 0. )
+                && fTLRunParameter->ze < 0. )
         {
             cout << "\t\t setting IRF ze from first event" << endl;
             if( fNTel > 0 )
@@ -1381,7 +1381,7 @@ void VTableLookup::readLookupTable()
                         fData->setNEnergyQuality( 1 );
                     }
                 }
-                // no reconstructed total energy, 
+                // no reconstructed total energy,
                 else
                 {
                     fData->setNEnergyQuality( -2 );
@@ -1885,7 +1885,7 @@ void VTableLookup::calculateMSFromTables( VTablesToRead* s )
     fTableCalculator->setCalculateEnergies( true );
     fTableCalculator->setNormalizeTableValues( fTableData[E_EREC]->fValueNormalizationRange_min,
             fTableData[E_EREC]->fValueNormalizationRange_max );
-    fTableCalculator->setEventSelectionCut( fTLRunParameter->fEventSelectionCut_lossCutMax, 
+    fTableCalculator->setEventSelectionCut( fTLRunParameter->fEventSelectionCut_lossCutMax,
                                             fTLRunParameter->fEventSelectionCut_distanceCutMax );
     fTableCalculator->setVHistograms( s->hMedian[E_EREC] );
     s->value[E_EREC] = fTableCalculator->calc( ( int )fData->getNTel(), fData->getDistanceToCore(),

@@ -146,7 +146,7 @@ class VStereoAnalysis
         
         TH2D* hMeanResponseMatrix;
         TGraphAsymmErrors* gMeanEffectiveAreaMC;
-
+        
         VStereoMaps* fMap;
         VStereoMaps* fMapUC;
         int fHisCounter;
@@ -168,7 +168,7 @@ class VStereoAnalysis
         int    fTreeSelected_MJD;
         double fTreeSelected_Time;
         int    fTreeSelected_NImages;
-		ULong64_t fTreeSelected_ImgSel;
+        ULong64_t fTreeSelected_ImgSel;
         double fTreeSelected_theta2;
         double fTreeSelected_Xoff;
         double fTreeSelected_Yoff;
@@ -191,31 +191,31 @@ class VStereoAnalysis
         UInt_t fTreeSelected_IsGamma;
         UInt_t fTreeSelected_DirectionCut;
         
-		TTree* fDL3EventTree;
-		int     fDL3EventTree_runNumber;
-		int     fDL3EventTree_eventNumber;
-		double  fDL3EventTree_Time;
-		int     fDL3EventTree_MJD;
-		double  fDL3EventTree_Xoff;
-		double  fDL3EventTree_Yoff;
-		double  fDL3EventTree_Xderot;
-		double  fDL3EventTree_Yderot;
-		double  fDL3EventTree_RA;
-		double  fDL3EventTree_DEC;
-		double  fDL3EventTree_Erec;
-		double  fDL3EventTree_Erec_Err;
-		double  fDL3EventTree_dE;
-		double  fDL3EventTree_Xcore;
-		double  fDL3EventTree_Ycore;
-		int     fDL3EventTree_NImages;
-		ULong64_t fDL3EventTree_ImgSel;
-		double  fDL3EventTree_MSCW;
-		double  fDL3EventTree_MSCL;
-		double  fDL3EventTree_Az ;
-		double  fDL3EventTree_El ;
-		double  fDL3EventTree_EmissionHeight ;
-		double  fDL3EventTree_Acceptance ;
-		VRadialAcceptance* fDL3_Acceptance;
+        TTree* fDL3EventTree;
+        int     fDL3EventTree_runNumber;
+        int     fDL3EventTree_eventNumber;
+        double  fDL3EventTree_Time;
+        int     fDL3EventTree_MJD;
+        double  fDL3EventTree_Xoff;
+        double  fDL3EventTree_Yoff;
+        double  fDL3EventTree_Xderot;
+        double  fDL3EventTree_Yderot;
+        double  fDL3EventTree_RA;
+        double  fDL3EventTree_DEC;
+        double  fDL3EventTree_Erec;
+        double  fDL3EventTree_Erec_Err;
+        double  fDL3EventTree_dE;
+        double  fDL3EventTree_Xcore;
+        double  fDL3EventTree_Ycore;
+        int     fDL3EventTree_NImages;
+        ULong64_t fDL3EventTree_ImgSel;
+        double  fDL3EventTree_MSCW;
+        double  fDL3EventTree_MSCL;
+        double  fDL3EventTree_Az ;
+        double  fDL3EventTree_El ;
+        double  fDL3EventTree_EmissionHeight ;
+        double  fDL3EventTree_Acceptance ;
+        VRadialAcceptance* fDL3_Acceptance;
         
         double  fDeadTimeStorage ;
         //double fullMJD ;
@@ -265,11 +265,11 @@ class VStereoAnalysis
         bool init_TreeWithSelectedEvents( int, bool );
         void reset_TreeWithSelectedEvents();
         
-		void fill_DL3Tree( CData* c , 
-                                   double i_xderot, double i_yderot, 
-                                   unsigned int icounter, double i_UTC );
-		bool init_DL3Tree( int irun, int icounter );
-		void write_DL3Tree();
+        void fill_DL3Tree( CData* c ,
+                           double i_xderot, double i_yderot,
+                           unsigned int icounter, double i_UTC );
+        bool init_DL3Tree( int irun, int icounter );
+        void write_DL3Tree();
         
         // derotation and J2000
         void getDerotatedCoordinates( unsigned int, CData* iData, double& x_derot, double& y_derot );

@@ -10,13 +10,13 @@ VCTARequirements::VCTARequirements()
 {
     fSetOfRequirementID = 0;
     fRequirementTitle = "";
-
+    
     fReqDifferentialSensitivity = 0;
     fReqEffectiveArea = 0;
     fReqAngularResolution = 0;
     fReqEnergyResolution = 0;
-
-    fReqDifferentialSensitivity2014 = 0; 
+    
+    fReqDifferentialSensitivity2014 = 0;
     fReqDifferentialSensitivityxF = 0;
     fReqDifferentialSensitivityx2 = 0;
     fReqDifferentialSensitivityx3 = 0;
@@ -36,8 +36,8 @@ VCTARequirements::VCTARequirements()
 }
 
 
-TGraph* VCTARequirements::plotRequirement_DifferentialSensitivity( 
-        TCanvas* c )
+TGraph* VCTARequirements::plotRequirement_DifferentialSensitivity(
+    TCanvas* c )
 {
     if( !c )
     {
@@ -146,7 +146,7 @@ TGraph* VCTARequirements::plotRequirement_EffectiveArea( TCanvas* c )
     }
     
     c->cd();
-
+    
     plotRequirements( fReqEffectiveArea, true, true );
     
     return fReqAngularResolution;
@@ -158,7 +158,7 @@ TGraph* VCTARequirements::plotRequirement_EffectiveArea( TCanvas* c )
  * hardwired CTA systematics, check code for details
  *
  */
-void VCTARequirements::plotRequirementsSystematic( TGraph *g )
+void VCTARequirements::plotRequirementsSystematic( TGraph* g )
 {
     if( !g )
     {
@@ -166,7 +166,7 @@ void VCTARequirements::plotRequirementsSystematic( TGraph *g )
     }
     double x = 0.;
     double y = 0.;
-    TGraphAsymmErrors *iGraphSys = new TGraphAsymmErrors( 1 );
+    TGraphAsymmErrors* iGraphSys = new TGraphAsymmErrors( 1 );
     iGraphSys->SetFillStyle( 3244 );
     iGraphSys->SetFillStyle( 1001 );
     iGraphSys->SetFillColor( g->GetLineColor() );
@@ -184,11 +184,11 @@ void VCTARequirements::plotRequirementsSystematic( TGraph *g )
         {
             fsys = 0.4;
         } */
-        // fsys changes continously 
+        // fsys changes continously
         // from 30 to 50% below 200 GeV
         if( x < log10( 0.2 ) )
         {
-            fsys = 0.3 - 0.2 * (x + 0.7);
+            fsys = 0.3 - 0.2 * ( x + 0.7 );
         }
         else
         {
@@ -196,7 +196,7 @@ void VCTARequirements::plotRequirementsSystematic( TGraph *g )
         }
         iGraphSys->SetPointEYlow( i, y * fsys );
     }
-
+    
     iGraphSys->Draw( "3" );
 }
 
@@ -218,7 +218,7 @@ void VCTARequirements::plotRequirements( TGraph* g, bool iLog, bool iLine, bool 
         return;
     }
     
-    // plot requirements 
+    // plot requirements
     double x = 0;
     double y = 0;
     double y_low = 0.;
@@ -266,7 +266,7 @@ double VCTARequirements::getFOVRequirement( double iE_lin_TeV )
  */
 bool VCTARequirements::setRequirement( string iRequirement, float fRequirementsScalingFactor )
 {
-    
+
     if( iRequirement.size() == 0 )
     {
         cout << "\t no requirement given" << endl;
@@ -291,7 +291,7 @@ bool VCTARequirements::setRequirement( string iRequirement, float fRequirementsS
     {
         cout << "\t plotting subsystem requirements for " << fPlotSubSystemRequirement << endl;
     }
-
+    
     fRequirementTitle = iRequirement;
     /////////////////////////////
     // angular resolution
