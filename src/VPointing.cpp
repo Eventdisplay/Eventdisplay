@@ -78,7 +78,7 @@ void VPointing::setTelPointing( int MJD, double time, bool iUseDB, bool iFillPoi
     
 }
 
-void VPointing::getPointingFromDB( int irun, string iTCorrection, string iVPMDirectory, bool iVPMDB, bool iUncalibratedVPM )
+void VPointing::getPointingFromDB( int irun, string iVPMDirectory, bool iVPMDB, bool iUncalibratedVPM )
 {
     fPointingType = 2;
     if( iVPMDB == true )
@@ -93,10 +93,6 @@ void VPointing::getPointingFromDB( int irun, string iTCorrection, string iVPMDir
     {
         fPointingType = 4;    // read VPM data from a text file
     }
-    else if( iTCorrection.size() > 0 )
-    {
-        fPointingType = 3;    // read raw positioner data from VERITAS DB and apply tracking corrections
-    }
     else
     {
         fPointingType = 2;    // read T-Point corrected positioner data from VERITAS DB
@@ -105,7 +101,7 @@ void VPointing::getPointingFromDB( int irun, string iTCorrection, string iVPMDir
 #ifdef RUNWITHDB
     fPointingDB = new VPointingDB( fTelID, irun );
     fPointingDB->setObservatory( fObsLongitude * TMath::RadToDeg(), fObsLatitude * TMath::RadToDeg() );      // work in [deg]
-    fPointingDB->initialize( iTCorrection, iVPMDirectory, iVPMDB, iUncalibratedVPM );
+    fPointingDB->initialize( iVPMDirectory, iVPMDB, iUncalibratedVPM );
     if( !fPointingDB->isGood() )
     {
         cout << endl;

@@ -573,7 +573,7 @@ bool VEventLoop::initEventLoop( string iFileName )
             // (calculated with pointing monitor)
             if( fRunPar->fDBTracking )
             {
-                fPointing.back()->getPointingFromDB( fRunPar->frunnumber, fRunPar->fDBTrackingCorrections, fRunPar->fPMTextFileDirectory,
+                fPointing.back()->getPointingFromDB( fRunPar->frunnumber, "",
                                                      fRunPar->fDBVPM, fRunPar->fDBUncalibratedVPM );
             }
             // no DB pointing corrections

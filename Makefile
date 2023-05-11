@@ -439,9 +439,6 @@ EVNOBJECTS =    ./obj/VVirtualDataReader.o \
 		./obj/VArrayPointing.o \
 		./obj/VStarCatalogue.o  ./obj/VStarCatalogue_Dict.o \
 		./obj/VStar.o ./obj/VStar_Dict.o \
-		./obj/VTrackingCorrections.o \
-		./obj/CorrectionParameters.o \
-		./obj/Angle.o \
 		./obj/PointingMonitor.o \
 		./obj/VSkyCoordinatesUtilities.o \
 		./obj/VHoughTransform.o \
@@ -1472,25 +1469,6 @@ trainTMVAforAngularReconstruction:	./obj/trainTMVAforAngularReconstruction.o \
 					./obj/Ctelconfig.o ./obj/Cshowerpars.o ./obj/Ctpars.o 
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
-########################################################
-# updateDBlaserRUN
-########################################################
-./obj/updateDBlaserRUN.o: ./src/updateDBlaserRUN.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-updateDBlaserRUN:	./obj/VDBTools.o ./obj/VDBTools_Dict.o \
-			./obj/VExposure.o ./obj/VExposure_Dict.o \
-			./obj/VStar.o ./obj/VStar_Dict.o \
-			./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-			./obj/VDB_Connection.o \
-			./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-			./obj/VSkyCoordinatesUtilities.o \
-			./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
-			./obj/VUtilities.o \
-			./obj/VDB_CalibrationInfo.o \
-			./obj/updateDBlaserRUN.o
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "Done updateDBlaserRUN"
 
 ########################################################
 # updateDBlaserRUN

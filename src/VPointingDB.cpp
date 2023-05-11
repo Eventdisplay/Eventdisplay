@@ -40,29 +40,10 @@ VPointingDB::VPointingDB( unsigned int iTelID, unsigned int irun )
     fmy_connection = 0;
     
     fNWarnings = 0;
-    
-    fTrackingCorrections = 0;
 }
 
-bool VPointingDB::initialize( string iTPointCorrection, string iVPMDirectory, bool iVPMDB, bool iUncalibratedVPM )
+bool VPointingDB::initialize( string iVPMDirectory, bool iVPMDB, bool iUncalibratedVPM )
 {
-
-    // setup tracking corrections (expert use!)
-    if( iTPointCorrection.size() > 0 )
-    {
-        fTrackingCorrections = new VTrackingCorrections( fTelID );
-        if( !fTrackingCorrections->readTrackingCorrectionsFromDB( iTPointCorrection ) )
-        {
-            cout << "VPointingDB: error while reading tracking correction from VERITAS database" << endl;
-            cout << "             date wrong? (example for SQL date format: \"2007-10-05\")" << endl;
-            exit( -1 );
-        }
-    }
-    else
-    {
-        fTrackingCorrections = 0;
-    }
-    
     string iTempS  = getDBServer();
     iTempS        += "/VERITAS";
     
@@ -822,18 +803,9 @@ bool VPointingDB::readPointingFromDB()
         getDBMJDTime( itemp, iMJD, iTime, false );
         fDBMJD.push_back( ( unsigned int )iMJD );
         fDBTime.push_back( iTime );
-        // reapply tracking corrections
-        if( fTrackingCorrections )
-        {
-            // get elevation_raw, azimuth_raw from DB and reapply tracking corrections
-            fTrackingCorrections->applyTrackingCorrections( atof( db_row->GetField( 1 ) ), atof( db_row->GetField( 2 ) ), el, az );
-        }
-        else
-        {
-            // get elevation_meas, azimuth_meas from DB
-            el = atof( db_row->GetField( 3 ) );
-            az = atof( db_row->GetField( 4 ) );
-        }
+        // get elevation_meas, azimuth_meas from DB
+        el = atof( db_row->GetField( 3 ) );
+        az = atof( db_row->GetField( 4 ) );
         fDBTelElevationRaw.push_back( atof( db_row->GetField( 1 ) ) * 180. / TMath::Pi() );
         fDBTelAzimuthRaw.push_back( atof( db_row->GetField( 2 ) ) * 180. / TMath::Pi() );
         fDBTelElevation.push_back( el * 180. / TMath::Pi() );
