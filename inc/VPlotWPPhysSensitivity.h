@@ -33,48 +33,48 @@ class VPPUTData
 {
     public:
         string fArrayName;
-	string fPPUTName;
-	double fEMin_TeV;
-	double fEMax_TeV;
-	double fPPUT;
-	double fPPUTError;
-
-	VPPUTData();
-       ~VPPUTData() {}
+        string fPPUTName;
+        double fEMin_TeV;
+        double fEMax_TeV;
+        double fPPUT;
+        double fPPUTError;
+        
+        VPPUTData();
+        ~VPPUTData() {}
 };
 
 
 class VPPUTValues
 {
     private:
-	// fPPUTData[array name][energy range]
+        // fPPUTData[array name][energy range]
         vector< vector< VPPUTData* > > fPPUTData;
-
+        
         vector< string > fSetName;
         vector< double > fPPUT;
         vector< double > fPPUTError;
-
+        
         vector< double > fLowEPPUT;
         vector< double > fLowEPPUTError;
-
+        
         vector< double > fLowEMSTPPUT;
         vector< double > fLowEMSTPPUTError;
-
+        
         vector< double > fMidEPPUT;
         vector< double > fMidEPPUTError;
-
+        
         vector< double > fHighEPPUT;
         vector< double > fHighEPPUTError;
-
+        
         vector< double > fMedHighEPPUT;
         vector< double > fMedHighEPPUTError;
-
-        double getPPUT( TGraph *iG, bool iError = false, double ilogEMin = -20., double ilogEMax = 20. );
-
+        
+        double getPPUT( TGraph* iG, bool iError = false, double ilogEMin = -20., double ilogEMax = 20. );
+        
     public:
         VPPUTValues() {}
         ~VPPUTValues() {}
-        void add( string iName, TGraph *iG );
+        void add( string iName, TGraph* iG );
         void print( string iType = "MARKDOWN" );
         void printHeader( string iType = "MARKDOWN" );
 };
@@ -98,15 +98,15 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
         
         bool fUseIntegratedSensitivityForOffAxisPlots;
         bool fNorthSouthComparision;
-
+        
         string fCurrentInstrumentRootFile;
         vector< string > fCurrentInstrumentVector;
-	    bool fPlotCurrentInstrumentVectorLabel;
+        bool fPlotCurrentInstrumentVectorLabel;
         
         // FOM variables
         double fSensitivityFOM;
         double fSensitivityFOM_error;
-
+        
         // energy bias treatment
         float fMaximumAllowedEnergyBias;
         
@@ -114,7 +114,7 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
         vector< double >  fProjectionEnergy_min_logTeV;
         vector< double >  fProjectionEnergy_max_logTeV;
         map< string, vector< TGraphAsymmErrors* > > fProjectionSensitivityvsCameraOffset;
-
+        
         bool bPlotNoLegend;
         bool bPlotCrabLines;
         
@@ -151,13 +151,13 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
                       double iAngularResolutionMin = 0.005, double iAngularResolutionMax = 0.30,
                       double iEnergyResolutionMin = 0., double iEnergyResolutionMax = 0.5,
                       TPad* iEffAreaPad = 0, TPad* iAngResPad = 0, TPad* iEResPad = 0, bool iPlotEnergyBias = true,
-                      bool iLogAngRes = true );
+                      bool iLogAngRes = true, bool iIRFLegend = false );
         TCanvas* plotProjectedSensitivities( TCanvas*, double iMaxOffset, int iColor = -1 );
         bool plotSensitivity( string iPrint = "",
                               double iMinSensitivity = 4.e-14, double iMaxSensitivity = 2.5e-10,
                               string iUnit = "ENERGY",
                               TPad* iSensitivityPad = 0, TPad* iBckPad = 0,
-		                      bool iTransparentLegend = false );
+                              bool iTransparentLegend = false );
         bool plotSensitivityRatio( string iPrint,
                                    double ymin = 0.01, double ymax = 2.,
                                    unsigned int iRatioSelector = 0, TPad* iSensRatio = 0,
@@ -169,10 +169,10 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
         }
         void setCurrentInstrumentPlotVector();
         void setCurrentInstrumentPlotVector( vector< string > iV,
-	                                     bool iPlotCurrentInstrumentVectorLabel )
+                                             bool iPlotCurrentInstrumentVectorLabel )
         {
             fCurrentInstrumentVector = iV;
-	        fPlotCurrentInstrumentVectorLabel = iPlotCurrentInstrumentVectorLabel;
+            fPlotCurrentInstrumentVectorLabel = iPlotCurrentInstrumentVectorLabel;
         }
         void setCrabSpectraFile( string iFile = "$CTA_EVNDISP_AUX_DIR/AstroData/TeV_data/EnergySpectrum_literatureValues_CrabNebula.dat",
                                  unsigned int iSpectraID = 5 )
@@ -190,12 +190,12 @@ class VPlotWPPhysSensitivity : public VPlotUtilities
             fMaximumAllowedEnergyBias = emax_bias;
         }
         void setNorthSouthComparision( bool iNS = false );
-        bool setPlotCTARequirements( string iRequirements = "", 
-                float iRequirementsScalingFactor = 1., double iRequirementsLineWidth = 1.,
-                bool iRequirementsSystematic = false );
+        bool setPlotCTARequirements( string iRequirements = "",
+                                     float iRequirementsScalingFactor = 1., double iRequirementsLineWidth = 1.,
+                                     bool iRequirementsSystematic = false );
         void setPlotNoLegend( bool iPlotNoLegend = false )
         {
-             bPlotNoLegend = iPlotNoLegend;
+            bPlotNoLegend = iPlotNoLegend;
         }
         void setPlotCrabLines( bool iPlot = true )
         {

@@ -43,20 +43,21 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
         double fAngResRatio_max;
         
         string fPrintingOptions;
+        bool bPlotIRFLegend;
         bool bPlotNoLegend;
         bool bPlotCrabLines;
-	    bool fTransparentLegend;
+        bool fTransparentLegend;
         
         string fPlotCTARequirementsString;
         float  fRequirementsScalingFactor;
         int    fRequirementsLineWidth;
         bool   fRequirementsSystematics;
-
+        
         vector< string > fCurrentInstrumentVector;
-	    bool fPlotCurrentInstrumentVectorLabel;
-
+        bool fPlotCurrentInstrumentVectorLabel;
+        
         float  fMaximumAllowedEnergyBias;
- 
+        
         string fPlotAllInOneCanvasStyle;
         // projected off-axis sensitivity
         TCanvas* fPlotProjectedSensitivity;
@@ -91,7 +92,7 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
             return fPlotProjectedSensitivity;
         }
         void plotAllInOneCanvas( bool iCanvasBatch = false );
-        void plotRatioPlot( TPad *corg, TPad *ratio, double ymin = 0., double ymax = 2., bool revert_ratio = false );
+        void plotRatioPlot( TPad* corg, TPad* ratio, double ymin = 0., double ymax = 2., bool revert_ratio = false );
         void printPlotCTARequirementsIDs();
         void resetVectors();
         void setAxisUnits( string iObservationTime );   // set the correct y-axis scale for 50h, 5h, and 0.5h
@@ -99,7 +100,7 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
         void setCurrentInstrumentPlotVector( vector< string > iV, bool iPlotLabels = false )
         {
             fCurrentInstrumentVector = iV;
-	        fPlotCurrentInstrumentVectorLabel = iPlotLabels;
+            fPlotCurrentInstrumentVectorLabel = iPlotLabels;
         }
         void setEffectiveAreaLimits( double iEffArea_min = 5.e2, double iEffArea_max = 7.e6 )
         {
@@ -112,7 +113,7 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
         }
         void setPlotAllInOneCanvasStyle( string iStyle = "AllRatios" )
         {
-             fPlotAllInOneCanvasStyle = iStyle;
+            fPlotAllInOneCanvasStyle = iStyle;
         }
         void setResolutionLimits( double iAngularResolutionMax = 1.10, double iEnergyResolutionMax = 0.3,
                                   bool iAngresLogY = true,
@@ -140,7 +141,7 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
             fAngResRatio_min = iRatio_angres_min;
             fAngResRatio_max = iRatio_angres_max;
         }
-
+        
         void setEnergyRange_Lin_TeV( double iMinEnergy_TeV = 0.01, double iMaxEnergy_TeV = 200. )
         {
             fMinEnergy_TeV = iMinEnergy_TeV;
@@ -159,9 +160,9 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
         {
             fPrintingOptions = iPrint;
         }
-        void setPlotRequirements( string iRequirement = "", 
-                float iRequirementsScalingFactor = 1., 
-                double iLineWidth = 1.  );
+        void setPlotRequirements( string iRequirement = "",
+                                  float iRequirementsScalingFactor = 1.,
+                                  double iLineWidth = 1. );
         void setPlotRequirementsSystematics( bool iPlotSystematics = false )
         {
             fRequirementsSystematics = iPlotSystematics;
@@ -170,12 +171,16 @@ class VWPPhysSensitivityPlotsMaker : public VPlotUtilities
         {
             fOffAxisAngle = iA;
         }
+        void setPlotIRFLegend( bool iIRFLegend = false )
+        {
+            bPlotIRFLegend = iIRFLegend;
+        }
         void setPlotNoLegend( bool iPlotNoLegend = false )
         {
             bPlotNoLegend = iPlotNoLegend;
         }
         void setTransparentLegend( bool iLegendTransparency = false )
-	    {
+        {
             fTransparentLegend = iLegendTransparency;
         }
         bool writeTexFileBody( string iTexFile, string iTexFileTitle = "" );
