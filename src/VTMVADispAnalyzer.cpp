@@ -1,8 +1,7 @@
 /* \class VTMVADispAnalyzer
    \brief TMVA based disp analysis
 
-   should work for angular disp reconstruction,
-   energy and core reconstruction
+   angular disp, energy and core reconstruction
 
 */
 

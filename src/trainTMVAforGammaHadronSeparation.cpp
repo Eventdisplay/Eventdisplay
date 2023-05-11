@@ -96,6 +96,11 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Double_t MSCL = 0.;
     Double_t ErecS = 0.;
     Double_t EChi2S = 0.;
+    Double_t Xcore = 0.;
+    Double_t Ycore = 0.;
+    Double_t Xoff_derot = 0.;
+    Double_t Yoff_derot = 0.;
+    Int_t NImages = 0;
     // fixed max number of telescope types
     UInt_t NImages_Ttype[20];
     for( unsigned int i = 0; i < 20; i++ ) NImages_Ttype[i] = 0;
@@ -109,6 +114,11 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "MSCL", &MSCL, "MSCL/D" );
     iDataTree_reduced->Branch( "ErecS", &ErecS, "ErecS/D" );
     iDataTree_reduced->Branch( "EChi2S", &EChi2S, "EChi2S/D" );
+    iDataTree_reduced->Branch( "Xcore", &Xcore, "Xcore/D" );
+    iDataTree_reduced->Branch( "Ycore", &Ycore, "Ycore/D" );
+    iDataTree_reduced->Branch( "Xoff_derot", &Xoff_derot, "Xoff_derot/D" );
+    iDataTree_reduced->Branch( "Yoff_derot", &Yoff_derot, "Yoff_derot/D" );
+    iDataTree_reduced->Branch( "NImages", &NImages, "NImages/I" );
     iDataTree_reduced->Branch( "NImages_Ttype", NImages_Ttype, "NImages_Ttype[20]/i" );
     iDataTree_reduced->Branch( "EmissionHeight", &EmissionHeight, "EmissionHeight/F" );
     iDataTree_reduced->Branch( "EmissionHeightChi2", &EmissionHeightChi2, "EmissionHeightChi2/F" );
@@ -126,12 +136,20 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
              iTreeVector[i]->SetBranchAddress( "MSCL", &MSCL );
              iTreeVector[i]->SetBranchAddress( "ErecS", &ErecS );
              iTreeVector[i]->SetBranchAddress( "EChi2S", &EChi2S );
+             iTreeVector[i]->SetBranchAddress( "Xcore", &Xcore );
+             iTreeVector[i]->SetBranchAddress( "Ycore", &Ycore );
+             iTreeVector[i]->SetBranchAddress( "Xoff_derot", &Xoff_derot );
+             iTreeVector[i]->SetBranchAddress( "Yoff_derot", &Yoff_derot );
+             iTreeVector[i]->SetBranchAddress( "NImages", &NImages );
              iTreeVector[i]->SetBranchAddress( "NImages_Ttype", NImages_Ttype );
              iTreeVector[i]->SetBranchAddress( "EmissionHeight", &EmissionHeight );
              iTreeVector[i]->SetBranchAddress( "EmissionHeightChi2", &EmissionHeightChi2 );
              iTreeVector[i]->SetBranchAddress( "SizeSecondMax", &SizeSecondMax );
              iTreeVector[i]->SetBranchAddress( "DispDiff", &DispDiff );
-             iTreeVector[i]->SetBranchAddress( "MCe0", &MCe0 );
+             if( iTreeVector[i]->GetBranchStatus( "MCe0" ) )
+             {
+                 iTreeVector[i]->SetBranchAddress( "MCe0", &MCe0 );
+             }
              if( !iDataTree_reduced )
              {
                  cout << "Error preparing reduced tree" << endl;
@@ -385,7 +403,6 @@ bool train( VTMVARunData* iRun,
     // train gamma/hadron separation
     if( iTrainGammaHadronSeparation )
     {
-        // adding signal and background tree
         dataloader->AddSignalTree( iSignalTree_reduced, iRun->fSignalWeight );
         dataloader->AddBackgroundTree( iBackgroundTree_reduced, iRun->fBackgroundWeight );
     }
@@ -446,7 +463,6 @@ bool train( VTMVARunData* iRun,
         }
 
         //////////////////////////
-        // BOOSTED DECISION TREES
         if( iRun->fMVAMethod[i] != "BOXCUTS" )
         {
             if( iTrainGammaHadronSeparation )
@@ -574,7 +590,9 @@ int main( int argc, char* argv[] )
     //////////////////////////////////////
     // train MVA
     // (one training per energy bin)
-    cout << "Total number of energy bins: " << fData->fEnergyCutData.size() << endl;
+    cout << "Number of energy bins: " << fData->fEnergyCutData.size();
+    cout << ", number of zenith bins: " << fData->fZenithCutData.size();
+    cout << endl;
     cout << "================================" << endl << endl;
     for( unsigned int i = 0; i < fData->fEnergyCutData.size(); i++ )
     {
@@ -588,9 +606,10 @@ int main( int argc, char* argv[] )
                 cout << endl;
             }
             // training
-            if( fData->fTrainGammaHadronSeparation )
+            if( fData->fTrainGammaHadronSeparation && !trainGammaHadronSeparation( fData, i, j, fRunOption ) )
             {
-                trainGammaHadronSeparation( fData, i, j, fRunOption );
+                cout << "Error during training...exiting" << endl;
+                exit( EXIT_FAILURE );
             }
             if( fData->fTrainReconstructionQuality )
             {
@@ -627,7 +646,7 @@ int main( int argc, char* argv[] )
                 cout << "Error finding tvma root file " << endl;
                 continue;
             }
-            TFile* short_root_file = TFile::Open( iTempS.str().c_str() , "RECREATE" );
+            TFile* short_root_file = TFile::Open( iTempS.str().c_str(), "RECREATE" );
             if( !short_root_file->IsZombie() )
             {
                 VTMVARunDataEnergyCut* fDataEnergyCut = ( VTMVARunDataEnergyCut* )root_file->Get( "fDataEnergyCut" );
@@ -711,7 +730,7 @@ int main( int argc, char* argv[] )
             string iFinalRootFileName( iTempS.str() );
             string iBinRootString( ".bin.root" );
             iFinalRootFileName.replace( iFinalRootFileName.find( iBinRootString ), iBinRootString.length(), ".root" );
-            rename( iTempS.str().c_str() , iFinalRootFileName.c_str() );
+            rename( iTempS.str().c_str(), iFinalRootFileName.c_str() );
         }
     }
     return 0;

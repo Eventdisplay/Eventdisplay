@@ -77,7 +77,6 @@ bool VCalibrator::initializePedestalHistograms( ULong64_t iTelType, bool iLowGai
         cout << " (no single or array of output files defined)" << endl;
         exit( EXIT_FAILURE );
     }
-    /////////////////////////////////////////////////////////////////
     // init histograms etc (only done before first event)
     if( fReader->getMaxChannels() )
     {
@@ -251,10 +250,9 @@ void VCalibrator::calculatePedestals( bool iLowGain )
 
     // reset and fill vectors
     resetAnaData();
+
     fillHiLo();
     
-    ////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////
     // fill pedestal sum for current telescope type
     fNumberPedestalEvents[iTelType]++;
     
@@ -392,7 +390,6 @@ void VCalibrator::writePeds( bool iLowGain, VPedestalCalculator* iPedestalCalcul
         // write histograms for first telescope of a certain teltype only
         if( !iFileWritten[telType] )
         {
-        
             cout << "Telescope (type) " << telType << endl;
             cout << "\t total number of pedestal events: " << fNumberPedestalEvents[telType] << endl;
             cout << "\t writing ";
@@ -430,16 +427,18 @@ void VCalibrator::writePeds( bool iLowGain, VPedestalCalculator* iPedestalCalcul
                     // (require at least 100 entries in pedestal events)
                     os << t << " " << i << " ";
                     if( hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]
-                            && hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetEntries() > 100 )
+                     && hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetEntries() > 100 )
                     {
                         os << hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetMean() / ( double )fRunPar->fCalibrationSumWindow << " ";
                     }
                     else
                     {
-                        cout << "VCalibrator::writePeds(): WARNING, less than 100 events";
+                        cout << "VCalibrator::writePeds(): WARNING, less than 100 events ";
                         if( hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i] )
                         {
-                            cout << "(" << hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetEntries() << ")";
+                            cout << "(";
+                            cout << hped_vec[telType][fRunPar->fCalibrationSumWindow - 1][i]->GetEntries();
+                            cout << " events)";
                         }
                         cout << ", setting pedestal to 0 for telescope (type) ";
                         cout << telType << ", channel " << i << endl;
@@ -634,7 +633,7 @@ bool VCalibrator::fillPedestalTree( unsigned int tel, VPedestalCalculator* iPede
         cout << t << "\t" << hped_vec.size() << endl;
         return false;
     }
-    cout << "\t filling pedestal tree for telescope " << t << " (telescope type " << iTelType << ")" << endl;
+    cout << "\t filling pedestal tree for telescope " << t+1 << " (telescope type " << iTelType << ")" << endl;
     
     char iname[800];
     char ititle[800];
@@ -704,7 +703,6 @@ bool VCalibrator::fillPedestalTree( unsigned int tel, VPedestalCalculator* iPede
     ////////////////////////////////////////////////////////////////////////////////
     // tree filling
     
-    //////////////////////////////////////////
     // loop over all channels
     for( unsigned int i = 0; i < hped_vec[iTelType][0].size(); i++ )
     {
@@ -953,7 +951,7 @@ void VCalibrator::writeAverageTZeros( bool iLowGain )
         cout << "\t calculated from " << fNumberTZeroEvents[t] << " events" << endl;
         
         fTZeroOutFile[tel]->cd();
-        if( t < htzero.size() && htaverage.size() )
+        if( t < htzero.size() && t < htaverage.size() )
         {
             for( unsigned int i = 0; i < htzero[t].size(); i++ )
             {
@@ -1992,7 +1990,8 @@ bool VCalibrator::readPeds_from_textfile( string iFile, bool iLowGain, unsigned 
     infile.open( iFile.c_str(), ifstream::in );
     if( !infile )
     {
-        cout << "VCalibrator::readPeds_from_textfile error: unable to open pedestal file " << iFile << endl;
+        cout << "VCalibrator::readPeds_from_textfile error: unable to open pedestal file ";
+        cout << iFile << endl;
         cout << "\t exiting..." << endl;
         exit( EXIT_FAILURE );
     }
@@ -2107,9 +2106,7 @@ bool VCalibrator::readPeds_from_textfile( string iFile, bool iLowGain, unsigned 
 }
 
 /*
-
    read low gain pedestals from combined file
-
 */
 bool VCalibrator::readPeds_from_combinedfile( string iFile, bool iLowGain, unsigned int i_SumWindow )
 {
@@ -2118,8 +2115,18 @@ bool VCalibrator::readPeds_from_combinedfile( string iFile, bool iLowGain, unsig
     infile.open( iFile.c_str(), ifstream::in );
     if( !infile )
     {
-        cout << "VCalibrator::readPeds_from_combinedfile error: unable to open pedestal file " << iFile << endl;
-        return false;
+        cout << "VCalibrator::readPeds_from_combinedfile error: unable to open pedestal file ";
+        cout << "\t" << iFile << endl;
+        cout << "\t trying aux directory" << endl;
+        string i_Temp = fRunPar->getDirectory_EVNDISPAnaData();
+        i_Temp += "/Calibration/";
+        i_Temp += gSystem->BaseName( iFile.c_str() );
+        infile.open( i_Temp.c_str(), ifstream::in );
+        if( !infile )
+        {
+            cout << "VCalibrator::readPeds_from_combinedfile error: unable to open pedestal file " << i_Temp << endl;
+            return false;
+        }
     }
     
     cout << "Telescope " << getTelID() + 1;
@@ -3069,7 +3076,6 @@ void VCalibrator::initialize()
             }
             vector< vector< TH1F* > > iped_vec;
             vector< vector< TH1F* > > iped_ttype_vec;
-            //vector< TH1F* > iped_ttype_vec;
             for( int i = 0; i < getRunParameter()->fCalibrationSumWindow; i++ )
             {
                 vector<TH1F* > ihped;
@@ -3119,7 +3125,6 @@ void VCalibrator::initialize()
             readGains( true );
         }
         // read peds from DST file (for DST MC source file)
-        
         if( fRunPar->fsourcetype == 7 || fRunPar->fsourcetype == 4 )
         {
             readCalibrationDatafromDSTFiles( fRunPar->fsourcefile, fRunPar->frunmode == 1 );
@@ -4148,13 +4153,13 @@ bool VCalibrator::readCalibrationDatafromDSTFiles( string iDSTfile, bool iPedOnl
                 // fill calibration data
                 if( p < getFADCtoPhe( false ).size() )
                 {
-                    getFADCtoPhe( false )[p] = fConv_high[p];
-                    getFADCtoPhe( false )[p] = 1.;   // TMPTMP: IPR graphs are still in dc, not in pe
+                    // getFADCtoPhe( false )[p] = fConv_high[p];
+                    getFADCtoPhe( false )[p] = 1.;   // TMPTMP: IPR graphs are still in dc, not in pe (used in prod5)
                 }
                 if( p < getFADCtoPhe( true ).size() )
                 {
-                    getFADCtoPhe( true )[p] = fConv_low[p];
-                    getFADCtoPhe( true )[p] = 1.;    // TMPTMP: IPR graphs are still in dc, not in pe
+                    // getFADCtoPhe( true )[p] = fConv_low[p];
+                    getFADCtoPhe( true )[p] = 1.;    // TMPTMP: IPR graphs are still in dc, not in pe (used in prod5)
                 }
             }
             if( i_z > 0. && i_meanC > 0. )
@@ -4333,13 +4338,9 @@ bool VCalibrator::readCalibrationDatafromDSTFiles( string iDSTfile, bool iPedOnl
     }
     else if( getRunParameter()->fIPRdatabase.Length() > 0 )
     {
-        cout << "\t IPR graphs for NN cleaening will be read from external database: ";
+        cout << "\t IPR graphs for NN cleaning will be read from external database: ";
         cout << getRunParameter()->fIPRdatabase << endl;
     }
-    
-    // cleanup (not necessary, this is done by TFile::Close()
-    //	delete [] fPedvar_high;
-    //	delete [] fPedvar_low;
     
     iF.Close();
     return true;

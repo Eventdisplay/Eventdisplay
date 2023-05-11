@@ -139,7 +139,6 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     gSystem->ExpandPathName( iOutputDirectory );
     ( TMVA::gConfig().GetIONames() ).fWeightFileDir = iOutputDirectory;
     
-    
     // tmva regression
     TMVA::Factory* factory = new TMVA::Factory( iTargetML.c_str(), i_tmva, 
                             "V:!DrawProgressBar:!Color:!Silent:AnalysisType=Regression:VerboseLevel=Debug:Correlations=True" );
@@ -147,10 +146,10 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
     
     // list of variables used by MVA method
-    dataloader->AddVariable( "width" , 'F' );
+    dataloader->AddVariable( "width", 'F' );
     dataloader->AddVariable( "length", 'F' );
     dataloader->AddVariable( "wol",    'F' );
-    dataloader->AddVariable( "size"  , 'F' );
+    dataloader->AddVariable( "size", 'F' );
     dataloader->AddVariable( "ntubes", 'F' );
     // hard coded ASTRI telescope type
     // (no time gradient is available)
@@ -160,11 +159,11 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     }
     if( !iSingleTelescopeAnalysis )
     {
-        dataloader->AddVariable( "cross" , 'F' );
+        dataloader->AddVariable( "cross", 'F' );
     } 
-    dataloader->AddVariable( "asym"  , 'F' );
-    dataloader->AddVariable( "loss"  , 'F' );
-    dataloader->AddVariable( "dist"  , 'F' );
+    dataloader->AddVariable( "asym", 'F' );
+    dataloader->AddVariable( "loss", 'F' );
+    dataloader->AddVariable( "dist", 'F' );
     dataloader->AddVariable( "fui"  , 'F' );
     if( iTargetML.find( "DispEnergy" ) != string::npos && !iSingleTelescopeAnalysis )
     {
@@ -452,7 +451,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     // vector with telescope position
     // (includes all telescopes, even those
     // of other types)
-    // (unfortunatly inconsistent in data 
+    // (unfortunately inconsistent in data 
     //  types required)
     vector< float > fTelX;
     vector< float > fTelY;
@@ -733,7 +732,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         {
             continue;
         }
-        
+
         /////////////////////////////////////////////////////////
         // calculate emission height and cross
         for( unsigned int i = 0; i < i_tpars.size(); i++ )
@@ -748,7 +747,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             fEM_weight[i] = 0.;
             
             if( ( int )i_showerpars.ImgSel_list[iRecID][i] < 1
-                    && (i_showerpars.NImages[iRecID] > 1 || !iSingleTelescopeAnalysis ) )
+               && (i_showerpars.NImages[iRecID] > 1 || !iSingleTelescopeAnalysis ) )
             {
                 continue;
             }
@@ -826,14 +825,6 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             {
                 continue;
             }
-            // required successful fit
-            // (in case images are fitted)
-            if( i_tpars[i]->hasParameterErrors() && 
-                 i_tpars[i]->Fitstat < 1 )
-            {
-               continue;
-            }
-
             
             runNumber   = i_showerpars.runNumber;
             eventNumber = i_showerpars.eventNumber;
@@ -1018,7 +1009,7 @@ int main( int argc, char* argv[] )
     string       iDataDirectory = "";
     string       iLayoutFile = "";
     // quality cut likely overwritten from command line
-    string       iQualityCut = "size>1.&&ntubes>4.&&width>0.&&width<2.&&length>0.&&length<10.";
+    string       iQualityCut = "size>1.&&ntubes>log10(4.)&&width>0.&&width<2.&&length>0.&&length<10.";
     iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&Rcore<2000.";
     if( argc >=  7 )
     {

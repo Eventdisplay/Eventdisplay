@@ -3808,8 +3808,8 @@ string VTMVAEvaluator::setFullMVAFileName( string iWeightFileName,
       // backwards compatibility with pre-2018 CTA training
       if( iInstrumentEpoch != "noepoch" && iInstrumentEpoch != "CTA" )
       {
-          iFileName << "_Zebin" << iWeightFileIndex_Zmin + j;
-          iFileNamev2 << "_Zebin" << iWeightFileIndex_Zmin + j;
+          iFileName << "_" << iWeightFileIndex_Zmin + j;
+          iFileNamev2 << "_" << iWeightFileIndex_Zmin + j;
       }
       if( iFileSuffix.find( "xml" ) != string::npos )
       {

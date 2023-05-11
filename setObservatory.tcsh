@@ -2,8 +2,6 @@
 #
 # set the environmental variables to CTA/VERITAS/etc
 #
-# Autor: Gernot Maier
-#
 
 if ($#argv != 1) then
    echo 

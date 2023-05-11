@@ -17,7 +17,6 @@
 #include <VGammaHadronCuts.h>
 #include <VGlobalRunParameter.h>
 #include <VInstrumentResponseFunctionRunParameter.h>
-#include <VEnergyThreshold.h>
 
 using namespace std;
 
@@ -26,33 +25,29 @@ using namespace std;
  *  combine several effective area files into one
  *
  */
-void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs = true )
+void merge( vector< string > file_list, 
+            string outputfile, 
+            bool bFull = false , 
+            bool bMergeLogs = true )
 {
-    char hname[2000];
+	if( file_list.size() == 0 )
+	{
+		cout << "error: no files found to merge" << endl;
+		cout << "exiting.." << endl;
+		exit( EXIT_FAILURE );
+	}
+	TChain f( "fEffArea" );
+    for( unsigned int i = 0; i < file_list.size(); i++ )
+    {
+        f.Add( file_list[i].c_str() );
+    }
+    if( outputfile.find( ".root" ) == string::npos )
+    {
+        outputfile += ".root";
+    }
+	cout << "merging " << file_list.size() << " files to " << outputfile << endl;
     
-    // chain with merged effective area values
-    TChain f( "fEffArea" );
-    if( ifile.find( ".root" ) != string::npos )
-    {
-        sprintf( hname, "%s", ifile.c_str() );
-    }
-    else
-    {
-        sprintf( hname, "%s.root", ifile.c_str() );
-    }
-    int i_nMerged = f.Add( hname );
-    if( i_nMerged == 0 )
-    {
-        cout << "error: no files found to merge: " << endl;
-        cout << "\t" << hname << endl;
-        cout << "exiting.." << endl;
-        exit( EXIT_FAILURE );
-    }
-    sprintf( hname, "%s.root", outputfile );
-    cout << "merging " << i_nMerged << " files to " << hname << endl;
-    
-    // activate branches to be included in merged files
-    // these are the branches needed for the anasum analysis
+	// set branches to be included in merged files
     if( !bFull )
     {
         f.SetBranchStatus( "*", 0 );
@@ -60,6 +55,8 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         f.SetBranchStatus( "az", 1 );
         f.SetBranchStatus( "azMin", 1 );
         f.SetBranchStatus( "azMax", 1 );
+        f.SetBranchStatus( "Xoff", 1 );
+        f.SetBranchStatus( "Yoff", 1 );
         f.SetBranchStatus( "Woff", 1 );
         f.SetBranchStatus( "noise", 1 );
         f.SetBranchStatus( "pedvar", 1 );
@@ -83,12 +80,12 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         f.SetBranchStatus( "hEsysMCRelative2DNoDirectionCut", 1 );
         f.SetBranchStatus( "hAngularLogDiffEmc_2D", 1 );
     }
-    f.Merge( hname );
+	f.Merge( outputfile.c_str() );
     cout << "done.." << endl;
     
     // get one example of hEmc
     // (this is needed later to get the binning right)
-    TFile* fO = new TFile( hname, "UPDATE" );
+	TFile* fO = new TFile( outputfile.c_str(), "UPDATE" );
     if( fO->IsZombie() )
     {
         cout << "error writing hEmc to output file" << endl;
@@ -126,7 +123,8 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    VInstrumentResponseFunctionRunParameter* iRunPara = ( VInstrumentResponseFunctionRunParameter* )ifirst->Get( "makeEffectiveArea_runparameter" );
+    VInstrumentResponseFunctionRunParameter* iRunPara =
+        ( VInstrumentResponseFunctionRunParameter* )ifirst->Get( "makeEffectiveArea_runparameter" );
     if( !iRunPara )
     {
         cout << "error copying VInstrumentResponseFunctionRunParameter to output file" << endl;
@@ -140,7 +138,8 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
     VGammaHadronCuts* iCuts = ( VGammaHadronCuts* )ifirst->Get( "GammaHadronCuts" );
     if( iCuts )
     {
-        cout << "copying gamma/hadron cuts from first file (" << ifirst->GetName() << ") into the output file" << endl;
+        cout << "copying gamma/hadron cuts from first file (";
+        cout << ifirst->GetName() << ") into the output file" << endl;
         iCuts->Write();
     }
     else
@@ -151,30 +150,57 @@ void merge( string ifile, char* outputfile, bool bFull = false , bool bMergeLogs
         exit( EXIT_FAILURE );
     }
     fO->Close();
-    
-    // merge all log files
-    if( bMergeLogs )
-    {
-        if( ifile.find( ".root" ) != string::npos )
+}
+
+void write_log_files( vector< string > file_list, string outputfile )
+{
+	// merge all log files
+        ostringstream i_sys;
+        for( unsigned int i = 0; i < file_list.size(); i++ )
         {
-            sprintf( hname, "cat %s*.log > %s.combine.log", ifile.substr( 0, ifile.size() - 5 ).c_str(), outputfile );
+            if( file_list[i].find( ".root" ) != string::npos )
+            {
+                    i_sys << "cat " << file_list[i].substr( 0, file_list[i].size() - 5 ).c_str() << ".log > ";
+            }
+            else
+            {
+                    i_sys << "cat " << file_list[i] << ".log > ";
+            }
         }
-        else
-        {
-            sprintf( hname, "cat %s*.log > %s.combine.log", ifile.c_str(), outputfile );
-        }
-        cout << "merge log files into " << hname << endl;
-        if( system( hname ) != 0 )
-	      {
-	         cout << "error merging log files" << endl;
-        }
-    }
-    else
-    {
-        cout << "due to command line argument, we are NOT merging log files..." << endl;
-    }
-    
-    cout << "done..";
+
+        i_sys << outputfile << ".combine.log";
+	cout << "merge log files into " << i_sys.str() << endl;
+	system( i_sys.str().c_str() );
+	cout << "done.." << endl;
+}
+
+/*
+ * return list of effective area files
+ * to be merged
+ *
+ */
+vector< string > readListOfFiles( string iFile )
+{
+	vector< string > iList;
+	
+	ifstream is;
+	is.open( iFile.c_str() );
+	if( !is )
+	{
+		cout << "error while reading file list " << iFile << endl;
+		cout << "exiting...." << endl;
+		exit( EXIT_FAILURE );
+	}
+	string is_line;
+	
+	while( getline( is, is_line ) )
+	{
+		iList.push_back( is_line );
+	}
+	
+	is.close();
+	
+	return iList;
 }
 
 
@@ -189,16 +215,22 @@ int main( int argc, char* argv[] )
         {
             VGlobalRunParameter fRunPara;
             cout << fRunPara.getEVNDISP_VERSION() << endl;
-            exit( 0 );
+			exit( EXIT_FAILURE );
         }
     }
     if( argc < 4 )
     {
         cout << endl;
-        cout << "combineEffectiveAreas <effective area files> <combined file> <write all histograms (default value is=false)> <merge log files (default value is=true>" << endl;
+		cout << "combineEffectiveAreas <effective area file list> <combined file> <tree type>" << endl; 
         cout << endl;
-        cout << "   <effective area files>    without .root suffix (e.g. effArea*. Note need of \"...\")" << endl;
+        cout << "  <effective area file list>  list of effective files to be merged" << endl;
+        cout << "  <tree type>  effective area tree type (defines size of combined tree)" << endl;
+        cout << "                - DL3 (default): entries required for DL3 analyis (large)" << endl;
+        cout << "                - all          : all entries of original trees (largest)" << endl;
+        cout << "                - anasum       : entries required for anasum analysis only (smallest)" << endl;
+        cout << "                - DL3reduced   : histograms are written as regular arrays for DL3 analysis" << endl;
         cout << endl;
+		cout << endl;
         exit( EXIT_SUCCESS );
     }
     cout << endl;
@@ -218,23 +250,10 @@ int main( int argc, char* argv[] )
             mergelogs = false ;
         }
     }
+    vector< string > file_list = readListOfFiles( argv[1] );
     
-    merge( argv[1], argv[2], ( bool )atoi( argv[3] ), mergelogs );
+    merge( file_list, argv[2], ( bool )atoi( argv[3] ), mergelogs );
+    // write_log_files( file_list, argv[2] );
     
-    cout << endl << endl;
-    cout << "new combined effective area file: " << endl;
-    cout << argv[2] << endl;
-
-    // calculate energy thresholds
-    // - will be written to effective area file
-    string iEnergyTresholdFile = string(argv[2]) + ".root";
-    VEnergyThreshold iEnergyThreshold( iEnergyTresholdFile, "UPDATE" );
-    iEnergyThreshold.openEffectiveAreaFile( string(argv[2]) + ".root" );
-    iEnergyThreshold.calculateEnergyThreshold();
-    iEnergyThreshold.writeResults();
-    
-    // (all done)
     cout << endl << "end combineEffectiveAreas" << endl;
-    
 }
-

@@ -1,0 +1,7 @@
+cppcheck --enable=all --output-file=err.xml --xml --language=c++ src/* inc/*
+
+## Compilation
+
+docker run --rm -it -v "$(pwd):/Eventdisplay" vts-6.24.06-ubuntu20.04 bash
+export SOFASYS=/Eventdisplay/sofa
+

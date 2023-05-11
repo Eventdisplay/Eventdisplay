@@ -15,6 +15,7 @@ VTableLookupRunParameter::VTableLookupRunParameter()
     tablefile = "";
     ze = -1.;
     isMC = false;
+    fUpdateInstrumentEpoch = true;
     fUseMedianEnergy = 1;
     fPE = false;
     fWriteTables = false;
@@ -134,6 +135,10 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         else if( iTemp.find( "useMedian" ) < iTemp.size() )
         {
             fUseMedianEnergy = atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
+        }
+        else if( iTemp.find( "updateEpoch" ) < iTemp.size() )
+        {
+            fUpdateInstrumentEpoch = (bool)atoi( iTemp.substr( iTemp.rfind( "=" ) + 1, iTemp.size() ).c_str() );
         }
         else if( iTemp.find( "noise" ) < iTemp.size() )
         {
@@ -971,7 +976,7 @@ void VTableLookupRunParameter::print( int iP )
             {
                 cout << "\t BDT TMVA stereo reconstruction loss cut < " << fmaxloss << endl;
             }
-            if( fminfui < 0. )
+            if( fminfui > 0. )
             {
                 cout << "\t BDT TMVA stereo reconstruction fui cut < " << fminfui << endl;
             }
@@ -1010,6 +1015,10 @@ void VTableLookupRunParameter::print( int iP )
     else
     {
         cout << "use mean of energy distributions" << endl;
+    }
+    if( fUpdateInstrumentEpoch )
+    {
+        cout << "updating instrument epoch from default epoch file" << endl;
     }
     
     if( iP >= 1 )

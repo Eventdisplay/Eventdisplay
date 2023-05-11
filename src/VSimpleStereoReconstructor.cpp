@@ -168,7 +168,7 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
     {
         for( unsigned int jj = 1; jj < m.size(); jj++ )
         {
-            if( ii == jj || ii > jj )
+            if( ii >= jj )
             {
                 continue;
             }
@@ -350,7 +350,7 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
 bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
 {
     if( TMath::IsNaN( yoff ) || TMath::IsNaN( yoff )
-            || xoff < -9998. || yoff < -9998. || yoff > 9999.5 )
+            || xoff < -998. || yoff < -998. || yoff > 998. )
     {
         reset();
         return false;
@@ -361,11 +361,11 @@ bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
     // ze / az
     double ze = 0.;
     double az = 0.;
-    VAstronometry::vlaDtp2s( -1.* fShower_Xoffset*TMath::DegToRad(), 
-                                  fShower_Yoffset*TMath::DegToRad(),
-                                  fTelAzimuth * TMath::DegToRad(),
-                                  fTelElevation * TMath::DegToRad(),
-                                   &az, &ze );
+    VAstronometry::vlaDtp2s( fShower_Xoffset*TMath::DegToRad(), 
+                             -1.*fShower_Yoffset*TMath::DegToRad(),
+                             fTelAzimuth * TMath::DegToRad(),
+                             fTelElevation * TMath::DegToRad(),
+                             &az, &ze );
     az *= TMath::RadToDeg();
     ze = 90. - ze * TMath::RadToDeg();
             

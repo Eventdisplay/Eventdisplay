@@ -17,9 +17,6 @@ VTraceHandler::VTraceHandler()
     fHiLo = false;
     fDynamicRange = 216;                 // 8bit FADC, switch to low-gain; used only for debugging info
     fMaxThreshold = 150;                 // used for trace max calculation in low gain
-    // TMPTMPTMP
-    //	fMaxThreshold = 0;                 // used for trace max calculation in low gain
-    // TMPTMPTMP
     fMC_FADCTraceStart = 0;
     fpulsetiming_maxPV = 0;
     fpulsetiminglevels_size = 0;
@@ -48,9 +45,6 @@ void VTraceHandler::reset()
 void VTraceHandler::setTrace( VVirtualDataReader* iReader, unsigned int iNSamples, double ped, unsigned int iChanID, unsigned int iHitID, double iHiLo )
 {
     fPed = ped;
-    // TMPTMPTMP
-    //        fPed = 0.;
-    // TMPTMPTMP
     fChanID = iChanID;
     
     reset();
@@ -156,9 +150,6 @@ bool VTraceHandler::apply_lowgain( double iHiLo )
     // hilo switch is set
     if( iHiLo > 0. )
     {
-        ///// TMPTMPTMP
-        //                iHiLo = 1.;
-        ///// TMPTMPTMP
         for( unsigned int i = 0; i < fpTrazeSize; i++ )
         {
             fpTrace[i]  = ( fpTrace[i] - fPed ) * iHiLo;
@@ -709,194 +700,6 @@ double VTraceHandler::calculateTraceSum_slidingWindow( unsigned int iSearchStart
     
     fSumWindowFirst = lolimit;
     fSumWindowLast  = uplimit;
-    
-    return charge;
-}
-
-double VTraceHandler::getMaxSumAutoWindow( float AmplThresh, unsigned int iSearchStart, unsigned int iSearchEnd, unsigned int iIntegrationWindow, bool fRaw )
-{
-    //fRaw = false;
-    unsigned int n = fpTrace.size();
-    int saturflag = 0;
-    int max = 0;
-    unsigned int window = iIntegrationWindow;
-    unsigned int windowcalib = 2 * iIntegrationWindow;
-    unsigned int SearchEnd = iSearchEnd;
-    if( ( n - window ) <= SearchEnd )
-    {
-        SearchEnd = n - window;
-    }
-    int lolimit = 0;
-    int lolimitcal = 0;
-    int uplimit = 0;
-    int uplimitcal = 0;
-    float tcharge = 0, tcharge2 = 0;
-    float arrtime = 0, arrtime2 = 0;
-    double charge = 0, charge2 = 0, ampl = 0.;
-    
-    float muxBINS[n], FADC[n];
-    for( unsigned int i = 1; i <= n; i++ )
-    {
-        muxBINS[i - 1] = i - 0.5;
-        FADC[i - 1] = ( float )fpTrace.at( i - 1 ) - fPed;
-    }
-    
-    charge = 0, charge2 = 0;
-    tcharge = 0, tcharge2 = 0;
-    //maxbin   = LocMax(ampl);
-    
-    if( n == 0 )
-    {
-        return -1;
-    }
-    
-    if( fRaw ) // special case for ped calculation
-    {
-        for( unsigned int i = 0; i < iIntegrationWindow; i++ )
-        {
-            //charge+=( float )fpTrace.at( i );
-            charge += ( float )fpTrace.at( n - 1 - i );
-        }
-        //charge = FADC[1];
-        arrtime = muxBINS[n - 1];
-        fTraceAverageTime = arrtime;
-        fSumWindowFirst = n - iIntegrationWindow;
-        fSumWindowLast  = n;
-        
-        return charge;
-    }
-    
-    float xmax = 0;
-    for( unsigned int i = iSearchStart; i < int( window ) + iSearchStart; i++ )
-    {
-        xmax += FADC[i];
-    }
-    // extract charge for small window **********************************
-    for( unsigned int i = iSearchStart; i < SearchEnd; i++ )
-    {
-        if( charge < xmax )
-        {
-            charge = xmax;
-            max = i;
-            uplimit = max + int( window );
-            if( uplimit > int( n ) )
-            {
-                uplimit = n - 1;
-            }
-            lolimit = max;
-            if( lolimit < 0 )
-            {
-                lolimit = 1;
-            }
-        }
-        xmax = xmax - FADC[i] + FADC[i + window];
-    }
-    // extract charge for big window ************************************
-    uplimitcal = int( uplimit ) + ( int( windowcalib ) - int( window ) ) / 2;
-    if( uplimitcal > int( SearchEnd ) + ( int )window - 2 )
-    {
-        uplimitcal = ( int )SearchEnd + ( int )window - 1;
-    }
-    lolimitcal = int( lolimit ) - ( int( windowcalib ) - int( window ) ) / 2;
-    if( lolimitcal < int( iSearchStart ) )
-    {
-        lolimitcal = ( int )iSearchStart;
-    }
-    // arrival times *****************************************************
-    for( int k = lolimit; k < uplimit; k++ )
-    {
-        tcharge += muxBINS[k] * FADC[k];
-    }
-    for( int k = lolimitcal; k < uplimitcal; k++ )
-    {
-        tcharge2 += muxBINS[k] * FADC[k];
-        charge2 += FADC[k];
-    }
-    // extract saturated charge (integrate everything to the end) ************************************
-    if( saturflag )
-    {
-        tcharge = 0;
-        charge = 0;
-        charge2 = 0;
-        uplimitcal = ( int )SearchEnd + ( int )window - 1;
-        lolimitcal = lolimit - ( int( windowcalib ) - int( window ) ) / 2;
-        if( lolimitcal < int( iSearchStart ) )
-        {
-            lolimitcal = iSearchStart;
-        }
-        for( int k = lolimitcal; k < uplimitcal; k++ )
-        {
-            tcharge += muxBINS[k] * FADC[k];
-            charge2 += FADC[k];
-        }
-    }
-    
-    if( charge != 0 )
-    {
-        arrtime = tcharge / charge;
-    }
-    if( charge2 != 0 )
-    {
-        arrtime2 = tcharge2 / charge2;
-    }
-    if( arrtime < iSearchStart )
-    {
-        arrtime = 0;
-    }
-    if( arrtime > ( ( int )SearchEnd + ( int )window - 1 ) )
-    {
-        arrtime = ( ( int )SearchEnd + ( int )window - 1 );
-    }
-    if( arrtime2 < iSearchStart )
-    {
-        arrtime2 = 0;
-    }
-    if( arrtime2 > ( ( int )SearchEnd + ( int )window - 1 ) )
-    {
-        arrtime2 = ( ( int )SearchEnd + ( int )window - 1 );
-    }
-    ampl -= fPed;
-    
-    // extract charge for automatic integration window (extends window )
-    int intwin = 0;
-    int Start = lolimit;
-    int Stop = uplimit;
-    
-    float chargeAutoWin = 0.;
-    
-    for( int i = lolimit; i > int( iSearchStart ); i-- )
-    {
-        if( FADC[i] >= AmplThresh )
-        {
-            intwin++;
-            Start = i;
-        }
-        else
-        {
-            break;
-        }
-    }
-    for( int i = uplimit; i < int( SearchEnd ); i++ )
-    {
-        if( FADC[i] >= AmplThresh )
-        {
-            intwin++;
-            Stop = i;
-        }
-        else
-        {
-            break;
-        }
-    }
-    
-    for( int k = Start; k < Stop; k++ )
-    {
-        chargeAutoWin += FADC[k];
-    }
-    
-    fTraceAverageTime = arrtime;
-    fSumWindowFirst = Start;
-    fSumWindowLast  = Stop;
     
     return charge;
 }

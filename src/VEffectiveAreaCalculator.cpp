@@ -374,6 +374,7 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     
     ////////////////////////////////////
     // tree with DL2 event information (DL2 event) for each event
+    fDL2_extendedTrees = false;
     // note adaptions to save disk space
     fDL2_runNumber = 0.;
     fDL2_eventNumber = 0;
@@ -396,25 +397,52 @@ VEffectiveAreaCalculator::VEffectiveAreaCalculator( VInstrumentResponseFunctionR
     {
         fDL2EventTree = new TTree( "DL2EventTree", "DL2 tree" );
         fDL2EventTree->Branch( "runNumber", &fDL2_runNumber, "runNumber/i" );
-        // save disk space: don't write eventNumber
-        // fDL2EventTree->Branch( "eventNumber", &fDL2_eventNumber, "eventNumber/i" );
         fDL2EventTree->Branch( "MCaz", &fDL2_MCaz, "MCaz/F" );
         fDL2EventTree->Branch( "MCel", &fDL2_MCel, "MCel/F" );
-        // save disk space: don't write Xoff, Yoff
-        // fDL2EventTree->Branch( "MCxoff", &fDL2_MCxoff, "MCxoff/F" );
-        // fDL2EventTree->Branch( "MCyoff", &fDL2_MCyoff, "MCyoff/F" );
         fDL2EventTree->Branch( "MCe0", &fDL2_MCe0, "MCe0/F" );
         fDL2EventTree->Branch( "ArrayPointing_Azimuth", &fDL2_ArrayPointing_Azimuth, "ArrayPointing_Azimuth/F" );
         fDL2EventTree->Branch( "ArrayPointing_Elevation", &fDL2_ArrayPointing_Elevation, "ArrayPointing_Elevation/F" );
         fDL2EventTree->Branch( "az", &fDL2_az, "az/F" );
         fDL2EventTree->Branch( "el", &fDL2_el, "el/F" );
-        // save disk space: don't write Xoff, Yoff
-        // fDL2EventTree->Branch( "xoff", &fDL2_xoff, "xoff/F" );
-        // fDL2EventTree->Branch( "yoff", &fDL2_yoff, "yoff/F" );
+        // save disk space: don't write Xoff, Yoff (switched on for debugging)
+        fDL2EventTree->Branch( "xoff", &fDL2_xoff, "xoff/F" );
+        fDL2EventTree->Branch( "yoff", &fDL2_yoff, "yoff/F" );
         fDL2EventTree->Branch( "erec", &fDL2_erec, "erec/F" );
         fDL2EventTree->Branch( "nimages", &fDL2_nimages, "nimages/b" );
         fDL2EventTree->Branch( "CutClass", &fDL2_Cut_Class, "Class/b" );
         fDL2EventTree->Branch( "MVA", &fDL2_Cut_MVA, "MVA/F" );
+
+        // extended trees
+        if( fDL2_extendedTrees )
+        {
+            fDL2EventTree->Branch( "eventNumber", &fDL2_eventNumber, "eventNumber/i" );
+            fDL2EventTree->Branch( "MCxoff", &fDL2_MCxoff, "MCxoff/F" );
+            fDL2EventTree->Branch( "MCyoff", &fDL2_MCyoff, "MCyoff/F" );
+            fDL2EventTree->Branch( "Xcore", &fDL2_Xcore, "Xcore/F" );
+            fDL2EventTree->Branch( "Ycore", &fDL2_Ycore, "Ycore/F" );
+            fDL2EventTree->Branch( "Xoff_intersect", &fDL2_Xoff_intersect, "Xoff_intersect/F" );
+            fDL2EventTree->Branch( "Yoff_intersect", &fDL2_Yoff_intersect, "Yoff_intersect/F" );
+            fDL2EventTree->Branch( "img2_ang", &fDL2_img2_ang, "img2_ang/F" );
+            fDL2EventTree->Branch( "SizeSecondMax", &fDL2_SizeSecondMax, "SizeSecondMax/F" );
+            fDL2EventTree->Branch( "NTelPairs", &fDL2_NTelPairs, "NTelPairs/i" );
+            fDL2EventTree->Branch( "MSCW", &fDL2_MSCW, "MSCW/F" );
+            fDL2EventTree->Branch( "MSCL", &fDL2_MSCL, "MSCL/F" );
+            fDL2EventTree->Branch( "EmissionHeight", &fDL2_EmissionHeight, "EmissionHeight/F" );
+            fDL2EventTree->Branch( "EmissionHeightChi2", &fDL2_EmissionHeightChi2, "EmissionHeightChi2/F" );
+            fDL2EventTree->Branch( "size", fDL2_size, "size[nimages]/F" );
+            fDL2EventTree->Branch( "dist", fDL2_dist, "dist[nimages]/F" );
+            fDL2EventTree->Branch( "loss", fDL2_loss, "loss[nimages]/F" );
+            fDL2EventTree->Branch( "fui", fDL2_fui, "fui[nimages]/F" );
+            fDL2EventTree->Branch( "cross", fDL2_cross, "cross[nimages]/F" );
+            fDL2EventTree->Branch( "asym", fDL2_asym, "asym[nimages]/F" );
+            fDL2EventTree->Branch( "tgrad_x", fDL2_tgrad_x, "tgrad_x[nimages]/F" );
+            fDL2EventTree->Branch( "R", &fDL2_R, "R[nimages]/F" );
+            fDL2EventTree->Branch( "DispDiff", &fDL2_DispDiff, "DispDiff/F" );
+            fDL2EventTree->Branch( "dESabs", &fDL2_dESabs, "dESabs/F" );
+            fDL2EventTree->Branch( "NTrig", &fDL2_NTrig, "NTrig/i" );
+            fDL2EventTree->Branch( "meanPedvar_Image", &fDL2_meanPedvar_Image, "meanPedvar_Image/F" );
+            fDL2EventTree->Branch( "ES", fDL2_ES, "ES[nimages]/F" );
+       }
     }
     else
     {
@@ -1765,7 +1793,10 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         }
         if( !iAnaCuts->isGamma( i, true ) )
         {
-            fillDL2EventDataTree( d, 7, iAnaCuts->getTMVA_EvaluationResult() );
+            if( (fIsotropicArrivalDirections && !bDirectionCut) || !fIsotropicArrivalDirections )
+            {
+                fillDL2EventDataTree( d, 7, iAnaCuts->getTMVA_EvaluationResult() );
+            }
             continue;
         }
         if( !bDirectionCut )
@@ -1776,7 +1807,10 @@ bool VEffectiveAreaCalculator::fill( CData* d, VEffectiveAreaCalculatorMCHistogr
         // remaining events
         else
         {
-            fillDL2EventDataTree( d, 0, iAnaCuts->getTMVA_EvaluationResult() );
+            if( !fIsotropicArrivalDirections )
+            {
+                fillDL2EventDataTree( d, 0, iAnaCuts->getTMVA_EvaluationResult() );
+            }
         }
         
         // unique event counter
@@ -3551,8 +3585,37 @@ void VEffectiveAreaCalculator::fillDL2EventDataTree( CData *c, UChar_t iCutClass
           fDL2_yoff = c->Yoff;
           fDL2_erec = c->ErecS;
           fDL2_nimages = (UChar_t)c->NImages;
-
           fDL2_Cut_Class = iCutClass;
+          if( fDL2_extendedTrees )
+          {
+              fDL2_Xcore = c->Xcore;
+              fDL2_Ycore = c->Ycore;
+              fDL2_Xoff_intersect = c->Xoff_intersect;
+              fDL2_Yoff_intersect = c->Yoff_intersect;
+              fDL2_img2_ang = c->img2_ang;
+              fDL2_SizeSecondMax = c->SizeSecondMax;
+              fDL2_NTelPairs = (UChar_t)c->NTelPairs;
+              fDL2_MSCW = c->MSCW;
+              fDL2_MSCL = c->MSCL;
+              fDL2_EmissionHeight = c->EmissionHeight;
+              fDL2_EmissionHeightChi2 = c->EmissionHeightChi2;
+              fDL2_DispDiff = c->DispDiff;
+              fDL2_dESabs = c->getEnergyDelta();
+              fDL2_NTrig = (UChar_t)c->NTrig;
+              fDL2_meanPedvar_Image = c->meanPedvar_Image;
+              for( int i = 0; i < c->NImages; i++ )
+              {
+                  fDL2_size[i] = c->size[i];
+                  fDL2_dist[i] = c->dist[i];
+                  fDL2_loss[i] = c->loss[i];
+                  fDL2_fui[i] = c->fui[i];
+                  fDL2_cross[i] = c->cross[i];
+                  fDL2_asym[i] = c->asym[i];
+                  fDL2_tgrad_x[i] = c->tgrad_x[i];
+                  fDL2_R[i] = c->R[i];
+                  fDL2_ES[i] = c->ES[i];
+              }
+          }
           fDL2_Cut_MVA = iMVA;
           fDL2EventTree->Fill();
       }

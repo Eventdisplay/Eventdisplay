@@ -150,6 +150,8 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         bool isMC;
         // overwrite or update the current output file
         string writeoption;
+        // allow to update instrument epoch
+        bool fUpdateInstrumentEpoch;
         // write triggered but not reconstructed events
         bool bNoNoTrigger;
         // write reconstructed events only
@@ -186,6 +188,6 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         void print( int iB = 0 );
         void printHelp();
         
-        ClassDef( VTableLookupRunParameter, 50 ); //for any changes to this file: increase this number
+        ClassDef( VTableLookupRunParameter, 1000 ); //for any changes to this file: increase this number
 };
 #endif

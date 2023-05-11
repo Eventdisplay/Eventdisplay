@@ -939,7 +939,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
     // derotate coordinates
     else
     {
-         fXoff_derot = fXoff * cos( fArrayPointing_RotationAngle) 
+         fXoff_derot = fXoff * cos( fArrayPointing_RotationAngle ) 
                      - fYoff * sin( fArrayPointing_RotationAngle );
          fYoff_derot = fYoff * cos( fArrayPointing_RotationAngle )
                      + fXoff * sin( fArrayPointing_RotationAngle );
@@ -1924,6 +1924,19 @@ bool VTableLookupDataHandler::readRunParameter()
                 if( fOutFile )
                 {
                     fOutFile->cd();
+                    // update instrument epoch in evendisp run parameters
+                    // (might have been changed since the evndisp analysis)
+                    if( fTLRunParameter->fUpdateInstrumentEpoch )
+                    {
+                         cout << "Evaluating instrument epoch (";
+                         cout << "was: " << iPar->getInstrumentEpoch( false );
+                         cout << ", is: " << iPar->getInstrumentEpoch( false, true );
+                         cout << ")" << endl;
+                         cout << "Evaluating atmosphere ID (";
+                         cout << "was: " << iPar->getAtmosphereID( false );
+                         cout << ", is: " << iPar->getAtmosphereID( true );
+                         cout << ")" << endl;
+                    }
                     iPar->Write();
                 }
             }

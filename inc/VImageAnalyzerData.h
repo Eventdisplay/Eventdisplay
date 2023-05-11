@@ -82,7 +82,7 @@ class VImageAnalyzerData
         vector<bool> fImageBorderNeighbour;       //!< image and border pixel plus their neighbours
         vector<bool> fBorderBorderNeighbour;      //!< image and border pixel plus their neighbours and neighbours of neighbours
         // time cleaning
-        vector<int> fClusterNpix;                 //!< numer of pixels in cluster
+        vector<int> fClusterNpix;                 //!< number of pixels in cluster
         vector<unsigned int> fClusterID;                   //!< cluster ID
         int fMainClusterID;                       //!< main cluster ID
         vector<double> fClusterSize;              //!< size of the cluster
@@ -115,7 +115,7 @@ class VImageAnalyzerData
         // dummy vector
         vector< unsigned int > iDummyVectorUI;
         
-        VImageAnalyzerData( unsigned int iTelID, unsigned int iShortTree = 0, 
+        VImageAnalyzerData( unsigned int iTelID, unsigned int iShortTree = 0,
                             bool bCalibration = false, bool bWriteImagePixelList = false );
         ~VImageAnalyzerData() {}
         
