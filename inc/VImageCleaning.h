@@ -42,6 +42,7 @@ class VImageCleaning
         TObjArray* fProb2nnCurves;
         TObjArray* fProbBoundCurves;
         TObjArray* fIPRgraphs;
+        vector< float > fIPRgraphs_xmax;
         vector< vector< bool > > fifActiveNN;                      // [nteltypes][nngroups]
         bool ifActiveNN[VDST_MAXNNGROUPTYPES][VDST_MAXTELTYPES];   // if  NN groups is searched in NN-image cleaning procedure
         int   VALIDITY[VDST_MAXCHANNELS];      //   Flags for pixels, accepted by nn-image cleaning. VALIDITY[i]=2-6 : core pixels, VALIDITY[i]>6 :boundary pixels
@@ -54,19 +55,24 @@ class VImageCleaning
         bool   setExplicitSampleTimeSlice;      // Set the sample time slice and number of ADC bins to read explicitly
         float  sampleTimeSlice;                // Size of time slice in ns (usually 1 or 2 ns)
         unsigned int  nBinsADC;                // Number of ADC bins summed up, each bin the size of sampleTimeSlice
+        float fIPR_save_mincharge;
+        float fIPR_save_dT_from_probCurve;
+        unsigned int fIPR_save_telid;
+        double fIPR_save_ProbCurve_par1;
+        double fIPR_save_ProbCurve_par2;
         
         float INTENSITY[VDST_MAXCHANNELS];     //
         float TIMES[VDST_MAXCHANNELS];         //
         float** IPR;                           // IPR[TelType][ScanDim] scan. Not used TelType==0 is filled with DT values
         
-        int   LocMin( int n, float* ptr, float& min );
-        int   LocMax( int n, float* ptr, float& max );
+        void  LocMin( int n, float* ptr, float& min );
+        void  LocMax( int n, float* ptr, float& max );
         
         // main functions
         bool  BoundarySearch( unsigned int TrigSimTelType, float thresh, TF1* fProbCurve, float refdT, int refvalidity, int idx );
         unsigned int   NNGroupSearchProbCurve( unsigned int TrigSimTelType, TF1* fProbCurve, float PreCut );
         unsigned int   NNGroupSearchProbCurveRelaxed( unsigned int TrigSimTelType, TF1* fProbCurve, float PreCut );
-        bool  NNChargeAndTimeCut( TGraph* IPR, TF1* fProbCurve, float charge, float dT,
+        bool  NNChargeAndTimeCut( TGraph* IPR,  float iIPR_max, TF1* fProbCurve, float charge, float dT,
                                   float iCoincWinLimit, bool bInvert = false );
         void  ScaleCombFactors( unsigned int TrigSimTelType, float scale );
         void  ResetCombFactors( unsigned int TrigSimTelType );
