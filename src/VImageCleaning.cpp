@@ -1541,7 +1541,7 @@ void  VImageCleaning::SetNeighborRings( unsigned short* VALIDITYBOUNDBUF, float*
                         n++;
                     }
                 }
-                else if( iRing > 0 )
+                else
                 {
                     if( VALIDITYBOUNDBUF[idx2] == iRing + 6 )
                     {
