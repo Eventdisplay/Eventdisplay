@@ -8,9 +8,7 @@
  */
 
 
-#include "initial.h"
 #include "io_basic.h"
-#include "history.h"
 #include "io_hess.h"
 #include "fileopen.h"
 #ifdef CTA_PROD2_TRGMASK
@@ -302,7 +300,6 @@ static void syntax( char* program )
     printf( "   -q               (Much more quiet output)\n" );
     printf( "   -s               (Show data explained)\n" );
     printf( "   -S               (Show data explained, including raw data)\n" );
-    printf( "   --history (-h)   (Show contents of history data block)\n" );
     printf( "   -i               (Ignore unknown data block types)\n" );
     printf( "   --max-events n   (Skip remaining data after so many triggered events.)\n" );
     printf( "   -a subarray file (list of telescopes to read with FOV.)\n" );
@@ -1676,7 +1673,7 @@ int main( int argc, char** argv )
     int ntel_trg = 0, min_tel_trg = 0;
     int nev = 0, ntrg = 0;
     char* program = argv[0];
-    int showdata = 0, showhistory = 0;
+    int showdata = 0;
     size_t events = 0, max_events = 0;
     int iarg;
     
@@ -1755,13 +1752,6 @@ int main( int argc, char** argv )
         {
             quiet = 1;
             verbose = 0;
-            argc--;
-            argv++;
-            continue;
-        }
-        else if( strcmp( argv[1], "-h" ) == 0 || strcmp( argv[1], "--history" ) == 0 )
-        {
-            showhistory = 1;
             argc--;
             argv++;
             continue;
@@ -1895,11 +1885,6 @@ int main( int argc, char** argv )
         {
             break;
         }
-    }
-    
-    if( verbose && !quiet )
-    {
-        showhistory = 1;
     }
     
     //////////////////////////////////////////////////////////////////
@@ -2246,10 +2231,6 @@ int main( int argc, char** argv )
                 
                 /* =================================================== */
                 case 70: /* How sim_hessarray was run and how it was configured. */
-                    if( showhistory )
-                    {
-                        list_history( iobuf, NULL );
-                    }
                     break;
                     
                 /* =================================================== */

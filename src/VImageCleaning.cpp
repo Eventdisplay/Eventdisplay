@@ -2454,7 +2454,7 @@ void VImageCleaning::removeCluster( unsigned int cID )
 {
     for( unsigned int i = 0; i < fData->getNChannels(); i++ )
     {
-        if( fData->getClusterID()[i] == ( int )cID )
+        if( fData->getClusterID()[i] == cID )
         {
             fData->setImage( i, false );
         }
