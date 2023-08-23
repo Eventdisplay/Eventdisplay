@@ -43,7 +43,7 @@ jobs:
 
       - name: hessioxx
         run: |
-          wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_HESSIOXX }}/download
+          wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_HESSIOXX_20230731 }}/download
           mv download hessioxxx.tar.gz
 
       - name: Build and push Docker image
