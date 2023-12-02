@@ -21,11 +21,6 @@
 #
 #  Optional libraries:
 #
-#  for using GSL libraries (optional)
-#    GSLSYS  (pointing to GSL installation)
-#    or
-#    gsl-config exists
-#
 #  for using FITS (optional)
 #    FITSSYS (pointing to FITS installation)
 #
@@ -63,8 +58,6 @@ ROOT_MYSQL=$(shell root-config --has-mysql)
 ifeq ($(ROOT_MYSQL),yes)
   DBFLAG=-DRUNWITHDB
 endif
-# gsl/mathmore
-ROOT_MATHMORE=$(shell root-config --has-mathmore)
 # DCACHE support
 # (check that root is compiled with dcache)
 ROOT_DCACHE=$(shell root-config --has-dcache)
@@ -87,17 +80,6 @@ ifneq ($(VBFFLAG),-DNOVBF)
 	ifeq ($(strip $(VBFNEW)),1)
 		VBFFLAG=-DVBF_034
 	endif
-endif
-#####################
-# GSL libraries
-ifeq (, $(shell which gsl-config))
-    GSLFLAG=-DNOGSL
-else
-# check GSL version
-  GSLV2=$(shell expr 2.0 \>= `gsl-config --version`)
-  ifeq ($(GSLV2),0)
-    GSL2FLAG=-DGSL2
-  endif
 endif
 #####################
 # CTA HESSIO INPUT
@@ -127,7 +109,6 @@ endif
 # minimum dependencies for
 # GRID production
 ifeq ($(strip $(GRIDPROD)),CTAGRID)
-GSLFLAG=-DNOGSL
 FITS=FALSE
 VBFFLAG=-DNOVBF
 endif
@@ -139,7 +120,7 @@ endif
 CXX           = g++
 CXXFLAGS      = -O3 -g -Wall -fPIC -fno-strict-aliasing -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
 CXXFLAGS     += -I. -I./inc/
-CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(GSLFLAG) $(GSL2FLAG) $(DCACHEFLAG) $(ASTRONMETRY)
+CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(DCACHEFLAG) $(ASTRONMETRY)
 LD            = g++ 
 OutPutOpt     = -o
 INCLUDEFLAGS  = -I. -I./inc/
@@ -195,17 +176,6 @@ VBFCFLAGS     = -I$(VBFSYS)/include/VBF/
 VBFPP 	      = $(shell $(VBFSYS)/bin/vbfConfig --prefix)
 VBFLIBS       = -L${VBFPP}/lib -lVBF -L${BZ2_PATH}/ -lbz2
 CXXFLAGS     += -I${VBFPP}/include/VBF/
-endif
-########################################################
-# GSL FLAGS
-########################################################
-ifneq ($(GSLFLAG),-DNOGSL)
-  ifeq ($(ROOT_MATHMORE),no)
-    GSLCFLAGS    = $(shell gsl-config --cflags)
-    CXXFLAGS     += $(GSLCFLAGS) $(GSL2FLAG)
-  endif
-  GSLLIBS      = $(shell gsl-config --libs)
-  GLIBS        += $(GSLLIBS)
 endif
 ########################################################
 # FITS
@@ -468,11 +438,6 @@ EVNOBJECTS += ./obj/evndisp.o
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 evndisp:	$(EVNOBJECTS)
-ifeq ($(GSLFLAG),-DNOGSL)
-	@echo "LINKING evndisp without GSL libraries"
-else
-	@echo "LINKING evndisp with GSL libraries"
-endif
 ifeq ($(VBFFLAG),-DNOVBF)
 	@echo "LINKING evndisp without VBF support"
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
@@ -956,9 +921,6 @@ endif
 ifeq ($(ROOT_MINUIT2),yes)
   SHAREDOBJS	+= ./obj/VSourceGeometryFitter.o ./obj/VSourceGeometryFitter_Dict.o
 endif
-ifneq ($(GSLFLAG),-DNOGSL)
-  SHAREDOBJS	+= ./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o
-endif
 
 ifneq ($(FITS),FALSE)
   SHAREDOBJS	+= ./obj/VFITS.o  ./obj/VFITS_Dict.o
@@ -1223,9 +1185,6 @@ ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     WRITECTAPHYSOBJ += ./obj/VASlalib.o
 endif
 
-ifneq ($(GSLFLAG),-DNOGSL)
-    WRITEVTSPHYSOBJ  += ./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o
-endif
 
 ./obj/writeCTAWPPhysSensitivityFiles.o: 	./src/writeCTAWPPhysSensitivityFiles.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -1304,10 +1263,6 @@ ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     WRITEVTSPHYSOBJ += ./obj/VASlalib.o
 endif
 
-ifneq ($(GSLFLAG),-DNOGSL)
-  WRITEVTSPHYSOBJ += ./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o
-endif
-
 ./obj/writeVTSWPPhysSensitivityFiles.o: 	./src/writeVTSWPPhysSensitivityFiles.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
@@ -1352,11 +1307,6 @@ WRITECTAPHYSOBJ=	./obj/writeParticleRateFilesFromEffectiveAreas.o \
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     WRITECTAPHYSOBJ += ./obj/VASlalib.o
 endif
-ifneq ($(GSLFLAG),-DNOGSL)
-  WRITECTAPHYSOBJ += ./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o
-endif
-
-
 
 ./obj/writeParticleRateFilesFromEffectiveAreas.o: 	./src/writeParticleRateFilesFromEffectiveAreas.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -1406,9 +1356,6 @@ WRITECTAPHYSOBJ=	./obj/writeParticleRateFilesForTMVA.o \
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     WRITECTAPHYSOBJ += ./obj/VASlalib.o
-endif
-ifneq ($(GSLFLAG),-DNOGSL)
-  WRITECTAPHYSOBJ += ./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o
 endif
 
 
@@ -1844,8 +1791,8 @@ endif
 
 ./obj/VDisplay_Dict.o:
 	@echo "A Generating dictionary $@.."
-	@echo ${ROOT_CntCln} -f $(basename $@).cpp -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
-	${ROOT_CntCln} -f $(basename $@).cpp -I./inc/ $(VBFCFLAGS) $(VBFFLAG) $(GSLCFLAGS) $(GSLFLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
+	@echo ${ROOT_CntCln} -f $(basename $@).cpp -I./inc/ $(VBFCFLAGS) $(VBFFLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
+	${ROOT_CntCln} -f $(basename $@).cpp -I./inc/ $(VBFCFLAGS) $(VBFFLAG) ./inc/VDisplay.h ./inc/VDisplayLinkDef.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $(basename $@).cpp
 	cp -f -v $(basename $@)_rdict.pcm bin/
 	cp -f -v $(basename $@)_rdict.pcm lib/
@@ -1935,17 +1882,8 @@ printconfig configuration config:
 	@echo "    $(GLIBS)"
 	@echo ""
 	@echo "using root version $(ROOTVERSION)"
-	@echo "    compiled with MLP: $(ROOT_MLP), MINUIT2: $(ROOT_MINUIT2), MYSQL: $(ROOT_MYSQL), DCACHE: $(ROOT_DCACHE), MATHMORE: $(ROOT_MATHMORE)"
+	@echo "    compiled with MLP: $(ROOT_MLP), MINUIT2: $(ROOT_MINUIT2), MYSQL: $(ROOT_MYSQL), DCACHE: $(ROOT_DCACHE)"
 	@echo "    $(ROOTSYS)"
-	@echo ""
-ifeq ($(GSLFLAG),-DNOGSL)
-	@echo "evndisp without GSL libraries (no Hough muon calibration, no likelihood fitter)"
-else
-	@echo "evndisp with GSL libraries (used in Hough muon calibration, likelihood fitter)"
-	@echo "   GSL  $(GSLFLAG)" 
-	@echo "   GSL2 $(GSL2FLAG)" 
-	@echo "   $(GSLCFLAGS) $(GSLLIBS)"
-endif
 	@echo ""
 ifeq ($(VBFFLAG),-DNOVBF)
 	@echo "evndisp without VBF support"
