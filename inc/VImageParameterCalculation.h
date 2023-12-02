@@ -24,9 +24,9 @@
 
 //Include the GSL elliptical integral header file if GSL is installed
 //This is for the impact parameter corrected muon size calculation
-#ifndef NOGSL
-#include "gsl/gsl_sf_ellint.h"
-#endif
+//#ifndef NOGSL
+//#include "gsl/gsl_sf_ellint.h"
+//#endif
 
 using namespace std;
 

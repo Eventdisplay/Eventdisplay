@@ -63,12 +63,6 @@ VImageAnalyzer::VImageAnalyzer()
     //VImageParameterCalculation
     if( fRunPar->fhoughmuonmode || fRunPar->fmuonmode )
     {
-#ifndef NOGSL
-        cout << "Using GSL libraries for muon analysis." << endl;
-#else
-        cout << "Warning! No GSL libraries found. Muon impact parameter corrected Size will not be calculated." << endl;
-#endif
-        cout << "" << endl;
         if( fRunPar->fhoughmuonmode )
         {
             fVImageParameterCalculation->houghInitialization();
