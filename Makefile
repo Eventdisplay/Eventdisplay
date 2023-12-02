@@ -1287,7 +1287,6 @@ WRITEVTSPHYSOBJ=	./obj/VWPPhysSensitivityFile.o \
 			./obj/VRunList.o ./obj/VRunList_Dict.o \
 			./obj/VEnergySpectrumfromLiterature.o ./obj/VEnergySpectrumfromLiterature_Dict.o \
 			./obj/VEnergySpectrum.o ./obj/VEnergySpectrum_Dict.o \
-			./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o  \
 			./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o  \
 		        ./obj/VFluxAndLightCurveUtilities.o ./obj/VFluxAndLightCurveUtilities_Dict.o \
 			./obj/VDifferentialFluxData.o ./obj/VDifferentialFluxData_Dict.o \
@@ -1303,6 +1302,10 @@ WRITEVTSPHYSOBJ=	./obj/VWPPhysSensitivityFile.o \
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     WRITEVTSPHYSOBJ += ./obj/VASlalib.o
+endif
+
+ifneq ($(GSLFLAG),-DNOGSL)
+  WRITEVTSPHYSOBJ += ./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o
 endif
 
 ./obj/writeVTSWPPhysSensitivityFiles.o: 	./src/writeVTSWPPhysSensitivityFiles.cpp
@@ -1338,7 +1341,6 @@ WRITECTAPHYSOBJ=	./obj/writeParticleRateFilesFromEffectiveAreas.o \
 			./obj/VRunList.o ./obj/VRunList_Dict.o \
 			./obj/VEnergySpectrumfromLiterature.o ./obj/VEnergySpectrumfromLiterature_Dict.o \
 			./obj/VEnergySpectrum.o ./obj/VEnergySpectrum_Dict.o \
-			./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o  \
 			./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o  \
 		        ./obj/VFluxAndLightCurveUtilities.o ./obj/VFluxAndLightCurveUtilities_Dict.o \
 			./obj/VDifferentialFluxData.o ./obj/VDifferentialFluxData_Dict.o \
@@ -1350,6 +1352,11 @@ WRITECTAPHYSOBJ=	./obj/writeParticleRateFilesFromEffectiveAreas.o \
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     WRITECTAPHYSOBJ += ./obj/VASlalib.o
 endif
+ifneq ($(GSLFLAG),-DNOGSL)
+  WRITECTAPHYSOBJ += ./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o
+endif
+
+
 
 ./obj/writeParticleRateFilesFromEffectiveAreas.o: 	./src/writeParticleRateFilesFromEffectiveAreas.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -1384,7 +1391,6 @@ WRITECTAPHYSOBJ=	./obj/writeParticleRateFilesForTMVA.o \
 			./obj/VRunList.o ./obj/VRunList_Dict.o \
 			./obj/VEnergySpectrumfromLiterature.o ./obj/VEnergySpectrumfromLiterature_Dict.o \
 			./obj/VEnergySpectrum.o ./obj/VEnergySpectrum_Dict.o \
-			./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o  \
 			./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o  \
 			./obj/VDifferentialFluxData.o ./obj/VDifferentialFluxData_Dict.o \
 		        ./obj/VFluxAndLightCurveUtilities.o ./obj/VFluxAndLightCurveUtilities_Dict.o \
@@ -1401,6 +1407,10 @@ WRITECTAPHYSOBJ=	./obj/writeParticleRateFilesForTMVA.o \
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     WRITECTAPHYSOBJ += ./obj/VASlalib.o
 endif
+ifneq ($(GSLFLAG),-DNOGSL)
+  WRITECTAPHYSOBJ += ./obj/VLikelihoodFitter.o ./obj/VLikelihoodFitter_Dict.o
+endif
+
 
 ./obj/writeParticleRateFilesForTMVA.o: 	./src/writeParticleRateFilesForTMVA.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
