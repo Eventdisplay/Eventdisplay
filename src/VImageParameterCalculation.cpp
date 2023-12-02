@@ -592,11 +592,8 @@ void VImageParameterCalculation::sizeInMuonRing()
     float correctedSize = 0.0;
     
     //If GSL is installed, run the code otherwise set correctedSize to 0.0
-#ifndef NOGSL
-    correctedSize = size / this->correctSizeInMuonRing();
-#else
+    // correctedSize = size / this->correctSizeInMuonRing();
     correctedSize = 0.0;
-#endif
     
     //Fill the tree
     fParGeo->muonIPCorrectedSize = correctedSize;
@@ -735,10 +732,8 @@ float VImageParameterCalculation::correctSizeInMuonRing()
         
         
         //Calculate the elliptic integral. This requires GSL.
-#ifndef NOGSL
-        float xi_tmp = ( float )i / ( float )numSteps;
-        ngExi[i] = ( 2.0 / TMath::Pi() ) * ( gsl_sf_ellint_E( TMath::Pi() / 2.0 , xi_tmp , 0 ) ); //Calculate elliptic integral
-#endif
+        //float xi_tmp = ( float )i / ( float )numSteps;
+        //ngExi[i] = ( 2.0 / TMath::Pi() ) * ( gsl_sf_ellint_E( TMath::Pi() / 2.0 , xi_tmp , 0 ) ); //Calculate elliptic integral
         
     }//End of elliptical integral for loop
     
