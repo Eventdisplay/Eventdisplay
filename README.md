@@ -1,7 +1,7 @@
 # Eventdisplay - An Analysis and Reconstruction Package for Ground-based Gamma-ray Astronomy
 
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6814319.svg)](https://doi.org/10.5281/zenodo.6814319)
+[![DOI](https://zenodo.org/badge/221222023.svg)](https://zenodo.org/doi/10.5281/zenodo.3559075)
 [![ascl:2212.002](https://img.shields.io/badge/ascl-2212.002-blue.svg?colorB=262255)](https://ascl.net/2212.002)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
