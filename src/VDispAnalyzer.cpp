@@ -15,16 +15,16 @@ VDispAnalyzer::VDispAnalyzer()
 {
     fDispTableAnalyzer = 0;
     fTMVADispAnalyzer = 0;
-    
+
     fDispMethod = "NOMETHODDEFINED";
-    
+
     f_disp = -999.;
     f_dispE = -999.;
     f_dispDiff = -999.;
     f_xs = -999.;
     f_ys = -999.;
     f_angdiff = 0.;
-    
+
     fdisp_energy = -9999.;
     fdisp_energy_chi = -9999.;
     fdisp_energy_dEs = -9999.;
@@ -32,7 +32,7 @@ VDispAnalyzer::VDispAnalyzer()
     fdisp_energy_medianAbsoluteError = -9999.;
     fdisp_energy_NT = 0;
     fdisp_energyQL = -1;
-    
+
     setQualityCuts();
     setDispErrorWeighting();
     setDebug( false );
@@ -51,7 +51,7 @@ void VDispAnalyzer::setTelescopeTypeList( vector<ULong64_t> iTelescopeTypeList )
 bool VDispAnalyzer::initialize( string iFile, string iDispMethod, string iDispType )
 {
     fDispMethod = iDispMethod;
-    
+
     // disp is calculated using simple lookup tables
     if( fDispMethod == "DISPTABLES" )
     {
@@ -83,7 +83,7 @@ bool VDispAnalyzer::initialize( string iFile, string iDispMethod, string iDispTy
         cout << "VDispAnalyzer::initialize ERROR: unknown disp method: " << fDispMethod << endl;
         return false;
     }
-    
+
     if( isZombie() )
     {
         cout << "VDispAnalyzer::initialize ERROR initializing method " << fDispMethod << endl;
@@ -91,7 +91,7 @@ bool VDispAnalyzer::initialize( string iFile, string iDispMethod, string iDispTy
         cout << "\t exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     return true;
 }
 
@@ -106,7 +106,7 @@ void VDispAnalyzer::terminate()
     {
         fDispTableAnalyzer->terminate();
     }
-    
+
     if( fTMVADispAnalyzer )
     {
         fTMVADispAnalyzer->terminate();
@@ -125,7 +125,7 @@ float VDispAnalyzer::evaluate( float iWidth, float iLength, float iAsymm, float 
                                float iZe, float iAz, float iRcore, float iFui, float iNtubes, bool b2D )
 {
     f_disp = -99.;
-    
+
     if( fDispTableAnalyzer )
     {
         f_disp = fDispTableAnalyzer->evaluate( iWidth, iLength, iSize, iPedvar, iZe, iAz, b2D );
@@ -137,7 +137,7 @@ float VDispAnalyzer::evaluate( float iWidth, float iLength, float iAsymm, float 
                                               iZe, iAz, iRcore, -1., iDist, iFui, iNtubes );
     }
     return f_disp;
-    
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ unsigned int VDispAnalyzer::find_smallest_diff_element(
     }
     unsigned int i_mean_element = 0;
     float i_smallest_dist = 1.e20;
-    
+
     for( unsigned int s = 0; s < v_disp_diff.size(); s++ )
     {
         if( v_disp_diff[s] < i_smallest_dist )
@@ -262,7 +262,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     xs = -99999.;
     ys = -99999.;
     dispdiff = -9999.;
-    
+
     ////////////////////////////////////////////////////
     // note: first part (calculating smallest difference between solutions)
     // works only for a maximum of 4 images
@@ -272,12 +272,12 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     {
         return;
     }
-    
+
     //////////////////////////////////////////////////////////
     // calculate (average) angle between the image lines for
     f_angdiff = 0.;
     float fmean_iangdiffN = 0.;
-    
+
     if( cosphi.size() > 1 )
     {
         // calculate average angle between image lines
@@ -323,11 +323,15 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     // (not so important for disp direction,
     //  but note that core reconstruction
     //  is still done the convential way)
-    if( f_angdiff < fAxesAngles_min && fmean_iangdiffN < 2.01 )
+    // Using LIN51 leads to an increase in effective area at large
+    // energies and large off-axis angle, but significantly worse
+    // angular resolution
+    // LIN51 if( f_angdiff < fAxesAngles_min && fmean_iangdiffN < 2.01 )
+    if( f_angdiff < fAxesAngles_min )
     {
         return;
     }
-    
+
     ///////////////////////////////////////////////////////////////////////
     // method: disp table
     ///////////////////////////////////////////////////////////////////////
@@ -345,7 +349,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     fdisp_ys_T.clear();
     fdisp_xs_T.assign( v_weight.size(), 0. );
     fdisp_ys_T.assign( v_weight.size(), 0. );
-    
+
     unsigned int i_smallest_diff_element = 0;
     // search for cloud with smallest dist
     // 5 images and less: use all disp solutions
@@ -355,7 +359,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         vector< vector< float > > i_sign = get_sign_permutation_vector( x.size() );
         i_smallest_diff_element = find_smallest_diff_element(
                                       i_sign, x, y, cosphi, sinphi, v_disp, v_weight );
-                                      
+
         for( unsigned int ii = 0; ii < x.size(); ii++ )
         {
             fdisp_xs_T[ii] = x[ii] - i_sign[i_smallest_diff_element][ii] * v_disp[ii] * cosphi[ii];
@@ -374,20 +378,20 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         fdisp_ys_T.clear();
         fdisp_xs_T.assign( v_weight.size(), 0. );
         fdisp_ys_T.assign( v_weight.size(), 0. );
-        
+
         float x1 = 0.;
         float x2 = 0.;
         float y1 = 0.;
         float y2 = 0.;
-        
+
         for( unsigned int ii = 0; ii < v_weight.size(); ii++ )
         {
             x1 = x[ii] - v_disp[ii] * cosphi[ii];
             x2 = x[ii] + v_disp[ii] * cosphi[ii];
-            
+
             y1 = y[ii] - v_disp[ii] * sinphi[ii];
             y2 = y[ii] + v_disp[ii] * sinphi[ii];
-            
+
             // check solution closest to starting value
             // (should work properly here, as these are
             // all events with multiplicity > 4)
@@ -406,7 +410,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         }
         calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
     }
-    
+
     // apply a completely unnecessary sign flip
     if( ys > -9998. )
     {
@@ -430,14 +434,14 @@ void VDispAnalyzer::calculateMeanShowerDirection( vector< float > v_x, vector< f
     ys = 0.;
     dispdiff = 0.;
     float d_w_sum = 0.;
-    
+
     if( iMaxN > v_x.size() )
     {
         cout << "VDispAnalyzer::calculateMeanShowerDirection error: ";
         cout << "invalid vector size " << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     // single image
     if( iMaxN == 1 && v_x.size() == 1 && v_y.size() == 1 && v_weight.size() == 1 )
     {
@@ -446,7 +450,7 @@ void VDispAnalyzer::calculateMeanShowerDirection( vector< float > v_x, vector< f
         ys = v_y[0];
         return;
     }
-    
+
     float z = 0.;
     for( unsigned int n = 0; n < iMaxN; n++ )
     {
@@ -511,7 +515,7 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
     f_dispDiff = -99.;
     f_xs = -99.;
     f_ys = -99.;
-    
+
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
@@ -522,7 +526,7 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
     {
         return;
     }
-    
+
     float disp = 0.;
     vector< float > v_disp;
     vector< unsigned int > v_displist;
@@ -531,7 +535,7 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
     vector< float > y;
     vector< float > cosphi;
     vector< float > sinphi;
-    
+
     //////////////////////////////
     // loop over all telescopes and calculate disp per telescope
     for( unsigned int i = 0; i < i_ntel; i++ )
@@ -561,7 +565,7 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
             }
             v_disp.push_back( disp );
             v_displist.push_back( i );
-            
+
             // use estimated uncertainty on disp direction reconstruction as
             // weight: exponential coefficent ad-hoc, not a result of
             // optimisation
@@ -583,14 +587,14 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
                                     * img_size[i] * img_weight[i] * ( 1. - img_width[i] / img_length[i] )
                                     * img_fui[i] * img_fui[i] * img_fui[i] * img_fui[i] );
             }
-            
+
             x.push_back( img_cen_x[i] );
             y.push_back( img_cen_y[i] );
             cosphi.push_back( img_cosphi[i] );
             sinphi.push_back( img_sinphi[i] );
         }
     }
-    
+
     // calculate expected direction
     calculateMeanDirection( f_xs, f_ys,
                             x, y, cosphi, sinphi,
@@ -607,7 +611,7 @@ float VDispAnalyzer::getDispErrorT( unsigned int iTelescopeNumber )
     {
         return fdisp_error_T[iTelescopeNumber];
     }
-    
+
     return -9999.;
 }
 
@@ -653,12 +657,12 @@ void VDispAnalyzer::calculateExpectedDirectionError( unsigned int i_ntel,
     }
     fdisp_error_T.clear();
     fdisp_error_T.assign( i_ntel, -99. );
-    
+
     //////////////////////////////
     // loop over all telescopes and calculate disp per telescope
     for( unsigned int i = 0; i < i_ntel; i++ )
     {
-    
+
         // quality cuts
         if( img_size[i] > 0. && img_length[i] > 0.
                 && sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistance_max
@@ -694,7 +698,7 @@ float VDispAnalyzer::getXcoordinate_disp( unsigned int ii )
     {
         return fdisp_xs_T[ii];
     }
-    
+
     return -99.;
 }
 
@@ -714,7 +718,7 @@ float VDispAnalyzer::getYcoordinate_disp( unsigned int ii )
     {
         return -1.*fdisp_ys_T[ii];
     }
-    
+
     return -99.;
 }
 
@@ -757,7 +761,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     fdisp_energy_T.assign( i_ntel, -99. );
     fdisp_energy_NT = 0;
     fdisp_energyQL = -1;
-    
+
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
@@ -769,10 +773,10 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     {
         return;
     }
-    
+
     ////////////////////////////////////////////
     // calculate for each image an energy
-    
+
     // counter for good energy values
     float z = 0.;
     for( unsigned int i = 0; i < i_ntel; i++ )
@@ -793,7 +797,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
                                     ( float )iRcore[i], ( float )iEHeight,
                                     ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
                                     ( float )img_fui[i], ( float )img_ntubes[i] );
-                                    
+
             // dispEnergy is trained as log10(MCe0) in GeV
             if( fdisp_energy_T[i] > -98. )
             {
@@ -818,11 +822,11 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     {
         return;
     }
-    
+
     ///////////////////
     // calculate average energy
     // (require at least two telescopes)
-    
+
     // fill a 'clean' vector with good energy per telescopes
     vector< double > energy_tel;
     vector< double > energy_weight;
@@ -833,7 +837,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     vector< double > iT;
     vector< double > iLe;
     vector< double > iWi;
-    
+
     for( unsigned int i = 0; i < fdisp_energy_T.size(); i++ )
     {
         if( fdisp_energy_T[i] > 0. && img_weight[i] > 0. && img_size[i] > 0. )
@@ -854,7 +858,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
             }
         }
     }
-    
+
     // Occasionally one energy is significantly off and distorts the mean.
     // therefore: get rid of N sigma outliers
     // use robust statistics (median and median absolute error)
@@ -901,7 +905,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
         fdisp_energy_NT = 0;
         fdisp_energyQL = -1;
     }
-    
+
     ///////////////////
     // calculate chi2 and dE
     // (note: different definition for dE
@@ -965,7 +969,7 @@ float VDispAnalyzer::getEnergyT( unsigned int iTelescopeNumber )
     {
         return fdisp_energy_T[iTelescopeNumber];
     }
-    
+
     return -9999.;
 }
 
@@ -1003,7 +1007,7 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
 {
     fdisp_core_T.clear();
     fdisp_core_T.assign( i_ntel, -99. );
-    
+
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
@@ -1015,10 +1019,10 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
     {
         return;
     }
-    
+
     ////////////////////////////////////////////
     // calculate for each image the core distance
-    
+
     for( unsigned int i = 0; i < i_ntel; i++ )
     {
         if( img_size[i] > 0. && iArrayElevation > 0. )
@@ -1039,14 +1043,14 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
             fdisp_core_T[i] = -99.;
         }
     }
-    
+
     return;
-    
+
     ///////////////////////////////////////////////
     // core position in shower coordinates
-    
+
     VGrIsuAnalyzer i_A;
-    
+
     // calculated telescope positions in shower coordinates
     float i_xcos = sin( ( 90. - iArrayElevation ) / TMath::RadToDeg() ) * sin( ( iArrayAzimuth - 180. ) / TMath::RadToDeg() );
     float i_ycos = sin( ( 90. - iArrayElevation ) / TMath::RadToDeg() ) * cos( ( iArrayAzimuth - 180. ) / TMath::RadToDeg() );
@@ -1054,7 +1058,7 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
     float xcoreSC = 0.;
     float ycoreSC = 0.;
     i_A.tel_impact( i_xcos, i_ycos, xcoreSR, ycoreSR, 0., &xcoreSC, &ycoreSC, &i_zrot, false );
-    
+
     float m = 0.;
     float theta = 0.;
     float x = 0.;
@@ -1063,12 +1067,12 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
     float x2 = 0.;
     float y1 = 0.;
     float y2 = 0.;
-    
+
     float iweight = 0.;
     float xw = 0.;
     float yw = 0.;
     float ww = 0.;
-    
+
     for( unsigned int i = 0; i < i_ntel; i++ )
     {
         if( fdisp_core_T[i] > 0. && img_cen_x[i] - xs > 0. && xcoreSC > -9000. && ycoreSC > -9000. )
@@ -1076,11 +1080,11 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
             // telescope coordinates
             // shower coordinates (telecope pointing)
             i_A.tel_impact( i_xcos, i_ycos, iTelX[i], iTelY[i], iTelZ[i], &i_xrot, &i_yrot, &i_zrot, false );
-            
+
             m = -1. * ( img_cen_y[i] - ys ) / ( img_cen_x[i] - xs );
-            
+
             theta = atan( m );
-            
+
             // not clear which sign to use
             // simple approximation: assume
             // that intersection by line solution
@@ -1103,27 +1107,27 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
                 x = x2;
                 y = y2;
             }
-            
+
             // weight
             // (not clear if sum is a good choice,
             //  as we do not do a dc-to-pe calibration)
             iweight = img_size[i];
             iweight *= ( 1. - img_width[i] / img_length[i] );
             iweight *= iweight;
-            
+
             xw += x * iweight;
             yw += y * iweight;
             ww += iweight;
         }
     }
-    
+
     // average core position (in shower coordinates)
     if( ww > 0. )
     {
         xw /= ww;
         yw /= ww;
     }
-    
+
     // calculate core distance for each telescopes
     // (simple - as we are working in shower coordinates)
     for( unsigned int i = 0; i < i_ntel; i++ )
@@ -1135,7 +1139,7 @@ void VDispAnalyzer::calculateCore( unsigned int i_ntel,
                                     + ( yw - i_yrot ) * ( yw - i_yrot ) );
         }
     }
-    
+
 }
 
 float VDispAnalyzer::getCoreDistance( unsigned int iTelescopeNumber )
@@ -1146,4 +1150,3 @@ float VDispAnalyzer::getCoreDistance( unsigned int iTelescopeNumber )
     }
     return -99.;
 }
-
