@@ -16,7 +16,7 @@ void help()
     return;
 }
 
-void plot( string iFile, bool iNorth = false )
+void plot_showerpars_variables( string iFile, bool iNorth = false )
 {
     unsigned int fNSubSystems = 4;
     if( iNorth )
@@ -41,7 +41,9 @@ void plot( string iFile, bool iNorth = false )
     
     for( unsigned int f = 0; f < fVar.size(); f++ )
     {
-        TPad* pad = c->cd( f + 1 );
+        TPad* pad = (TPad*)c->cd( f + 1 );
+        gPad->SetLogy(1);
+        gPad->SetGridx(0);
         for( unsigned int i = 0; i < fNSubSystems; i++ )
         {
             fD->SetLineColor( i + 1 );
@@ -70,6 +72,7 @@ void plot( string iFile, bool iNorth = false )
             c->Draw();
         }
     }
+    c->Print("showerpars.pdf");
 }
 
 
