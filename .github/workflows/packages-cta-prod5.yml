@@ -14,6 +14,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+
   build-cta-prod5-image:
     runs-on: ubuntu-latest
     permissions:
@@ -33,6 +34,13 @@ jobs:
           else
             echo "BUILD_BRANCH=${GITHUB_REF#refs/heads/}" >> "$GITHUB_ENV"
           fi
+          echo "BUILD BRANCH ${{ env.BUILD_BRANCH }}"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -48,7 +56,10 @@ jobs:
           tags: |
             type=ref,event=pr,suffix=-cta-prod5
             type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-prod5
+            type=schedule,pattern={{date 'YYYYMMDD'}}
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: latest=true
 
       - name: hessioxx
         run: |
