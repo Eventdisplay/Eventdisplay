@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
   bash \
   gcc \
   g++ \
+  git \
   libblas-dev \
   libfreetype6 \
   libncurses5 \
