@@ -62,7 +62,7 @@ ENV LD_LIBRARY_PATH "${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${LD_LIBRARY_PATH}"
 ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc
 
 # Install Eventdisplay Analysis files
-RUN git clone --depth 1 git@github.com:Eventdisplay/Eventdisplay_AnalysisFiles_CTA.git
+RUN git clone --depth 1 https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA.git
 # ARG ANAVERSION=1.7.0
 # RUN wget --quiet https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA/archive/refs/tags/v$ANAVERSION.zip && \
 #    unzip -qq v$ANAVERSION.zip && rm -f v$ANAVERSION.zip && \
