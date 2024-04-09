@@ -56,8 +56,8 @@ jobs:
           tags: |
             type=ref,event=pr,suffix=-cta-prod5
             type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-prod5
-            type=schedule,pattern={{date 'YYYYMMDD'}}},suffix=-cta-prod5
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}}},suffix=-cta-prod5
+            type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-prod5
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-prod5
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: latest=true
 
