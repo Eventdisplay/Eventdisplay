@@ -6,7 +6,7 @@ Docker images are made available for the following use cases.
 
 (for prod5, just replace prod6 in the following in all steps)
 
-- [Dockerfile](dockerfiles/Dockerfile-cta-prod6) 
+- [Dockerfile](dockerfiles/Dockerfile-cta-prod6)
 - docker image available from [container page](https://github.com/Eventdisplay/Eventdisplay/pkgs/container/eventdisplay) with tag `cta-prod6`
 
 ### Running prod5/prod6
@@ -43,7 +43,7 @@ Download hessioxx from https://www.mpi-hd.mpg.de/hfm/CTA/MC/Software/Testing/hes
 
 ## CTA slib: analysis library used for CTA
 
-- [Dockerfile](dockerfiles/Dockerfile-cta-slib) 
+- [Dockerfile](dockerfiles/Dockerfile-cta-slib)
 - docker image available from [container page](https://github.com/Eventdisplay/Eventdisplay/pkgs/container/eventdisplay) with tag `cta-slib`
 
 ### Running cta-slib

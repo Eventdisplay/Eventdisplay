@@ -28,7 +28,7 @@ RUN apt-get clean && \
 WORKDIR /home/
 ENV EVNDISP /home/
 
-# Install hessioxx 
+# Install hessioxx
 COPY hessioxxx.tar.gz .
 RUN tar -xvzf hessioxxx.tar.gz && \
    cd hessioxxx && \
@@ -52,7 +52,7 @@ ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
 ENV SOFASYS ${EVNDISPSYS}/sofa/
 RUN mkdir -p ${EVNDISP}/Eventdisplay
 COPY Eventdisplay ${EVNDISP}/Eventdisplay/
-RUN cd ${EVNDISPSYS} && ./install_sofa.sh 
+RUN cd ${EVNDISPSYS} && ./install_sofa.sh
 RUN cd ${EVNDISPSYS} && \
     make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD6 && \
     rm -f obj/*.o obj/*.cpp
@@ -62,7 +62,7 @@ ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc
 
 # Install Eventdisplay Analysis files
 ARG ANAVERSION=main
-RUN wget --quite https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA/archive/refs/heads/main.zip && \
+RUN wget --quiet https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA/archive/refs/heads/main.zip && \
     unzip -qq Eventdisplay_AnalysisFiles_CTA-$ANAVERSION.zip && rm -f Eventdisplay_AnalysisFiles_CTA-$ANAVERSION.zip && \
     mv Eventdisplay_AnalysisFiles_CTA-$ANAVERSION Eventdisplay_AnalysisFiles_CTA
 # ARG ANAVERSION=1.7.0
@@ -73,5 +73,5 @@ ENV CTA_EVNDISP_AUX_DIR /home/Eventdisplay_AnalysisFiles_CTA/
 ENV OBS_EVNDISP_AUX_DIR /home/Eventdisplay_AnalysisFiles_CTA
 ENV OBS_USER_DATA_DIR /tmp/
 
-# Copy run script 
+# Copy run script
 RUN cp ${EVNDISPSYS}/dockerfiles/Dockerfile-cta-prod6-run.sh ${EVNDISP}/run.sh
