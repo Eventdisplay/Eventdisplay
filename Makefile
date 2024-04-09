@@ -2,19 +2,12 @@
 # Makefile for eventdisplay analysis package
 ##########################################################################
 #
-#  for VERITAS: make VTS
-#
 #  for CTA:     make CTA
 #  
 #  shell variables needed:
 #    ROOTSYS (pointing to your root installation)
 #
-#  Libraries needed either for CTA or VTS:
-#
-#  for reading of VBF files (optional, VERITAS only)
-#    VBFSYS  (pointing to VBF installation)
-#    or
-#   vbfConfig exists
+#  Libraries needed either for CTA:
 #
 #  for reading of sim_telarray (HESSIO) files (optional, CTA only)
 #    HESSIOSYS (pointing to HESSIO installation)
@@ -118,7 +111,7 @@ endif
 ########################################################################################################################
 # compiler and linker general values
 CXX           = g++
-CXXFLAGS      = -O3 -g -Wall -fPIC -fno-strict-aliasing -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
+CXXFLAGS      = -O3 -Wall -fPIC -fno-strict-aliasing -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
 CXXFLAGS     += -I. -I./inc/
 CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(DCACHEFLAG) $(ASTRONMETRY)
 LD            = g++ 
@@ -270,24 +263,6 @@ VPATH = src:inc
 # libraries: ./lib directory
 ########################################################
 
-all VTS:	evndisp \
-        printRunParameter \
-	mscw_energy \
-	smoothLookupTables \
-	anasum \
-	combineLookupTables \
-	makeEffectiveArea \
-	trainTMVAforGammaHadronSeparation \
-	slib \
-	combineEffectiveAreas \
-	makeRadialAcceptance \
-	compareDatawithMC \
-	VTS.getRunListFromDB \
-	VTS.getLaserRunFromDB \
-	writeParticleRateFilesForTMVA \
-	writelaserinDB \
-	logFile
-
 CTA:	evndisp \
         CTA.convert_hessio_to_VDST \
         printRunParameter \
@@ -423,13 +398,6 @@ ifneq ($(ARCH),Darwin)
 EVNOBJECTS += ./obj/VDisplay_Dict.o
 endif
 
-# add VBF objects
-ifneq ($(VBFFLAG),-DNOVBF)
-   EVNOBJECTS +=    ./obj/VRawDataReader.o \
-		    ./obj/VBaseRawDataReader.o  \
-		    ./obj/VBFDataReader.o \
-	 	    ./obj/VSimulationDataReader.o 
-endif
 # finalize
 EVNOBJECTS += ./obj/evndisp.o
 
@@ -1427,19 +1395,6 @@ trainTMVAforAngularReconstruction:	./obj/trainTMVAforAngularReconstruction.o \
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
-########################################################
-# updateDBlaserRUN
-########################################################
-writelaserinDBOBJ  = ./obj/VDB_CalibrationInfo.o
-writelaserinDBOBJ += ./obj/VDB_Connection.o
-writelaserinDBOBJ += ./obj/writelaserinDB.o
-
-./obj/writelaserinDB.o : ./src/writelaserinDB.cpp
-	$(CXX) $(CXXFLAGS) -Wno-write-strings -Wno-unused-function -c -o $@ $<
-
-writelaserinDB : $(writelaserinDBOBJ)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
 
 ########################################################
 # combineEffectiveAreas
@@ -1548,168 +1503,6 @@ endif
 trainTMVAforGammaHadronSeparation_TrainingFile:	$(MAKEOPTCUTTMVATRAININGOBJ)
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "Done"
-
-########################################################
-# VTS.calculateCrabRateFromMC
-########################################################
-./obj/VTS.calculateCrabRateFromMC.o:	./src/VTS.calculateCrabRateFromMC.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-VTS.calculateCrabRateFromMC:	./obj/CEffArea.o ./obj/CEffArea_Dict.o \
-				./obj/VEnergySpectrumfromLiterature.o ./obj/VEnergySpectrumfromLiterature_Dict.o \
-				./obj/VAnalysisUtilities.o ./obj/VAnalysisUtilities_Dict.o \
-				./obj/CRunSummary.o ./obj/CRunSummary_Dict.o \
-				./obj/VRunList_Dict.o ./obj/VRunList.o \
-				./obj/VPlotUtilities.o ./obj/VPlotUtilities_Dict.o \
-				./obj/VMonteCarloRateCalculator.o ./obj/VMonteCarloRateCalculator_Dict.o \
-				./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
-                                ./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-                                ./obj/VStar.o ./obj/VStar_Dict.o \
-                                ./obj/VUtilities.o \
-                                 ./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-                                ./obj/VSkyCoordinatesUtilities.o \
-                                ./obj/VDB_Connection.o \
-				./obj/VTS.calculateCrabRateFromMC.o
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
-########################################################
-# VTS.analyzeMuonRings
-########################################################
-./obj/VTS.analyzeMuonRings.o:	./src/VTS.analyzeMuonRings.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-VTS.analyzeMuonRings:		./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
-				./obj/VImageCleaningRunParameter.o ./obj/VImageCleaningRunParameter_Dict.o \
-				./obj/VEvndispRunParameter.o ./obj/VEvndispRunParameter_Dict.o \
-                		./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-                		./obj/VStar.o ./obj/VStar_Dict.o \
-		        ./obj/VDB_Connection.o \
-                ./obj/VUtilities.o \
-                ./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-                ./obj/VSkyCoordinatesUtilities.o \
-				./obj/Ctelconfig.o ./obj/Cshowerpars.o ./obj/Ctpars.o \
-			    ./obj/VUtilities.o  \
-				./obj/VStarCatalogue.o  ./obj/VStarCatalogue_Dict.o \
-				./obj/VSkyCoordinatesUtilities.o \
-				./obj/VEvndispReconstructionParameter.o ./obj/VEvndispReconstructionParameter_Dict.o \
-				./obj/VStar.o ./obj/VStar_Dict.o \
-				./obj/VTS.analyzeMuonRings.o
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
-########################################################
-# VTS.calculateExposureFromDB
-########################################################
-./obj/VTS.calculateExposureFromDB.o:	./src/VTS.calculateExposureFromDB.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-VTS.calculateExposureFromDB:	./obj/VDBTools.o ./obj/VDBTools_Dict.o \
-				./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-				./obj/VStar.o ./obj/VStar_Dict.o \
-				./obj/VExposure.o ./obj/VExposure_Dict.o \
-				./obj/VDB_Connection.o \
-				./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-				./obj/VUtilities.o \
-				./obj/VSkyCoordinatesUtilities.o \
-				./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
-				./obj/VTS.calculateExposureFromDB.o
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
-########################################################
-# VTS.getLaserRunFromDB
-########################################################
-./obj/VTS.getLaserRunFromDB.o:   ./src/VTS.getLaserRunFromDB.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-VTSLASERUNOBJ=	./obj/VDBTools.o ./obj/VDBTools_Dict.o \
-			./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-			./obj/VStar.o ./obj/VStar_Dict.o \
-                        ./obj/VUtilities.o \
-                        ./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-                        ./obj/VSkyCoordinatesUtilities.o \
-			./obj/VDBRunInfo.o \
-			./obj/VDB_Connection.o \
-			./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
-			./obj/VTS.getLaserRunFromDB.o
-
-ifeq ($(ASTRONMETRY),-DASTROSLALIB)
-    VTSLASERUNOBJ += ./obj/VASlalib.o
-endif
-
-VTS.getLaserRunFromDB:	$(VTSLASERUNOBJ)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
-########################################################
-# VTS.getRunListFromDB
-########################################################
-./obj/VTS.getRunListFromDB.o:   ./src/VTS.getRunListFromDB.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-VTSRUNLISTDBOJB=	./obj/VDBTools.o ./obj/VDBTools_Dict.o \
-			./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-			./obj/VStar.o ./obj/VStar_Dict.o \
-			./obj/VExposure.o ./obj/VExposure_Dict.o \
-			./obj/VDB_Connection.o \
-			./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-			./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
-			./obj/VStar.o ./obj/VStar_Dict.o \
-			./obj/VUtilities.o \
-			./obj/VSkyCoordinatesUtilities.o \
-			./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
-			./obj/VUtilities.o \
-			./obj/VTS.getRunListFromDB.o
-
-ifeq ($(ASTRONMETRY),-DASTROSLALIB)
-    VTSRUNLISTDBOJB += ./obj/VASlalib.o
-endif
-
-VTS.getRunListFromDB:	$(VTSRUNLISTDBOJB)
-	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-
-########################################################
-# next day analysis
-########################################################
-
-ifeq ($(FITS),FALSE)
-# define as empty if we don't have FITS support
-VTS.next_day:
-	@echo " - If we had FITS support, VTS.next_day would have been compiled here ..."
-else
-./obj/VTS.next_day.o:	./src/VTS.next_day.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-VTS.next_day:	./obj/VFITS.o ./obj/VFITS_Dict.o \
-		./obj/CRunSummary.o ./obj/CRunSummary_Dict.o \
-		./obj/VEnergySpectrumfromLiterature.o ./obj/VEnergySpectrumfromLiterature_Dict.o \
-		./obj/VAnalysisUtilities.o ./obj/VAnalysisUtilities_Dict.o \
-		./obj/VPlotUtilities.o ./obj/VPlotUtilities_Dict.o \
-		./obj/VHistogramUtilities.o ./obj/VHistogramUtilities_Dict.o \
-		./obj/VRunList_Dict.o ./obj/VRunList.o \
-		./obj/VEnergySpectrum.o ./obj/VEnergySpectrum_Dict.o \
-		./obj/VMathsandFunctions.o ./obj/VMathsandFunctions_Dict.o  \
-		./obj/VDifferentialFluxData.o ./obj/VDifferentialFluxData_Dict.o \
-		./obj/VSpectralFitter.o ./obj/VSpectralFitter_Dict.o \
-		./obj/VEnergyThreshold.o ./obj/VEnergyThreshold_Dict.o \
-		./obj/CEffArea.o ./obj/CEffArea_Dict.o \
-		./obj/VFluxCalculation.o ./obj/VFluxCalculation_Dict.o \
-		./obj/VFluxDataPoint.o ./obj/VFluxDataPoint_Dict.o \
-		./obj/VOrbitalPhaseData.o ./obj/VOrbitalPhaseData_Dict.o \
-		./obj/VUtilities.o  \
-		./obj/VAstronometry.o ./obj/VAstronometry_Dict.o \
-		./obj/VDB_Connection.o \
-		./obj/VStar.o ./obj/VStar_Dict.o \
-		./obj/VStarCatalogue.o  ./obj/VStarCatalogue_Dict.o \
-		./obj/VSkyCoordinatesUtilities.o \
-		./obj/VFluxAndLightCurveUtilities.o ./obj/VFluxAndLightCurveUtilities_Dict.o \
-		./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
-		./obj/VTS.next_day.o
-	$(LD) $(LDFLAGS) $^ $(GLIBS)  $(OutPutOpt) ./bin/$@
-	@echo "$@ done"
-endif
 
 TESTFITS:
 ifeq ($(FITS),FALSE)
