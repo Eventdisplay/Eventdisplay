@@ -24,7 +24,6 @@ RUN apt-get update && apt-get install -y \
   zstd
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-# RUN ln -s /usr/lib/libncursesw.so.6 /usr/lib/libtinfo.so.5
 
 WORKDIR /home/
 ENV EVNDISP /home/
@@ -55,17 +54,21 @@ RUN mkdir -p ${EVNDISP}/Eventdisplay
 COPY Eventdisplay ${EVNDISP}/Eventdisplay/
 RUN cd ${EVNDISPSYS} && ./install_sofa.sh 
 RUN cd ${EVNDISPSYS} && \
-    make -j 4 evndisp CTA.convert_hessio_to_VDST printRunParameter logFile GRIDPROD=CTAGRID CTAPROD=PROD5 && \
+    make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD5 && \
     rm -f obj/*.o obj/*.cpp
 
 ENV LD_LIBRARY_PATH "${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${LD_LIBRARY_PATH}"
 ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc
 
 # Install Eventdisplay Analysis files
-ARG ANAVERSION=1.6.0
-RUN wget --quiet https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA/archive/refs/tags/v$ANAVERSION.zip && \
-    unzip -qq v$ANAVERSION.zip && rm -f v$ANAVERSION.zip && \
+ARG ANAVERSION=main
+RUN wget --quite https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA/archive/refs/heads/main.zip && \
+    unzip -qq Eventdisplay_AnalysisFiles_CTA-$ANAVERSION.zip && rm -f Eventdisplay_AnalysisFiles_CTA-$ANAVERSION.zip && \
     mv Eventdisplay_AnalysisFiles_CTA-$ANAVERSION Eventdisplay_AnalysisFiles_CTA
+# ARG ANAVERSION=1.6.0
+# RUN wget --quiet https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA/archive/refs/tags/v$ANAVERSION.zip && \
+#    unzip -qq v$ANAVERSION.zip && rm -f v$ANAVERSION.zip && \
+#    mv Eventdisplay_AnalysisFiles_CTA-$ANAVERSION Eventdisplay_AnalysisFiles_CTA
 ENV CTA_EVNDISP_AUX_DIR /home/Eventdisplay_AnalysisFiles_CTA/
 ENV OBS_EVNDISP_AUX_DIR /home/Eventdisplay_AnalysisFiles_CTA
 ENV OBS_USER_DATA_DIR /tmp/
