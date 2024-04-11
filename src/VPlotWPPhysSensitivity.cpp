@@ -660,7 +660,7 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
                                            fData[i]->fPlottingMarkerStyle[j], 0.75,
                                            fData[i]->fPlottingFillStyle[j],
                                            fData[i]->fPlottingLineStyle[j] );
-                    # no drawing of error bars (x-option)
+                    // no drawing of error bars (x-option)
                     g->Draw( "px" );
                     if( fData[i]->fLegend.size() > 0 )
                     {
