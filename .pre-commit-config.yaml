@@ -34,7 +34,7 @@ repos:
       - id: codespell
         args: [
           "--skip=*.json,*.bib,*.txt,*.cls,scripts/environment_vtscat_save.yml",
-          "--ignore-words-list=livetime",
+          "--ignore-words-list=livetime,fom",
         ]
         additional_dependencies:
           - tomli
