@@ -17,12 +17,12 @@ VPlotWPPhysSensitivity::VPlotWPPhysSensitivity()
     setMaximumAllowedEnergyBias();
     setCurrentInstrumentFile();
     setCurrentInstrumentPlotVector();
-    
+
     fSensitivityFOM = -1.;
     fSensitivityFOM_error = -1.;
-    
+
     fUseIntegratedSensitivityForOffAxisPlots = false;
-    
+
     setNorthSouthComparision( false );
 }
 
@@ -62,13 +62,13 @@ bool VPlotWPPhysSensitivity::addDataSet( VSiteData* iData )
     fData.back()->fCameraOffset_deg = iData->fCameraOffset_deg;
     fData.back()->fSiteFile_Emin = iData->fSiteFile_Emin;
     fData.back()->fSiteFile_Emax = iData->fSiteFile_Emax;
-    
+
     fData.back()->fPlottingColor = iData->fPlottingColor;
     fData.back()->fPlottingLineStyle = iData->fPlottingLineStyle;
     fData.back()->fPlottingFillStyle = iData->fPlottingFillStyle;
     fData.back()->fPlottingMarkerStyle = iData->fPlottingMarkerStyle;
     fData.back()->fLegend = iData->fLegend;
-    
+
     return true;
 }
 
@@ -81,13 +81,13 @@ bool VPlotWPPhysSensitivity::addDataSet( string iAnalysis, string iSubArray,
     i_temp.fArray.push_back( iSubArray );
     i_temp.fObservationTime_s.push_back( iObservationTime_s );
     i_temp.fCameraOffset_deg.push_back( iOffset_deg );
-    
+
     i_temp.fPlottingColor.push_back( iColor );
     i_temp.fPlottingLineStyle.push_back( iLineStyle );
     i_temp.fPlottingFillStyle.push_back( iFillStyle );
     i_temp.fPlottingMarkerStyle.push_back( 21 );
     i_temp.fLegend.push_back( iLegend );
-    
+
     return addDataSet( &i_temp );
 }
 
@@ -110,12 +110,12 @@ bool VPlotWPPhysSensitivity::addDataSets( string iDataSettxtFile, string iDirect
         }
         z_site++;
     }
-    
+
     if( fData.size() == 0 )
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -133,12 +133,12 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
                                       bool iPlotEnergyBias, bool iLogAngRes, bool iIRFLegends )
 {
     fIRF = new VPlotInstrumentResponseFunction();
-    
+
     fIRF->setCanvasSize( 400, 400 );
     fIRF->setPlottingAxis( "energy_Lin", "X", true, fMinEnergy_TeV, fMaxEnergy_TeV, "energy [TeV]" );
     fIRF->setPlottingAxis( "effarea_Lin", "X", true, iEffAreaMin, iEffAreaMax );
     fIRF->setPlottingAxis( "energyresolution_Lin", "X", false, 0., 0.7 );
-    
+
     for( unsigned int i = 0; i < fData.size(); i++ )
     {
         if( fData[i] )
@@ -156,9 +156,9 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
             }
         }
     }
-    
+
     char hname[2000];
-    
+
     ////////////////////////////
     // effective areas
     TCanvas* c = fIRF->plotEffectiveArea( iEffAreaMin, iEffAreaMax, iEffAreaPad );
@@ -245,7 +245,7 @@ bool VPlotWPPhysSensitivity::plotIRF( string iPrint,
             }
         }
     }
-    
+
     return true;
 }
 
@@ -294,7 +294,7 @@ void VPlotWPPhysSensitivity::initialProjectedSensitivityPlots( bool iIncludeLowe
                 sprintf( hname, "fProjectionSensitivityvsCameraOffset_%s_%d", fData[i]->fReferenceSiteName.c_str(), j );
                 fProjectionSensitivityvsCameraOffset[fData[i]->fReferenceSiteName].back()->SetName( hname );
                 fProjectionSensitivityvsCameraOffset[fData[i]->fReferenceSiteName].back()->SetTitle( "" );
-                
+
                 setGraphPlottingStyle( fProjectionSensitivityvsCameraOffset[fData[i]->fReferenceSiteName].back(), i + 1, 1., 20, 1.5 );
             }
         }
@@ -319,12 +319,12 @@ void VPlotWPPhysSensitivity::fillProjectedSensitivityPlot( unsigned int iDataSet
     {
         return;
     }
-    
+
     if( fProjectionSensitivityvsCameraOffset.find( fData[iDataSet]->fReferenceSiteName ) == fProjectionSensitivityvsCameraOffset.end() )
     {
         return;
     }
-    
+
     if( g )
     {
         VHistogramUtilities h;
@@ -351,7 +351,7 @@ void VPlotWPPhysSensitivity::fillProjectedSensitivityPlot( unsigned int iDataSet
                         double x = 0.;
                         double y = 0.;
                         g->GetPoint( b, x, y );
-                        
+
                         i_m += y;
                         i_m_lE += g->GetErrorYlow( b ) * g->GetErrorYlow( b );
                         i_m_hE += g->GetErrorYhigh( b ) * g->GetErrorYhigh( b );
@@ -377,7 +377,7 @@ void VPlotWPPhysSensitivity::fillProjectedSensitivityPlot( unsigned int iDataSet
 TCanvas* VPlotWPPhysSensitivity::plotProjectedSensitivities( TCanvas* c, double iMaxOffSet, int iColor )
 {
     bool bUpsideDown = false;
-    
+
     TCanvas* cC = 0;
     if( c )
     {
@@ -412,12 +412,12 @@ TCanvas* VPlotWPPhysSensitivity::plotProjectedSensitivities( TCanvas* c, double 
         iL2->Draw();
     }
     cC->cd();
-    
+
     TLegend* iL = new TLegend( 0.55, 0.65, 0.88, 0.88 );
     char hname[200];
-    
+
     map< string, vector< TGraphAsymmErrors* > >::iterator i_fProjectionSensitivityvsCameraOffset_iter;
-    
+
     for( i_fProjectionSensitivityvsCameraOffset_iter = fProjectionSensitivityvsCameraOffset.begin();
             i_fProjectionSensitivityvsCameraOffset_iter != fProjectionSensitivityvsCameraOffset.end();
             i_fProjectionSensitivityvsCameraOffset_iter++ )
@@ -440,7 +440,7 @@ TCanvas* VPlotWPPhysSensitivity::plotProjectedSensitivities( TCanvas* c, double 
                 y_norm = 0.5 * ( y + y_norm );
                 double y_normE_low  = sqrt( iGraph->GetErrorYlow( 0 ) * iGraph->GetErrorYlow( 0 ) );
                 double y_normE_high = sqrt( iGraph->GetErrorYhigh( 0 ) * iGraph->GetErrorYhigh( 0 ) );
-                
+
                 for( int p = iGraph->GetN(); p > 0; p-- )
                 {
                     iGraph->GetPoint( p - 1, x, y );
@@ -491,7 +491,7 @@ TCanvas* VPlotWPPhysSensitivity::plotProjectedSensitivities( TCanvas* c, double 
     // plot some text
     TText* iT = new TText( 1., 0.1, "Off-axis sensitivity" );
     iT->Draw(); */
-    
+
     return cC;
 }
 
@@ -540,7 +540,7 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
         cSensRatio = ( TCanvas* )iSensRatio;
     }
     cSensRatio->cd();
-    
+
     // plot null histogram
     sprintf( hname, "hSensRatio_%d", iRatioSelector );
     TH1D* hNull = new TH1D( hname, "", 10, log10( fMinEnergy_TeV ), log10( fMaxEnergy_TeV ) );
@@ -562,15 +562,15 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
     hNull->SetMaximum( ymax );
     hNull->Draw( "" );
     hNull->Draw( "AH" );
-    
+
     plot_nullHistogram( cSensRatio, hNull, true , false, 1.2, fMinEnergy_TeV, fMaxEnergy_TeV );
-    
+
     TLine* iL = new TLine( log10( fMinEnergy_TeV ), 1., log10( fMaxEnergy_TeV ), 1. );
     iL->SetLineStyle( 2 );
     iL->SetLineWidth( 3 );
     iL->Draw();
-    
-    // North/South comparision with Legend
+
+    // North/South comparison with Legend
     TLegend* iLL = 0;
     if( fNorthSouthComparision )
     {
@@ -586,8 +586,8 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
     }
     // PPUT calculation
     VPPUTValues i_PPUT;
-    
-    
+
+
     ////////////////////////////////////////////////////////////////////
     // loop over all data sets and divide it by the selected one
     for( unsigned int i = 0; i < fData.size(); i++ )
@@ -600,10 +600,10 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
         {
             continue;
         }
-        
+
         ///////////////////////////////////////////////////////////////////////
         // select graph to which the sensitivity ratio is calculated to
-        
+
         TGraphAsymmErrors* gRelG = 0;
         TGraph* gRelReq = 0;
         // relative to requirement
@@ -640,7 +640,7 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
         {
             iL->SetLineColor( gRelReq->GetLineColor() );
         }
-        
+
         for( unsigned int j = 0; j < fData[i]->fGraphSensitivity.size(); j++ )
         {
             if( fData[i]->fGraphSensitivity[j] )
@@ -660,12 +660,13 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
                                            fData[i]->fPlottingMarkerStyle[j], 0.75,
                                            fData[i]->fPlottingFillStyle[j],
                                            fData[i]->fPlottingLineStyle[j] );
-                    g->Draw( "p" );
+                    // no drawing of error bars (x-option)
+                    g->Draw( "px" );
                     if( fData[i]->fLegend.size() > 0 )
                     {
                         i_PPUT.add( fData[i]->fLegend[0], g );
                     }
-                    
+
                     if( fNorthSouthComparision && fData[i]->fLegend.size() > 0 )
                     {
                         ostringstream iTitle;
@@ -740,7 +741,7 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
     {
         // TEMPTEMPTEMP
         // plotLegend( cSensRatio, false, false );
-        
+
         if( iLL )
         {
             iLL->Draw();
@@ -773,7 +774,7 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
         }
     }
     i_PPUT.printHeader( "MARKDOWN" );
-    
+
     return true;
 }
 
@@ -793,11 +794,11 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
     TCanvas* cSens = 0;
     TCanvas* cSensInter = ( TCanvas* )iSensitivityPad;
     TCanvas* cBck = ( TCanvas* )iBckPad;
-    
+
     bool iIncludeLowestEnergy = true;
-    
+
     initialProjectedSensitivityPlots( iIncludeLowestEnergy );
-    
+
     ////////////////////////////////////////////////////////
     // loop over all data sets
     unsigned int z = 0;
@@ -894,9 +895,9 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             // plotSensitivitySystematicUncertainties( cSensInter, iGraphSensitivity );
             ///// (END) TMP TMP plot systematics
             iGraphSensitivity->Draw( "p" );
-            
+
             // plot again the sensitivity graph on top of everything
-            
+
             //
             // (end of general sensitivity plotting)
             // off-axis sensitivities
@@ -945,7 +946,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
             cBck->Print( hname );
         }
     }
-    
+
     return true;
 }
 
@@ -964,7 +965,7 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
         return false;
     }
     c->cd();
-    
+
     double x = 0.1 + 0.35;
     if( iLeft )
     {
@@ -992,7 +993,7 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
     {
         iL->SetFillColorAlpha( 0, 0.1 );
     }
-    
+
     for( unsigned int i = 0; i < fData.size(); i++ )
     {
         if( i == 0 && !iAddFirst )
@@ -1010,7 +1011,7 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
                 g->SetFillColor( fData[i]->fPlottingColor[j] );
                 g->SetMarkerColor( fData[i]->fPlottingColor[j] );
                 g->SetMarkerStyle( fData[i]->fPlottingMarkerStyle[j] );
-                
+
                 //                g->SetMarkerStyle( 1 );
                 if( fData[i]->fLegend[j].size() > 0 && fData[i]->fLegend[j].find( "NO_LEGEND" ) == string::npos )
                 {
@@ -1031,7 +1032,7 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
         i_g_goal->SetLineColor( 3 );
         i_g_goal->SetLineStyle( 2 );
         i_g_goal->SetMarkerColor( 3 );
-        
+
         // no requirements for effective areas
         if( iPadName.find( "cEA_EFF" ) == string::npos )
         {
@@ -1047,7 +1048,7 @@ bool VPlotWPPhysSensitivity::plotLegend( TCanvas* c, bool iDown, bool iLeft, boo
             iL->AddEntry( i_g_req, i_Title.str().c_str(), "pl" );
         }
     }
-    
+
     // draw legend
     if( iL->GetNRows() > 0 )
     {
@@ -1067,21 +1068,21 @@ bool VPlotWPPhysSensitivity::setPlotCTARequirements( string iRequirements,
         bool iRequirementsSystematics )
 {
     fRequirementsString = iRequirements;
-    
+
     if( fRequirementsString.size() == 0 )
     {
         return false;
     }
-    
+
     fPlotCTARequirements.push_back( new VCTARequirements() );
     fPlotCTARequirements.back()->setRequirementsGraphLineWidth( iRequirementsLineWidth );
     fPlotCTARequirements.back()->setRequirementsPlotSystematics( iRequirementsSystematics );
-    
+
     return fPlotCTARequirements.back()->setRequirement( iRequirements, fRequirementsScalingFactor );
 }
 
 /*
- * set options for North/South Comparision
+ * set options for North/South comparison
 */
 void VPlotWPPhysSensitivity::setNorthSouthComparision( bool iNS )
 {
@@ -1099,7 +1100,7 @@ double VPlotWPPhysSensitivity::getSensitivitySystematicUncertaintiesFactor( doub
     {
         return 0.4;
     }
-    
+
     return 0.3;
 }
 
@@ -1116,9 +1117,9 @@ void VPlotWPPhysSensitivity::plotSensitivitySystematicUncertainties(
     {
         c->cd();
     }
-    
+
     double fsys = 0.3;
-    
+
     double x = 0.;
     double y = 0.;
     TGraphAsymmErrors* iGraphSys = new TGraphAsymmErrors( 1 );
@@ -1134,7 +1135,7 @@ void VPlotWPPhysSensitivity::plotSensitivitySystematicUncertainties(
         iGraphSysBrackets->SetPoint( z, x, y );
         iGraphSysBrackets->SetPointEYhigh( z, y * fsys );
         iGraphSysBrackets->SetPointEYlow( z, y * fsys );
-        
+
         // (below temporary)
         if( i == 0 )
         {
@@ -1155,13 +1156,13 @@ void VPlotWPPhysSensitivity::plotSensitivitySystematicUncertainties(
         iGraphSys->SetPointEYhigh( z, y * fsys );
         iGraphSys->SetPointEYlow( z, y * fsys );
         z++;
-        
+
     }
     //iGraphSys->Draw( "3" );
-    
+
     iGraphSysBrackets->Draw( "[]" );
-    
-    
+
+
 }
 
 /*
@@ -1194,16 +1195,16 @@ vector< TGraph* > VPlotWPPhysSensitivity::plotCurrentInstruments( TCanvas* c )
     {
         c->cd();
     }
-    
+
     vector< TGraph* > iG;
-    
+
     TFile* iF = new TFile( fCurrentInstrumentRootFile.c_str() );
     if( iF->IsZombie() )
     {
         return iG;
     }
     cout << "reading current instrument performances from : " << fCurrentInstrumentRootFile << endl;
-    
+
     for( unsigned int i = 0; i < fCurrentInstrumentVector.size(); i++ )
     {
         iG.push_back( ( TGraph* )iF->Get( fCurrentInstrumentVector[i].c_str() ) );
@@ -1258,45 +1259,45 @@ void VPPUTValues::add( string iName, TGraph* iG )
     //    - North: 50 TeV
     double iMaxE = 110.;
     // iMaxE = 50.;
-    
+
     vector< VPPUTData* > iPPUTData;
-    
+
     iPPUTData.push_back( new VPPUTData() );
     iPPUTData.back()->fArrayName = iName;
     iPPUTData.back()->fPPUTName = "full energy range";
     iPPUTData.back()->fEMin_TeV = 0.02;
     iPPUTData.back()->fEMax_TeV = iMaxE;
-    
+
     iPPUTData.push_back( new VPPUTData() );
     iPPUTData.back()->fArrayName = iName;
     iPPUTData.back()->fPPUTName = "low energy range";
     iPPUTData.back()->fEMin_TeV = 0.02;
     iPPUTData.back()->fEMax_TeV = 0.101;
-    
+
     iPPUTData.push_back( new VPPUTData() );
     iPPUTData.back()->fArrayName = iName;
     iPPUTData.back()->fPPUTName = "low energy range (MST)";
     iPPUTData.back()->fEMin_TeV = 0.09;
     iPPUTData.back()->fEMax_TeV = 0.5;
-    
+
     iPPUTData.push_back( new VPPUTData() );
     iPPUTData.back()->fArrayName = iName;
     iPPUTData.back()->fPPUTName = "medium energy range (MST)";
     iPPUTData.back()->fEMin_TeV = 0.5;
     iPPUTData.back()->fEMax_TeV = 5.;
-    
+
     iPPUTData.push_back( new VPPUTData() );
     iPPUTData.back()->fArrayName = iName;
     iPPUTData.back()->fPPUTName = "medium energy range (SST)";
     iPPUTData.back()->fEMin_TeV = 5.;
     iPPUTData.back()->fEMax_TeV = 20.;
-    
+
     iPPUTData.push_back( new VPPUTData() );
     iPPUTData.back()->fArrayName = iName;
     iPPUTData.back()->fPPUTName = "high energy range";
     iPPUTData.back()->fEMin_TeV = 10.;
     iPPUTData.back()->fEMax_TeV = iMaxE;
-    
+
     for( unsigned int i = 0; i < iPPUTData.size(); i++ )
     {
         iPPUTData[i]->fPPUT = getPPUT( iG, false,
@@ -1306,9 +1307,9 @@ void VPPUTValues::add( string iName, TGraph* iG )
                                             log10( iPPUTData[i]->fEMin_TeV ),
                                             log10( iPPUTData[i]->fEMax_TeV ) );
     }
-    
+
     fPPUTData.push_back( iPPUTData );
-    
+
 }
 
 double VPPUTValues::getPPUT( TGraph* iG, bool iError, double ilogEMin, double ilogEMax )
@@ -1348,7 +1349,7 @@ double VPPUTValues::getPPUT( TGraph* iG, bool iError, double ilogEMin, double il
                 return TMath::Power( iFOM, 1. / n );
             }
         }
-        
+
     }
     return 0.;
 }
@@ -1451,4 +1452,3 @@ VPPUTData::VPPUTData()
     fPPUT = 0.;
     fPPUTError = 0.;
 }
-
