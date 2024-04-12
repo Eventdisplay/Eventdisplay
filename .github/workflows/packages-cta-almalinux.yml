@@ -1,5 +1,5 @@
 # https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
-name: CTA-Prod5 Docker Image
+name: CTA-AlmaLinux Docker Image
 
 on:
   workflow_dispatch:
@@ -54,10 +54,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           tags: |
-            type=ref,event=pr,suffix=-cta-prod5
-            type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-prod5
-            type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-prod5
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-prod5
+            type=ref,event=pr,suffix=-cta-almalinux-prod5
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-almalinux-prod5
+            type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-almalinux-prod5
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-almalinux-prod5
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: latest=true
 
