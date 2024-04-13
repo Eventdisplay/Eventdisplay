@@ -1,6 +1,5 @@
 ARG ROOT_VERSION=6.30.02-alma9
 FROM rootproject/root:${ROOT_VERSION} AS build
-ARG CTA_PRODUCTION=prod5
 ARG BUILD_BRANCH=main
 
 LABEL maintainer.name="Eventdisplay Team"
@@ -10,11 +9,9 @@ WORKDIR /eventdisplay_workdir/
 ENV EVNDISP /eventdisplay_workdir/
 
 # Install hessioxx
-COPY hessioxxx.tar.gz .
-RUN tar -xvzf hessioxxx.tar.gz && \
-   cd hessioxxx && \
-   make EXTRA_DEFINES="-DCTA_PROD4 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG" && \
-   cd .. && rm -f hessioxxx.tar.gz
+ADD hessioxxx.tar.gz /eventdisplay_workdir/
+WORKDIR /eventdisplay_workdir/hessioxxx
+RUN make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG"
 ENV HESSIOSYS ${EVNDISP}/hessioxxx
 ENV LD_LIBRARY_PATH "${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
 
@@ -24,12 +21,9 @@ ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
 ENV SOFASYS ${EVNDISPSYS}/sofa/
 RUN BUILD_BRANCH=$(echo ${BUILD_BRANCH} | sed 's#refs/tags/##') && \
     git clone -b ${BUILD_BRANCH} https://github.com/Eventdisplay/Eventdisplay.git --depth 1
-RUN cd ${EVNDISPSYS} && ./install_sofa.sh
-RUN if [ "${CTA_PRODUCTION}" = "prod5" ]; then \
-        make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD5 \
-    else \
-        make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD6 \
-    fi \
+WORKDIR /eventdisplay_workdir/Eventdisplay/
+RUN ./install_sofa.sh CI && \
+    make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD6 && \
     rm -f obj/*.o obj/*.cpp
 
 FROM rootproject/root:${ROOT_VERSION}
@@ -55,4 +49,4 @@ ENV OBS_EVNDISP_AUX_DIR ${EVNDISP}/Eventdisplay_AnalysisFiles_CTA
 ENV OBS_USER_DATA_DIR /tmp/
 
 # Copy run script
-RUN cp ${EVNDISPSYS}/dockerfiles/Dockerfile-cta-${CTA_PRODUCTION}-run.sh ${EVNDISP}/run.sh
+RUN cp ${EVNDISPSYS}/dockerfiles/Dockerfile-cta-prod6-run.sh ${EVNDISP}/run.sh

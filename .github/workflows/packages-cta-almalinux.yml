@@ -54,10 +54,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           tags: |
-            type=ref,event=pr,suffix=-cta-almalinux-prod5
-            type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-almalinux-prod5
-            type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-almalinux-prod5
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-almalinux-prod5
+            type=ref,event=pr,suffix=-cta-almalinux-prod6
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-almalinux-prod6
+            type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-almalinux-prod6
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-almalinux-prod6
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: latest=true
 
@@ -72,6 +72,6 @@ jobs:
           context: .
           build-args: BUILD_BRANCH=${{ env.BUILD_BRANCH }}
           push: ${{ github.event_name != 'pull_request' }}
-          file: ./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-prod5
+          file: ./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-prod6
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
