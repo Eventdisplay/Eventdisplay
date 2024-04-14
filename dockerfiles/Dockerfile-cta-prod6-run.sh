@@ -28,9 +28,9 @@ if [[ -z ${LAYOUTFILE} ]]; then
         LAYOUTFILE="CTA.prod6N.hyperarray.lis"
     fi
 fi
-     
-OUTPUTFILE=$(basename ${DATAFILE} .zst)
-rm -f /tmp/${OUTPUTFILE}*
+
+OUTPUTFILE=$(basename "${DATAFILE}" .zst)
+rm -f /tmp/"${OUTPUTFILE}"*
 
 # calibration file
 if [[ $NSB == *"fullmoon"* ]]; then
@@ -58,12 +58,11 @@ if [[ ! -e ${DATAFILE} ]]; then
 fi
 echo "${IPRFILE}"
 
-###########
-# run analysis
-${EVNDISPSYS}/bin/CTA.convert_hessio_to_VDST -c ${IPRFILE} \
-	-a $OBS_EVNDISP_AUX_DIR/DetectorGeometry/${LAYOUTFILE} \
-	-o /tmp/${OUTPUTFILE}.dst.root \
-	${DATAFILE} > /tmp/${OUTPUTFILE}.convert.log
+# Conversion and analysis
+"${EVNDISPSYS}"/bin/CTA.convert_hessio_to_VDST -c "${IPRFILE}" \
+	-a "$OBS_EVNDISP_AUX_DIR/DetectorGeometry/${LAYOUTFILE}" \
+	-o "/tmp/${OUTPUTFILE}.dst.root" \
+	"${DATAFILE}" > "/tmp/${OUTPUTFILE}.convert.log"
 
 for IMAGE in lin sq2
 do
@@ -74,20 +73,20 @@ do
         EVNDISPOPT="-writeimagepixellist"
         OFILENAME="${OUTPUTFILE}.lin"
     fi
-    $EVNDISPSYS/bin/evndisp -averagetzerofiducialradius=0.5 \
+    "$EVNDISPSYS"/bin/evndisp -averagetzerofiducialradius=0.5 \
             $EVNDISPOPT \
             -reconstructionparameter EVNDISP.prod6.reconstruction.runparameter \
             -sourcefile /tmp/"${OUTPUTFILE}".dst.root \
             -outputfile /tmp/"${OFILENAME}".root > /tmp/"${OFILENAME}".evndisp.log
 
-    if [ -e /tmp/${OFILENAME}.root ]; then
-        if [ -e /tmp/${OUTPUTFILE}.convert.log ]; then
-            $EVNDISPSYS/bin/logFile convLog /tmp/${OFILENAME}.root /tmp/${OUTPUTFILE}.convert.log
+    if [ -e "/tmp/${OFILENAME}.root" ]; then
+        if [ -e "/tmp/${OUTPUTFILE}.convert.log" ]; then
+            "${EVNDISPSYS}"/bin/logFile convLog "/tmp/${OFILENAME}.root" "/tmp/${OUTPUTFILE}.convert.log"
         fi
-        if [ -e /tmp/${OFILENAME}.evndisp.log ]; then
-            $EVNDISPSYS/bin/logFile evndispLog /tmp/${OFILENAME}.root /tmp/${OFILENAME}.evndisp.log
+        if [ -e "/tmp/${OFILENAME}.evndisp.log" ]; then
+            "${EVNDISPSYS}"/bin/logFile evndispLog "/tmp/${OFILENAME}.root" "/tmp/${OFILENAME}.evndisp.log"
         fi
-        mv -f -v /tmp/${OFILENAME}.root /data/
+        mv -f -v "/tmp/${OFILENAME}.root" /data/
     fi
 done
-rm -f /tmp/${OUTPUTFILE}.dst.root
+rm -f "/tmp/${OUTPUTFILE}.dst.root"
