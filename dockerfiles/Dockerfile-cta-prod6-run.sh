@@ -41,8 +41,6 @@ else
     IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-dark-ze${ZE}-IPR.root"
 fi
 
-
-###########
 # file checks
 if [[ ! -e ${IPRFILE} ]]; then
 	echo "Error; IPR file not found: ${IPRFILE}"
