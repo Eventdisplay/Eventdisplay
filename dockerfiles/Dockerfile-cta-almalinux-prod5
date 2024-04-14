@@ -1,0 +1,52 @@
+ARG ROOT_VERSION=6.30.02-alma9
+FROM rootproject/root:${ROOT_VERSION} AS build
+ARG BUILD_BRANCH=main
+
+LABEL maintainer.name="Eventdisplay Team"
+LABEL maintainer.email="gernot.maier@desy.de"
+
+WORKDIR /eventdisplay_workdir/
+ENV EVNDISP /eventdisplay_workdir/
+
+# Install hessioxx
+ADD hessioxxx.tar.gz /eventdisplay_workdir/
+WORKDIR /eventdisplay_workdir/hessioxxx
+RUN make EXTRA_DEFINES="-DCTA_PROD4 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG"
+ENV HESSIOSYS ${EVNDISP}/hessioxxx
+ENV LD_LIBRARY_PATH "${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
+
+# Install Eventdisplay
+WORKDIR /eventdisplay_workdir/
+ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
+ENV SOFASYS ${EVNDISPSYS}/sofa/
+RUN BUILD_BRANCH=$(echo ${BUILD_BRANCH} | sed 's#refs/tags/##') && \
+    git clone -b ${BUILD_BRANCH} https://github.com/Eventdisplay/Eventdisplay.git --depth 1
+WORKDIR /eventdisplay_workdir/Eventdisplay/
+RUN ./install_sofa.sh CI && \
+    make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD5 && \
+    rm -f obj/*.o obj/*.cpp
+
+FROM rootproject/root:${ROOT_VERSION}
+WORKDIR /eventdisplay_workdir/
+COPY --from=build /eventdisplay_workdir/hessioxxx /eventdisplay_workdir/hessioxxx
+COPY --from=build /eventdisplay_workdir/Eventdisplay /eventdisplay_workdir/Eventdisplay
+
+LABEL maintainer.name="Eventdisplay Team"
+LABEL maintainer.email="gernot.maier@desy.de"
+
+ENV EVNDISP /eventdisplay_workdir/
+ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
+ENV HESSIOSYS ${EVNDISP}/hessioxxx
+ENV LD_LIBRARY_PATH "${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
+ENV LD_LIBRARY_PATH "${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
+ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc
+ENV SOFASYS "${EVNDISPSYS}/sofa"
+
+# Install Eventdisplay Analysis files
+RUN git clone --depth 1 https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA.git
+ENV CTA_EVNDISP_AUX_DIR ${EVNDISP}/Eventdisplay_AnalysisFiles_CTA/
+ENV OBS_EVNDISP_AUX_DIR ${EVNDISP}/Eventdisplay_AnalysisFiles_CTA
+ENV OBS_USER_DATA_DIR /tmp/
+
+# Copy run script
+RUN cp ${EVNDISPSYS}/dockerfiles/Dockerfile-cta-prod5-run.sh ${EVNDISP}/run.sh

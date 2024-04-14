@@ -24,14 +24,14 @@ VWPPhysSensitivityPlotsMaker::VWPPhysSensitivityPlotsMaker()
     iOffAxisValue.push_back( 3.75 );
     //    iOffAxisValue.push_back( 4.25 );
     //    iOffAxisValue.push_back( 4.75 );
-    
+
     cout << "VWPPhysSensitivityPlotsMaker: hardwired offsets from camera center: ";
     for( unsigned int i = 0; i < iOffAxisValue.size(); i++ )
     {
         cout << iOffAxisValue[i] << ", ";
     }
     cout << " [deg]" << endl;
-    
+
     setOffAxisAngle( iOffAxisValue );
     setEnergyRange_Lin_TeV();
     setObservingTime();
@@ -46,7 +46,7 @@ VWPPhysSensitivityPlotsMaker::VWPPhysSensitivityPlotsMaker()
     setPlotRequirementsSystematics();
     setMaximumAllowedEnergyBias();
     setPlotAllInOneCanvasStyle();
-    
+
     fPlotAllInOneCanvas = 0;
     fPlotProjectedSensitivity = 0;
     fSensitivityPad = 0;
@@ -57,11 +57,11 @@ VWPPhysSensitivityPlotsMaker::VWPPhysSensitivityPlotsMaker()
     fERes = 0;
     fAngRes = 0;
     fPlotCurrentInstrumentVectorLabel = false;
-    
+
     setPlotIRFLegend();
     setPlotNoLegend();
     setTransparentLegend();
-    
+
 }
 
 /*
@@ -86,7 +86,7 @@ void VWPPhysSensitivityPlotsMaker::plotAllInOneCanvas( bool iCanvasBatch )
     {
         fPlotAllInOneCanvas->SetBatch();
     }
-    
+
     // Canvas for eff ratio, background ratio, angular resolution ratio
     if( fPlotAllInOneCanvasStyle == "AllRatios" )
     {
@@ -115,8 +115,8 @@ void VWPPhysSensitivityPlotsMaker::plotAllInOneCanvas( bool iCanvasBatch )
         fAngResRatio = 0;
         fERes = new TPad( "cERes", "energy resolution", 0.40, 0.01, 0.68, 0.34 );
     }
-    
-    
+
+
     if( fSensitivityTitlePad )
     {
         fSensitivityTitlePad->SetLeftMargin( 0.15 );
@@ -207,10 +207,10 @@ void VWPPhysSensitivityPlotsMaker::plotRatioPlot( TPad* corg,
         return;
     }
     cplot->cd();
-    
+
     unsigned int z = 0;
     TGraphAsymmErrors* iNullGraph = 0;
-    
+
     TIter next( corg->GetListOfPrimitives() );
     while( TObject* obj = next() )
     {
@@ -319,7 +319,7 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
                               fRequirementsScalingFactor,
                               fRequirementsLineWidth,
                               fRequirementsSystematics );
-    // (outdated, orginal requirements plotting)
+    // (outdated, original requirements plotting)
     a.setEnergyRange_Lin_TeV( fMinEnergy_TeV, fMaxEnergy_TeV );
     if( !a.addDataSets( iDataSetFile, iDirectionString ) )
     {
@@ -354,11 +354,11 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
     {
         plotRatioPlot( fEffAreaPad, fEffAreaRatioPad, fEffAreaRatio_min, fEffAreaRatio_max );
     }
-    
+
     if( iTitleText.size() > 0 && fSensitivityTitlePad )
     {
         fSensitivityTitlePad->cd();
-        
+
         TText* iTTitleText = new TText( 0.01, 0.2, iTitleText.c_str() );
         //            iTTitleText->SetTextAngle( 90 );
         iTTitleText->SetTextSize( 0.8 );
@@ -367,7 +367,7 @@ void VWPPhysSensitivityPlotsMaker::compareDataSets( string iDataSetFile,
         iTTitleText->SetTextFont( 42 );
         iTTitleText->Draw();
     }
-    
+
 }
 
 void VWPPhysSensitivityPlotsMaker::printPlotCTARequirementsIDs()
@@ -409,7 +409,7 @@ void VWPPhysSensitivityPlotsMaker::compareOffAxisSensitivities( string iSubArray
         fListofDataSets = iDataSet;
     }
     cout << "Compare " << fListOfArrays.size() << " array(s) in " << fListofDataSets.size() << " data set(s)" << endl;
-    
+
     //TCanvas* c = 0;
     for( unsigned int j = 0; j < fListofDataSets.size(); j++ )
     {
@@ -430,7 +430,7 @@ void VWPPhysSensitivityPlotsMaker::compareOffAxisSensitivities( string iSubArray
             }
             a.plotIRF( iP );
             a.plotSensitivity( iP, fSensitivity_min, fSensitivity_max, fSensitivity_Unit );
-            
+
             // c = a.plotProjectedSensitivities( c, fOffAxisAngle.back(), j + 1 );
         }
     }
@@ -491,25 +491,25 @@ bool VWPPhysSensitivityPlotsMaker::writeTexFileBody( string iTexFile, string iTe
         cout << "VWPPhysSensitivityPlotsMaker::writeTexFileBody: failed writing to " << iTexFile << endl;
         return false;
     }
-    
+
     // intro
     os << "\\documentclass[11pt]{scrartcl}" << endl;
     os << "\\usepackage[a4paper,landscape,scale=0.9]{geometry}" << endl;
     os << "\\usepackage{graphicx}" << endl;
     os << "\\usepackage{epstopdf}" << endl;
     os << "\\usepackage[pdftex,colorlinks=true,bookmarks=false,bookmarksopen=false]{hyperref}" << endl;
-    
+
     os << "\\title{CTA sensitivities with EVNDISP \\\\ ";
     os << iTexFileTitle << "}" << endl;
     os << "\\author{Gernot Maier \\\\ DESY}" << endl;
     os << "\\date{\\today}" << endl;
-    
+
     os << "\\begin{document}" << endl;
     os << "\\maketitle" << endl;
     os << "\\tableofcontents" << endl;
-    
+
     os << "\\newpage" << endl;
-    
+
     // images
     if( fListOfArrays.size() > 0 )
     {
@@ -545,9 +545,9 @@ bool VWPPhysSensitivityPlotsMaker::writeTexFileBody( string iTexFile, string iTe
     // tex file closing
     os << endl;
     os << "\\end{document}" << endl;
-    
+
     os.close();
-    
+
     return true;
 }
 

@@ -1,0 +1,83 @@
+# https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
+name: CTA-AlmaLinux Docker Image
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches: ["main"]
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+
+  build-cta-almalinux-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        type: ['prod6', 'prod5', 'slib']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: 'Eventdisplay'
+
+      - name: Set build arguments (correct branch)
+        run: |
+          if [[ "${{ github.event_name }}" == 'pull_request' ]]; then
+            echo "BUILD_BRANCH=${GITHUB_HEAD_REF}" >> "$GITHUB_ENV"
+          else
+            echo "BUILD_BRANCH=${GITHUB_REF#refs/heads/}" >> "$GITHUB_ENV"
+          fi
+          echo "BUILD BRANCH ${{ env.BUILD_BRANCH }}"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          tags: |
+            type=ref,event=pr,suffix=-cta-almalinux-${{ matrix.type }}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-almalinux-${{ matrix.type }}
+            type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-almalinux-${{ matrix.type }}
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-almalinux-${{ matrix.type }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}--${{ matrix.type }}
+          flavor: latest=true
+
+      - name: hessioxx
+        if: matrix.type != 'slib'
+        run: |
+          wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_HESSIOXX_20230731 }}/download
+          mv download hessioxxx.tar.gz
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: BUILD_BRANCH=${{ env.BUILD_BRANCH }}
+          push: ${{ github.event_name != 'pull_request' }}
+          file: ./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-${{ matrix.type }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}-${{ matrix.type }}
