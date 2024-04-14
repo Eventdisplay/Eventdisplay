@@ -8,11 +8,11 @@
 #include <valarray>
 #include <vector>
 
-#include <VDetectorGeometry.h>
-#include <VEvndispData.h>
-#include <VHoughTransform.h>
-#include <VImageParameter.h>
-#include <VImageParameterFitter.h>
+#include "VDetectorGeometry.h"
+#include "VEvndispData.h"
+#include "VHoughTransform.h"
+#include "VImageParameter.h"
+#include "VImageParameterFitter.h"
 
 #include "TError.h"
 #include "TMath.h"
@@ -33,26 +33,26 @@ using namespace std;
 class VImageParameterCalculation
 {
     private:
-    
+
         bool fDebug;
-        
+
         VDetectorGeometry* fDetectorGeometry;     //< the detector geometry
         VImageParameter* fParGeo;                 //!< image parameters (geo.)
         bool fboolCalcGeo;                        //!< switch to show if there was a geometrical analysis
         bool fboolCalcTiming;                     //!< switch to show if there was a timing analysis
-        VImageParameter* fParLL;                  //!< image parameters (log lik.)
+        VImageParameter* fParLL;                  //!< image parameters (log likelihood)
         VImageParameterFitter* fImageFitter;
-        
+
         VEvndispData* fData;
-        
+
         double getFractionOfImageBorderPixelUnderImage( double, double, double, double, double, double );
         void   setImageBorderPixelPosition( VImageParameter* iPar );
-        
+
         // Hough transform
         VHoughTransform* fHoughTransform;
-        
+
     public:
-    
+
         VImageParameterCalculation( unsigned int iShortTree = 0, VEvndispData* iData = 0 );
         ~VImageParameterCalculation();
         vector<bool> calcLL( bool iUseSums2 = false,
@@ -61,14 +61,14 @@ class VImageParameterCalculation
         void muonRingFinder();                     //!< fit a single ring to the image to look for muons
         void sizeInMuonRing();                     //! calculate the brightness of the muon ring
         void muonPixelDistribution();              //!< determine the distribution of pixels in the image
-        
+
         //Impact parameter correction factor for size
         float correctSizeInMuonRing();
-        
+
         //Hough transform
         void houghInitialization();
         void houghMuonPixelDistribution();          //!< determine the distribution of pixels in the image
-        
+
         void calcTriggerParameters( vector<bool> fTrigger );                                   //!< calculate trigger-level image parameters
         void calcParameters();                                                                 //!< calculate image parameters (geo.)
         void calcTimingParameters( bool iIsSecondPass );

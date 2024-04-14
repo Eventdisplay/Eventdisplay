@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include <VGlobalRunParameter.h>
+#include "VGlobalRunParameter.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // MAXIMUM NUMBERS OF TELESCOPES AND CHANNELS ARE DEFINED IN inc/VGlobalRunParameter.h
@@ -37,23 +37,23 @@ struct VDSTTelescopeConfiguration
 class VDSTTree
 {
     public:
-    
+
         TTree* fDST_tree;
         TTree* fDST_conf;
         TTree* fMCtree;
         // [telID] = FOV
         map< unsigned int, VDSTTelescopeConfiguration > fDST_list_of_telescopes;
         vector< unsigned int > fDST_vlist_of_telescopes;
-        
+
         bool fMC;
         bool fFullTree;
         bool fDST_ADC_set;
-        
+
         // temporary telescope counter
         int fTelescopeCounter_temp;
-        
+
         unsigned int fDSTnchannel[VDST_MAXTELESCOPES];
-        
+
         unsigned int fDSTrunnumber;
         unsigned int fDSTeventnumber;
         unsigned int fDSTeventtype;
@@ -76,13 +76,13 @@ class VDSTTree
         float        fDSTpointAzimuth[VDST_MAXTELESCOPES];
         float        fDSTpointElevation[VDST_MAXTELESCOPES];
         int          fDSTpointTrackingKnown[VDST_MAXTELESCOPES];
-        
+
         unsigned short int fDSTChan[VDST_MAXTELESCOPES][VDST_MAXCHANNELS];
-        
+
         // data recording parameters
         unsigned short int fDSTRecord[VDST_MAXTELESCOPES][VDST_MAXCHANNELS];
         unsigned short int fDSTTelescopeZeroSupression[VDST_MAXTELESCOPES];
-        
+
         // adc parameters
         float        fDSTpedestal[VDST_MAXTELESCOPES][VDST_MAXCHANNELS];
         float        fDSTsums[VDST_MAXTELESCOPES][VDST_MAXCHANNELS];                // integrated charge
@@ -117,7 +117,7 @@ class VDSTTree
         unsigned short int fDSTPe[VDST_MAXTELESCOPES][VDST_MAXCHANNELS]; // sum of Che pe in each pixel
         // peak ADC values
         bool  fFillPeakADC;
-        
+
         // mean pulse timing
         float fDSTMeanPulseTiming[VDST_MAXTELESCOPES][VDST_MAXCHANNELS];
         float fDSTMeanPulseTiming_N[VDST_MAXTELESCOPES][VDST_MAXCHANNELS];
@@ -134,7 +134,7 @@ class VDSTTree
         float fDSTze;
         float fDSTTel_xoff;
         float fDSTTel_yoff;
-        
+
         //////////////////////////////////////////////////////////////////////////////////////
         VDSTTree();
         ~VDSTTree() {}
@@ -186,7 +186,7 @@ class VDSTTree
         {
             fMC = iMC;
         }
-        
+
         // getters for all variables
         uint32_t     getDSTRunNumber()
         {
@@ -277,7 +277,7 @@ class VDSTTree
         float        getDSTLocalTriggerTime( int iTelID );
         float        getDSTLocalDelayedTriggerTime( int iTelID );
         unsigned short int getDSTL2TriggerType( int iTelID );
-        
+
         double       getDSTPedestal( int iChannelID, bool iPrint = false );
         double       getDSTSums( int iChannelID );
         unsigned short int       getDSTPe( int iChannelID );
@@ -314,11 +314,11 @@ class VDSTTree
         }
         unsigned int getTrigL1( int iChannelID );
         unsigned int getTrigL1( int iTelID, int iChannelID );
-        
+
         unsigned short int getDSTNumSample( unsigned int iTelID );
         unsigned short int getDSTTrace( unsigned int iChannelID, unsigned short int iSample );
         unsigned short int getDSTTrace( unsigned int iTelID, unsigned int iChannelID, unsigned short int iSample );
-        
+
         unsigned short int getDSTMCPrimary()
         {
             return  fDSTprimary;
@@ -358,7 +358,7 @@ class VDSTTree
             return fDSTTel_yoff;
         }
         int          getDSTTelescopeNumber( unsigned int iTelHyperArray_ID );
-        
+
         void         fillDSTMeanPulseTiming( unsigned int iTelID, unsigned int iChannelID, double iTime, int iNSamples = 0 );
         double       getDSTMeanPulseTimingPerTelescope( unsigned int iTelID );
         double       getDSTMedianPulseTimingPerTelescope( unsigned int iTelID );
@@ -369,10 +369,10 @@ class VDSTTree
         {
             return fDSTMeanPulseTimingMinLightLevel;
         }
-        
+
         int          hasLocalTrigger( int iTelID );
         int          hasData( int iTelID );
-        
+
         int         setTelCounter( int iTelID );
 };
 #endif

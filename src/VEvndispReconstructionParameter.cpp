@@ -12,9 +12,6 @@
 
 #include "VEvndispReconstructionParameter.h"
 
-ClassImp( VEvndispReconstructionParameter )
-ClassImp( VEvndispReconstructionParameterData )
-ClassImp( VEvndispReconstructionCut )
 
 VEvndispReconstructionParameter::VEvndispReconstructionParameter()
 {
@@ -27,11 +24,11 @@ VEvndispReconstructionParameter::VEvndispReconstructionParameter()
 VEvndispReconstructionParameter::VEvndispReconstructionParameter( vector< ULong64_t > i_telType, VEvndispRunParameter* iRunPara )
 {
     reset();
-    
+
     fRunPara = iRunPara;
-    
+
     fTel_type_perTelescope = i_telType;
-    
+
     // get set with telescope types
     for( unsigned int i = 0; i < i_telType.size(); i++ )
     {
@@ -43,7 +40,7 @@ VEvndispReconstructionParameter::VEvndispReconstructionParameter( vector< ULong6
     {
         fTel_typeUniqueVector.push_back( *fTel_type_iter );
     }
-    
+
 }
 
 void VEvndispReconstructionParameter::reset()
@@ -84,15 +81,15 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     if( fDebug )
     {
         cout << "APPLY ARRAY ANALYSIS CUTS FOR METHOD " << iMeth << " AND TELESCOPE " << iTel + 1 << ", TYPE " << iTelType << endl;
     }
-    
+
     // return value
     bool iArrayCut = true;
-    
+
     // eventstatus
     if( iImageParameter->eventStatus > 0 )
     {
@@ -102,7 +99,7 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
             cout << "VEvndispReconstructionParameter::applyArrayAnalysisCut: event status > 0: " << iImageParameter->eventStatus << endl;
         }
     }
-    
+
     ////////////////////////////////////////////
     // L2 trigger type (mainly for CTA prod2)
     if( !fReconstructionParameterData[iMeth]->testL2TriggerType( iTel, iTelType, iLocalTriggerType ) )
@@ -111,10 +108,10 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
     }
     ////////////////////////////////////////////
     // general reconstruction quality cuts
-    
+
     // user set: remove image
     iArrayCut = iArrayCut && fReconstructionParameterData[iMeth]->testUserImage( iTelType );
-    
+
     // image size
     iArrayCut = iArrayCut
                 && fReconstructionParameterData[iMeth]->test( iTelType, "SIZE", iImageParameter->size, iImageParameter->ntubes );
@@ -151,9 +148,9 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
         iArrayCut = iArrayCut
                     && fReconstructionParameterData[iMeth]->test( iTelType, "MCENERGY_LINTEV", iImageParameter->MCenergy, iImageParameter->ntubes );
     }
-    
+
     ////////////////////////////////////////////
-    // cut on successfull LL reconstruction on the edge of the FOV
+    // cut on successful LL reconstruction on the edge of the FOV
     if( fRunPara )
     {
         if( iTel < fRunPara->fLogLikelihoodLoss_min.size() && iTel < fRunPara->fLogLikelihoodLoss_max.size() )
@@ -189,8 +186,8 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
             }
         }
     }
-    
-    
+
+
     ////////////////////////////////////////////
     // remove image which is too close to a bright star
     // (use list of image and border pixels)
@@ -220,12 +217,12 @@ bool VEvndispReconstructionParameter::applyArrayAnalysisCuts( unsigned int iMeth
             }
         }
     }
-    
+
     if( fDebug )
     {
         cout << "VEvndispReconstructionParameter::applyArrayAnalysisCut: cut: " << iArrayCut << endl;
     }
-    
+
     return iArrayCut;
 }
 
@@ -240,7 +237,7 @@ void VEvndispReconstructionParameter::addNewMethod( unsigned int iMethodID )
     fReconstructionParameterData.push_back( new VEvndispReconstructionParameterData( fNTel_type, fTel_type ) );
     fReconstructionParameterData.back()->setDebug( fDebug );
     fReconstructionParameterData.back()->setMethodID( iMethodID );
-    
+
 }
 
 
@@ -248,7 +245,7 @@ void VEvndispReconstructionParameter::print_arrayAnalysisCuts()
 {
     //////////////////////////////////////////////////////////////////////
     // print FADC integration parameters
-    
+
     for( unsigned int i = 0; i < fRunPara->fTelToAnalyze.size(); i++ )
     {
         if( fRunPara->fTelToAnalyze[i] < fRunPara->fDoublePass.size() && fRunPara->fDoublePass[fRunPara->fTelToAnalyze[i]] )
@@ -266,7 +263,7 @@ void VEvndispReconstructionParameter::print_arrayAnalysisCuts()
             cout << " (low gain window shift: " << fRunPara->fTraceWindowShift[fRunPara->fTelToAnalyze[i]] << ")" << endl;
         }
     }
-    
+
     //////////////////////////////////////////////////////////////////////
     // print array analysis cuts
     cout << endl;
@@ -359,7 +356,7 @@ void VEvndispReconstructionParameter::print_arrayAnalysisCuts()
             }
         }
     }
-    
+
     if( fRunPara && fRunPara->fStarCatalogueName.size() > 0 )
     {
         cout << endl;
@@ -498,7 +495,7 @@ bool VEvndispReconstructionParameter::readKeyWord_FADCDOUBLEPASS( vector< string
             }
         }
     }
-    
+
     return true;
 }
 
@@ -538,7 +535,7 @@ bool VEvndispReconstructionParameter::readKeyWord_FADCSUMMATIONWINDOW( vector< s
             }
         }
     }
-    
+
     return true;
 }
 
@@ -642,7 +639,7 @@ bool VEvndispReconstructionParameter::readKeyWord_CLEANING( vector< string > iTe
     {
         return false;
     }
-    // image cleaning for double pass, pass1 (expext _DP in key word)
+    // image cleaning for double pass, pass1 (expect _DP in key word)
     if( iTemp[0].find( "_DP" ) != string::npos )
     {
         return fillImageCleaningParameter( iTemp, t_temp, fRunPara->fImageCleaningParameters_DB_Pass1 );
@@ -817,11 +814,11 @@ bool VEvndispReconstructionParameter::readKeyWord_CreateIPRdatabase( vector< str
     {
         fRunPara->ifCreateIPRdatabase = false ;
     }
-    
+
     cout << std::boolalpha << "\n------------------------------" << endl;
     cout << "NN cleaning general settings:" << endl;
     cout << "\nCreateIPRdatabase set to " << fRunPara->ifCreateIPRdatabase << endl;
-    
+
     return true;
 }
 /*  IPRdatabaseFile
@@ -836,7 +833,7 @@ bool VEvndispReconstructionParameter::readKeyWord_IPRdatabaseFile( vector< strin
     {
         return false;
     }
-    
+
     if( iTemp[1].size() > 0 )
     {
         fRunPara->fIPRdatabaseFile = iTemp[1];
@@ -856,14 +853,14 @@ bool VEvndispReconstructionParameter::readKeyWord_IPRdatabaseFile( vector< strin
         cout << "...exiting" << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     // (not entirely correct, as it depends on the sequences of
-    // occurence of the parameters in the parameter file)
+    // occurrence of the parameters in the parameter file)
     if( fRunPara->ifCreateIPRdatabase )
     {
         cout << "IPRdatabaseFile set to " << fRunPara->fIPRdatabaseFile << endl;
     }
-    
+
     return true;
 }
 /* ReadIPRfromDST
@@ -887,9 +884,9 @@ bool VEvndispReconstructionParameter::readKeyWord_ReadIPRfromDST( vector< string
     {
         fRunPara->ifReadIPRfromDSTFile = false ;
     }
-    
+
     cout << "ReadIPRfromDST set to " << fRunPara->ifReadIPRfromDSTFile << endl;
-    
+
     return true;
 }
 /* ReadIPRfromDatabase
@@ -913,9 +910,9 @@ bool VEvndispReconstructionParameter::readKeyWord_ReadIPRfromDatabase( vector< s
     {
         fRunPara->ifReadIPRfromDatabase = false ;
     }
-    
+
     cout << "ReadIPRfromDatabase set to " << fRunPara->ifReadIPRfromDatabase << endl;
-    
+
     return true;
 }
 /* IPRdatabase
@@ -930,7 +927,7 @@ bool VEvndispReconstructionParameter::readKeyWord_IPRdatabase( vector< string > 
     {
         return false;
     }
-    
+
     if( iTemp[1].size() > 0 )
     {
         fRunPara->fIPRdatabase = iTemp[1];
@@ -950,9 +947,9 @@ bool VEvndispReconstructionParameter::readKeyWord_IPRdatabase( vector< string > 
         cout << "...exiting" << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     cout << "IPRdatabase set to " << fRunPara->fIPRdatabase << endl;
-    
+
     return true;
 }
 /* WriteGraphsToFile
@@ -975,9 +972,9 @@ bool VEvndispReconstructionParameter::readKeyWord_WriteGraphsToFile( vector< str
     {
         fRunPara->ifWriteGraphsToFile = false ;
     }
-    
+
     cout << "WriteGraphsToFile set to " << fRunPara->ifWriteGraphsToFile << endl;
-    
+
     return true;
 }
 /*  GraphsFile
@@ -992,7 +989,7 @@ bool VEvndispReconstructionParameter::readKeyWord_GraphsFile( vector< string > i
     {
         return false;
     }
-    
+
     if( iTemp[1].size() > 0 )
     {
         fRunPara->fNNGraphsFile = iTemp[1];
@@ -1012,10 +1009,10 @@ bool VEvndispReconstructionParameter::readKeyWord_GraphsFile( vector< string > i
         cout << "...exiting" << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     cout << "GraphsFile set to " << fRunPara->fNNGraphsFile << endl;
     cout << std::noboolalpha << "------------------------------\n" << endl;
-    
+
     return true;
 }
 
@@ -1077,7 +1074,7 @@ bool VEvndispReconstructionParameter::readKeyWord_RECMETHOD( vector< string > iT
         {
             fReconstructionParameterData.back()->fDISP_MAXMethodID.push_back( 4 );
         }
-        
+
     }
     else if( iTemp[0] == "USEIMAGE" )
     {
@@ -1178,7 +1175,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
     {
         return 0;
     }
-    
+
     ifstream is;
     is.open( ifile.c_str(), ifstream::in );
     if( !is )
@@ -1195,7 +1192,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
     int t_temp = 0;
     vector< int > v_temp;
     int m_temp = -1;
-    
+
     ////////////////////////////////////////////////////////////
     // loop over all files in the reconstruction parameter file
     //
@@ -1228,7 +1225,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
                 {
                     t_type = fTel_typeUniqueVector[t_temp];
                 }
-                
+
             }
             else if( atoi( iTemp[0].c_str() ) < -1000 )
             {
@@ -1248,7 +1245,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
             {
                 continue;
             }
-            
+
             ///////////////////////////////////
             // read variable identifieres
             for( unsigned int i = 0; i < iTemp.size(); i++ )
@@ -1360,7 +1357,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
                 readKeyWord_FORCELL( iTemp );
                 continue;
             }
-            
+
             /////////////////////////////////////////////////
             // check for exit statement
             if( iTemp[0] == "EXIT" )
@@ -1408,7 +1405,7 @@ unsigned int VEvndispReconstructionParameter::read_arrayAnalysisCuts( string ifi
                 readKeyWord_RECMETHOD( iTemp, t_temp, t_type );
                 continue;
             }
-            
+
             else
             {
                 cout << "\t VEvndispReconstructionParameter::read_arrayAnalysisCuts warning: unknown identifier: " << iTemp[0] << endl;
@@ -1446,7 +1443,7 @@ int VEvndispReconstructionParameter::getTelescopeType_counter_from_MirrorArea( U
     {
         v = *fTel_type_iter;
         v /= 100000;
-        
+
         if( v > 2000 )
         {
             v -= 2000;
@@ -1476,14 +1473,14 @@ int VEvndispReconstructionParameter::getTelescopeType_counter_from_MirrorArea_an
     for( fTel_type_iter = fTel_type.begin(); fTel_type_iter != fTel_type.end(); fTel_type_iter++ )
     {
         v = *fTel_type_iter;
-        
+
         ULong64_t v1 = v / 100000;
         if( v1 > 1000 )
         {
             v1 -= 1000;
         }
         v2 = v1 * 100 + ( v % 100 );
-        
+
         if( v2 == t )
         {
             return z;
@@ -1523,7 +1520,7 @@ vector< int > VEvndispReconstructionParameter::getTelescopeType_counter_from_Mir
     {
         v = *fTel_type_iter;
         v /= 100000;
-        
+
         if( v > 2000 )
         {
             v -= 2000;
@@ -1554,14 +1551,14 @@ vector< int > VEvndispReconstructionParameter::getTelescopeType_counter_from_Mir
     for( fTel_type_iter = fTel_type.begin(); fTel_type_iter != fTel_type.end(); ++fTel_type_iter )
     {
         v = *fTel_type_iter;
-        
+
         ULong64_t v1 = v / 100000;
         if( v1 > 1000 )
         {
             v1 -= 1000;
         }
         v2 = v1 * 100 + ( v % 100 );
-        
+
         if( v2 == t )
         {
             x.push_back( z );
@@ -1920,7 +1917,7 @@ bool VEvndispReconstructionParameter::fillImageCleaningParameter( vector< string
         }
         return true;
     }
-    
+
     return true;
 }
 
@@ -1933,18 +1930,18 @@ VEvndispReconstructionParameterData::VEvndispReconstructionParameterData( unsign
 {
     fDebug          = false;
     fNTel_type      = iNTel_type;
-    
+
     for( set<ULong64_t>::iterator it = fTel_type.begin(); it != fTel_type.end(); ++it )
     {
         fTelescopeType.push_back( *it );
     }
-    
+
     fMethodID       = 0;
-    
+
     fNImages_min    = 0.;
     fNImages_max    = VDST_MAXTELESCOPES;
     fAxesAngles_min = 0.;
-    
+
     // cut parameters: set default parameters
     for( unsigned int i = 0; i < fNTel_type; i++ )
     {
@@ -1969,15 +1966,15 @@ VEvndispReconstructionParameterData::VEvndispReconstructionParameterData( unsign
         iTempM_C[ "FUI" ]->setCutValues( false );
         iTempM_C.insert( make_pair( "MCENERGY_LINTEV", new VEvndispReconstructionCut() ) );
         iTempM_C[ "MCENERGY_LINTEV" ]->setCutValues( false );
-        
+
         fTelescopeTypeCut.push_back( iTempM_C );
-        
+
         fLocalUseImage.push_back( true );
         fL2TriggerType.push_back( 9999 );
     }
-    
+
     fUseEventdisplayPointing = false;
-    
+
     // MLP parameters for array reconstruction
     fDISP_MLPFileName = "";
 }
@@ -1996,7 +1993,7 @@ bool VEvndispReconstructionParameterData::testUserImage( unsigned int iTelType )
     {
         cout << "VEvndispReconstructionParameterData::testUserImage: image removed by user selection" << endl;
     }
-    
+
     return false;
 }
 
@@ -2040,7 +2037,7 @@ bool VEvndispReconstructionParameterData::test( unsigned int iTelType, string iV
             exit( EXIT_FAILURE );
         }
     }
-    
+
     return false;
 }
 
@@ -2082,7 +2079,7 @@ bool VEvndispReconstructionParameterData::test( unsigned int iTelType, string iV
             exit( EXIT_FAILURE );
         }
     }
-    
+
     return false;
 }
 
@@ -2179,10 +2176,10 @@ VEvndispReconstructionParameterData* VEvndispReconstructionParameter::getReconst
 VEvndispReconstructionCut::VEvndispReconstructionCut()
 {
     fCutSet = false;
-    
+
     fCut_ntubes_min = -99999;
     fCut_ntubes_max =  99999;
-    
+
     fCut_double_min = -9999.;
     fCut_double_max = -9999.;
     fCut_int_min    = -9999;
@@ -2195,7 +2192,7 @@ void  VEvndispReconstructionCut::print( unsigned int telType, string iCutName )
     {
         return;
     }
-    
+
     if( fCut_double_min > -9998. && fCut_double_max > -9998. )
     {
         cout << "\t\t TelType " << telType;
@@ -2298,7 +2295,7 @@ bool  VEvndispReconstructionCut::test( int iValue, int ntubes )
     {
         return true;
     }
-    
+
     if( !testNtubes( ntubes ) )
     {
         return true;
@@ -2324,7 +2321,7 @@ bool  VEvndispReconstructionCut::test( double iValue, int ntubes )
     {
         return true;
     }
-    
+
     if( !testNtubes( ntubes ) )
     {
         return true;

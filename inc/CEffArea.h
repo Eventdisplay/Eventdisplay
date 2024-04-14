@@ -21,7 +21,7 @@ class CEffArea : public TObject
     public :
         TTree*          fChain;                   //!pointer to the analyzed TTree or TChain
         Int_t           fCurrent;                 //!current Tree number in a TChain
-        
+
         // Declaration of leaf types
         Float_t        ze;
         Int_t           az;
@@ -78,7 +78,7 @@ class CEffArea : public TObject
         TH1D*            hhEcutEnergyReconstruction;
         TH1D*            hWeightedRate;
         TH1D*            hWeightedRate005;
-        
+
         // List of branches
         TBranch*        b_ze;                     //!
         TBranch*        b_az;                     //!
@@ -136,7 +136,7 @@ class CEffArea : public TObject
         TBranch*        b_hhEcutEnergyReconstruction;   //!
         TBranch*        b_hWeightedRate; //!
         TBranch*        b_hWeightedRate005; //!
-        
+
         CEffArea( TTree* tree = 0 );
         virtual ~CEffArea();
         virtual Int_t    Cut( Long64_t entry );
@@ -152,8 +152,6 @@ class CEffArea : public TObject
 
 #ifdef CEffArea_cxx
 
-ClassImp( CEffArea )
-
 CEffArea::CEffArea( TTree* tree )
 {
     // if parameter tree is not specified (or zero), connect the file
@@ -166,7 +164,7 @@ CEffArea::CEffArea( TTree* tree )
             f = new TFile( "effectiveArea.root" );
         }
         tree = ( TTree* )gDirectory->Get( "fEffArea" );
-        
+
     }
     Init( tree );
 }
@@ -228,7 +226,7 @@ void CEffArea::Init( TTree* tree )
     // code, but the routine can be extended by the user if needed.
     // Init() will be called many times when running on PROOF
     // (once per file to be processed).
-    
+
     // Set object pointer
     hEmc = 0;
     hEcut = 0;
@@ -271,7 +269,7 @@ void CEffArea::Init( TTree* tree )
     fChain = tree;
     fCurrent = -1;
     //	fChain->SetMakeClass( 1 );
-    
+
     fChain->SetBranchAddress( "ze", &ze, &b_ze );
     fChain->SetBranchAddress( "az", &az, &b_az );
     if( fChain->GetBranchStatus( "azMin" ) )
@@ -334,9 +332,9 @@ void CEffArea::Init( TTree* tree )
             Rec_eff_error[i] = 0;
         }
     }
-    
+
     fChain->SetBranchAddress( "Rec_eff", Rec_eff, &b_Rec_eff );
-    
+
     if( fChain->GetBranchStatus( "Rec_angRes_p68" ) )
     {
         fChain->SetBranchAddress( "Rec_angRes_p68", Rec_angRes_p68, &b_Rec_angRes_p68 ) ;
@@ -391,7 +389,7 @@ void CEffArea::Init( TTree* tree )
             hEcutRecUW = 0;
         }
         fChain->SetBranchAddress( "gEffAreaMC", &gEffAreaMC, &b_gEffAreaMC );
-        
+
         fChain->SetBranchAddress( "hEmcSWeight", &hEmcSWeight, &b_hEmcSWeight );
         fChain->SetBranchAddress( "hEsys2D", &hEsys2D, &b_hEsys2D );
         fChain->SetBranchAddress( "hResponseMatrix", &hResponseMatrix, &b_hResponseMatrix );
@@ -407,7 +405,7 @@ void CEffArea::Init( TTree* tree )
         {
             hResponseMatrixFine = 0;
         }
-        
+
         if( fChain->GetBranchStatus( "hResponseMatrixQC" ) )
         {
             fChain->SetBranchAddress( "hResponseMatrixQC", &hResponseMatrixQC, &b_hResponseMatrixQC );
@@ -579,7 +577,7 @@ void CEffArea::Init( TTree* tree )
     {
         hWeightedRate005 = 0;
     }
-    
+
     Notify();
 }
 
@@ -591,7 +589,7 @@ Bool_t CEffArea::Notify()
     // is started when using PROOF. It is normally not necessary to make changes
     // to the generated code, but the routine can be extended by the
     // user if needed. The return value is currently not used.
-    
+
     return kTRUE;
 }
 

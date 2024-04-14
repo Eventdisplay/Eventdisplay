@@ -17,10 +17,10 @@
 #include "TSystem.h"
 #include "TTree.h"
 
-#include <VDetectorGeometry.h>
+#include "VDetectorGeometry.h"
 #include "VMonteCarloRunHeader.h"
-#include <VSkyCoordinatesUtilities.h>
-#include <VVirtualDataReader.h>
+#include "VSkyCoordinatesUtilities.h"
+#include "VVirtualDataReader.h"
 
 using namespace std;
 
@@ -31,15 +31,15 @@ class VGrIsuReader : public VVirtualDataReader
         bool fPedestalMode;                       //!< if true, create pedestal events, otherwise read shower events from file
         unsigned int  fNPedestalEvents;           //!< total number of pedestal events to be generated
         VDetectorGeometry* fDetectorGeo;          //!< telescope and camera geometry
-        
+
         bool fMultiGrIsuReader;
         bool fIgnoreCFGVersions;
-        
+
         double degrad;
-        
+
         streampos sp;                             //!< current position in data file
         string fDataFormat;
-        
+
         string fSourceFileName;
         bool fBZipped;                            //!< source file is zipped
         bool fBZipped2;                           //!< source file is zipped
@@ -49,12 +49,12 @@ class VGrIsuReader : public VVirtualDataReader
         uint32_t fEventNumberPreviousEvent;
         uint32_t fEventNumber;
         vector< int > fSumWindow;
-        
+
         string fExternalPedFile;
         ifstream is_ped;
-        
+
         unsigned int fNTel;
-        
+
         unsigned int fTelescopeID;                //!< telescope ID
         vector< uint32_t > fMaxChannels;          //!< number of channels (telescope vector)
         vector< uint16_t > fNumSamples;
@@ -63,7 +63,7 @@ class VGrIsuReader : public VVirtualDataReader
         int fTelNumberOffset;                     //!< offset in telescope numbering (from different grisu versions)
         int fSampleOffset;                        //!< offset in FADC sample reading
         double fFADCScale;
-        
+
         uint8_t  fEventType;                      //!< event type (ignore/observing/pedestal/laser=0/1/2/3)
         vector< std::valarray< double > > fPeds;  //!< pedestal vector  (case of trace library: tube numbering of real data file)
         //!< pedestal variance (case of trace library: tube numbering of real data file)
@@ -79,10 +79,10 @@ class VGrIsuReader : public VVirtualDataReader
         vector< vector< vector< uint8_t > > > fGrIsuPeds;
         //!< size of fGrIsuPeds
         vector< vector< unsigned int > > fGrIsuPedsN;
-        
+
         unsigned int fNoiseTraceStart;
         bool bNoiseTraceFilled;
-        
+
         // trigger values (vectors [NTelescope])
         int fArrayTrigger;
         vector< bool > fLocalTrigger;             //! bit coded integer, 1 for local trigger
@@ -90,9 +90,9 @@ class VGrIsuReader : public VVirtualDataReader
         vector< float > fLocalDelayedTriggerTime;
         double fXimpactrot;                       //!< impact point in shower coordinates
         double fYimpactrot;                       //!< impact point in shower coordinates
-        
+
         TRandom3* fRandomGen;                     //!< random generator for pedestal generation
-        
+
         vector< std::vector< bool > > fHiLo;
         vector< std::vector< bool > > fFullHitVec;
         vector< std::vector< bool > > fFullTrigVec;
@@ -100,26 +100,26 @@ class VGrIsuReader : public VVirtualDataReader
         vector< std::vector< int > > fFullAnaVec;
         vector< std::vector< unsigned int> > fPixelConvertVecM;
         vector< std::vector< unsigned int> > fPixelConvertVecR;
-        
+
         //!< vector with sample vectors of current event
         vector< vector< std::vector< uint8_t > > > fSamplesVec;
         vector< uint8_t > ftempSample;
         vector< int > ftempSampleUI;
         vector< float > ftempSampleFL;
-        
+
         vector< uint8_t >  vv8;
         vector< vector< uint8_t > > v8;           //!< ignore
-        
+
         // traces for background
         TFile* fTraceFile;                        //!< file for background trace library
         string fTraceFileName;
         vector< TTree* > fTraceTree;              //!< vector for background trace trees (one per telescope, preliminary)
         short int fTrace[500][64];                //!< background trace array
-        
+
         //  random dead channels
         int fMCNdead;                             //!< number of pixels set randomly dead
         int fMCNdeadboard;                        //!< number of boards set randomly dead (10 dead pixels in a row)
-        
+
         // MC values
         int fMC_primary;                          //!< MC primary type
         float  fMC_energy;                        //!< MC primary energy in TeV
@@ -131,13 +131,13 @@ class VGrIsuReader : public VVirtualDataReader
         float  fMC_Az;                            //!< MC azimuth angle of primary in ground coordinate system
         float  fMC_Xoffset;                       //!< MC x coordinate of source location in degrees
         float  fMC_Yoffset;                       //!< MC y coordinate of source location in degrees
-        
+
         // telescope pointing
         vector< double > fTelElevation;           //!< telescope pointing, elevation [deg]
         vector< double > fTelAzimuth;             //!< telescope pointing, azimuth [deg]
-        
+
         unsigned int fGrisuVersion;
-        
+
         void fillBackgroundfromTraceLibrary();
         void fillBackgroundfromPlines();
         unsigned int  getGrisuVersion();
@@ -151,7 +151,7 @@ class VGrIsuReader : public VVirtualDataReader
         void readPedsfromPlines();
         bool readPixelMix( int iTel );
         void resetEvent();
-        
+
     public:
         VGrIsuReader( VDetectorGeometry*, unsigned int iNTel, string iExPedFile, vector< int > i_sumwindow, bool iDebug, int iseed, double ifadcscale = 1. );
         VGrIsuReader( VDetectorGeometry*, unsigned int iNTel, string i_sourcefile, vector< int > i_sumwindow, int i_telnumberoffset, int i_sampleoffset, double ifadcscale, bool iDebug, int iseed, string iExPedFile = "", bool iIgnoreCFGFiles = false );
@@ -368,18 +368,18 @@ class VGrIsuReader : public VVirtualDataReader
             return fYimpactrot;
         }
         void                        setDefaultPed( double iD );
-        
+
         void                        assignGrisuPeds( unsigned int i = 0 );
         void                        setMultiGrIsuReader( bool iB = true )
         {
             fMultiGrIsuReader = iB;
         }
-        
+
         bool                        wasLossyCompressed()
         {
             return false;
         }
-        
+
         // rawfile
         //!< read in next event
         bool                        getNextEvent();
@@ -387,7 +387,7 @@ class VGrIsuReader : public VVirtualDataReader
         bool                        getNextPedestalEvent();
         //!< read next shower event from file
         bool                        getNextShowerEvent();
-        
+
         // MC
         bool                       isMC()         //!< GrIsu type data is always MC
         {
@@ -445,6 +445,6 @@ class VGrIsuReader : public VVirtualDataReader
         {
             ;
         }
-        
+
 };
 #endif

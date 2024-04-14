@@ -1,4 +1,4 @@
-//! VSpectralFitter fitter class for energy spectra (fit functions are predifined)
+//! VSpectralFitter fitter class for energy spectra (fit functions are predefined)
 
 #ifndef VSpectralFitter_H
 #define VSpectralFitter_H
@@ -20,32 +20,32 @@ using namespace std;
 class VSpectralFitter : public TObject
 {
     private:
-    
+
         TF1*   fFitFunction;                             // fit functions (log energy axis)
         TF1*   fFitFunction_lin;                         // function for flux integration (lin energy axis)
         double* fFitFunction_CovarianceMatrix;         // covariance matrix from fit
         TFitResult* fFitResult;
         string fFitName;
-        
+
         int    fSpectralFitFunction;
         double fSpectralFitFluxNormalisationEnergy;      // [TeV] linear axis
-        
+
         double fSpectralFitEnergy_min;                   // [TeV] linear axis
         double fSpectralFitEnergy_max;                   // [TeV] linear axis
-        
+
         // plotting variables
         int    fPlottingEnergySpectrumLineColor;
         int    fPlottingEnergySpectrumLineStyle;
         float  fPlottingEnergySpectrumLineWidth;
-        
+
         bool   defineFitFunction();
         void   updateFitFunction_lin();
-        
+
     public:
-    
+
         VSpectralFitter( string fitname = "fit" );
         ~VSpectralFitter() {}
-        
+
         TF1*   fit( TGraph* g, string fitname = "" );
         double getIntegralFlux( double iMinEnergy_TeV, double iMaxEnergy_TeV = 1.e6 );
         double getIntegralFluxError( double iMinEnergy_TeV, double iMaxEnergy_TeV = 1.e6 );
@@ -77,7 +77,7 @@ class VSpectralFitter : public TObject
             fPlottingEnergySpectrumLineStyle = iStyle;
             fPlottingEnergySpectrumLineWidth = iWidth;
         }
-        
+
         ClassDef( VSpectralFitter, 1 );
 };
 #endif
