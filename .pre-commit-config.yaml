@@ -33,7 +33,7 @@ repos:
     hooks:
       - id: codespell
         args: [
-          "--write-changes",
+          #          "--write-changes",
           "--skip=*.json,*.bib,*.txt,*.cls,scripts/environment_vtscat_save.yml",
           "--ignore-words-list=livetime,fom,gaus,ist,highe,rsource,sideral,tre",
         ]
