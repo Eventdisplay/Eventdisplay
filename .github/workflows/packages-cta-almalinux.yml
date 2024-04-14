@@ -63,7 +63,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-almalinux-${{ matrix.type }}
             type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-almalinux-${{ matrix.type }}
             type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-almalinux-${{ matrix.type }}
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}--${{ matrix.type }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.type }}
           flavor: latest=true
 
       - name: hessioxx
