@@ -8,6 +8,8 @@ on:
       - 'v*'
   pull_request:
     branches: ["main"]
+  release:
+    types: [published]
 
 env:
   REGISTRY: ghcr.io
@@ -20,6 +22,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        type: ['prod6', 'prod5', 'slib']
 
     steps:
       - name: Checkout repository
@@ -27,7 +32,7 @@ jobs:
         with:
           path: 'Eventdisplay'
 
-      - name: Set build arguments
+      - name: Set build arguments (correct branch)
         run: |
           if [[ "${{ github.event_name }}" == 'pull_request' ]]; then
             echo "BUILD_BRANCH=${GITHUB_HEAD_REF}" >> "$GITHUB_ENV"
@@ -54,14 +59,15 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           tags: |
-            type=ref,event=pr,suffix=-cta-almalinux-prod6
-            type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-almalinux-prod6
-            type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-almalinux-prod6
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-almalinux-prod6
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            type=ref,event=pr,suffix=-cta-almalinux-${{ matrix.type }}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-almalinux-${{ matrix.type }}
+            type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-almalinux-${{ matrix.type }}
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-almalinux-${{ matrix.type }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}--${{ matrix.type }}
           flavor: latest=true
 
       - name: hessioxx
+        if: matrix.type != 'slib'
         run: |
           wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_HESSIOXX_20230731 }}/download
           mv download hessioxxx.tar.gz
@@ -72,6 +78,6 @@ jobs:
           context: .
           build-args: BUILD_BRANCH=${{ env.BUILD_BRANCH }}
           push: ${{ github.event_name != 'pull_request' }}
-          file: ./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-prod6
+          file: ./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-${{ matrix.type }}
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.meta.outputs.labels }}-${{ matrix.type }}
