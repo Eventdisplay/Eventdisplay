@@ -419,7 +419,16 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
         {
             MJD = fshowerpars->MJD;
         }
-        fNTrig = fshowerpars->NTrig;
+        fNTrig = 0;
+        // determine number of triggered telescopes
+        for( unsigned t = 0; t < fshowerpars->NTrig; t++)
+        {
+            unsigned int tel_trig = fshowerpars->Trig_list[t];
+            if( t < fTLRunParameter->fTelToAnalyzeData.size() && fTLRunParameter->fTelToAnalyzeData[tel_trig] && fTLRunParameter->fTelToAnalyzeData[tel_trig]->fTelToAnalyze )
+            {
+                fNTrig++;
+            }
+        }
 
         if( !bShort )
         {
