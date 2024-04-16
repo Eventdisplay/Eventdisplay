@@ -5,28 +5,28 @@ ARG BUILD_BRANCH=main
 LABEL maintainer.name="Eventdisplay Team"
 LABEL maintainer.email="gernot.maier@desy.de"
 
-WORKDIR /eventdisplay_workdir/
-ENV EVNDISP /eventdisplay_workdir/
+WORKDIR /workdir/
+ENV EVNDISP /workdir/
 
 # Install Eventdisplay
-WORKDIR /eventdisplay_workdir/
+WORKDIR /workdir/
 ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
 ENV SOFASYS ${EVNDISPSYS}/sofa/
 RUN BUILD_BRANCH=$(echo ${BUILD_BRANCH} | sed 's#refs/tags/##') && \
     git clone -b ${BUILD_BRANCH} https://github.com/Eventdisplay/Eventdisplay.git --depth 1
-WORKDIR /eventdisplay_workdir/Eventdisplay/
+WORKDIR /workdir/Eventdisplay/
 RUN ./install_sofa.sh CI && \
     make -j 4 slib GRIDPROD=CTAGRID CTAPROD=PROD6 && \
     rm -f obj/*.o obj/*.cpp
 
 FROM rootproject/root:${ROOT_VERSION}
-WORKDIR /eventdisplay_workdir/
-COPY --from=build /eventdisplay_workdir/Eventdisplay /eventdisplay_workdir/Eventdisplay
+WORKDIR /workdir/
+COPY --from=build /workdir/Eventdisplay /workdir/Eventdisplay
 
 LABEL maintainer.name="Eventdisplay Team"
 LABEL maintainer.email="gernot.maier@desy.de"
 
-ENV EVNDISP /eventdisplay_workdir/
+ENV EVNDISP /workdir/
 ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
 ENV LD_LIBRARY_PATH "${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
 ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc

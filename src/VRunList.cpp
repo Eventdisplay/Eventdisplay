@@ -9,7 +9,6 @@
 #ifndef VRUNLIST_CPP
 #define VRUNLIST_CPP
 
-ClassImp( VRunList )
 
 VRunList::VRunList()
 {

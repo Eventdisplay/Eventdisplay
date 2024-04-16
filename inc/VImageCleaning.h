@@ -3,8 +3,8 @@
 #ifndef VIMAGECLEANING_H
 #define VIMAGECLEANING_H
 
-#include <VEvndispData.h>
-#include <TGraphErrors.h>
+#include "VEvndispData.h"
+#include "TGraphErrors.h"
 
 #include "VImageCleaningRunParameter.h"
 
@@ -13,16 +13,16 @@ using namespace std;
 class VImageCleaning
 {
     private:
-    
+
         VEvndispData* fData;
         bool fWriteGraphToFileRecreate;
-        
+
         void cleanImageWithTiming( VImageCleaningRunParameter* iImageCleaningParameters, bool isFixed );
         void fillImageBorderNeighbours();
         void fillBorderBorderNeighbours();
         void recoverImagePixelNearDeadPixel();
         void printDataError( string iFunctionName );
-        
+
         // cluster cleaning
         void mergeClusters();
         void removeSmallClusters( int );
@@ -30,7 +30,7 @@ class VImageCleaning
         void removeCluster( unsigned int cID ) ;
         vector<int> fNpixCluster;
         vector<double> fSizeCluster;
-        
+
         // NN image cleaning
         bool  kInitNNImageCleaning;
         bool  kInitNNImgClnPerTelType[VDST_MAXTELTYPES];
@@ -60,14 +60,14 @@ class VImageCleaning
         unsigned int fIPR_save_telid;
         double fIPR_save_ProbCurve_par1;
         double fIPR_save_ProbCurve_par2;
-        
+
         float INTENSITY[VDST_MAXCHANNELS];     //
         float TIMES[VDST_MAXCHANNELS];         //
         float** IPR;                           // IPR[TelType][ScanDim] scan. Not used TelType==0 is filled with DT values
-        
+
         void  LocMin( int n, float* ptr, float& min );
         void  LocMax( int n, float* ptr, float& max );
-        
+
         // main functions
         bool  BoundarySearch( unsigned int TrigSimTelType, float thresh, TF1* fProbCurve, float refdT, int refvalidity, int idx );
         unsigned int   NNGroupSearchProbCurve( unsigned int TrigSimTelType, TF1* fProbCurve, float PreCut );
@@ -86,44 +86,44 @@ class VImageCleaning
         void  FillPreThresholds( TGraph* gipr, float NNthresh[6] ); // defines pre-search thresholds for nn-groups (below this threshold group is not searched)
         TGraphErrors* GetIPRGraph( unsigned int TrigSimTelType, float ScanWidow );
         void  SetNeighborRings( unsigned short* VALIDITYBOUNDBUF, float* TIMESReSearch, float* REFTHRESH );
-        
-        
+
+
         TF1* defineRateContourFunction( unsigned int type, TString funcname, float iRate, float iNfold, float iCombFactor,
                                         float xlow, float xup );
         TF1* defineRateContourBoundFunction( unsigned int type, TString funcname, float iRate, float iNfold, float iCombFactor,
                                              float xlow, float xup );
         void writeProbabilityCurve( TGraph* iIPR, TF1* iProb, double iRate );
-        
+
     public:
-    
+
         VImageCleaning( VEvndispData* iData = 0 );
         ~VImageCleaning() {}
-        
+
         // tailcut cleaning
         void cleanImageFixed( VImageCleaningRunParameter* iImageCleaningParameters );
         void cleanImageFixed( double hithresh, double lothresh, double brightthresh = -999. );
         void cleanImagePedvars( VImageCleaningRunParameter* iImageCleaningParameters );
-        
+
         // time tailcut cleaning
         void cleanImagePedvarsTimeDiff( VImageCleaningRunParameter* iImageCleaningParameters );
-        
+
         // time cluster cleaning
         void cleanImageFixedWithTiming( VImageCleaningRunParameter* iImageCleaningParameters );
         void cleanImagePedvarsWithTiming( VImageCleaningRunParameter* iImageCleaningParameters );
-        
+
         // cluster cleaning
         void cleanImageWithClusters( VImageCleaningRunParameter* iImageCleaningParameters, bool isFixed );
-        
+
         // trace correlation cleaning
         void cleanImageTraceCorrelate( VImageCleaningRunParameter* iImageCleaningParameters );
-        
+
         // Optimized NN image cleaning
         void  cleanNNImageFixed( VImageCleaningRunParameter* iImageCleaningParameters );
-        
-        
+
+
         void addImageChannel( unsigned int iChannel );                      // add this pixel to image
         void removeImageChannel( unsigned int iChannel );                   // remove this pixel from image
         void resetImageChannel( unsigned int iChannel );                    // reset this pixel to standard value
-        
+
 };
 #endif

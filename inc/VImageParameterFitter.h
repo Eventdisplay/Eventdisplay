@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-#include <VEvndispData.h>
+#include "VEvndispData.h"
 
 #include "TF2.h"
 #include "TMinuit.h"
@@ -27,29 +27,29 @@ class VImageParameterFitter : public TObject
         VImageParameter* fParLL;
         VImageParameter* fParGeo;
         TF2* fNormal2D;
-        
+
         bool fDebug;
         bool fLLDebug;
-        
+
         // tolerance value - usually not to be modified
         double ZeroTolerence;
-        
+
         // image fitting function
         bool bRotatedNormalDistributionFit;
-        
+
         //  starting values for fit
         double fdistXmin;
         double fdistXmax;
         double fdistYmin;
         double fdistYmax;
-        
+
         vector<double> fll_X;                     //!< data vector for minuit function (x-coordinate of pmt)
         vector<double> fll_Y;                     //!< data vector for minuit function (y-coordinate of pmt)
         vector<double> fll_R;                     //!< tube radius of pmt
         vector<double> fll_Sums;                  //!< data vector for minuit function
         vector<bool> fLLEst;                      //!< true if channel has an estimated sum from the LL fit
         vector<double> fll_T;                     //!< data vector for minuit function (time)
-        
+
         // fit parameter
         double rho;
         double drho;
@@ -71,7 +71,7 @@ class VImageParameterFitter : public TObject
         double dtchi2;
         double phi;
         double dphi;
-        
+
         //!< return value of 2d-gaus at channel iChannel
         double fill_pixel_sums( bool iUseSums2 );
         double getLL_startingvalue_rho();
@@ -86,13 +86,13 @@ class VImageParameterFitter : public TObject
             return false;
         }
         double redang( double angle, double maxI );  //!< reduce angle to interval [0.,maxI]
-        
+
         // fitting
         void defineFitParameters();
         void getFitStatistics();
         void getFitResults();
         void resetFitParameters();
-        
+
         // image parameters
         void calculateImageParameters( bool iUseSums2, bool iEqualSummationWindows );
         void calculate_image_distance();
@@ -102,14 +102,14 @@ class VImageParameterFitter : public TObject
         void calculate_image_rho();
         void calculate_image_width( double z, double dz2 );
         double calculatePixelBrightness( unsigned int iChannel, double, double, double, double, double, double, double );
-        
+
     public:
-    
+
         VImageParameterFitter( VEvndispData* iData,
                                bool iDebug = false,
                                double ZeroTolerence = 1.e-8 );
         ~VImageParameterFitter();
-        
+
         vector<bool> calcLL( VImageParameter* iParGeo,
                              VImageParameter* iParLL,
                              bool iUseSums2 = false,
@@ -120,7 +120,7 @@ class VImageParameterFitter : public TObject
             return fNormal2D;
         }
         void initMinuit( int );
-        
+
         VDetectorGeometry* getDetectorGeometry()
         {
             if( fData )
@@ -129,7 +129,7 @@ class VImageParameterFitter : public TObject
             }
             return 0;
         }
-        
+
         // public functions for image fitters
         vector<double>& getLLSums()                 //!< return data vector for minuit function
         {
@@ -152,7 +152,7 @@ class VImageParameterFitter : public TObject
             return fll_T;
         }
         bool minimize_time_gradient_for_this_event();
-        
+
 };
 
 

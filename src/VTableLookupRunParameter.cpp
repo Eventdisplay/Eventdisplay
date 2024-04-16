@@ -5,12 +5,11 @@
 
 #include "VTableLookupRunParameter.h"
 
-ClassImp( VTableLookupRunParameter )
 
 VTableLookupRunParameter::VTableLookupRunParameter()
 {
     fDebug = 0;
-    
+
     outputfile = "";
     tablefile = "";
     ze = -1.;
@@ -54,20 +53,20 @@ VTableLookupRunParameter::VTableLookupRunParameter()
     fTelescopeType_weightFile = "";
     fRunParameterFile = "";
     fQualityCutLevel = 0;
-    
+
     fUsetimeGradientLookupTables = false;
-    
+
     fMC_distance_to_cameracenter_min =  0.;
     fMC_distance_to_cameracenter_max =  1.e10;
-    
+
     fEventSelectionCut_lossCutMax = 1.e9;
     fEventSelectionCut_distanceCutMax = 1.e9;
-    
+
     fNentries = TChain::kBigNumber;
     fMaxRunTime = 1.e9;
-    
+
     printpara = "";
-    
+
     meanpedvars = 0.;
 }
 
@@ -454,7 +453,7 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
     // =============================================
     // end of reading command line parameters
     // =============================================
-    
+
     // require inputfile name
     if( inputfile.size() == 0 )
     {
@@ -469,7 +468,7 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         cout << "...exiting" << endl;
         return false;
     }
-    
+
     // set output file name (mainly for VTS analysis with a single inputfile)
     if( outputfile.size() == 0 && inputfile.size() == 1 )
     {
@@ -523,10 +522,10 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     fillTelescopeTypeDependentWeights();
-    
-    
+
+
     return true;
 }
 
@@ -571,7 +570,7 @@ bool VTableLookupRunParameter::readRunParameters( string iFile )
     string iLine;
     string iS1;
     string iS2;
-    
+
     cout << "Reading run parameters from " << iFile << endl;
     while( getline( is, iLine ) )
     {
@@ -611,7 +610,7 @@ bool VTableLookupRunParameter::readRunParameters( string iFile )
             }
         }
     }
-    
+
     return true;
 }
 
@@ -623,7 +622,7 @@ bool VTableLookupRunParameter::readRunParameters( string iFile )
 bool VTableLookupRunParameter::readTelTypeDepdendentWeights( string iFile )
 {
     fTelescopeType_weight.clear();
-    
+
     ifstream is;
     is.open( iFile.c_str(), ifstream::in );
     if( !is )
@@ -637,7 +636,7 @@ bool VTableLookupRunParameter::readTelTypeDepdendentWeights( string iFile )
     string iS1;
     ULong64_t iT1 = 0;
     double iT2 = 0.;
-    
+
     cout << "Reading telescope type dependent weights from " << iFile << endl;
     while( getline( is, iLine ) )
     {
@@ -655,7 +654,7 @@ bool VTableLookupRunParameter::readTelTypeDepdendentWeights( string iFile )
             fTelescopeType_weight[iT1] = iT2;
         }
     }
-    
+
     // telescope type dependent weights
     if( fTelescopeType_weight.size() > 0 )
     {
@@ -668,8 +667,8 @@ bool VTableLookupRunParameter::readTelTypeDepdendentWeights( string iFile )
             cout << iT->second << endl;
         }
     }
-    
-    
+
+
     return true;
 }
 
@@ -685,10 +684,10 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim
     fTelToAnalyzeData.clear();
     // (this vector will have later the length of the number
     //  of telescopes of the full array)
-    
+
     ////////////////////////////////////////////////////////
     // read list of all telescopes from first evndisp root file
-    
+
     TFile iF( iEvndispRootFile.c_str() );
     if( iF.IsZombie() )
     {
@@ -709,7 +708,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim
     for( unsigned int i = 0; i < itelconfig->fChain->GetEntries(); i++ )
     {
         itelconfig->GetEntry( i );
-        
+
         fTelToAnalyzeData.push_back( new VTableLookupTelToAnalyze() );
         // note: by default are all telescopes off!!
         fTelToAnalyzeData.back()->fTelToAnalyze     = 0;
@@ -718,7 +717,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim
         fTelToAnalyzeData.back()->fTelType          = itelconfig->TelType;
         fTelToAnalyzeData.back()->fWeight           = 1.;
     }
-    
+
     ////////////////////////////////////////////////////////
     // read list of telescope to analyse
     ifstream is;
@@ -734,7 +733,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim
     double iW = 1;
     string iT2;
     cout << "reading sub-array configuration from " << iTelescopeList_sim_telarray_Counting << endl;
-    
+
     while( getline( is, iLine ) )
     {
         if( iLine.size() > 0 )
@@ -742,7 +741,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim
             iW = 1.;
             unsigned int z = 0;
             istringstream is_stream( iLine );
-            
+
             while( is_stream >> iT2 )
             {
                 if( z == 0 )
@@ -770,7 +769,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim
         }
     }
     is.close();
-    
+
     return true;
 }
 
@@ -782,7 +781,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iTelescopeList_sim
 bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
 {
     fTelToAnalyse.clear();
-    
+
     // use chain to get list of files
     TChain iTel( "telconfig" );
     int iNFil = iTel.Add( iEvndispRootFile.c_str() );
@@ -798,7 +797,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
         cout << "\t file is possibly empty?" << endl;
         return false;
     }
-    
+
     // read telescopes to analyse from eventdisplay run parameter list
     vector< unsigned int > iRunParT;
     VEvndispRunParameter* iPar = ( VEvndispRunParameter* )iF->Get( "runparameterV2" );
@@ -828,7 +827,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
         {
             for( unsigned int i = 0; i < iRunParT.size(); i++ )
             {
-            
+
                 if( iRunParT[i] < iRecPar->getReconstructionParameterData( rec_method )->fLocalUseImage.size()
                         && iRecPar->getReconstructionParameterData( rec_method )->fLocalUseImage[iRunParT[i]] )
                 {
@@ -849,7 +848,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
         cout << "could not find evndisp reconstruction parameters (EvndispReconstructionParameter)" << endl;
         return false;
     }
-    
+
     // fill secondary list used in many analysis part
     fTelToAnalyzeData.clear();
     for( unsigned int i = 0; i < iPar->fNTelescopes; i++ )
@@ -868,7 +867,7 @@ bool VTableLookupRunParameter::readTelescopeToAnalyze( string iEvndispRootFile )
             fTelToAnalyzeData[fTelToAnalyse[j]]->fTelToAnalyze = 1;
         }
     }
-    
+
     return true;
 }
 
@@ -920,7 +919,7 @@ void VTableLookupRunParameter::print( int iP )
         }
         cout << "\t ..." << endl;
     }
-    
+
     if( isMC )
     {
         cout << " (input data is MC)";
@@ -1020,7 +1019,7 @@ void VTableLookupRunParameter::print( int iP )
     {
         cout << "updating instrument epoch from default epoch file" << endl;
     }
-    
+
     if( iP >= 1 )
     {
         cout << endl;
@@ -1063,9 +1062,9 @@ bool VTableLookupRunParameter::fillInputFile_fromList( string iList )
         }
     }
     is.close();
-    
+
     cout << "total number of input files " << inputfile.size() << endl;
-    
+
     return true;
 }
 
@@ -1073,61 +1072,61 @@ void VTableLookupRunParameter::setCTA_MC_offaxisBins()
 {
     fCTA_MC_offaxisBin_min.clear();
     fCTA_MC_offaxisBin_max.clear();
-    
+
     /* New binning definition 2015-11-10
      *
      * choose smaller number of bins to increase statistics
      * per off-axis bins
      *
      */
-    
+
     fCTA_MC_offaxisBin_min.push_back( 0.0 );
     fCTA_MC_offaxisBin_max.push_back( 1.0 );
-    
+
     fCTA_MC_offaxisBin_min.push_back( 1.0 );
     fCTA_MC_offaxisBin_max.push_back( 2.0 );
-    
+
     fCTA_MC_offaxisBin_min.push_back( 2.0 );
     fCTA_MC_offaxisBin_max.push_back( 3.0 );
-    
+
     fCTA_MC_offaxisBin_min.push_back( 3.0 );
     fCTA_MC_offaxisBin_max.push_back( 4.0 );
-    
+
     fCTA_MC_offaxisBin_min.push_back( 4.0 );
     fCTA_MC_offaxisBin_max.push_back( 5.0 );
-    
+
     fCTA_MC_offaxisBin_min.push_back( 5.0 );
     fCTA_MC_offaxisBin_max.push_back( 6.0 );
-    
+
     /* Binning definition until 2015-11-10
-    
+
     	fCTA_MC_offaxisBin_min.push_back( 0.0 );
     	fCTA_MC_offaxisBin_max.push_back( 1.0 );
-    
+
     	fCTA_MC_offaxisBin_min.push_back( 1.0 );
     	fCTA_MC_offaxisBin_max.push_back( 2.0 );
-    
+
     	fCTA_MC_offaxisBin_min.push_back( 2.0 );
     	fCTA_MC_offaxisBin_max.push_back( 3.0 );
-    
+
     	fCTA_MC_offaxisBin_min.push_back( 3.0 );
     	fCTA_MC_offaxisBin_max.push_back( 3.5 );
-    
+
     	fCTA_MC_offaxisBin_min.push_back( 3.5 );
     	fCTA_MC_offaxisBin_max.push_back( 4.0 );
-    
+
     	fCTA_MC_offaxisBin_min.push_back( 4.0 );
     	fCTA_MC_offaxisBin_max.push_back( 4.5 );
-    
+
     	fCTA_MC_offaxisBin_min.push_back( 4.5 );
     	fCTA_MC_offaxisBin_max.push_back( 5.0 );
-    
+
     	fCTA_MC_offaxisBin_min.push_back( 5.0 );
     	fCTA_MC_offaxisBin_max.push_back( 5.5 );
-    
+
     	fCTA_MC_offaxisBin_min.push_back( 5.5 );
     	fCTA_MC_offaxisBin_max.push_back( 6.0 );
-    
+
     */
 }
 
@@ -1137,7 +1136,7 @@ void VTableLookupRunParameter::printCTA_MC_offaxisBins()
     {
         return;
     }
-    
+
     cout << "setting the following off-axis bins for CTA analysis: " << endl;
     for( unsigned int i = 0; i < fCTA_MC_offaxisBin_min.size(); i++ )
     {

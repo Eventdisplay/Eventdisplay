@@ -11,7 +11,6 @@
 
 #include "VRunStats.h"
 
-ClassImp( VRunStats )
 
 VDBRunData::VDBRunData()
 {
@@ -83,7 +82,7 @@ VDBCameraStatus::VDBCameraStatus()
 VDBFIRData::VDBFIRData()
 {
     MJD = 0.;
-    
+
     tel_ID = 0;
     ambient_temp = 0.;
     radiant_sky_temp = 0.;
@@ -93,7 +92,7 @@ VDBFIRData::VDBFIRData()
 VDBWeatherData::VDBWeatherData()
 {
     MJD = 0.;
-    
+
     AirTemperature = 0.;
     AirPressure = 0.;
     AirHumidity = 0.;
@@ -108,7 +107,7 @@ VDQMRunInfo::VDQMRunInfo()
 
     runNumber = 0;
     fieldVersion = 0;
-    
+
     StartMJD = 0.;
     SourceID = "";
     ObsMode = "";
@@ -121,9 +120,9 @@ VDQMRunInfo::VDQMRunInfo()
     Rate_mean = 0.;
     Rate_RMS = 0.;
     Rate_Chi2 = 0.;
-    
+
     L3_threshold = 0.;
-    
+
     for( unsigned int i = 0; i < 4; i++ )
     {
         L1_rate[i] = 0.;
@@ -133,19 +132,19 @@ VDQMRunInfo::VDQMRunInfo()
         L2_threshold_Spread_mV[i] = 0.;
         L2_throughput[i] = 0.;
     }
-    
+
     GPS_runtime_min = 0.;
     GPS_lifetime_min = 0.;
-    
+
     MoonEl_mean_deg = 0.;
     MoonPhase_mean = 0.;
-    
+
     NTel = 0;
     TelBitMask = 0;
-    
+
     FIR0_mean = 0.;
     FIR0_RMS = 0.;
-    
+
     for( unsigned int i = 0; i < 4; i++ )
     {
         MoonSeparation_deg[i] = 0.;
@@ -153,18 +152,18 @@ VDQMRunInfo::VDQMRunInfo()
         RA_RMS[i] = 0.;
         Dec_mean[i] = 0.;
         Dec_RMS[i] = 0.;
-        
+
         L2_rate[i] = 0.;
         MissingEvents[i] = 0.;
         Muons_N[i] = 0.;
         Muons_MeanCharge[i] = 0.;
         Muons_RMSCharge[i] = 0.;
         PMT_GainLaser[i] = 0.;
-        
+
         SuppressedChannels_Num[i] = 0.;
-        
+
         PedVar_mean[i] = 0.;
-        
+
         LaserRun[i] = 0;
     }
 }
@@ -180,12 +179,12 @@ VDQMRunInfo::VDQMRunInfo()
 VRunStats::VRunStats()
 {
     fDebug = false;
-    
+
     fReadfullHVEvndispData = false;
-    
+
     fMax_run_id = 0;
     fMin_run_id = 0;
-    
+
     setTimeRange( "2009-01-01", "2009-01-02" );
 }
 
@@ -199,38 +198,38 @@ void VRunStats::setTimeRange( string iStart, string iStop )
 bool VRunStats::readDBAnalysisComments()
 {
     string itemp = getDBServer() + "/VOFFLINE";
-    
+
     //std::cout<<"VRunStats::readDBAnalysisComments "<<std::endl;
     VDB_Connection my_connection( itemp.c_str(), "readonly", "" ) ;
     if( !my_connection.Get_Connection_Status() )
     {
         return false;
     }
-    
+
     char c_query[1000];
     sprintf( c_query, "select run_id , data_category   , status   , status_reason , tel_cut_mask , usable_duration , time_cut_mask , light_level , vpm_config_mask , authors  , comment from tblRun_Analysis_Comments where run_id >= %d and run_id <= %d", fMin_run_id, fMax_run_id );
     cout << c_query << endl;
-    
+
     if( !my_connection.make_query( c_query ) )
     {
         return false;
     }
     TSQLResult* db_res = my_connection.Get_QueryResult();
-    
-    
+
+
     for( unsigned int i = 0; i < 5; i++ )
     {
         cout << i << "\t" << db_res->GetFieldName( i ) << endl;
     }
-    
+
     int fNRows = db_res->GetRowCount();
-    
+
     cout << "reading analysis comments from DB" << endl;
-    
+
     for( int j = 0; j < fNRows; j++ )
     {
         TSQLRow* db_row = db_res->Next();
-        
+
         if( !db_row )
         {
             break;
@@ -251,9 +250,9 @@ bool VRunStats::readDBAnalysisComments()
         {
             continue;
         }
-        
+
         fAnalysisComments.push_back( new VDBAnalysisComments() );
-        
+
         fAnalysisComments.back()->runNumber = atoi( db_row->GetField( 0 ) );
         // seg fault ??
         itemp = db_row->GetField( 1 );
@@ -281,15 +280,15 @@ bool VRunStats::readDBAnalysisComments()
         {
             fAnalysisComments.back()->status = 5;
         }
-        
+
         itemp = db_row->GetField( 2 );
         fAnalysisComments.back()->usable_duration  = atof( itemp.substr( 0, itemp.find( ":" ) ).c_str() ) * 3600.;
         fAnalysisComments.back()->usable_duration += atof( itemp.substr( itemp.find( ":" ) + 1, itemp.find( ":" ) ).c_str() ) * 60.;
         fAnalysisComments.back()->usable_duration += atof( itemp.substr( itemp.rfind( ":" ) + 1, itemp.size() ).c_str() );
-        
+
         fAnalysisComments.back()->comment = db_row->GetField( 4 );
     }
-    
+
     return true;
 }
 
@@ -297,7 +296,7 @@ bool VRunStats::readDBAnalysisComments()
 bool VRunStats::readFromDB()
 {
     string itemp = getDBServer() + "/VERITAS";
-    
+
     //std::cout<<"VRunStats::readFromDB "<<std::endl;
     VDB_Connection my_connection( itemp.c_str(), "readonly", "" ) ;
     if( !my_connection.Get_Connection_Status() )
@@ -305,29 +304,29 @@ bool VRunStats::readFromDB()
         cout << "error connecting to db" << endl;
         return false;
     }
-    
+
     TSQLServer* f_db = my_connection.Get_ConnectionResult();
-    
+
     if( !readDBRun_IDs( f_db ) )
     {
         return false;
     }
-    
+
     if( !readDBSourceInfo( f_db ) )
     {
         return false;
     }
-    
+
     if( !readDBWeatherInfo( f_db ) )
     {
         return false;
     }
-    
+
     if( !readDB_default_HVEvndispData( f_db ) )
     {
         return false;
     }
-    
+
     if( fReadfullHVEvndispData )
     {
         if( !readDBHVEvndispData( f_db ) )
@@ -335,29 +334,29 @@ bool VRunStats::readFromDB()
             return false;
         }
     }
-    
+
     if( !readDBCameraStatus( f_db ) )
     {
         return false;
     }
-    
+
     if( !readDBFIRInfo( f_db ) )
     {
         return false;
     }
-    
+
     if( !readDBAnalysisComments() )
     {
         return false;
     }
-    
+
     if( !readDBRunInfo( f_db ) )
     {
         return false;
     }
-    
-    
-    
+
+
+
     return true;
 }
 
@@ -368,50 +367,50 @@ bool VRunStats::readDBHVEvndispData( TSQLServer* f_db )
     {
         return false;
     }
-    
+
     char c_query[1000];
-    
+
     for( unsigned int i = 0; i < 4; i++ )
     {
         sprintf( c_query, "select * from tblHV_Telescope%d_Voltages where db_start_time >= \"%s 14:00:00\"  and db_end_time < \"%s 16:00:00\"", i,  fStartDate.c_str(), fStopDate.c_str() );
         cout << c_query << endl;
-        
+
         TSQLResult* db_res = f_db->Query( c_query );
         if( !db_res )
         {
             return false;
         }
-        
+
         int fNRows = db_res->GetRowCount();
-        
+
         cout << "reading HVs for telescope " << i + 1 << " from DB" << endl;
         cout << "\t number of rows for HV read form DB: " << fNRows << endl;
-        
+
         string itemp;
         for( int j = 0; j < fNRows; j++ )
         {
             TSQLRow* db_row = db_res->Next();
-            
+
             if( !db_row )
             {
                 break;
             }
-            
-            
+
+
             int iMJD = 0;
             double iTime = 0.;
             unsigned int iChannel = 0;
-            
+
             itemp = db_row->GetField( 2 );
             iChannel = atoi( itemp.c_str() );
             if( iChannel < 500 )
             {
-            
+
                 fHVEvndispData.push_back( new VDBHV() );
                 fHVEvndispData.back()->telescope = i;
                 fHVEvndispData.back()->channel = iChannel;
-                
-                
+
+
                 if( db_row->GetField( 0 ) )
                 {
                     itemp = db_row->GetField( 0 );
@@ -454,52 +453,52 @@ bool VRunStats::readDB_default_HVEvndispData( TSQLServer* f_db )
     {
         return false;
     }
-    
+
     char c_query[1000];
-    
+
     for( unsigned int i = 0; i < 4; i++ )
     {
         sprintf( c_query, "select * from tblHV_Telescope%d_DefaultVoltage where db_start_time >= \"2005-01-01 14:00:00\" ", i );
         cout << c_query << endl;
-        
+
         TSQLResult* db_res = f_db->Query( c_query );
         if( !db_res )
         {
             return false;
         }
-        
+
         int fNRows = db_res->GetRowCount();
         //      for( unsigned int f = 0; f < db_res->GetFieldCount(); f++ ) cout << f << "\t" << db_res->GetFieldName( f ) << endl;
-        
+
         cout << "reading HV default settings for telescope " << i + 1 << " from DB" << endl;
         cout << "\t number of rows for defaultHV read form DB: " << fNRows << endl;
-        
-        
+
+
         string itemp;
         for( int j = 0; j < fNRows; j++ )
         {
             TSQLRow* db_row = db_res->Next();
-            
+
             if( !db_row )
             {
                 break;
             }
-            
-            
+
+
             int iMJD = 0;
             double iTime = 0.;
             unsigned int iChannel = 0;
-            
+
             itemp = db_row->GetField( 2 );
             iChannel = atoi( itemp.c_str() );
             if( iChannel < 500 )
             {
-            
+
                 fdefaultHVEvndispData.push_back( new VDBDefaultHV() );
                 fdefaultHVEvndispData.back()->telescope = i;
                 fdefaultHVEvndispData.back()->channel = iChannel;
-                
-                
+
+
                 if( db_row->GetField( 0 ) )
                 {
                     itemp = db_row->GetField( 0 );
@@ -541,48 +540,48 @@ bool VRunStats::readDBCameraStatus( TSQLServer* f_db )
     {
         return false;
     }
-    
+
     char c_query[1000];
-    
+
     // read run data
     sprintf( c_query, "select * from tblCamera_Status where timestamp >= \"%s 14:00:00\"  and timestamp < \"%s 16:00:00\"", fStartDate.c_str(), fStopDate.c_str() );
     cout << c_query << endl;
-    
+
     TSQLResult* db_res = f_db->Query( c_query );
     if( !db_res )
     {
         return false;
     }
-    
+
     for( unsigned int i = 0; i < 8; i++ )
     {
         cout << i << "\t" << db_res->GetFieldName( i ) << endl;
     }
-    
+
     int fNRows = db_res->GetRowCount();
-    
+
     cout << "reading camera status from DB" << endl;
     cout << "\t number of rows for camera status read from DB: " << fNRows << endl;
-    
+
     string itemp;
     for( int j = 0; j < fNRows; j++ )
     {
         TSQLRow* db_row = db_res->Next();
-        
+
         if( !db_row )
         {
             break;
         }
-        
+
         fCameraStatus.push_back( new VDBCameraStatus() );
-        
+
         int iMJD = 0;
         double iTime = 0.;
-        
+
         itemp = db_row->GetField( 0 );
         getDBMJDTime( itemp, iMJD, iTime, true );
         fCameraStatus.back()->MJD = ( double )iMJD + iTime / 86400;
-        
+
         fCameraStatus.back()->telescope = atoi( db_row->GetField( 1 ) );
         fCameraStatus.back()->temp1 = atof( db_row->GetField( 2 ) );
         fCameraStatus.back()->temp2 = atof( db_row->GetField( 3 ) );
@@ -591,7 +590,7 @@ bool VRunStats::readDBCameraStatus( TSQLServer* f_db )
         fCameraStatus.back()->light1 = atof( db_row->GetField( 6 ) );
         fCameraStatus.back()->light2 = atof( db_row->GetField( 7 ) );
     }
-    
+
     return true;
 }
 
@@ -603,48 +602,48 @@ bool VRunStats::readDBFIRInfo( TSQLServer* f_db )
     {
         return false;
     }
-    
+
     char c_query[1000];
-    
+
     // read run data
     sprintf( c_query, "select * from tblFIR_Pyrometer_Info where timestamp >= \"%s 14:00:00\"  and timestamp < \"%s 16:00:00\"", fStartDate.c_str(), fStopDate.c_str() );
     cout << c_query << endl;
-    
+
     TSQLResult* db_res = f_db->Query( c_query );
     if( !db_res )
     {
         return false;
     }
-    
+
     for( unsigned int i = 0; i < 4; i++ )
     {
         cout << i << "\t" << db_res->GetFieldName( i ) << endl;
     }
-    
+
     int fNRows = db_res->GetRowCount();
-    
+
     cout << "reading FIR data from DB" << endl;
     cout << "\t number of rows for FIR data read from DB: " << fNRows << endl;
-    
+
     string itemp;
     for( int j = 0; j < fNRows; j++ )
     {
         TSQLRow* db_row = db_res->Next();
-        
+
         if( !db_row )
         {
             break;
         }
-        
+
         fFIRData.push_back( new VDBFIRData() );
-        
+
         int iMJD = 0;
         double iTime = 0.;
-        
+
         itemp = db_row->GetField( 0 );
         getDBMJDTime( itemp, iMJD, iTime, true );
         fFIRData.back()->MJD = ( double )iMJD + iTime / 86400;
-        
+
         fFIRData.back()->tel_ID = atoi( db_row->GetField( 1 ) );
         fFIRData.back()->ambient_temp = atof( db_row->GetField( 2 ) );
         fFIRData.back()->radiant_sky_temp = atof( db_row->GetField( 3 ) );
@@ -660,48 +659,48 @@ bool VRunStats::readDBWeatherInfo( TSQLServer* f_db )
     {
         return false;
     }
-    
+
     char c_query[1000];
-    
+
     // read run data
     sprintf( c_query, "select * from tblWeather_Status where timestamp >= \"%s 14:00:00\"  and timestamp < \"%s 16:00:00\"", fStartDate.c_str(), fStopDate.c_str() );
     cout << c_query << endl;
-    
+
     TSQLResult* db_res = f_db->Query( c_query );
     if( !db_res )
     {
         return false;
     }
-    
+
     for( unsigned int i = 0; i < 9; i++ )
     {
         cout << i << "\t" << db_res->GetFieldName( i ) << endl;
     }
-    
+
     int fNRows = db_res->GetRowCount();
-    
+
     cout << "reading weather info from DB" << endl;
     cout << "\t number of rows for weather info read form DB: " << fNRows << endl;
-    
+
     string itemp;
     for( int j = 0; j < fNRows; j++ )
     {
         TSQLRow* db_row = db_res->Next();
-        
+
         if( !db_row )
         {
             break;
         }
-        
+
         fWeatherData.push_back( new VDBWeatherData() );
-        
+
         int iMJD = 0;
         double iTime = 0.;
-        
+
         itemp = db_row->GetField( 0 );
         getDBMJDTime( itemp, iMJD, iTime, true );
         fWeatherData.back()->MJD = ( double )iMJD + iTime / 86400;
-        
+
         fWeatherData.back()->AirTemperature = atof( db_row->GetField( 6 ) );
         fWeatherData.back()->AirHumidity = atof( db_row->GetField( 7 ) );
         fWeatherData.back()->AirPressure = atof( db_row->GetField( 11 ) );
@@ -709,7 +708,7 @@ bool VRunStats::readDBWeatherInfo( TSQLServer* f_db )
         fWeatherData.back()->AirWindSpeed = atof( db_row->GetField( 2 ) );
         fWeatherData.back()->AirWindGust = atof( db_row->GetField( 3 ) );
     }
-    
+
     return true;
 }
 
@@ -720,33 +719,33 @@ bool VRunStats::readDBSourceInfo( TSQLServer* f_db )
     {
         return false;
     }
-    
+
     char c_query[1000];
-    
+
     // read run data
     sprintf( c_query, "select * from tblObserving_Sources" );
     cout << c_query << endl;
-    
+
     TSQLResult* db_res = f_db->Query( c_query );
     if( !db_res )
     {
         return false;
     }
-    
+
     int fNRows = db_res->GetRowCount();
     for( unsigned int i = 0; i < 3; i++ )
     {
         cout << i << "\t" << db_res->GetFieldName( i ) << endl;
     }
-    
+
     cout << "reading source info from DB" << endl;
     cout << "\t number of sources read form DB: " << fNRows << endl;
-    
+
     string itemp;
     for( int j = 0; j < fNRows; j++ )
     {
         TSQLRow* db_row = db_res->Next();
-        
+
         itemp = db_row->GetField( 0 );
         fSourceData[itemp] = new VDBSourceData();
         fSourceData[itemp]->SourceID = itemp;
@@ -763,34 +762,34 @@ bool VRunStats::readDBRun_IDs( TSQLServer* f_db )
         return false;
     }
     char c_query[1000];
-    
+
     cout << "reading run IDs from DB" << endl;
-    
+
     // read run data
     sprintf( c_query, "select run_id from tblRun_Info where db_start_time >= \"%s.000000\"  and db_start_time < \"%s.160000\"", fStartDate.c_str(), fStopDate.c_str() );
     cout << c_query << endl;
-    
+
     TSQLResult* db_res = f_db->Query( c_query );
     if( !db_res )
     {
         return false;
     }
-    
+
     int fNRows = db_res->GetRowCount();
-    
+
     cout << "\t number of runs read form DB: " << fNRows << endl;
-    
+
     string itemp;
-    
+
     for( int i = 0; i < fNRows; i++ )
     {
         TSQLRow* db_row = db_res->Next();
-        
+
         if( !db_row )
         {
             break;
         }
-        
+
         // get run number
         itemp = db_row->GetField( 0 );
         if( i == 0 )
@@ -814,47 +813,47 @@ bool VRunStats::readDBRunInfo( TSQLServer* f_db )
         return false;
     }
     char c_query[1000];
-    
+
     cout << "reading run info from DB" << endl;
-    
+
     // read run data
     sprintf( c_query, "select * from tblRun_Info where db_start_time >= \"%s.000000\"  and db_start_time < \"%s.160000\"", fStartDate.c_str(), fStopDate.c_str() );
     cout << c_query << endl;
-    
+
     TSQLResult* db_res = f_db->Query( c_query );
     if( !db_res )
     {
         return false;
     }
-    
+
     int fNRows = db_res->GetRowCount();
     for( unsigned int i = 0; i < 19; i++ )
     {
         cout << i << "\t" << db_res->GetFieldName( i ) << endl;
     }
-    
+
     cout << "\t number of runs read form DB: " << fNRows << endl;
-    
+
     string itemp;
     unsigned int j_start = 0;
     unsigned int k_start = 0;
     unsigned int cs_start = 0;
-    
+
     for( int i = 0; i < fNRows; i++ )
     {
         TSQLRow* db_row = db_res->Next();
-        
+
         if( !db_row )
         {
             break;
         }
-        
+
         cout << "ROW " << i << endl;
         if( db_row->GetField( 0 ) )
         {
             cout << "\t RRRR " << db_row->GetField( 0 ) << endl;
         }
-        
+
         // all fields should be defined
         if( !db_row->GetField( 19 ) )
         {
@@ -904,10 +903,10 @@ bool VRunStats::readDBRunInfo( TSQLServer* f_db )
         {
             continue;
         }
-        
+
         fRunData.push_back( new VDBRunData() );
         VDBRunData* i_RunData = fRunData.back();
-        
+
         // get source coordinates
         double iRa = 0.;
         double iDec = 0.;
@@ -928,23 +927,23 @@ bool VRunStats::readDBRunInfo( TSQLServer* f_db )
         i_RunData->ConfigMask = atoi( db_row->GetField( 10 ) );
         i_RunData->offset_distance = atof( db_row->GetField( 17 ) );
         i_RunData->offset_angle = atof( db_row->GetField( 18 ) );
-        
+
         // get galactic coordinates
         double i_b = 0.;
         double i_l = 0.;
         iRa  += i_RunData->offsetRA;
         iDec += i_RunData->offsetDec;
-        
+
         VAstronometry::vlaEqgal( iRa / 180. * TMath::Pi(), iDec / 180. * TMath::Pi(), &i_l, &i_b );
         i_RunData->GalLong1958 = i_l * 180. / TMath::Pi();
         i_RunData->GalLat1958  = i_b * 180. / TMath::Pi();
-        
+
         // calculate MJD, etc.
-        
+
         int iMJD = 0;
         double iTime1 = 0.;
         double iTime2 = 0.;
-        
+
         itemp = db_row->GetField( 6 );
         getDBMJDTime( itemp, iMJD, iTime1, true );
         i_RunData->start_time = itemp;
@@ -953,7 +952,7 @@ bool VRunStats::readDBRunInfo( TSQLServer* f_db )
         {
             cout << "T1 " << iMJD << " " << iTime1 << " ";
         }
-        
+
         itemp = db_row->GetField( 7 );
         if( fDebug )
         {
@@ -966,9 +965,9 @@ bool VRunStats::readDBRunInfo( TSQLServer* f_db )
         }
         i_RunData->stop_time = itemp;
         i_RunData->StopMJD = ( double )iMJD + iTime2 / 86400;
-        
+
         i_RunData->Duration = iTime2 - iTime1;
-        
+
         // get run number
         itemp = db_row->GetField( 0 );
         if( fDebug )
@@ -976,9 +975,9 @@ bool VRunStats::readDBRunInfo( TSQLServer* f_db )
             cout << "RUN " << itemp << " " << flush;
         }
         i_RunData->runNumber = atoi( itemp.c_str() );
-        
+
         cout << "Filling run " << i_RunData->runNumber << endl;
-        
+
         // get camera status
         cout << "\t camera " << endl;
         for( unsigned int k = cs_start; k < fCameraStatus.size(); k++ )
@@ -987,15 +986,15 @@ bool VRunStats::readDBRunInfo( TSQLServer* f_db )
             {
                 continue;
             }
-            
+
             if( fCameraStatus[k]->MJD > i_RunData->StartMJD && fCameraStatus[k]->MJD < i_RunData->StopMJD )
             {
                 i_RunData->fCameraStatus.push_back( fCameraStatus[k] );
                 cs_start = k;
             }
         }
-        
-        
+
+
         // get FIR data
         cout << "\t FIR " << endl;
         for( unsigned int k = k_start; k < fFIRData.size(); k++ )
@@ -1004,14 +1003,14 @@ bool VRunStats::readDBRunInfo( TSQLServer* f_db )
             {
                 continue;
             }
-            
+
             if( fFIRData[k]->MJD > i_RunData->StartMJD && fFIRData[k]->MJD < i_RunData->StopMJD )
             {
                 i_RunData->fDBFIRData.push_back( fFIRData[k] );
                 k_start = k;
             }
         }
-        
+
         // get weather info
         cout << "\t weather " << endl;
         for( unsigned int j = j_start; j < fWeatherData.size(); j++ )
@@ -1020,7 +1019,7 @@ bool VRunStats::readDBRunInfo( TSQLServer* f_db )
             {
                 continue;
             }
-            
+
             if( fWeatherData[j]->MJD > i_RunData->StartMJD && fWeatherData[j]->MJD < i_RunData->StopMJD )
             {
                 i_RunData->fDBWeatherData.push_back( fWeatherData[j] );
@@ -1028,15 +1027,15 @@ bool VRunStats::readDBRunInfo( TSQLServer* f_db )
             }
         }
         cout << "\t\t end weather" << endl;
-        
+
         if( fDebug )
         {
             cout << endl;
         }
     }
-    
+
     cout << "total number of runs in runlist: " << fRunData.size() << endl;
-    
+
     return true;
 }
 
@@ -1047,18 +1046,18 @@ bool VRunStats::getDBSourceCoordinates( TSQLServer* f_db, string iSource, double
     {
         return false;
     }
-    
+
     char c_query[1000];
-    
+
     sprintf( c_query, "select * from tblObserving_Sources where source_id like convert( _utf8 \'%s\' using latin1)", iSource.c_str() );
     TSQLResult* db_res = f_db->Query( c_query );
     if( !db_res )
     {
         return false;
     }
-    
+
     TSQLRow* db_row = db_res->Next();
-    
+
     if( db_row &&  db_row->GetField( 2 ) && db_row->GetField( 1 ) )
     {
         iEVNTargetDec = atof( db_row->GetField( 2 ) ) * 180. / TMath::Pi();
@@ -1080,21 +1079,21 @@ bool VRunStats::getDBWeatherData( TSQLServer* f_db, string iTimeStamp, double& i
     {
         return false;
     }
-    
+
     // weather data is saved once per minute
     iTimeStamp.replace( 17, 2, "00" );
-    
+
     char c_query[1000];
-    
+
     sprintf( c_query, "select * from tblWeather_Status where timestamp = \"%s\" ", iTimeStamp.c_str() );
     TSQLResult* db_res = f_db->Query( c_query );
     if( !db_res )
     {
         return false;
     }
-    
+
     TSQLRow* db_row = db_res->Next();
-    
+
     if( db_row )
     {
         iWindSpeed = atof( db_row->GetField( 2 ) );
@@ -1103,7 +1102,7 @@ bool VRunStats::getDBWeatherData( TSQLServer* f_db, string iTimeStamp, double& i
         iHumidity = atof( db_row->GetField( 7 ) );
         iWindDir = atof( db_row->GetField( 5 ) );
     }
-    
+
     return true;
 }
 
@@ -1169,13 +1168,13 @@ bool VRunStats::writeRootFile( string ifile )
     {
         return false;
     }
-    
+
     TFile f( ifile.c_str(), "RECREATE" );
     if( f.IsZombie() )
     {
         return false;
     }
-    
+
     int iRun;
     Char_t iRunSourceID[300];
     unsigned int iConfigMask;
@@ -1206,7 +1205,7 @@ bool VRunStats::writeRootFile( string ifile )
     unsigned int iHV_telescope = 0;
     unsigned int iHV_channel = 0;
     double iHV_HV;
-    
+
     // camera status
     const int nCSPoints_MAX = 10000;
     int nCameraStatusPoints = 0;
@@ -1218,7 +1217,7 @@ bool VRunStats::writeRootFile( string ifile )
     double iCS_hum2[nCSPoints_MAX];
     double iCS_light1[nCSPoints_MAX];
     double iCS_light2[nCSPoints_MAX];
-    
+
     // FIR data
     const int nFIRPoints_MAX = 10000;
     int FIR_NPoints = 0;
@@ -1227,13 +1226,13 @@ bool VRunStats::writeRootFile( string ifile )
     double FIR_ambient_temp[nFIRPoints_MAX];
     double FIR_radiant_sky_temp[nFIRPoints_MAX];
     double FIR_radiant_sky_temp_cor[nFIRPoints_MAX];
-    
+
     // DQM data
     int fieldVersion = 0;
     double StartMJD = 0.;
     int NTel = 0;
     unsigned int TelBitMask = 0;
-    
+
     double WobbleOff_estim_deg = 0.;
     double WobbleDir_estim_deg = 0.;
     double El_mean_deg = 0.;
@@ -1244,26 +1243,26 @@ bool VRunStats::writeRootFile( string ifile )
     double Rate_mean = 0.;
     double Rate_RMS = 0.;
     double Rate_Chi2 = 0.;
-    
+
     double L3_threshold = 0.;
-    
+
     double L2_threshold[4];
     double L2_threshold_mV[4];
     double L2_threshold_Spread_mV[4];
     double L2_throughput[4];
-    
+
     double GPS_runtime_min = 0.;
     double GPS_lifetime_min = 0.;
-    
+
     double MoonEl_mean_deg = 0.;
     double MoonPhase_mean = 0.;
     double MoonSeparation_deg[4];
-    
+
     double RA_mean[4];
     double RA_RMS[4];
     double Dec_mean[4];
     double Dec_RMS[4];
-    
+
     double L1_rate[4];
     double Median_current_uA[4];
     double L2_rate[4];
@@ -1272,13 +1271,13 @@ bool VRunStats::writeRootFile( string ifile )
     double Muons_MeanCharge[4];
     double Muons_RMSCharge[4];
     double PMT_GainLaser[4];
-    
+
     double SuppressedChannels_Num[4];
-    
+
     double PedVar_mean[4];
-    
+
     int LaserRun[4];
-    
+
     double FIR0_mean = 0.;
     double FIR0_RMS = 0.;
     double FIR_mean[4];
@@ -1311,19 +1310,19 @@ bool VRunStats::writeRootFile( string ifile )
     unsigned int iStatus = 0;
     double iUsableDuration = 0.;
     Char_t iComment[300];
-    
+
     cout << "writing data to " << f.GetName() << endl;
-    
+
     char hname[2000];
-    
+
     sprintf( hname, "DB source table" );
     TTree s( "fSourceTable", hname );
     s.Branch( "sourceID", &iRunSourceID, "sourceID/C" );
     s.Branch( "ra", &iRunRA, "ra/D" );
     s.Branch( "dec", &iRunDec, "dec/D" );
-    
+
     map< string, VDBSourceData* >::iterator i_iter;
-    
+
     for( i_iter = fSourceData.begin(); i_iter != fSourceData.end(); ++i_iter )
     {
         VDBSourceData* i_temp = ( VDBSourceData* )i_iter->second;
@@ -1332,12 +1331,12 @@ bool VRunStats::writeRootFile( string ifile )
             sprintf( iRunSourceID, "%s", i_temp->SourceID.c_str() );
             iRunRA = i_temp->fRA;
             iRunDec =  i_temp->fDec;
-            
+
             s.Fill();
         }
     }
     s.Write();
-    
+
     sprintf( hname, "DB Default HV" );
     TTree i_DHV( "fDefaultHV", hname );
     i_DHV.Branch( "startMJD", &iHV_MJD_startMJD, "startMJD/D" );
@@ -1345,7 +1344,7 @@ bool VRunStats::writeRootFile( string ifile )
     i_DHV.Branch( "telescope", &iHV_telescope, "telescope/i" );
     i_DHV.Branch( "channel", &iHV_channel, "channel/i" );
     i_DHV.Branch( "defaultHV", &iHV_HV, "defaultHV/D" );
-    
+
     for( unsigned int i = 0; i < fdefaultHVEvndispData.size(); i++ )
     {
         if( fdefaultHVEvndispData[i] )
@@ -1359,7 +1358,7 @@ bool VRunStats::writeRootFile( string ifile )
         }
     }
     i_DHV.Write();
-    
+
     sprintf( hname, "DB HV,  %s to %s", fStartDate.c_str(), fStopDate.c_str() );
     TTree i_MHV( "fHV", hname );
     i_MHV.Branch( "startMJD", &iHV_MJD_startMJD, "startMJD/D" );
@@ -1367,7 +1366,7 @@ bool VRunStats::writeRootFile( string ifile )
     i_MHV.Branch( "telescope", &iHV_telescope, "telescope/i" );
     i_MHV.Branch( "channel", &iHV_channel, "channel/i" );
     i_MHV.Branch( "HV", &iHV_HV, "HV/D" );
-    
+
     for( unsigned int i = 0; i < fHVEvndispData.size(); i++ )
     {
         if( fHVEvndispData[i] )
@@ -1381,7 +1380,7 @@ bool VRunStats::writeRootFile( string ifile )
         }
     }
     i_MHV.Write();
-    
+
     sprintf( hname, "DB FIR data,  %s to %s", fStartDate.c_str(), fStopDate.c_str() );
     TTree r( "fFIRTable", hname );
     r.Branch( "MJD", FIR_MJD, "MJD/D" );
@@ -1389,7 +1388,7 @@ bool VRunStats::writeRootFile( string ifile )
     r.Branch( "ambient_temp", FIR_ambient_temp, "ambient_temp/D" );
     r.Branch( "radiant_sky_temp", FIR_radiant_sky_temp, "radiant_sky_temp/D" );
     r.Branch( "radiant_sky_temp_cor", FIR_radiant_sky_temp_cor, "radiant_sky_temp_cor/D" );
-    
+
     for( unsigned int i = 0; i < fFIRData.size(); i++ )
     {
         if( fFIRData[i] )
@@ -1403,7 +1402,7 @@ bool VRunStats::writeRootFile( string ifile )
         }
     }
     r.Write();
-    
+
     sprintf( hname, "DB camera status,  %s to %s", fStartDate.c_str(), fStopDate.c_str() );
     TTree cs( "fCamerStatus", hname );
     cs.Branch( "MJD", iCS_MJD, "MJD/D" );
@@ -1414,7 +1413,7 @@ bool VRunStats::writeRootFile( string ifile )
     cs.Branch( "hum2", iCS_hum2, "hum2/D" );
     cs.Branch( "light1", iCS_light1, "light1/D" );
     cs.Branch( "light2", iCS_light2, "light2/D" );
-    
+
     for( unsigned int i = 0; i < fCameraStatus.size(); i++ )
     {
         if( fCameraStatus[i] )
@@ -1427,13 +1426,13 @@ bool VRunStats::writeRootFile( string ifile )
             iCS_hum2[0] = fCameraStatus[i]->hum2;
             iCS_light1[0] = fCameraStatus[i]->light1;
             iCS_light2[0] = fCameraStatus[i]->light2;
-            
+
             cs.Fill();
         }
     }
     cs.Write();
-    
-    
+
+
     sprintf( hname, "DB weather data,  %s to %s", fStartDate.c_str(), fStopDate.c_str() );
     TTree w( "fWeatherTable", hname );
     w.Branch( "MJD", weatherMJD, "MJD/D" );
@@ -1443,7 +1442,7 @@ bool VRunStats::writeRootFile( string ifile )
     w.Branch( "windSpeedMax", windGust, "windSpeedMax/D" );
     w.Branch( "windDirection", windDir, "windDirection/D" );
     w.Branch( "humidity", Humidl, "humidity/D" );
-    
+
     for( unsigned int i = 0; i < fWeatherData.size(); i++ )
     {
         if( fWeatherData[i] )
@@ -1455,12 +1454,12 @@ bool VRunStats::writeRootFile( string ifile )
             windGust[0] = fWeatherData[i]->AirWindGust;
             windDir[0] = fWeatherData[i]->AirWindDirection;
             Humidl[0] = fWeatherData[i]->AirHumidity;
-            
+
             w.Fill();
         }
     }
     w.Write();
-    
+
     // tree with all DQM information per run
     sprintf( hname, "DB entries, %s to %s", fStartDate.c_str(), fStopDate.c_str() );
     TTree t( "fRunTable", hname );
@@ -1485,14 +1484,14 @@ bool VRunStats::writeRootFile( string ifile )
     t.Branch( "windSpeedMax", windGust, "windSpeedMax[nWeatherPoints]/D" );
     t.Branch( "windDirection", windDir, "windDirection[nWeatherPoints]/D" );
     t.Branch( "humidity", Humidl, "humidity[nWeatherPoints]/D" );
-    
+
     t.Branch( "nFIRPoints", &FIR_NPoints, "nFIRPoints/I" );
     t.Branch( "FIR_tel_ID", FIR_tel_ID, "FIR_tel_ID[nFIRPoints]/i" );
     t.Branch( "FIR_MJD", FIR_MJD, "FIR_MJD[nFIRPoints]/D" );
     t.Branch( "FIR_ambient_temp", FIR_ambient_temp, "FIR_ambient_temp[nFIRPoints]/D" );
     t.Branch( "FIR_radiant_sky_temp", FIR_radiant_sky_temp, "FIR_radiant_sky_temp[nFIRPoints]/D" );
     t.Branch( "FIR_radiant_sky_temp_cor", FIR_radiant_sky_temp_cor, "FIR_radiant_sky_temp_cor[nFIRPoints]/D" );
-    
+
     t.Branch( "nCameraStatusPoints", &nCameraStatusPoints, "nCameraStatusPoints/I" );
     t.Branch( "CameraStatus_tel_ID", iCS_telescope, "CameraStatus_tel_ID[nCameraStatusPoints]/I" );
     t.Branch( "CameraStatus_MJD", iCS_MJD, "CameraStatus_MJD[nCameraStatusPoints]/D" );
@@ -1502,7 +1501,7 @@ bool VRunStats::writeRootFile( string ifile )
     t.Branch( "CameraStatus_hum2", iCS_hum2, "CameraStatus_hum2[nCameraStatusPoints]/D" );
     t.Branch( "CameraStatus_light1", iCS_light1, "CameraStatus_light1[nCameraStatusPoints]/D" );
     t.Branch( "CameraStatus_light2", iCS_light2, "CameraStatus_light2[nCameraStatusPoints]/D" );
-    
+
     t.Branch( "fieldVersion", &fieldVersion, "fieldVersion/I" );
     t.Branch( "StartMJD", &StartMJD, "StartMJD/D" );
     t.Branch( "NTel", &NTel, "NTel/I" );
@@ -1549,7 +1548,7 @@ bool VRunStats::writeRootFile( string ifile )
     t.Branch( "status", &iStatus, "status/i" );
     t.Branch( "usable_duration", &iUsableDuration, "usable_duration/D" );
     t.Branch( "comment", &iComment, "comment/C" );
-    
+
     unsigned int k_start = 0;
     /////////////////////
     // loop over all runs
@@ -1576,7 +1575,7 @@ bool VRunStats::writeRootFile( string ifile )
         iRunoffset_angle = fRunData[i]->offset_angle;
         l = fRunData[i]->GalLong1958;
         b = fRunData[i]->GalLat1958;
-        
+
         // analysis comments
         iUsableDuration = iRunDuration;
         for( unsigned int j = 0; j < fAnalysisComments.size(); j++ )
@@ -1601,7 +1600,7 @@ bool VRunStats::writeRootFile( string ifile )
                 sprintf( iComment, " " );
             }
         }
-        
+
         // camera status
         nCameraStatusPoints = ( int )fRunData[i]->fCameraStatus.size();
         if( nCameraStatusPoints > nCSPoints_MAX )
@@ -1622,7 +1621,7 @@ bool VRunStats::writeRootFile( string ifile )
                 iCS_light2[j] = fRunData[i]->fCameraStatus[j]->light2;
             }
         }
-        
+
         // FIR data
         FIR_NPoints = ( int )fRunData[i]->fDBFIRData.size();
         if( FIR_NPoints > nFIRPoints_MAX )
@@ -1640,14 +1639,14 @@ bool VRunStats::writeRootFile( string ifile )
                 FIR_radiant_sky_temp_cor[j] = fRunData[i]->fDBFIRData[j]->radiant_sky_temp_cor;
             }
         }
-        
+
         // weather data
         nWeatherPoints = ( int )fRunData[i]->fDBWeatherData.size();
         if( nWeatherPoints > nWeatherPoints_MAX )
         {
             continue;
         }
-        
+
         for( int j = 0; j < nWeatherPoints; j++ )
         {
             if( fRunData[i]->fDBWeatherData[j] )
@@ -1661,7 +1660,7 @@ bool VRunStats::writeRootFile( string ifile )
                 Humidl[j] = fRunData[i]->fDBWeatherData[j]->AirHumidity;
             }
         }
-        
+
         for( unsigned int k = k_start; k < fDQMData.size(); k++ )
         {
             if( fDQMData[k] && fDQMData[k]->runNumber == fRunData[i]->runNumber )
@@ -1712,19 +1711,19 @@ bool VRunStats::writeRootFile( string ifile )
                 }
                 FIR0_mean = fDQMData[k]->FIR0_mean;
                 FIR0_RMS = fDQMData[k]->FIR0_RMS;
-                
+
                 k_start = k;
                 break;
             }
             fieldVersion = -1;
         }
-        
+
         t.Fill();
     }
     t.Write();
-    
+
     f.Close();
-    
+
     return true;
 }
 
@@ -1756,9 +1755,9 @@ bool VRunStats::readDQMData( string iDQMFile )
     }
     string iLine;
     string itemp;
-    
+
     cout << "reading DQM file " << iDQMFile << endl;
-    
+
     int z = 0;
     while( getline( is, iLine ) )
     {
@@ -1770,11 +1769,11 @@ bool VRunStats::readDQMData( string iDQMFile )
         {
             continue;
         }
-        
+
         fDQMData.push_back( new VDQMRunInfo() );
-        
+
         istringstream is_stream( iLine );
-        
+
         is_stream >> fDQMData.back()->runNumber;
         is_stream >> fDQMData.back()->fieldVersion;
         is_stream >> itemp;
@@ -1830,18 +1829,18 @@ bool VRunStats::readDQMData( string iDQMFile )
         is_stream >> itemp;
         // 40
         is_stream >> fDQMData.back()->L2_throughput[3];
-        
+
         if( fDQMData.back()->fieldVersion < 1 )
         {
             continue;
         }
-        
+
         is_stream >> fDQMData.back()->GPS_runtime_min;
         is_stream >> fDQMData.back()->GPS_lifetime_min;
         is_stream >> itemp;
         is_stream >> fDQMData.back()->MoonEl_mean_deg;
         is_stream >> fDQMData.back()->MoonPhase_mean;
-        
+
         is_stream >> fDQMData.back()->RA_mean[0];
         is_stream >> fDQMData.back()->Dec_mean[0];
         is_stream >> fDQMData.back()->RA_RMS[0];
@@ -1888,7 +1887,7 @@ bool VRunStats::readDQMData( string iDQMFile )
         is_stream >> fDQMData.back()->PMT_GainLaser[2];
         is_stream >> fDQMData.back()->MoonSeparation_deg[2];
         is_stream >> fDQMData.back()->SuppressedChannels_Num[2];
-        
+
         is_stream >> fDQMData.back()->RA_mean[3];
         is_stream >> fDQMData.back()->Dec_mean[3];
         // 90
@@ -1905,19 +1904,19 @@ bool VRunStats::readDQMData( string iDQMFile )
         // 100
         is_stream >> fDQMData.back()->MoonSeparation_deg[3];
         is_stream >> fDQMData.back()->SuppressedChannels_Num[3];
-        
+
         if( fDQMData.back()->fieldVersion < 2 )
         {
             continue;
         }
-        
+
         is_stream >> fDQMData.back()->NTel;
         is_stream >> fDQMData.back()->TelBitMask;
         is_stream >> itemp;
         is_stream >> itemp;
         is_stream >> fDQMData.back()->FIR0_mean;
         is_stream >> fDQMData.back()->FIR0_RMS;
-        
+
         is_stream >> fDQMData.back()->LaserRun[0];
         is_stream >> fDQMData.back()->PedVar_mean[0];
         // 110
@@ -1940,7 +1939,7 @@ bool VRunStats::readDQMData( string iDQMFile )
         is_stream >> itemp;
         is_stream >> fDQMData.back()->FIR_mean[3];
         is_stream >> fDQMData.back()->FIR_RMS[3];
-        
+
         for( unsigned int i = 0; i < 4; i++ )
         {
             if( TMath::Abs( fDQMData.back()->FIR_mean[i] ) < 1.e-5 )
@@ -1952,12 +1951,12 @@ bool VRunStats::readDQMData( string iDQMFile )
                 fDQMData.back()->FIR_RMS[i] = 0.;
             }
         }
-        
+
         z++;
     }
     is.close();
-    
+
     cout << "read " << z << " lines from DQM file" << endl;
-    
+
     return true;
 }

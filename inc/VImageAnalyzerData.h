@@ -8,9 +8,9 @@
 #include "TProfile2D.h"
 #include "TRandom3.h"
 
-#include <VImageAnalyzerHistograms.h>
-#include <VSpecialChannel.h>
-#include <VImageParameter.h>
+#include "VImageAnalyzerHistograms.h"
+#include "VSpecialChannel.h"
+#include "VImageParameter.h"
 
 #include <valarray>
 #include <vector>
@@ -20,24 +20,24 @@ using namespace std;
 class VImageAnalyzerData
 {
     private:
-    
+
         unsigned int fTelID;
         unsigned int fNChannels;
         unsigned int fMaxChannels;
         unsigned int fNSamples;
-        
+
         unsigned int fTraceIntegrationMethod;
-        
+
     public:
-    
+
         bool fFillMeanTraces;
         bool fFillPulseSum;
-        
+
         // image analysis data
         VImageParameter* fImageParameter;             //!< image parameter from geometrical analysis
         VImageParameter* fImageParameterLogL;         //!< image parameter from log likelihood analysis
         VImageAnalyzerHistograms* fAnaHistos;               //!< analysis test histograms
-        
+
         valarray<double> fTemplateMu;
         valarray<double> fSums;
         valarray<double> fSums2;
@@ -51,7 +51,7 @@ class VImageAnalyzerData
         vector<unsigned int> fLowGainDead;        //!< dead channel (bit coded); low gain channels
         vector<unsigned int> fLowGainDeadUI;      //!< dead channel (largest bit); low gain channels
         vector<bool> fLowGainDeadRecovered;       //!< dead channel recovered for example by smoothing (low gain)
-        
+
         int fRandomMakeDeadChannelsSeed;
         TRandom3* fRandomMakeDeadChannels;        //!< random generator for setting randomly channels dead
         vector< bool > fHiLo;                     //!< true if low gain is set
@@ -96,14 +96,14 @@ class VImageAnalyzerData
         // time since run start
         double fTimeSinceRunStart;                //!< time since run start
         double fTimeRunStart;                     //!< time of first event in run
-        
+
         // special channels
         VSpecialChannel* fSpecialChannel;
-        
+
         // FADCstop info
         vector< double > fFADCstopTZero;
         vector< double > fFADCstopSum;
-        
+
         // mean pulse histograms
         TList* hMeanPulses;
         vector< TProfile2D* > hMeanPulseHigh;     //!< high gain mean pulse
@@ -111,14 +111,14 @@ class VImageAnalyzerData
         TList* hPulseSum;
         vector< TH1F* > hPulseSumHigh;            //!< integrated charge for high gain channels
         vector< TH1F* > hPulseSumLow;             //!< integrated charge for low gain channels
-        
+
         // dummy vector
         vector< unsigned int > iDummyVectorUI;
-        
+
         VImageAnalyzerData( unsigned int iTelID, unsigned int iShortTree = 0,
                             bool bCalibration = false, bool bWriteImagePixelList = false );
         ~VImageAnalyzerData() {}
-        
+
         void                     fillPulseSum( unsigned int, double, bool );
         TList*                   getMeanPulseHistograms()
         {

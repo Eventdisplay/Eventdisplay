@@ -5,7 +5,6 @@
 
 #include "VEvndispRunParameter.h"
 
-ClassImp( VEvndispRunParameter )
 
 VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobalRunParameter( bSetGlobalParameter )
 {
@@ -23,13 +22,13 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fEventDisplayBuildROOTVersion = "";
     fEventDisplayBuildROOTVersionInt = 0;
     fEventDisplaySystemInfo = 0;
-    
+
     fSGE_TASK_ID = 0;
-    
+
     // debug parameters
     fDebug = false;
     fPrintSmallArray = true;
-    
+
     // run parameters
 #ifdef RUNWITHDB
     fuseDB = true;
@@ -44,7 +43,7 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     // 3 = rawdata in VBF, 4 = DST (data), 5 = multiple GrIsu file,
     // 6 = PE file, 7 = DST (MC)
     fsourcefile = "";
-    
+
     fDBRunType = "";
     fDBDataStartTimeMJD = 0.;
     fDBDataStoppTimeMJD = 0.;
@@ -70,11 +69,11 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fPrintGrisuHeader = 0;
     finjectGaussianNoise = -1.;
     finjectGaussianNoiseSeed = 0;
-    
+
     fprintdeadpixelinfo = false ; // DEADCHAN if true, print list of dead pixels to evndisp.log
-    
+
     fSaveDeadPixelRegistry = false;
-    
+
     // geometry/calibration parameters
     fNTelescopes = 4;                             // there is always at least one telescope
     fcamera.push_back( "EVN_V4_Autumn2007_20130110.txt" );
@@ -97,15 +96,15 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fPixFileNumber.push_back( 0 );
     fIgnoreDSTGains = false;
     faverageTZeroFiducialRadius = 1.5;
-    
+
     fTelToAnalyze.push_back( 0 );
-    
+
     fDeadChannelFile = "EVNDISP.validchannels.dat";
-    
+
     fEpochFile = "VERITAS.Epochs.runparameter";
     fInstrumentEpoch = "noepoch";
     fAtmosphereID = 0;
-    
+
     fCameraCoordinateTransformX = 1.;
     fCameraCoordinateTransformY = 1.;
     //calibration read from DB
@@ -114,7 +113,7 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     freadCalibfromDB_save_file = false;
     fNoCalibNoPb = false;
     fNextDayGainHack = false;
-    
+
     // pointing parameters
     fTargetName = "NONAME";
     fTargetDec = -999.;
@@ -144,15 +143,15 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fMinStarBrightness_B = 7.;
     fMinStarPixelDistance_deg = -1.;
     fMinStarNTubes = 100000;
-    
+
     fGainCorrection.push_back( 1. );
-    
+
     fLowGainPeds = true;
-    
+
     // analyzer parameters
     fImageCleaningParameters.push_back( new VImageCleaningRunParameter( "cleaningParameters_mainPass" ) );
     fImageCleaningParameters_DB_Pass1.push_back( new VImageCleaningRunParameter( "cleaningParameters_DP_Pass1" ) );
-    
+
     fsumfirst.push_back( 2 );
     fSearchWindowLast.push_back( 9999 );
     fsumwindow_1.push_back( 12 );
@@ -205,7 +204,7 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fthroughputCorrectionFile = "";
     ftraceamplitudecorrectionFile = "";
     freconstructionparameterfile = "EVNDISP.reconstruction.runparameter";
-    
+
     ////////////////////////////////////////////////////////////////////////////////
     // pulse timing (fraction of maximum where times are determined)
     // OBSERVE: there should be a timing level with value 0.5 (for tzero calculations)
@@ -224,16 +223,16 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     }
     // get index for tzero and width
     setPulseZeroIndex();
-    
+
     fWriteTriggerOnly = true;
     fShortTree = 1;
     fwriteMCtree = 0;
     fFillMCHistos = true;
-    
+
     // muon parameters
     fmuonmode = false;
     fhoughmuonmode = false;
-    
+
     // output parameters
     ffillhistos = false;                          // obsolete
     foutputfileName = "";
@@ -252,7 +251,7 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fMCNdeadSeed = 0;
     fMCNdeadboard = 0;
     fMCScale = 1.;
-    
+
     // display parameters
     fdisplaymode = false;
     floopmode = false;
@@ -263,17 +262,17 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     fPlotRaw = false;
     fPlotPaper = false;
     fPlotAllInOneMethod = 0;
-    
+
     // writing of laser pulses
     fwriteLaserPulseN = 0;
     fwriteAverageLaserPulse = false;
-    
+
     // dst parameters
     fdstfile = "";
     fdstminntubes = -1;
     fdstwriteallpixel = true;
     fdstcalibration   = false;
-    
+
     // NN cleaning parameters
     ifWriteGraphsToFile = false;
     ifReadIPRfromDatabase = false;
@@ -283,11 +282,11 @@ VEvndispRunParameter::VEvndispRunParameter( bool bSetGlobalParameter ) : VGlobal
     {
         fFADCtoPhe[i] = -1.;
     }
-    
+
     fNNGraphsFile = "";
     fIPRdatabase = "";
     fIPRdatabaseFile = "";
-    
+
     // revisit default parameters depending on the observatory
     setDefaultParameters( getObservatory() );
 }
@@ -301,12 +300,12 @@ VEvndispRunParameter::~VEvndispRunParameter()
             delete fImageCleaningParameters[i];
         }
     }
-    
-    
+
+
 }
 
 /*
- * this is the only function where observatory (e.g. VTS or CTA) dependend parameter settings should appear
+ * this is the only function where observatory (e.g. VTS or CTA) dependent parameter settings should appear
 */
 void VEvndispRunParameter::setDefaultParameters( string iObservatory )
 {
@@ -337,13 +336,13 @@ void VEvndispRunParameter::print( int iEv )
     {
         cout << "VEvndispRunParameter::printParams()" << endl;
     }
-    
+
     // print less to screen for some variables for large arrays
     if( fTelToAnalyze.size() >= 10 )
     {
         fPrintSmallArray = false;
     }
-    
+
     cout << endl;
     if( iEv == 1 )
     {
@@ -395,7 +394,7 @@ void VEvndispRunParameter::print( int iEv )
         cout << "Eventdisplay version: " << getEVNDISP_VERSION() << endl;
         cout << "============================" << endl << endl;
     }
-    
+
     cout << "RUN " << frunnumber;
     if( fRunTitle.size() > 0 )
     {
@@ -453,7 +452,7 @@ void VEvndispRunParameter::print( int iEv )
     {
         cout << "SGE TASK ID " << fSGE_TASK_ID << endl;
     }
-    
+
     cout << endl;
     if( fTargetName.size() > 0 )
     {
@@ -603,13 +602,13 @@ void VEvndispRunParameter::print( int iEv )
         cout << "using low gain events only for pedestal calculation" << endl;
     }
     cout << endl;
-    
+
     if( fCalibrationDataType == 0 )
     {
         cout << "no calibration data available or calibration data is read from DST file" << endl;
     }
     cout << "signal charge unit is " << fFADCChargeUnit << endl;
-    
+
     if( frunmode == 0 || frunmode == 4 )
     {
         if( fUsePedestalsInTimeSlices || fLowGainUsePedestalsInTimeSlices )
@@ -653,11 +652,11 @@ void VEvndispRunParameter::print( int iEv )
         cout << endl;
         if( fL2TimeCorrect )
         {
-            cout << "Correcting FADC times for crate jitter with L2 signals" << endl;
+            cout << "Correcting FADC times for create jitter with L2 signals" << endl;
         }
         else
         {
-            cout << "No correcting FADC times for crate jitter with L2 signals" << endl;
+            cout << "No correcting FADC times for create jitter with L2 signals" << endl;
         }
         if( fFixWindowStart_sumwindow2 )
         {
@@ -679,7 +678,7 @@ void VEvndispRunParameter::print( int iEv )
         {
             cout << "Hough transform muon ring analysis: " << fhoughmuonmode << endl;
         }
-        
+
         if( fImageLL != 0 )
         {
             cout << "loglikelihood fitting of images: " << fImageLL;
@@ -721,7 +720,7 @@ void VEvndispRunParameter::print( int iEv )
         cout << " (paper plotting mode)";
     }
     cout << endl;
-    
+
     cout << "directories:" << endl;
     cout << "\t analysis data: " << getDirectory_EVNDISPAnaData() << endl;
     if( fsourcetype == 0 || fsourcetype == 2 || fsourcetype == 3 )
@@ -737,7 +736,7 @@ void VEvndispRunParameter::print( int iEv )
     {
         cout << "writing full MC tree with all MC events " << endl;
     }
-    
+
     // print analysis parameters
     if( iEv == 2 )
     {
@@ -745,7 +744,7 @@ void VEvndispRunParameter::print( int iEv )
         for( unsigned int i = 0; i < fTelToAnalyze.size(); i++ )
         {
             cout << "Telescope " << fTelToAnalyze[i] + 1 << endl;
-            
+
             // trace integration method
             if( fTraceIntegrationMethod[fTelToAnalyze[i]] != 0 )
             {
@@ -799,7 +798,7 @@ void VEvndispRunParameter::print( int iEv )
             cout << "\t LL edge fit: \t\t\tloss > " << fLogLikelihoodLoss_min[i];
             cout << "\t loss < " << fLogLikelihoodLoss_max[i];
             cout << "\t ntubes > " << fLogLikelihood_Ntubes_min[i] << endl;
-            
+
             // calibration
             if( fTelToAnalyze[i] < fGainCorrection.size() && TMath::Abs( fGainCorrection[fTelToAnalyze[i]] ) - 1. > 1.e-2 )
             {
@@ -845,7 +844,7 @@ void VEvndispRunParameter::print( int iEv )
             cout << endl;
         }
     }
-    
+
 }
 
 void VEvndispRunParameter::setPulseZeroIndex()
@@ -882,9 +881,9 @@ void VEvndispRunParameter::printCTA_DST()
     cout << "Eventdisplay version: " << getEVNDISP_VERSION() << endl;
     cout << "============================" << endl << endl;
     cout << fEventDisplayDate << endl;
-    
+
     cout << "Observatory: " << getObservatory() << endl;
-    
+
     cout << "RUN " << frunnumber << endl;
     cout << endl;
     cout << "source file " << fsourcefile << endl;
@@ -910,7 +909,7 @@ void VEvndispRunParameter::setSystemParameters()
     // get date
     TDatime t_time;
     fEventDisplayDate = t_time.AsSQLString();
-    
+
     // get host name
     fEventDisplayHost = gSystem->HostName();;
     // get user name
@@ -930,7 +929,7 @@ void VEvndispRunParameter::setSystemParameters()
     // get root info
     fEventDisplayBuildROOTVersion = gROOT->GetVersion();
     fEventDisplayBuildROOTVersionInt = gROOT->GetVersionInt();
-    
+
     const char* i_sge = gSystem->Getenv( "SGE_TASK_ID" );
     if( i_sge )
     {
@@ -975,7 +974,7 @@ bool VEvndispRunParameter::updateInstrumentEpochFromFile( string iEpocheFile,
     {
         return true;
     }
-    
+
     ifstream is;
     is.open( fEpochFile.c_str(), ifstream::in );
     if( !is )
@@ -1070,6 +1069,6 @@ unsigned int VEvndispRunParameter::getAtmosphereID( bool iUpdateInstrumentEpoch 
     {
         updateInstrumentEpochFromFile( "usedefault", false );
     }
-    
+
     return fAtmosphereID;
 }

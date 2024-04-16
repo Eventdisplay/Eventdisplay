@@ -7,7 +7,6 @@
 
 #include "VDispTableReader.h"
 
-ClassImp( VDispTableReader )
 
 VDispTableReader::VDispTableReader()
 {
@@ -19,27 +18,27 @@ VDispTableReader::VDispTableReader()
     az_max = 0.;
     woff = 0.;
     pedvar = 0.;
-    
+
     h2D_DispTable = 0;
     h2D_DispPhiTable = 0;
     h2D_DispTableN = 0;
     h2D_DispMissTable = 0;
-    
+
     h3D_DispTable = 0;
     h3D_DispPhiTable = 0;
     h3D_DispTableN = 0;
     h3D_DispMissTable = 0;
-    
+
     fHisto_ListOfVariables.push_back( "WidthOverLength" );
     fHisto_ListOfVariables.push_back( "ScaleLength" );
     fHisto_ListOfVariables.push_back( "ScaleWidth" );
     fHisto_ListOfVariables.push_back( "Size" );
-    
+
     setHistoBinning( "WidthOverLength", 50, 0., 1. );
     setHistoBinning( "ScaleLength", 50, 0., 1. );
     setHistoBinning( "ScaleWidth", 50, 0., 1. );
     setHistoBinning( "Size", 35, 0., 8. );
-    
+
     setWidthLengthScalingParameters();
 }
 
@@ -57,7 +56,7 @@ bool VDispTableReader::isHistoBinningSet( string iVariableName )
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -82,12 +81,12 @@ bool VDispTableReader::setHistoBinning( string iVariableName, int iBin, double i
         }
         return false;
     }
-    
+
     // set histogram variables
     fHisto_binning[iVariableName] = iBin;
     fHisto_min[iVariableName] = iMin;
     fHisto_max[iVariableName] = iMax;
-    
+
     return true;
 }
 
@@ -101,18 +100,18 @@ bool VDispTableReader::plot( int iEntry )
     if( fData && iEntry < fData->GetEntries() )
     {
         fData->GetEntry( iEntry );
-        
+
         if( h2D_DispTable )
         {
             TCanvas* c = new TCanvas( "cDisp", "disp table", 10, 10, 600, 400 );
             c->Draw();
-            
+
             h2D_DispTable->SetTitle( "" );
             h2D_DispTable->SetStats( 0 );
             h2D_DispTable->SetXTitle( "width/length" );
             h2D_DispTable->SetYTitle( "log_{10} size" );
             h2D_DispTable->Draw( "colz" );
-            
+
             // draw errors
             c = new TCanvas( "cDisperror", "disp table (errors)", 110, 10, 600, 400 );
             c->Draw();
@@ -137,7 +136,7 @@ bool VDispTableReader::plot( int iEntry )
         {
             TCanvas* c = new TCanvas( "cN", "disp table (entries)", 610, 10, 600, 400 );
             c->Draw();
-            
+
             h2D_DispTableN->SetTitle( "" );
             h2D_DispTableN->SetStats( 0 );
             h2D_DispTableN->SetXTitle( "width/length" );
@@ -148,7 +147,7 @@ bool VDispTableReader::plot( int iEntry )
         {
             TCanvas* c = new TCanvas( "cPhi", "dispPhi table", 110, 210, 600, 400 );
             c->Draw();
-            
+
             h2D_DispPhiTable->SetTitle( "" );
             h2D_DispPhiTable->SetStats( 0 );
             h2D_DispPhiTable->SetXTitle( "width/length" );
@@ -159,7 +158,7 @@ bool VDispTableReader::plot( int iEntry )
         {
             TCanvas* c = new TCanvas( "cMiss", "dispMiss table", 110, 310, 600, 400 );
             c->Draw();
-            
+
             h2D_DispMissTable->SetTitle( "" );
             h2D_DispMissTable->SetStats( 0 );
             h2D_DispMissTable->SetXTitle( "width/length" );
@@ -200,10 +199,10 @@ bool VDispTableReader::initialize( bool iRead )
         {
             return false;
         }
-        
+
         // list of histograms
         hisList = new TList;
-        
+
         h2D_DispTable = new TH2F( "h2D_DispTable", "disp table", fHisto_binning["WidthOverLength"], fHisto_min["WidthOverLength"], fHisto_max["WidthOverLength"], fHisto_binning["Size"], fHisto_min["Size"], fHisto_max["Size"] );
         if( hisList )
         {
@@ -224,7 +223,7 @@ bool VDispTableReader::initialize( bool iRead )
         {
             hisList->Add( h2D_DispTableN );
         }
-        
+
         h3D_DispTable = new TH3F( "h3D_DispTable", "disp table", fHisto_binning["ScaleWidth"], fHisto_min["ScaleWidth"], fHisto_max["ScaleWidth"], fHisto_binning["ScaleLength"], fHisto_min["ScaleLength"], fHisto_max["ScaleLength"], fHisto_binning["Size"], fHisto_min["Size"], fHisto_max["Size"] );
         if( hisList )
         {
@@ -245,7 +244,7 @@ bool VDispTableReader::initialize( bool iRead )
         {
             hisList->Add( h3D_DispTableN );
         }
-        
+
         fData = new TTree( "disp", "disp tables" );
         fData->Branch( "ze", &ze, "ze/F" );
         fData->Branch( "az_bin", &az_bin, "az_bin/i" );
@@ -273,17 +272,17 @@ bool VDispTableReader::initialize( bool iRead )
             fData->SetBranchAddress( "az_max", &az_max );
             fData->SetBranchAddress( "woff", &woff );
             fData->SetBranchAddress( "pedvar", &pedvar );
-            
+
             fData->SetBranchAddress( "h2D_DispTable", &h2D_DispTable );
             fData->SetBranchAddress( "h2D_DispPhiTable", &h2D_DispPhiTable );
             fData->SetBranchAddress( "h2D_DispMissTable", &h2D_DispMissTable );
             fData->SetBranchAddress( "h2D_DispTableN", &h2D_DispTableN );
-            
+
             fData->SetBranchAddress( "h3D_DispTable", &h3D_DispTable );
             fData->SetBranchAddress( "h3D_DispPhiTable", &h3D_DispPhiTable );
             fData->SetBranchAddress( "h3D_DispMissTable", &h3D_DispMissTable );
             fData->SetBranchAddress( "h3D_DispTableN", &h3D_DispTableN );
-            
+
             // fill data vectors
             f_ze.clear();
             f_az_min.clear();
@@ -294,7 +293,7 @@ bool VDispTableReader::initialize( bool iRead )
             for( int i = 0; i < fData->GetEntries(); i++ )
             {
                 fData->GetEntry( i );
-                
+
                 int i_found_ze = -99;
                 for( unsigned int j = 0; j < f_ze.size(); j++ )
                 {
@@ -308,7 +307,7 @@ bool VDispTableReader::initialize( bool iRead )
                     f_ze.push_back( ze );
                     i_found_ze = ( int )f_ze.size() - 1;
                 }
-                
+
                 int i_found_az = -99;
                 for( unsigned int j = 0; j < f_az_min.size(); j++ )
                 {
@@ -349,7 +348,7 @@ bool VDispTableReader::initialize( bool iRead )
                     f_noise.push_back( pedvar );
                     i_found_noise = f_noise.size() - 1;
                 }
-                
+
                 unsigned int i_ID = getTreeEntryID( i_found_ze, i_found_az, i_found_woff, i_found_noise );
                 fTreeEntry_Map[i_ID] = i;
             }
@@ -364,7 +363,7 @@ unsigned int VDispTableReader::getTreeEntryID( int i_found_ze, int i_found_az, i
     i_ID += ( unsigned int )i_found_woff * 100;
     i_ID += ( unsigned int )i_found_az * 100 * 100;
     i_ID += ( unsigned int )i_found_ze * 100 * 100 * 100;
-    
+
     return i_ID;
 }
 
@@ -402,7 +401,7 @@ bool VDispTableReader::fill( float i_ze, unsigned int i_az, float i_az_min, floa
     {
         return false;
     }
-    
+
     if( !h2D_DispTable )
     {
         return false;
@@ -435,19 +434,19 @@ bool VDispTableReader::fill( float i_ze, unsigned int i_az, float i_az_min, floa
     {
         return false;
     }
-    
+
     if( !fData )
     {
         return false;
     }
-    
+
     ze = i_ze;
     az_bin = i_az;
     az_min = i_az_min;
     az_max = i_az_max;
     woff = i_woff;
     pedvar = i_meanPedvars;
-    
+
     // fill 2D histograms
     for( int x = 0; x <= iH2D->GetNbinsX(); x++ )
     {
@@ -485,10 +484,10 @@ bool VDispTableReader::fill( float i_ze, unsigned int i_az, float i_az_min, floa
             }
         }
     }
-    
+
     // fill data tree
     fData->Fill();
-    
+
     // check that vectors are filled correctly
     if( fData->GetEntries() - 1 == ( int )( f_ze.size() ) )
     {
@@ -498,7 +497,7 @@ bool VDispTableReader::fill( float i_ze, unsigned int i_az, float i_az_min, floa
         f_woff.push_back( woff );
         f_noise.push_back( pedvar );
     }
-    
+
     return true;
 }
 
@@ -554,7 +553,7 @@ void VDispTableReader::print( bool bDetailed )
         for( int i = 0; i < fData->GetEntries(); i++ )
         {
             fData->GetEntry( i );
-            
+
             cout << i << ", ze " << ze << ", az_bin " << az_bin << ", az_min " << az_min;
             cout << ",az_max " << az_max << ",woff " << woff << ",pedvar " << pedvar << endl;
         }
@@ -607,14 +606,14 @@ int VDispTableReader::getTreeEntryFinder( unsigned int iID )
     {
         return fTreeEntry_Map[iID];
     }
-    
+
     cout << "VDispTableReader::getTreeEntryFinder: warning: no entry found for ID " << iID << endl;
-    
+
     for( map<unsigned int, int>::iterator i_iter = fTreeEntry_Map.begin(); i_iter != fTreeEntry_Map.end(); ++i_iter )
     {
         cout << ( *i_iter ).first << "\t" << ( *i_iter ).second << endl;
     }
-    
+
     return 0;
 }
 
@@ -627,7 +626,7 @@ void VDispTableReader::getIndexBoundary( unsigned int* iup, unsigned int* ilow, 
         *ilow = 0;
         return;
     }
-    
+
     if( x <= iV[0] )
     {
         *iup = *ilow = 0;
@@ -654,7 +653,7 @@ float VDispTableReader::getLowerZe( float iZe )
     unsigned int i_ze_bin_up  = 0;
     unsigned int i_ze_bin_low = 0;
     getIndexBoundary( &i_ze_bin_up, &i_ze_bin_low, f_ze, iZe );
-    
+
     return f_ze[i_ze_bin_low];
 }
 
@@ -663,7 +662,7 @@ float VDispTableReader::getUpperZe( float iZe )
     unsigned int i_ze_bin_up  = 0;
     unsigned int i_ze_bin_low = 0;
     getIndexBoundary( &i_ze_bin_up, &i_ze_bin_low, f_ze, iZe );
-    
+
     return f_ze[i_ze_bin_up];
 }
 
@@ -680,12 +679,12 @@ int VDispTableReader::getTreeEntryFinder( float iZe, float iAz, float iWoff, flo
     unsigned int i_az_bin = 0;
     unsigned int i_woff_bin = 0;
     unsigned int i_noise_bin = 0;
-    
+
     float i_diff = 1.e9;
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // zenith angle
     /////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     // get closest ze value
     if( iZe_Inter == 0 )
     {
@@ -714,13 +713,13 @@ int VDispTableReader::getTreeEntryFinder( float iZe, float iAz, float iWoff, flo
             i_ze_bin = i_ze_bin_up;
         }
     }
-    
+
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // azimuth angle
     /////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     i_az_bin = getAzBin( iAz );
-    
+
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // wobble offset (ignored?)
     /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -734,7 +733,7 @@ int VDispTableReader::getTreeEntryFinder( float iZe, float iAz, float iWoff, flo
             i_diff = TMath::Abs( iWoff - f_woff[i] );
         }
     }
-    
+
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // noise value (get closest value)
     /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -748,11 +747,11 @@ int VDispTableReader::getTreeEntryFinder( float iZe, float iAz, float iWoff, flo
             i_diff = TMath::Abs( iPedvar - f_noise[i] );
         }
     }
-    
+
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // now get tree entry number
     unsigned int iEntryID = getTreeEntryID( i_ze_bin, i_az_bin, i_woff_bin, i_noise_bin );
-    
+
     return getTreeEntryFinder( iEntryID );
 }
 
@@ -767,7 +766,6 @@ double VDispTableReader::scaleParameter( double iPara, double iScale )
     {
         return 0.;
     }
-    
+
     return 1. / ( 1. + 0.5 * TMath::Exp( 1 - iPara / iScale ) );
 }
-

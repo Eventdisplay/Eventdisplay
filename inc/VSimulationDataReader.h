@@ -11,13 +11,13 @@
 #include <sstream>
 #include <vector>
 
-#include <VArrayEvent.h>
-#include <VMonteCarloRunHeader.h>
-#include <VPacket.h>
-#include <VRawEventData.h>
-#include <VSimulationData.h>
+#include "VArrayEvent.h"
+#include "VMonteCarloRunHeader.h"
+#include "VPacket.h"
+#include "VRawEventData.h"
+#include "VSimulationData.h"
 #ifdef VBF_034
-#include <VCorsikaSimulationData.h>
+#include "VCorsikaSimulationData.h"
 #endif
 #include "VSkyCoordinatesUtilities.h"
 
@@ -31,7 +31,7 @@ class VSimulationDataReader
         VCorsikaSimulationData* fCorsikaSimulationData;
 #endif
         bool fDebug;
-        
+
         uint32_t  fEventNumber;
         long      fRunNumber;
         int    fMCprimary;
@@ -50,13 +50,13 @@ class VSimulationDataReader
         float fFirstInteractionDepth;
         int fCorsikaRunID;
         int fShowerID;
-        
+
         vector< bool > fLocalTrigger;
-        
+
     public:
         VSimulationDataReader();
         ~VSimulationDataReader() {}
-        
+
         vector< bool >&            getSLocalTrigger()
         {
             return fLocalTrigger;
@@ -135,12 +135,12 @@ class VSimulationDataReader
         {
             return fShowerID ;
         }
-        
+
         VMonteCarloRunHeader*      fillSimulationHeader( VPacket* packet );
         bool                       printSimulationHeader( VPacket* packet, int bPrintCFG = 0 );
         bool                       setSimulationData( VRawEventData* iraweventData );
         bool                       setSimulationData( VPacket* packet );
-        
+
         void                       setSimuDebugFlag()
         {
             fDebug = true;

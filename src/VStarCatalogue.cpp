@@ -5,15 +5,14 @@
 
 #include "VStarCatalogue.h"
 
-ClassImp( VStarCatalogue )
 
 VStarCatalogue::VStarCatalogue()
 {
     fDebug = false;
-    
+
     fCatalogue = "Hipparcos_MAG8_1997.dat";
     fCatalogueVersion = 0;
-    
+
     setTelescopePointing();
 }
 
@@ -45,7 +44,7 @@ bool VStarCatalogue::init( double MJD )
 bool VStarCatalogue::init( double iMJD, string iCatalogue )
 {
     fCatalogue = iCatalogue;
-    
+
     if( !readCatalogue() )
     {
         return false;
@@ -59,7 +58,7 @@ bool VStarCatalogue::init( double iMJD, string iCatalogue )
         // calculate galac coordinates
         VAstronometry::vlaEqgal( ra, dec, &i_l, &i_b );
         fStars[i]->fRunGalLong1958 = i_l * 180. / TMath::Pi();
-        
+
         // apply precesssion
         VAstronometry::vlaPreces( 2451545.0 - 2400000.5, iMJD, &ra, &dec );
         // calculate ra/dec for current epoch
@@ -77,10 +76,10 @@ bool VStarCatalogue::init( double iMJD, string iCatalogue )
 bool VStarCatalogue::readVERITASsourcesfromDB( string iofile )
 {
     char c_query[1000];
-    
+
     stringstream iTempS;
     iTempS << getDBServer() << "/VERITAS";
-    
+
     //std::cout<<"VStarCatalogue::readVERITASsourcesfromDB "<<std::endl;
     VDB_Connection my_connection( iTempS.str().c_str(), "readonly", "" ) ;
     if( !my_connection.Get_Connection_Status() )
@@ -88,33 +87,33 @@ bool VStarCatalogue::readVERITASsourcesfromDB( string iofile )
         cout << "VStarCatalogue: failed to connect to database server" << endl;
         return false;
     }
-    
+
     sprintf( c_query, "select * from tblObserving_Sources " );
-    
-    
+
+
     if( !my_connection.make_query( c_query ) )
     {
         return false;
     }
     TSQLResult* db_res = my_connection.Get_QueryResult();
-    
-    
+
+
     int fNRows = db_res->GetRowCount();
-    
+
     unsigned int zID = 0;
     double ra = 0.;
     double dec = 0.;
-    
+
     for( int i = 0; i < fNRows; i++ )
     {
         TSQLRow* db_row = db_res->Next();
-        
+
         if( db_row->GetField( 0 ) && db_row->GetField( 1 ) && db_row->GetField( 2 ) )
         {
             VStar* i_Star = new VStar();
             i_Star->fStarID = zID;
             i_Star->fStarName = db_row->GetField( 0 );
-            
+
             // don't read the dark spots
             if( i_Star->fStarName.substr( 0, 5 ) == "DARK_" )
             {
@@ -135,30 +134,30 @@ bool VStarCatalogue::readVERITASsourcesfromDB( string iofile )
             {
                 continue;
             }
-            
+
             ra = atof( db_row->GetField( 1 ) ) * 180. / TMath::Pi();
             dec = atof( db_row->GetField( 2 ) ) * 180. / TMath::Pi();
-            
+
             i_Star->fRA2000 = ra;
             i_Star->fDec2000 = dec;
             i_Star->fBrightness_V = -9999.;
             i_Star->fBrightness_B = -9999.;
             i_Star->fMajorDiameter = 0.;
             i_Star->fMajorDiameter_68 = 0.;
-            
+
             cout << "ID " << i_Star->fRA2000 << " " << i_Star->fDec2000 << endl;
-            
+
             fStars.push_back( i_Star );
             zID++;
         }
     }
-    
+
     if( my_connection.Get_Connection_Status() )
     {
         my_connection.Close_Connection();    // just so it get close as soon as possible. Before the end of the function.
     }
-    
-    
+
+
     // write sources into a text file
     if( iofile.size() > 0 )
     {
@@ -169,7 +168,7 @@ bool VStarCatalogue::readVERITASsourcesfromDB( string iofile )
             cout << "error opening file for VERITAS sources: " << iofile << endl;
             return false;
         }
-        
+
         os << "* V 4" << endl;
         for( unsigned int i = 0; i < fStars.size(); i++ )
         {
@@ -185,13 +184,13 @@ bool VStarCatalogue::readVERITASsourcesfromDB( string iofile )
         }
         os.close();
     }
-    
+
     return true;
 }
 
 
 /*!
-     attention: very dependend on format of text file
+     attention: very dependent on format of text file
 
      iV < 3:  Brightstarcatalogue
      iV == 3: tevcat
@@ -206,11 +205,11 @@ bool VStarCatalogue::readCatalogue()
         return readVERITASsourcesfromDB( "" );
     }
     //////////////////////////////////////
-    
+
     //////////////////////////////////////
     // READ catalogue from an ascii file
     //////////////////////////////////////
-    
+
     ifstream is;
     is.open( fCatalogue.c_str(), ifstream::in );
     if( !is )
@@ -241,7 +240,7 @@ bool VStarCatalogue::readCatalogue()
     int zid = 0;
     // catalogue version
     fCatalogueVersion = 0;
-    
+
     while( getline( is, iLine ) )
     {
         // hard maximum number of sources of 150,000 to avoid memory leaks
@@ -254,12 +253,12 @@ bool VStarCatalogue::readCatalogue()
         {
             continue;
         }
-        // skip the commend lines
+        // skip the comment lines
         if( iLine.substr( 0, 1 ) == "#" )
         {
             continue;
         }
-        
+
         // read catalogue version
         // (note: this defines the expected layout of the ascii file)
         if( iLine.substr( 0, 1 ) == "*" )
@@ -328,7 +327,7 @@ bool VStarCatalogue::readCatalogue()
             {
                 i_Star->fStarID = ( unsigned int )zid;
             }
-            
+
             if( fCatalogueVersion == 5 || fCatalogueVersion == 9 )
             {
                 is_stream >> iT1;
@@ -387,7 +386,7 @@ bool VStarCatalogue::readCatalogue()
             i_Star->fBrightness_B = 9999;
             i_Star->fMajorDiameter = 0.;
             i_Star->fMajorDiameter_68 = 0.;
-            // objet name
+            // object name
             if( fCatalogueVersion == 4 )
             {
                 i_Star->fStarName = iLine.substr( 24, iLine.size() );
@@ -441,7 +440,7 @@ bool VStarCatalogue::readCatalogue()
                     i_Star->fBrightness_B = 9999;
                 }
             }
-            
+
             // Hipparcos catalogue
             if( fCatalogueVersion == 10 )
             {
@@ -458,13 +457,13 @@ bool VStarCatalogue::readCatalogue()
                 i_Star->fBrightness_B = i_Star->fBrightness_V + atof( iT1.c_str() );
             }
         }
-        
+
         fStars.push_back( i_Star );
-        
+
         zid++;
     }
     is.close();
-    
+
     return true;
 }
 
@@ -473,23 +472,23 @@ VStar* VStarCatalogue::readCommaSeparatedLine_FAVA( string iLine, int zid, VStar
     string iT1;
     string iT2;
     string iT3;
-    
+
     i_Star->fStarID = zid;
     i_Star->fBrightness_V = 9999.;
     i_Star->fBrightness_B = 9999.;
-    
+
     if( iLine.size() == 0 )
     {
         return i_Star;
     }
-    
+
     string iTemp = iLine;
-    
+
     // star name
     i_Star->fStarName = iTemp.substr( 0, iTemp.find( "," ) );
-    
+
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // ra, dec
     istringstream is_stream( iTemp );
     is_stream >> iT1;
@@ -511,7 +510,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_FAVA( string iLine, int zid, VStar
     {
         i_Star->fDec2000 = atof( iT1.c_str() ) + atof( iT2.c_str() ) / 60. + atof( iT3.c_str() ) / 3600.;
     }
-    
+
     return i_Star;
 }
 
@@ -524,28 +523,28 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi2nd_Catalogue( string iLine, 
     i_Star->fStarID = zid;
     i_Star->fBrightness_V = 9999.;
     i_Star->fBrightness_B = 9999.;
-    
+
     if( iLine.size() == 0 )
     {
         return i_Star;
     }
-    
+
     string iTemp = iLine;
-    
+
     // star name
     i_Star->fStarName = iTemp.substr( 0, iTemp.find( "," ) );
-    
+
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // ra, dec
     i_Star->fRA2000 = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fDec2000 = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
-    
+
     // galactic latitude/longitude are calculated from ra, dec
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // ignore 68% values on position
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fMajorDiameter_68 = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
@@ -554,7 +553,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi2nd_Catalogue( string iLine, 
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fPositionAngle_68 = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 95% confidence radius
     i_Star->fMajorDiameter = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
@@ -562,21 +561,21 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi2nd_Catalogue( string iLine, 
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fPositionAngle = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // significance
     i_Star->fSignificance = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
-    
+
     for( unsigned int i = 0; i < 4; i++ )
     {
         iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     }
-    
+
     // spectral index
     i_Star->fSpectralIndex = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fSpectralIndexError = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 1 GeV to 100 GeV flux
     i_Star->fFluxEnergyMin.push_back( 1. );
     i_Star->fFluxEnergyMax.push_back( 1.e2 );
@@ -584,29 +583,29 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi2nd_Catalogue( string iLine, 
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     // spectral type
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fSpectrumType = iTemp.substr( 0, iTemp.find( "," ) );
-    
+
     for( unsigned int i = 0; i < 18; i++ )
     {
         iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     }
-    
+
     // cutoff energy
     i_Star->fCutOff_MeV = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fCutOffError_MeV = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     for( unsigned int i = 0; i < 6; i++ )
     {
         iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     }
-    
+
     // 100 MeV to 300 MeV
     i_Star->fFluxEnergyMin.push_back( 0.1 );
     i_Star->fFluxEnergyMax.push_back( 0.3 );
@@ -615,7 +614,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi2nd_Catalogue( string iLine, 
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 300 MeV to 1 GeV
     i_Star->fFluxEnergyMin.push_back( 0.3 );
     i_Star->fFluxEnergyMax.push_back( 1.0 );
@@ -624,7 +623,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi2nd_Catalogue( string iLine, 
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 1 GeV to 3 GeV
     i_Star->fFluxEnergyMin.push_back( 1.0 );
     i_Star->fFluxEnergyMax.push_back( 3.0 );
@@ -633,7 +632,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi2nd_Catalogue( string iLine, 
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 3 GeV to 10 GeV
     i_Star->fFluxEnergyMin.push_back( 3.0 );
     i_Star->fFluxEnergyMax.push_back( 10.0 );
@@ -642,7 +641,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi2nd_Catalogue( string iLine, 
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 10 GeV to 100 GeV
     i_Star->fFluxEnergyMin.push_back( 10.0 );
     i_Star->fFluxEnergyMax.push_back( 100.0 );
@@ -651,12 +650,12 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi2nd_Catalogue( string iLine, 
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     for( unsigned int i = 0; i < 113; i++ )
     {
         iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     }
-    
+
     // Other names
     for( unsigned int i = 0; i < 72; i++ )
     {
@@ -673,7 +672,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi2nd_Catalogue( string iLine, 
     {
         iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     }
-    
+
     // classification
     if( iTemp.substr( 0, iTemp.find( "," ) ).size() > 1 && iTemp.substr( 0, iTemp.find( "," ) ) != "  " )
     {
@@ -707,28 +706,28 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi_Catalogue( string iLine, int
     i_Star->fStarID = zid;
     i_Star->fBrightness_V = 9999.;
     i_Star->fBrightness_B = 9999.;
-    
+
     if( iLine.size() == 0 )
     {
         return i_Star;
     }
-    
+
     string iTemp = iLine;
-    
+
     // star name
     i_Star->fStarName = iTemp.substr( 0, iTemp.find( "," ) );
-    
+
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // ra, dec
     i_Star->fRA2000 = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fDec2000 = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
-    
+
     // galactic latitude/longitude are calculated from ra, dec
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // ignore 68% values on position
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fMajorDiameter_68 = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
@@ -737,7 +736,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi_Catalogue( string iLine, int
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fPositionAngle_68 = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 95% confidence radius
     i_Star->fMajorDiameter = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
@@ -745,21 +744,21 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi_Catalogue( string iLine, int
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fPositionAngle = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // significance
     i_Star->fSignificance = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
-    
+
     for( unsigned int i = 0; i < 4; i++ )
     {
         iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     }
-    
+
     // spectral index
     i_Star->fSpectralIndex = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fSpectralIndexError = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 1 GeV to 100 GeV flux
     i_Star->fFluxEnergyMin.push_back( 1. );
     i_Star->fFluxEnergyMax.push_back( 1.e2 );
@@ -767,12 +766,12 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi_Catalogue( string iLine, int
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     for( unsigned int i = 0; i < 6; i++ )
     {
         iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     }
-    
+
     // 100 MeV to 300 MeV
     i_Star->fFluxEnergyMin.push_back( 0.1 );
     i_Star->fFluxEnergyMax.push_back( 0.3 );
@@ -781,7 +780,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi_Catalogue( string iLine, int
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 300 MeV to 1 GeV
     i_Star->fFluxEnergyMin.push_back( 0.3 );
     i_Star->fFluxEnergyMax.push_back( 1.0 );
@@ -790,7 +789,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi_Catalogue( string iLine, int
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 1 GeV to 3 GeV
     i_Star->fFluxEnergyMin.push_back( 1.0 );
     i_Star->fFluxEnergyMax.push_back( 3.0 );
@@ -799,7 +798,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi_Catalogue( string iLine, int
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 3 GeV to 10 GeV
     i_Star->fFluxEnergyMin.push_back( 3.0 );
     i_Star->fFluxEnergyMax.push_back( 10.0 );
@@ -808,7 +807,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi_Catalogue( string iLine, int
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 10 GeV to 100 GeV
     i_Star->fFluxEnergyMin.push_back( 10.0 );
     i_Star->fFluxEnergyMax.push_back( 100.0 );
@@ -817,12 +816,12 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi_Catalogue( string iLine, int
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     for( unsigned int i = 0; i < 28; i++ )
     {
         iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     }
-    
+
     // Other names
     for( unsigned int i = 0; i < 72; i++ )
     {
@@ -869,45 +868,45 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi( string iLine, int zid, VSta
     i_Star->fStarID = zid;
     i_Star->fBrightness_V = 9999.;
     i_Star->fBrightness_B = 9999.;
-    
+
     if( iLine.size() == 0 )
     {
         return i_Star;
     }
-    
+
     string iTemp = iLine;
-    
+
     // star name
     i_Star->fStarName = iTemp.substr( 0, iTemp.find( "," ) );
-    
+
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // ra, dec
     i_Star->fRA2000 = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fDec2000 = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
-    
+
     // galactic latitude/longitude are calculated from ra, dec
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 95% confiduence radius
     i_Star->fMajorDiameter = atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() );
-    
+
     // ignore likelihood test
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 100 MeV to 1 GeV flux
     i_Star->fFluxEnergyMin.push_back( 1.e-2 );
     i_Star->fFluxEnergyMax.push_back( 1. );
-    
+
     i_Star->fFlux.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // 1 GeV to 100 GeV flux
     i_Star->fFluxEnergyMin.push_back( 1. );
     i_Star->fFluxEnergyMax.push_back( 1.e2 );
@@ -915,7 +914,7 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi( string iLine, int zid, VSta
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     i_Star->fFluxError.push_back( atof( iTemp.substr( 0, iTemp.find( "," ) ).c_str() ) );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     // Variability
     if( iTemp.substr( 0, iTemp.find( "," ) ) == "F" )
     {
@@ -925,12 +924,12 @@ VStar* VStarCatalogue::readCommaSeparatedLine_Fermi( string iLine, int zid, VSta
     {
         i_Star->fVariability = true;
     }
-    
+
     // Other names
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
     iTemp = iTemp.substr( iTemp.find( "," ) + 1, iTemp.size() );
-    
+
     if( iTemp.substr( 0, iTemp.find( "," ) ).size() > 0 )
     {
         i_Star->fOtherNames.push_back( iTemp.substr( 0, iTemp.find( "," ) ) );
@@ -974,9 +973,9 @@ void VStarCatalogue::printCatalogue( unsigned int i_nRows, double iMinBrightness
     {
         i_nRows = fStars.size();
     }
-    
+
     char hname[600];
-    
+
     for( unsigned int i = 0; i < i_nRows; i++ )
     {
         if( iBand == "V" && fStars[i]->fBrightness_V > iMinBrightness )
@@ -987,7 +986,7 @@ void VStarCatalogue::printCatalogue( unsigned int i_nRows, double iMinBrightness
         {
             continue;
         }
-        
+
         cout << fStars[i]->fStarID << "\t_" << fStars[i]->fStarName;
         cout << ", ra2000 = " << fStars[i]->fRA2000 << ", dec2000 = " << fStars[i]->fDec2000;
         cout << ", l = " << fStars[i]->fRunGalLong1958 << ", b = " << fStars[i]->fRunGalLat1958 << "\t";
@@ -1071,7 +1070,7 @@ void VStarCatalogue::printStarsInFOV( double iMinBrightness, string iBand )
         {
             continue;
         }
-        
+
         cout << fStarsinFOV[i]->fStarID << "\t" << fStars[i]->fStarName;
         cout << "  RA2000: " << fStarsinFOV[i]->fRA2000 << "  DEC2000: " << fStarsinFOV[i]->fDec2000 << "\t";
         cout << fStarsinFOV[i]->fRACurrentEpoch << "\t" << fStarsinFOV[i]->fDecCurrentEpoch;
@@ -1088,7 +1087,7 @@ double VStarCatalogue::getStarMajorDiameter( unsigned int iID )
     {
         return fStars[iID]->fMajorDiameter;
     }
-    
+
     return 0.;
 }
 
@@ -1106,7 +1105,7 @@ double VStarCatalogue::getStarBrightness( unsigned int iID, string iBand )
             return fStars[iID]->fBrightness_V;
         }
     }
-    
+
     return 0.;
 }
 
@@ -1117,7 +1116,7 @@ double VStarCatalogue::getStarDecCurrentEpoch( unsigned int iID )
     {
         return fStars[iID]->fDecCurrentEpoch;
     }
-    
+
     return 0.;
 }
 
@@ -1128,7 +1127,7 @@ double VStarCatalogue::getStarRACurrentEpoch( unsigned int iID )
     {
         return fStars[iID]->fRACurrentEpoch;
     }
-    
+
     return 0.;
 }
 
@@ -1139,9 +1138,9 @@ string VStarCatalogue::getStarName( unsigned int iID )
     {
         return fStars[iID]->fStarName;
     }
-    
+
     string iN = "NONAME";
-    
+
     return iN;
 }
 
@@ -1152,7 +1151,7 @@ unsigned int VStarCatalogue::getStarID( unsigned int iID )
     {
         return fStars[iID]->fStarID;
     }
-    
+
     return 0;
 }
 
@@ -1163,7 +1162,7 @@ double VStarCatalogue::getStarDec2000( unsigned int iID )
     {
         return fStars[iID]->fDec2000;
     }
-    
+
     return 0.;
 }
 
@@ -1174,7 +1173,7 @@ double VStarCatalogue::getStarRA2000( unsigned int iID )
     {
         return fStars[iID]->fRA2000;
     }
-    
+
     return 0.;
 }
 
@@ -1185,7 +1184,7 @@ double VStarCatalogue::getStar_l( unsigned int iID )
     {
         return fStars[iID]->fRunGalLong1958;
     }
-    
+
     return 0.;
 }
 
@@ -1196,7 +1195,7 @@ double VStarCatalogue::getStar_b( unsigned int iID )
     {
         return fStars[iID]->fRunGalLat1958;
     }
-    
+
     return 0.;
 }
 
@@ -1207,9 +1206,9 @@ vector< double > VStarCatalogue::getStarFluxEnergyMin( unsigned int iID )
     {
         return fStars[iID]->fFluxEnergyMin;
     }
-    
+
     vector< double > a;
-    
+
     return a;
 }
 
@@ -1220,9 +1219,9 @@ vector< double > VStarCatalogue::getStarFluxEnergyMax( unsigned int iID )
     {
         return fStars[iID]->fFluxEnergyMax;
     }
-    
+
     vector< double > a;
-    
+
     return a;
 }
 
@@ -1233,9 +1232,9 @@ vector< double > VStarCatalogue::getStarFlux( unsigned int iID )
     {
         return fStars[iID]->fFlux;
     }
-    
+
     vector< double > a;
-    
+
     return a;
 }
 
@@ -1246,9 +1245,9 @@ vector< double > VStarCatalogue::getStarFluxError( unsigned int iID )
     {
         return fStars[iID]->fFluxError;
     }
-    
+
     vector< double > a;
-    
+
     return a;
 }
 
@@ -1258,9 +1257,9 @@ string VStarCatalogue::getStarType( unsigned int iID )
     {
         return fStars[iID]->fType;
     }
-    
+
     string a;
-    
+
     return a;
 }
 
@@ -1271,9 +1270,9 @@ vector< string > VStarCatalogue::getStarOtherNames( unsigned int iID )
     {
         return fStars[iID]->fOtherNames;
     }
-    
+
     vector< string > a;
-    
+
     return a;
 }
 
@@ -1283,9 +1282,9 @@ vector< string > VStarCatalogue::getStarAssociations( unsigned int iID )
     {
         return fStars[iID]->fAssociations;
     }
-    
+
     vector< string > a;
-    
+
     return a;
 }
 
@@ -1295,7 +1294,7 @@ double VStarCatalogue::getStarSpectralIndex( unsigned int iID )
     {
         return fStars[iID]->fSpectralIndex;
     }
-    
+
     return 0.;
 }
 
@@ -1303,7 +1302,7 @@ unsigned int VStarCatalogue::setFOV( string ra_hour, string dec, double FOV_x, d
 {
     istringstream is_stream( ra_hour );
     string temp2;
-    
+
     double d_tt = 0.;
     is_stream >> temp2;
     d_tt += atof( temp2.c_str() );
@@ -1318,9 +1317,9 @@ unsigned int VStarCatalogue::setFOV( string ra_hour, string dec, double FOV_x, d
         d_tt += atof( temp2.c_str() ) / 3600.;
     }
     double iSkyMapCentreRAJ2000 = d_tt / 24. * 360.;
-    
+
     istringstream is_dec( dec );
-    
+
     d_tt = 0.;
     is_dec >> temp2;
     d_tt += atof( temp2.c_str() );
@@ -1335,9 +1334,9 @@ unsigned int VStarCatalogue::setFOV( string ra_hour, string dec, double FOV_x, d
         d_tt += atof( temp2.c_str() ) / 3600.;
     }
     double iSkyMapCentreDecJ2000 = d_tt;
-    
+
     cout << "FOV Centre in deg: " << iSkyMapCentreRAJ2000 << "\t" << iSkyMapCentreDecJ2000 << endl;
-    
+
     return setFOV( iSkyMapCentreRAJ2000, iSkyMapCentreDecJ2000, FOV_x, FOV_y, bJ2000 );
 }
 
@@ -1353,12 +1352,12 @@ unsigned int VStarCatalogue::setFOV( string ra_hour, string dec, double FOV_x, d
 unsigned int VStarCatalogue::setFOV( double ra, double dec, double iFOV_x, double iFOV_y, bool bJ2000, double iBrightness, string iBand )
 {
     double degrad = 180. / TMath::Pi();
-    
+
     fStarsinFOV.clear();
-    
+
     double iRA = 0.;
     double iDec = 0.;
-    
+
     for( unsigned int i = 0; i < fStars.size(); i++ )
     {
         if( iBand == "B" && fStars[i]->fBrightness_B > iBrightness )
@@ -1369,7 +1368,7 @@ unsigned int VStarCatalogue::setFOV( double ra, double dec, double iFOV_x, doubl
         {
             continue;
         }
-        
+
         if( bJ2000 )
         {
             iRA = fStars[i]->fRA2000;
@@ -1380,16 +1379,16 @@ unsigned int VStarCatalogue::setFOV( double ra, double dec, double iFOV_x, doubl
             iRA = fStars[i]->fRACurrentEpoch;
             iDec = fStars[i]->fDecCurrentEpoch;
         }
-        
+
         double x = 0.;
         double y = 0.;
         int ierr = 0;
-        
+
         VAstronometry::vlaDs2tp( iRA / degrad, iDec / degrad, ra / degrad, dec / degrad, &x, &y, &ierr );
-        
+
         x *= degrad;
         y *= degrad;
-        
+
         if( ierr == 0 && fabs( y ) < iFOV_y )
         {
             if( fabs( x ) < iFOV_x )
@@ -1418,7 +1417,7 @@ bool VStarCatalogue::writeCatalogueToRootFile( string iRootFile )
         return false;
     }
     TTree* tCat = new TTree( "tCat", "star catalogue" );
-    
+
     unsigned int fStarID = 0;
     Char_t fStarName[300];
     double fDec2000 = 0.;
@@ -1427,7 +1426,7 @@ bool VStarCatalogue::writeCatalogueToRootFile( string iRootFile )
     double fRunGalLat1958 = 0.;
     double fBrightness_V = 0.;
     double fBrightness_B = 0.;
-    double fMajorDiameter = 0.;                        // this is either the source diameter or the possitional error
+    double fMajorDiameter = 0.;                        // this is either the source diameter or the positional error
     double fMinorDiameter = 0.;
     double fPositionAngle = 0.;
     double fMajorDiameter_68 = 0.;
@@ -1454,7 +1453,7 @@ bool VStarCatalogue::writeCatalogueToRootFile( string iRootFile )
     unsigned int fVariability = 0;
     Char_t fStarType[300];
     int fQualityFlag = 0;
-    
+
     tCat->Branch( "StarID", &fStarID, "StarID/i" );
     tCat->Branch( "StarName", &fStarName, "StarName/C" );
     tCat->Branch( "Dec2000", &fDec2000, "Dec2000/D" );
@@ -1482,7 +1481,7 @@ bool VStarCatalogue::writeCatalogueToRootFile( string iRootFile )
     tCat->Branch( "CutOffError_MeV", &fCutOffError_MeV, "CutOffError_MeV/D" );
     tCat->Branch( "Class",  &fStarType, "Class/C" );
     tCat->Branch( "QualityFlag", &fQualityFlag, "QualityFlag/I" );
-    
+
     // fill tree
     for( unsigned int i = 0; i < fStars.size(); i++ )
     {
@@ -1507,7 +1506,7 @@ bool VStarCatalogue::writeCatalogueToRootFile( string iRootFile )
         fVariability = fStars[i]->fVariability;
         fCutOff_MeV  = fStars[i]->fCutOff_MeV;
         fCutOffError_MeV  = fStars[i]->fCutOffError_MeV;
-        
+
         if( fStars[i]->fFluxEnergyMin.size() > 0 && fStars[i]->fFluxEnergyMin.size() == fStars[i]->fFluxEnergyMax.size() && fStars[i]->fFlux.size() == fStars[i]->fFluxEnergyMin.size() && fStars[i]->fFluxError.size() == fStars[i]->fFluxEnergyMin.size() )
         {
             fFluxEnergyBins = fStars[i]->fFluxEnergyMin.size();
@@ -1522,12 +1521,12 @@ bool VStarCatalogue::writeCatalogueToRootFile( string iRootFile )
         sprintf( fStarType, "%s", fStars[i]->fType.c_str() );
         tCat->Fill();
     }
-    
+
     cout << "writing tree with " << tCat->GetEntries() << " entries to " << fOut.GetName() << endl;
     tCat->Write();
-    
+
     fOut.Close();
-    
+
     return true;
 }
 
@@ -1537,14 +1536,14 @@ VStar* VStarCatalogue::getStar( unsigned int ID )
     {
         return fStars[ID];
     }
-    
+
     return 0;
 }
 
 bool VStarCatalogue::checkTextBlocks( string iL, unsigned int iV )
 {
     unsigned int iTB = VUtilities::count_number_of_textblocks( iL );
-    
+
     // check for correct number of text blocks
     // e.g. Hipparcos_MAG7_1997.dat
     if( iV == 10 && iTB != 5 )
@@ -1556,7 +1555,7 @@ bool VStarCatalogue::checkTextBlocks( string iL, unsigned int iV )
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -1584,9 +1583,9 @@ double VStarCatalogue::getDistanceToClosestStar( double x_cam_deg, double y_cam_
 {
     double x_rot = 0.;
     double y_rot = 0.;
-    
+
     double i_minDist = 1.e20;
-    
+
     // loop over all stars in the FOV
     for( unsigned int i = 0; i < fStarsinFOV.size(); i++ )
     {
@@ -1602,14 +1601,14 @@ double VStarCatalogue::getDistanceToClosestStar( double x_cam_deg, double y_cam_
         VSkyCoordinatesUtilities::rotate( -1.*fTel_deRotationAngle_deg * TMath::DegToRad(), x_rot, y_rot );
         x_rot *= -1. * fTel_camerascale;
         y_rot *= fTel_camerascale;
-        
+
         double i_dist = sqrt( ( x_cam_deg - x_rot ) * ( x_cam_deg - x_rot ) + ( y_cam_deg - y_rot ) * ( y_cam_deg - y_rot ) );
-        
+
         if( i_dist < i_minDist )
         {
             i_minDist = i_dist;
         }
     }
-    
+
     return i_minDist;
 }

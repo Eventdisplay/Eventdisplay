@@ -3,9 +3,9 @@
 #ifndef VCALIBRATOR_H
 #define VCALIBRATOR_H
 
-#include <VImageBaseAnalyzer.h>
-#include <VPedestalCalculator.h>
-#include <VDB_CalibrationInfo.h>
+#include "VImageBaseAnalyzer.h"
+#include "VPedestalCalculator.h"
+#include "VDB_CalibrationInfo.h"
 
 #include "TClonesArray.h"
 #include "TFile.h"
@@ -28,11 +28,11 @@ class VCalibrator : public VImageBaseAnalyzer
 {
     private:
         int fCalibrationfileVersion;
-        
+
         map< ULong64_t, int > fNumberPedestalEvents;        //!< number of events used in pedestal analysis
         vector<int> fNumberGainEvents;            //!< number of events used in gain and toffset analysis
         vector<int> fNumberTZeroEvents;
-        
+
         TFile* fPedSingleOutFile;
         map< ULong64_t, TFile* > fPedOutFile;
         map< ULong64_t, vector< vector<TH1F* > > > hpedPerTelescopeType;  //<! one histogram per teltype/channel/sumwindow
@@ -46,7 +46,7 @@ class VCalibrator : public VImageBaseAnalyzer
         vector<TH1F* > htoff;
         vector<TProfile* > htoff_vs_sum;
         int fPedPerTelescopeTypeMinCnt;                         // statistical limit for IPR calculation
-        
+
         //Extra calib output.
         TTree* tExtra_ChargeTree;
         vector<double>* fExtra_sum;
@@ -64,13 +64,13 @@ class VCalibrator : public VImageBaseAnalyzer
         int fExtra_nMon;
         int fExtra_nPix;
         int fExtra_eventNumber;
-        
+
         // average Tzero calculation
         vector< TFile* > fTZeroOutFile;
         // one histogram per telescope and channel
         vector< vector< TH1F* > > htzero;
         vector< vector< TH1F* > > htaverage;
-        
+
         vector< string > fPedFileNameC;
         vector< string > fGainFileNameC;
         vector< string > fToffFileNameC;
@@ -83,7 +83,7 @@ class VCalibrator : public VImageBaseAnalyzer
         vector< string > fLowGainToffFileNameC;
         vector< string > fLowGainMultiplierNameC;
         vector< string > fLowGainTZeroFileNameC;
-        
+
         TTree* fillCalibrationSummaryTree( unsigned int itel, string iName, vector<TH1F* > h );
         bool   fillPedestalTree( unsigned int tel, VPedestalCalculator* iP );
         bool   initializePedestalHistograms( ULong64_t iTelType, bool iLowGain,
@@ -113,18 +113,18 @@ class VCalibrator : public VImageBaseAnalyzer
         void readTOffsets( bool iLowGain = false );
         bool readAverageTZeros( bool iLowGain = false );
         void setCalibrationFileNames();
-        
+
         void writeGains( bool iLowGain = false );
         void writePeds( bool iLowGain, VPedestalCalculator* iP = 0, bool iWriteAsciiFile = true );
         void writeTOffsets( bool iLowGain = false );
         void writeAverageTZeros( bool iLowGain = false );
         bool writeIPRgraphs( string iFile = "" );
-        
-        
+
+
     public:
         VCalibrator();
         ~VCalibrator() {}
-        
+
         void calculateAverageTZero( bool iLowGain = false );
         void calculatePedestals( bool iLowGain = false );
         void calculateGainsAndTOffsets( bool iLowGain = false );

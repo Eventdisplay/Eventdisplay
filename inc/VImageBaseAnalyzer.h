@@ -3,7 +3,7 @@
 #ifndef VIMAGEBASEANALYZER_H
 #define VIMAGEBASEANALYZER_H
 
-#include <VEvndispData.h>
+#include "VEvndispData.h"
 
 #include "TTree.h"
 
@@ -19,7 +19,7 @@ class VImageBaseAnalyzer : public VEvndispData
     protected:
         vector<bool> fCalibrated;                 //!  true = calibration is done
         bool fRaw;
-        
+
         void calcSecondTZerosSums();
         void calcTZeros( int , int );
         void calcTZerosSums( int, int, unsigned int );
@@ -29,14 +29,14 @@ class VImageBaseAnalyzer : public VEvndispData
         bool setSpecialChannels();
         void timingCorrect();
         TTree* makeDeadChannelTree();
-        
+
         void initializeTrace( bool iMakingPeds, unsigned int i_channelHitID,
                               unsigned int i, unsigned int iTraceIntegrationMethod );
-                              
+
     public:
         VImageBaseAnalyzer() {}
         ~VImageBaseAnalyzer() {}
-        
+
         void           calcSums( int iFirst , int iLast, bool iMakingPeds, bool iLowGainOnly = false, unsigned int iTraceIntegrationMethod = 9999 );
         unsigned int   fillHiLo();                          //!< fill hi/low gain vector
         int            fillSaturatedChannels();

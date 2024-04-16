@@ -7,7 +7,6 @@
 
 #include "VMonteCarloRunHeader.h"
 
-ClassImp( VMonteCarloRunHeader )
 
 VMonteCarloRunHeader::VMonteCarloRunHeader()
 {
@@ -22,10 +21,10 @@ void VMonteCarloRunHeader::reset()
     detector_prog_id = 0;    ///< sim_telarray=1, ...
     detector_prog_vers = 0;  ///< version * 1000
     converter_prog_vers = 0;  ///< version * 1000
-    
+
     shower_date = 0;
     detector_date = 0;
-    
+
     obsheight = 9.;        ///< Height of simulated observation level.
     num_showers = 0;         ///< Number of showers simulated.
     num_use = 0;             ///< Number of uses of each shower.
@@ -59,9 +58,9 @@ void VMonteCarloRunHeader::reset()
     corsika_low_E_detail = 0;
     corsika_high_E_detail = 0;
     detector_Simulator = "NOSET";
-    
+
     fFADC_hilo_multipler = -999.;
-    
+
     combined_runHeader = false;
 }
 
@@ -89,7 +88,7 @@ void VMonteCarloRunHeader::printMCAz( bool iLowerLimit )
         cout <<  TMath::Nint( az_range[0] * 45. / atan( 1. ) ) << endl;
         return;
     }
-    
+
     cout << TMath::Nint( az_range[1] * 45. / atan( 1. ) ) << endl;
 }
 
