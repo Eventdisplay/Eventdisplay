@@ -441,7 +441,7 @@ void VImageAnalyzer::terminate( bool iDebug_IO )
     {
         fOutputfile->cd();
         fAnaDir[fTelID]->cd();
-        // write calibration summaries
+        // write calibration summaries (not for DST analysis)
         if( getRunParameter()->fsourcetype != 7 )
         {
             getCalibrationData()->terminate( getDead( false ), getDead( true ), getRunParameter()->fTraceIntegrationMethod[fTelID] );

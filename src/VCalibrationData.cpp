@@ -589,8 +589,6 @@ bool VCalibrationData::terminate( vector< unsigned int > iDead, vector< unsigned
                 }
                 
                 
-                
-                
                 if( i < fLowGainGains.size() )
                 {
                     igainlowgain = fLowGainGains[i];

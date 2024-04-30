@@ -3928,6 +3928,8 @@ bool VCalibrator::readCalibrationDatafromDSTFiles( string iDSTfile, bool iPedOnl
     float fConv_high[VDST_MAXCHANNELS];
     float fConv_low[VDST_MAXCHANNELS];
     float ftzero[VDST_MAXCHANNELS];
+    float fTransitTime_high[VDST_MAXCHANNELS];
+    float fTransitTime_low[VDST_MAXCHANNELS];
     
     for( unsigned int i = 0; i < VDST_MAXCHANNELS; i++ )
     {
@@ -3973,6 +3975,8 @@ bool VCalibrator::readCalibrationDatafromDSTFiles( string iDSTfile, bool iPedOnl
     }
     t->SetBranchAddress( "conv_high", fConv_high );
     t->SetBranchAddress( "conv_low", fConv_low );
+    t->SetBranchAddress( "transit_time_high", fTransitTime_high );
+    t->SetBranchAddress( "transit_time_low", fTransitTime_low );
     if( t->GetBranch( "tzero" ) )
     {
         t->SetBranchAddress( "tzero", ftzero );
@@ -4280,8 +4284,24 @@ bool VCalibrator::readCalibrationDatafromDSTFiles( string iDSTfile, bool iPedOnl
             cout << nPixel << "\t" << getAverageTZeros( false ).size();
             cout << " (telescope " << getTelID() + 1 << ")" << endl;
         }
+        ////////////////
+        // toffsets (from laser gain calibration)
+        double FADCslice = getDetectorGeometry()->getLengthOfSampleTimeSlice( getTelID() );
+        if( nPixel == getTOffsets( false ).size() )
+        {
+            for( unsigned int p = 0; p < nPixel; p++ )
+            {
+                getTOffsets( false )[p] = fTransitTime_high[p] * FADCslice;
+            }
+        }
+        if( nPixel == getTOffsets( true ).size() )
+        {
+            for( unsigned int p = 0; p < nPixel; p++ )
+            {
+                getTOffsets( true )[p] = fTransitTime_low[p] * FADCslice;
+            }
+        }
     }
-    
     ////////////////////////////////////////////////////////////////////////////
     // get average tzero per telescope type
     // use median, as outliers are expected

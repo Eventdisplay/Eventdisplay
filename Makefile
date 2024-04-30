@@ -81,7 +81,6 @@ endif
 ifeq ($(strip $(HESSIOSYS)),)
 HESSIO = FALSE
 endif
-CTAPROD=PROD5
 #####################
 # FITS ROUTINES
 # (optional, necessary for root to FITS converter)
