@@ -8,6 +8,9 @@ LABEL maintainer.email="gernot.maier@desy.de"
 WORKDIR /eventdisplay_workdir/
 ENV EVNDISP /eventdisplay_workdir/
 
+# Install zstd
+RUN dnf update -q -y && dnf install -y zstd
+
 # Install hessioxx
 ADD hessioxxx.tar.gz /eventdisplay_workdir/
 WORKDIR /eventdisplay_workdir/hessioxxx
@@ -41,6 +44,9 @@ ENV LD_LIBRARY_PATH "${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
 ENV LD_LIBRARY_PATH "${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
 ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc
 ENV SOFASYS "${EVNDISPSYS}/sofa"
+
+# Install zstd
+RUN dnf update -q -y && dnf install -y zstd
 
 # Install Eventdisplay Analysis files
 RUN git clone --depth 1 https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA.git
