@@ -364,6 +364,7 @@ class VTableLookupDataHandler
         float fYoff_T[VDST_MAXTELESCOPES];      //! direction reconstructed for each telescope
         float fWoff_T[VDST_MAXTELESCOPES];      //! direction reconstructed for each telescope (weight)
         float fDoff_T[VDST_MAXTELESCOPES];      //! (disp value)
+        float fDispAbsSumWeigth;                //! sum of absolute values of disp weights
         unsigned int fToff_T[VDST_MAXTELESCOPES]; //! list of telescope participating in disp
         unsigned int fnxyoff;                   //! number of images used for disp direction reconstruction
         // difference in disp event direction between telescopes
@@ -382,7 +383,7 @@ class VTableLookupDataHandler
         VTableLookupDataHandler( bool iWrite, VTableLookupRunParameter* iT = 0 );
         ~VTableLookupDataHandler() {}
         
-        bool cut()                                //!< apply cuts on successfull reconstruction to input data
+        bool cut()                                //!< apply cuts on successful reconstruction to input data
         {
             return cut( false );
         }

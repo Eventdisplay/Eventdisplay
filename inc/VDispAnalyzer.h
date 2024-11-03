@@ -50,6 +50,7 @@ class VDispAnalyzer
         vector< float > fdisp_xs_T;
         vector< float > fdisp_ys_T;
         vector< float > fdisp_xy_weight_T;
+        float fdisp_sum_abs_weigth;
         vector< float > fdisp_T;
         vector< unsigned int > fdisplist_T;
         
@@ -221,6 +222,10 @@ class VDispAnalyzer
                 return fdisp_xy_weight_T[i];
             }
             return -999.;
+        }
+        float get_abs_sum_disp_weight()
+        {
+            return fdisp_sum_abs_weigth;
         }
         bool  initialize( string iFile, string iDispMethod, string iDispType = "BDTDisp" );
         bool  isZombie()
