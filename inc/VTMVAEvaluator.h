@@ -165,6 +165,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         float    fDispDiff_log10;
         float    fDispDiff_gt0;
         float    fDispDiff_gt0_bool;
+        float    fDispAbsSumWeigth;
         float    fDummy;
         
         bool     bPlotEfficiencyPlotsPerBin;
@@ -352,7 +353,7 @@ class VTMVAEvaluator : public TNamed, public VPlotUtilities
         void   setTMVAMethod( string iMethodName = "BDT", int iMethodCounter = 0 );
         bool   writeOptimizedMVACutValues( string iRootFile );
         
-        ClassDef( VTMVAEvaluator, 51 );
+        ClassDef( VTMVAEvaluator, 52 );
 };
 
 #endif

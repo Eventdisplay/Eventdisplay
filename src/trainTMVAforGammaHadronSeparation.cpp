@@ -91,7 +91,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     // reduced tree (and name)
     TTree* iDataTree_reduced = 0;
     // list of variables copied.
-    // must be at least the variables used for the training
+    // must include at least the variables used for the training
     Double_t MSCW = 0.;
     Double_t MSCL = 0.;
     Double_t ErecS = 0.;
@@ -111,6 +111,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Float_t EmissionHeightChi2 = 0.;
     Double_t SizeSecondMax = 0.;
     Double_t DispDiff = 0.;
+    Float_t DispAbsSumWeigth = 0.;
     Double_t MCe0 = 0.;
     iDataTree_reduced = new TTree( iDataTree_reducedName.c_str(), iDataTree_reducedName.c_str() );
     iDataTree_reduced->Branch( "MSCW", &MSCW, "MSCW/D" );
@@ -127,6 +128,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "EmissionHeightChi2", &EmissionHeightChi2, "EmissionHeightChi2/F" );
     iDataTree_reduced->Branch( "SizeSecondMax", &SizeSecondMax, "SizeSecondMax/D" );
     iDataTree_reduced->Branch( "DispDiff", &DispDiff, "DispDiff/D" );
+    iDataTree_reduced->Branch( "DispAbsSumWeigth", &DispAbsSumWeigth, "DispAbsSumWeigth/F" );
     iDataTree_reduced->Branch( "MCe0", &MCe0, "MCe0/D" );
     
     Long64_t n = 0;
@@ -149,6 +151,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
             iTreeVector[i]->SetBranchAddress( "EmissionHeightChi2", &EmissionHeightChi2 );
             iTreeVector[i]->SetBranchAddress( "SizeSecondMax", &SizeSecondMax );
             iTreeVector[i]->SetBranchAddress( "DispDiff", &DispDiff );
+            iTreeVector[i]->SetBranchAddress( "DispAbsSumWeigth", &DispAbsSumWeigth );
             if( iTreeVector[i]->GetBranchStatus( "MCe0" ) )
             {
                 iTreeVector[i]->SetBranchAddress( "MCe0", &MCe0 );
@@ -232,7 +235,6 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
             iRun->fBackgroundTree[i] = 0;
         }
     }
-    
     return iDataTree_reduced;
 }
 
@@ -398,8 +400,6 @@ bool train( VTMVARunData* iRun,
     }
     
     TMVA::Tools::Instance();
-    
-    // set output directory
     gSystem->mkdir( iRun->fOutputDirectoryName.c_str() );
     TString iOutputDirectory( iRun->fOutputDirectoryName.c_str() );
     gSystem->ExpandPathName( iOutputDirectory );
@@ -747,4 +747,3 @@ int main( int argc, char* argv[] )
     }
     return 0;
 }
-

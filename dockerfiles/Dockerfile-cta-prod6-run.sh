@@ -5,7 +5,7 @@
 
 if [ $# -lt 3 ]; then
 	echo "
-    ./run.sh <sim_telarray file> <zenith angle, e.g., 20deg> <nsb condition (dark/moon/fullmoon)> [layout file]
+    ./run.sh <sim_telarray file> <zenith angle, e.g., 20deg> <nsb condition (dark/half moon/full moon)> [layout file]
 
 	     [layout file (optional)] e.g., CTA.prod6S.Am-0LSTs14MSTs37SSTs.lis
 	"
@@ -33,9 +33,9 @@ OUTPUTFILE=$(basename "${DATAFILE}" .zst)
 rm -f /tmp/"${OUTPUTFILE}"*
 
 # calibration file
-if [[ $NSB == *"fullmoon"* ]]; then
+if [[ $NSB == *"full"* ]]; then
     IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-full-ze${ZE}-IPR.root"
-elif [[ $NSB == *"moon"* ]]; then
+elif [[ $NSB == *"half"* ]]; then
     IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-half-ze${ZE}-IPR.root"
 else
     IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-dark-ze${ZE}-IPR.root"

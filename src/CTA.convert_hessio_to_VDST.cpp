@@ -1039,6 +1039,8 @@ TList* DST_fillCalibrationTree( VDSTTree* fData, AllHessData* hsdata,
     float* fPedvar_low = new float[VDST_MAXCHANNELS * VDST_MAXSUMWINDOW];
     float fConv_high[VDST_MAXCHANNELS];
     float fConv_low[VDST_MAXCHANNELS];
+    float fTransitTime_high[VDST_MAXCHANNELS];
+    float fTransitTime_low[VDST_MAXCHANNELS];
     float fTZero[VDST_MAXCHANNELS];
     float fTZeroMean = -999.;
     float fTZeroMedian = -999.;
@@ -1051,6 +1053,8 @@ TList* DST_fillCalibrationTree( VDSTTree* fData, AllHessData* hsdata,
         fPed_low[i] = 0.;
         fConv_high[i] = 0.;
         fConv_low[i] = 0.;
+        fTransitTime_high[i] = 0.;
+        fTransitTime_low[i] = 0.;
         fTZero[i] = -999.;
         for( unsigned int j = 0; j < VDST_MAXSUMWINDOW; j++ )
         {
@@ -1082,6 +1086,8 @@ TList* DST_fillCalibrationTree( VDSTTree* fData, AllHessData* hsdata,
     t->Branch( "pedvar_low", fPedvar_low, hname, VDST_MAXCHANNELS * VDST_MAXSUMWINDOW * 4 );
     t->Branch( "conv_high", fConv_high, "conv_high[NPixel]/F" );
     t->Branch( "conv_low", fConv_low, "conv_low[NPixel]/F" );
+    t->Branch( "transit_time_high", fTransitTime_high, "transit_time_high[NPixel]/F" );
+    t->Branch( "transit_time_low", fTransitTime_low, "transit_time_low[NPixel]/F" );
     t->Branch( "tzero", fTZero, "tzero[NPixel]/F" );
     t->Branch( "tzero_mean_tel", &fTZeroMean, "tzero_mean_tel/F" );
     t->Branch( "tzero_med_tel", &fTZeroMedian, "tzero_med_tel/F" );
@@ -1202,13 +1208,16 @@ TList* DST_fillCalibrationTree( VDSTTree* fData, AllHessData* hsdata,
             for( unsigned int p = 0; p < nPixel; p++ )
             {
                 fConv_high[p] = hsdata->tel_lascal[itel].calib[HI_GAIN][p] * CALIB_SCALE;
+                fTransitTime_high[p] =  hsdata->tel_lascal[itel].tm_calib[HI_GAIN][p];
                 if( hsdata->tel_lascal[itel].known && hsdata->tel_lascal[itel].num_gains > 1 )
                 {
                     fConv_low[p]  = hsdata->tel_lascal[itel].calib[LO_GAIN][p] * CALIB_SCALE;
+                    fTransitTime_low[p] =  hsdata->tel_lascal[itel].tm_calib[LO_GAIN][p];
                 }
                 else
                 {
                     fConv_low[p] = -999.;
+                    fTransitTime_low[p] = -999.;
                 }
                 fTZero[p] = -999.;
                 if( fData )
@@ -1227,6 +1236,7 @@ TList* DST_fillCalibrationTree( VDSTTree* fData, AllHessData* hsdata,
             {
                 fsumwindow[w] = ( unsigned int )( TMath::Nint( iT_sumwindow[w] ) );
             }
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////
             t->Fill();
         }
     }

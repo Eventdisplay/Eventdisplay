@@ -929,6 +929,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
             fXoff = -99.;
             fYoff = -99.;
         }
+        fDispAbsSumWeigth = fDispAnalyzerDirection->get_abs_sum_disp_weight();
     }
     ////////////////////////////////////////////////////////////////////
     // Standard (intersection) method for all other cases
@@ -944,6 +945,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
         fXoff_derot = i_SR.fShower_Xoffset;
         fYoff_derot = i_SR.fShower_Yoffset;
         fstdS = i_SR.fShower_DispDiff;
+        fDispAbsSumWeigth = 0.;
     }
 
     // overwrite the values read from the evndisp file with the newly
@@ -1780,6 +1782,7 @@ bool VTableLookupDataHandler::setOutputFile( string iOutput, string iOption, str
     fOTree->Branch( "DispXoff_T", fXoff_T, "DispXoff_T[DispNImages]/F" );
     fOTree->Branch( "DispYoff_T", fYoff_T, "DispYoff_T[DispNImages]/F" );
     fOTree->Branch( "DispWoff_T", fWoff_T, "DispWoff_T[DispNImages]/F" );
+    fOTree->Branch( "DispAbsSumWeigth", &fDispAbsSumWeigth, "fDispAbsSumWeigth/F" );
     fOTree->Branch( "Disp_T", fDoff_T, "Disp_T[DispNImages]/F" );
     fOTree->Branch( "DispTelList_T", fToff_T, "DispTelList_T[DispNImages]/i" );
     fOTree->Branch( "DispDiff", &fDispDiff, "DispDiff/D" );
@@ -2854,6 +2857,7 @@ void VTableLookupDataHandler::resetAll()
     fMC_distance_to_cameracenter_min = 0.;
     fMC_distance_to_cameracenter_max = 1.e10;
     fDispDiff = 0;
+    fDispAbsSumWeigth = 0.;
     // deep learner parameters
     dl_gammaness = 0.;
     dl_isGamma = false;

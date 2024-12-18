@@ -157,6 +157,7 @@ class CData
         //[NTelPairs]
         Float_t         EmissionHeightT[VDST_MAXTELESCOPES* VDST_MAXTELESCOPES];
         Double_t        DispDiff;  // from disp method
+        Float_t         DispAbsSumWeigth;
         UInt_t          DispNImages;
         // Deep Learner Parameters
         Double_t         dl_gammaness;
@@ -265,6 +266,7 @@ class CData
         TBranch*        b_NTelPairs;              //!
         TBranch*        b_EmissionHeightT;        //!
         TBranch*        b_DispDiff; //disp
+        TBranch*        b_DispAbsSumWeigth;
         TBranch*        b_DispNImages; //disp
         // deep learner parameters
         TBranch*        b_dl_gammaness;             //!
@@ -1030,6 +1032,14 @@ void CData::Init( TTree* tree )
     {
         DispDiff = 0.;
     }
+    if( fChain->GetBranchStatus( "DispAbsSumWeigth" ) )
+    {
+        fChain->SetBranchAddress( "DispAbsSumWeigth", &DispAbsSumWeigth );
+    }
+    else
+    {
+        DispAbsSumWeigth = 0.;
+    }
     if( fChain->GetBranchStatus( "DispNImages" ) )
     {
         fChain->SetBranchAddress( "DispNImages", &DispNImages );
@@ -1171,6 +1181,14 @@ Bool_t CData::Notify()
     else
     {
         b_DispDiff = 0;
+    }
+    if( fChain->GetBranchStatus( "DispAbsSumWeigth" ) )
+    {
+        b_DispAbsSumWeigth = fChain->GetBranch( "DispAbsSumWeigth" );
+    }
+    else
+    {
+        b_DispAbsSumWeigth = 0;
     }
     if( fChain->GetBranchStatus( "DispNImages" ) )
     {
