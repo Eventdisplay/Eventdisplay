@@ -919,7 +919,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                                        +  dlength* dlength );
             }
 
-            dispEnergy = i_showerpars.MCe0
+            dispEnergy = i_showerpars.MCe0;
             dispCore   = Rcore;
 
             if( fMapOfTrainingTree.find( fTelType[i] ) != fMapOfTrainingTree.end() )
@@ -998,8 +998,8 @@ int main( int argc, char* argv[] )
     {
         iTMVAOptions = argv[7];
     }
-    if( argc >= 9 )
     string       iLayoutFile = "";
+    if( argc >= 9 )
     {
         iLayoutFile = argv[8];
     }
