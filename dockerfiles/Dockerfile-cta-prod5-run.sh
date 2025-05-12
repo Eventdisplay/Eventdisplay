@@ -9,7 +9,7 @@ if [ $# -lt 1 ]; then
 	echo
 	echo [layout file (optional)] e.g., CTA.prod5S.BL-4LSTs25MSTs70SSTs-MSTF.lis
 	"
-        exit
+    exit
 fi
 
 DATAFILE=${1}
@@ -27,8 +27,8 @@ if [[ -z ${LAYOUTFILE} ]]; then
     fi
 fi
 
-OUTPUTFILE=$(basename ${DATAFILE} .zst)
-rm -f /tmp/${OUTPUTFILE}*
+OUTPUTFILE=$(basename "${DATAFILE}" .zst)
+rm -f /tmp/"${OUTPUTFILE}"*
 
 # calibration file
 if [[ $DATAFILE == *"dark"* ]]; then
