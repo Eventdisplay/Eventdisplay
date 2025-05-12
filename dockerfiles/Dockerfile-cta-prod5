@@ -3,7 +3,7 @@ FROM ubuntu:16.04
 LABEL maintainer.name="Eventdisplay Team"
 LABEL maintainer.email="gernot.maier@desy.de"
 
-# force ubunto to use bash for /bin/sh
+# force Ubuntu to use bash for /bin/sh
 # (otherwise trouble with many evndisp scripts)
 RUN yes no | dpkg-reconfigure dash
 
@@ -61,12 +61,8 @@ RUN cd ${EVNDISPSYS} && \
 ENV LD_LIBRARY_PATH "${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${LD_LIBRARY_PATH}"
 ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc
 
-# Install Eventdisplay Analysis files
+# Install Eventdisplay Analysis files (from main)
 RUN git clone --depth 1 https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA.git
-# ARG ANAVERSION=1.7.0
-# RUN wget --quiet https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA/archive/refs/tags/v$ANAVERSION.zip && \
-#    unzip -qq v$ANAVERSION.zip && rm -f v$ANAVERSION.zip && \
-#    mv Eventdisplay_AnalysisFiles_CTA-$ANAVERSION Eventdisplay_AnalysisFiles_CTA
 ENV CTA_EVNDISP_AUX_DIR ${EVNDISP}/Eventdisplay_AnalysisFiles_CTA/
 ENV OBS_EVNDISP_AUX_DIR ${EVNDISP}/Eventdisplay_AnalysisFiles_CTA
 ENV OBS_USER_DATA_DIR /tmp/
