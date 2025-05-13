@@ -16,7 +16,7 @@ ADD hessioxxx.tar.gz /eventdisplay_workdir/
 WORKDIR /eventdisplay_workdir/hessioxxx
 RUN make EXTRA_DEFINES="-DCTA_PROD4 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG"
 ENV HESSIOSYS=${EVNDISP}/hessioxxx
-ENV LD_LIBRARY_PATH="${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
+ENV LD_LIBRARY_PATH="${HESSIOSYS}/lib"
 
 # Install Eventdisplay
 WORKDIR /eventdisplay_workdir/
@@ -40,7 +40,7 @@ LABEL maintainer.email="gernot.maier@desy.de"
 ENV EVNDISP=/eventdisplay_workdir/
 ENV EVNDISPSYS=${EVNDISP}/Eventdisplay/
 ENV HESSIOSYS=${EVNDISP}/hessioxxx
-ENV LD_LIBRARY_PATH="${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
+ENV LD_LIBRARY_PATH="${HESSIOSYS}/lib"
 ENV LD_LIBRARY_PATH="${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
 ENV ROOT_INCLUDE_PATH=${EVNDISPSYS}/inc
 ENV SOFASYS="${EVNDISPSYS}/sofa"
