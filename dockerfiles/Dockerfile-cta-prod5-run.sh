@@ -74,7 +74,7 @@ do
     if [[ $IMAGE == "sq2" ]]; then
         EVNDISPOPT="-imagesquared"
         OFILENAME="${OUTPUTFILE}.sq2"
-    elif [[ $IMAGE == "lin2" ]]; then
+    elif [[ $IMAGE == "lin" ]]; then
         EVNDISPOPT="-writeimagepixellist"
         OFILENAME="${OUTPUTFILE}.lin"
     elif [[ $IMAGE == "SST30ns" ]]; then
