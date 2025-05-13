@@ -6,12 +6,12 @@ LABEL maintainer.name="Eventdisplay Team"
 LABEL maintainer.email="gernot.maier@desy.de"
 
 WORKDIR /workdir/
-ENV EVNDISP /workdir/
+ENV +EVNDISP=/workdir/
 
 # Install Eventdisplay
 WORKDIR /workdir/
-ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
-ENV SOFASYS ${EVNDISPSYS}/sofa/
+ENV +EVNDISPSYS=${EVNDISP}/Eventdisplay/
+ENV +SOFASYS=${EVNDISPSYS}/sofa/
 RUN BUILD_BRANCH=$(echo ${BUILD_BRANCH} | sed 's#refs/tags/##') && \
     git clone -b ${BUILD_BRANCH} https://github.com/Eventdisplay/Eventdisplay.git --depth 1
 WORKDIR /workdir/Eventdisplay/
@@ -26,14 +26,14 @@ COPY --from=build /workdir/Eventdisplay /workdir/Eventdisplay
 LABEL maintainer.name="Eventdisplay Team"
 LABEL maintainer.email="gernot.maier@desy.de"
 
-ENV EVNDISP /workdir/
-ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
-ENV LD_LIBRARY_PATH "${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
-ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc
-ENV SOFASYS "${EVNDISPSYS}/sofa"
+ENV +EVNDISP=/workdir/
+ENV +EVNDISPSYS=${EVNDISP}/Eventdisplay/
+ENV +LD_LIBRARY_PATH="${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
+ENV +ROOT_INCLUDE_PATH=${EVNDISPSYS}/inc
+ENV +SOFASYS="${EVNDISPSYS}/sofa"
 
 # Install Eventdisplay Analysis files
 RUN git clone --depth 1 https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA.git
-ENV CTA_EVNDISP_AUX_DIR ${EVNDISP}/Eventdisplay_AnalysisFiles_CTA/
-ENV OBS_EVNDISP_AUX_DIR ${EVNDISP}/Eventdisplay_AnalysisFiles_CTA
-ENV OBS_USER_DATA_DIR /tmp/
+ENV +CTA_EVNDISP_AUX_DIR=${EVNDISP}/Eventdisplay_AnalysisFiles_CTA/
+ENV +OBS_EVNDISP_AUX_DIR=${EVNDISP}/Eventdisplay_AnalysisFiles_CTA
+ENV +OBS_USER_DATA_DIR=/tmp/

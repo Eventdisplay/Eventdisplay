@@ -27,7 +27,7 @@ RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /eventdisplay_workdir/
-ENV EVNDISP /eventdisplay_workdir/
+ENV +EVNDISP=/eventdisplay_workdir/
 
 # Install hessioxx
 COPY hessioxxx.tar.gz .
@@ -35,8 +35,8 @@ RUN tar -xvzf hessioxxx.tar.gz && \
    cd hessioxxx && \
    make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG" && \
    cd .. && rm -f hessioxxx.tar.gz
-ENV HESSIOSYS ${EVNDISP}/hessioxxx
-ENV LD_LIBRARY_PATH "${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
+ENV +HESSIOSYS=${EVNDISP}/hessioxxx
+ENV +LD_LIBRARY_PATH="${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
 
 # Install ROOT
 RUN wget --quiet https://root.cern/download/root_v6.22.08.Linux-ubuntu16-x86_64-gcc5.4.tar.gz && \
@@ -44,13 +44,13 @@ RUN wget --quiet https://root.cern/download/root_v6.22.08.Linux-ubuntu16-x86_64-
     rm -f root_v6.22.08.Linux-ubuntu16-x86_64-gcc5.4.tar.gz && \
     echo /opt/root/lib >> /etc/ld.so.conf && \
     ldconfig
-ENV ROOTSYS ${EVNDISP}/root
-ENV LD_LIBRARY_PATH "${ROOTSYS}/lib/:${LD_LIBRARY_PATH}"
-ENV PATH ${ROOTSYS}/bin:${PATH}
+ENV +ROOTSYS=${EVNDISP}/root
+ENV +LD_LIBRARY_PATH="${ROOTSYS}/lib/:${LD_LIBRARY_PATH}"
+ENV +PATH=${ROOTSYS}/bin:${PATH}
 
 # Install Eventdisplay
-ENV EVNDISPSYS ${EVNDISP}/Eventdisplay/
-ENV SOFASYS ${EVNDISPSYS}/sofa/
+ENV +EVNDISPSYS=${EVNDISP}/Eventdisplay/
+ENV +SOFASYS=${EVNDISPSYS}/sofa/
 RUN mkdir -p ${EVNDISP}/Eventdisplay
 COPY Eventdisplay ${EVNDISP}/Eventdisplay/
 RUN cd ${EVNDISPSYS} && ./install_sofa.sh
@@ -58,14 +58,14 @@ RUN cd ${EVNDISPSYS} && \
     make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD6 && \
     rm -f obj/*.o obj/*.cpp
 
-ENV LD_LIBRARY_PATH "${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${LD_LIBRARY_PATH}"
-ENV ROOT_INCLUDE_PATH ${EVNDISPSYS}/inc
+ENV +LD_LIBRARY_PATH="${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${LD_LIBRARY_PATH}"
+ENV +ROOT_INCLUDE_PATH=${EVNDISPSYS}/inc
 
 # Install Eventdisplay Analysis files (from main)
 RUN git clone --depth 1 https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA.git
-ENV CTA_EVNDISP_AUX_DIR ${EVNDISP}/Eventdisplay_AnalysisFiles_CTA/
-ENV OBS_EVNDISP_AUX_DIR ${EVNDISP}/Eventdisplay_AnalysisFiles_CTA
-ENV OBS_USER_DATA_DIR /tmp/
+ENV +CTA_EVNDISP_AUX_DIR=${EVNDISP}/Eventdisplay_AnalysisFiles_CTA/
+ENV +OBS_EVNDISP_AUX_DIR=${EVNDISP}/Eventdisplay_AnalysisFiles_CTA
+ENV +OBS_USER_DATA_DIR=/tmp/
 
 # Copy run script
 RUN cp ${EVNDISPSYS}/dockerfiles/Dockerfile-cta-prod6-run.sh ${EVNDISP}/run.sh
