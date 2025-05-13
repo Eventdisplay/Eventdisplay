@@ -6,8 +6,8 @@
 if [ $# -lt 1 ]; then
 	echo "
 	./run.sh <sim_telarray file> [layout file]
-	echo
-	echo [layout file (optional)] e.g., CTA.prod5S.BL-4LSTs25MSTs70SSTs-MSTF.lis
+
+	     [layout file (optional)] e.g., CTA.prod5S.BL-4LSTs25MSTs70SSTs-MSTF.lis
 	"
     exit
 fi
@@ -68,18 +68,23 @@ echo "${IPRFILE}"
 	-o "/tmp/${OUTPUTFILE}.dst.root" \
 	"${DATAFILE}" > "/tmp/${OUTPUTFILE}.convert.log"
 
-for IMAGE in lin sq2
+for IMAGE in lin sq2 SST30ns
 do
+    RUNPARA="EVNDISP.prod5.reconstruction.runparameter"
     if [[ $IMAGE == "sq2" ]]; then
         EVNDISPOPT="-imagesquared"
         OFILENAME="${OUTPUTFILE}.sq2"
-    else
+    elif [[ $IMAGE == "lin2" ]]; then
         EVNDISPOPT="-writeimagepixellist"
         OFILENAME="${OUTPUTFILE}.lin"
+    elif [[ $IMAGE == "SST30ns" ]]; then
+        EVNDISPOPT="-imagesquared"
+        OFILENAME="${OUTPUTFILE}.sq2.SST30ns"
+        RUNPARA="EVNDISP.prod5.reconstruction.runparameter.SST30ns"
     fi
     "$EVNDISPSYS"/bin/evndisp -averagetzerofiducialradius=0.5 \
             $EVNDISPOPT \
-            -reconstructionparameter EVNDISP.prod5.reconstruction.runparameter \
+            -reconstructionparameter "$RUNPARA" \
             -sourcefile /tmp/"${OUTPUTFILE}".dst.root \
             -outputfile /tmp/"${OFILENAME}".root > /tmp/"${OFILENAME}".evndisp.log
 
