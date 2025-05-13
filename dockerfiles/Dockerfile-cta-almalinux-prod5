@@ -6,7 +6,7 @@ LABEL maintainer.name="Eventdisplay Team"
 LABEL maintainer.email="gernot.maier@desy.de"
 
 WORKDIR /eventdisplay_workdir/
-ENV +EVNDISP=/eventdisplay_workdir/
+ENV EVNDISP=/eventdisplay_workdir/
 
 # Install zstd
 RUN dnf update -q -y && dnf install -y zstd
@@ -15,13 +15,13 @@ RUN dnf update -q -y && dnf install -y zstd
 ADD hessioxxx.tar.gz /eventdisplay_workdir/
 WORKDIR /eventdisplay_workdir/hessioxxx
 RUN make EXTRA_DEFINES="-DCTA_PROD4 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG"
-ENV +HESSIOSYS=${EVNDISP}/hessioxxx
-ENV +LD_LIBRARY_PATH="${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
+ENV HESSIOSYS=${EVNDISP}/hessioxxx
+ENV LD_LIBRARY_PATH="${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
 
 # Install Eventdisplay
 WORKDIR /eventdisplay_workdir/
-ENV +EVNDISPSYS=${EVNDISP}/Eventdisplay/
-ENV +SOFASYS=${EVNDISPSYS}/sofa/
+ENV EVNDISPSYS=${EVNDISP}/Eventdisplay/
+ENV SOFASYS=${EVNDISPSYS}/sofa/
 RUN BUILD_BRANCH=$(echo ${BUILD_BRANCH} | sed 's#refs/tags/##') && \
     git clone -b ${BUILD_BRANCH} https://github.com/Eventdisplay/Eventdisplay.git --depth 1
 WORKDIR /eventdisplay_workdir/Eventdisplay/
@@ -37,22 +37,22 @@ COPY --from=build /eventdisplay_workdir/Eventdisplay /eventdisplay_workdir/Event
 LABEL maintainer.name="Eventdisplay Team"
 LABEL maintainer.email="gernot.maier@desy.de"
 
-ENV +EVNDISP=/eventdisplay_workdir/
-ENV +EVNDISPSYS=${EVNDISP}/Eventdisplay/
-ENV +HESSIOSYS=${EVNDISP}/hessioxxx
-ENV +LD_LIBRARY_PATH="${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
-ENV +LD_LIBRARY_PATH="${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
-ENV +ROOT_INCLUDE_PATH=${EVNDISPSYS}/inc
-ENV +SOFASYS="${EVNDISPSYS}/sofa"
+ENV EVNDISP=/eventdisplay_workdir/
+ENV EVNDISPSYS=${EVNDISP}/Eventdisplay/
+ENV HESSIOSYS=${EVNDISP}/hessioxxx
+ENV LD_LIBRARY_PATH="${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
+ENV LD_LIBRARY_PATH="${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
+ENV ROOT_INCLUDE_PATH=${EVNDISPSYS}/inc
+ENV SOFASYS="${EVNDISPSYS}/sofa"
 
 # Install zstd
 RUN dnf update -q -y && dnf install -y zstd
 
 # Install Eventdisplay Analysis files
 RUN git clone --depth 1 https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA.git
-ENV +CTA_EVNDISP_AUX_DIR=${EVNDISP}/Eventdisplay_AnalysisFiles_CTA/
-ENV +OBS_EVNDISP_AUX_DIR=${EVNDISP}/Eventdisplay_AnalysisFiles_CTA
-ENV +OBS_USER_DATA_DIR=/tmp/
+ENV CTA_EVNDISP_AUX_DIR=${EVNDISP}/Eventdisplay_AnalysisFiles_CTA/
+ENV OBS_EVNDISP_AUX_DIR=${EVNDISP}/Eventdisplay_AnalysisFiles_CTA
+ENV OBS_USER_DATA_DIR=/tmp/
 
 # Copy run script
 RUN cp ${EVNDISPSYS}/dockerfiles/Dockerfile-cta-prod5-run.sh ${EVNDISP}/run.sh
