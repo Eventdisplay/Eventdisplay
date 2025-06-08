@@ -31,8 +31,6 @@
 using namespace std;
 
 bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, bool iGammaHadronSeparation, string fRunOption );
-bool trainGammaHadronSeparation( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, string fRunOption );
-bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, string fRunOption );
 
 /*
  * check settings for number of training events;
@@ -100,6 +98,8 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Double_t Ycore = 0.;
     Double_t Xoff_derot = 0.;
     Double_t Yoff_derot = 0.;
+    Float_t Xoff_intersect = 0.;
+    Float_t Yoff_intersect = 0.;
     Int_t NImages = 0;
     // fixed max number of telescope types
     UInt_t NImages_Ttype[20];
@@ -113,6 +113,8 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Double_t DispDiff = 0.;
     Float_t DispAbsSumWeigth = 0.;
     Double_t MCe0 = 0.;
+    Double_t MCxoff = 0.;
+    Double_t MCyoff = 0.;
     iDataTree_reduced = new TTree( iDataTree_reducedName.c_str(), iDataTree_reducedName.c_str() );
     iDataTree_reduced->Branch( "MSCW", &MSCW, "MSCW/D" );
     iDataTree_reduced->Branch( "MSCL", &MSCL, "MSCL/D" );
@@ -122,6 +124,8 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "Ycore", &Ycore, "Ycore/D" );
     iDataTree_reduced->Branch( "Xoff_derot", &Xoff_derot, "Xoff_derot/D" );
     iDataTree_reduced->Branch( "Yoff_derot", &Yoff_derot, "Yoff_derot/D" );
+    iDataTree_reduced->Branch( "Xoff_intersect", &Xoff_intersect, "Xoff_intersect/F" );
+    iDataTree_reduced->Branch( "Yoff_intersect", &Yoff_intersect, "Yoff_intersect/F" );
     iDataTree_reduced->Branch( "NImages", &NImages, "NImages/I" );
     iDataTree_reduced->Branch( "NImages_Ttype", NImages_Ttype, "NImages_Ttype[20]/i" );
     iDataTree_reduced->Branch( "EmissionHeight", &EmissionHeight, "EmissionHeight/F" );
@@ -130,6 +134,8 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "DispDiff", &DispDiff, "DispDiff/D" );
     iDataTree_reduced->Branch( "DispAbsSumWeigth", &DispAbsSumWeigth, "DispAbsSumWeigth/F" );
     iDataTree_reduced->Branch( "MCe0", &MCe0, "MCe0/D" );
+    iDataTree_reduced->Branch( "MCxoff", &MCxoff, "MCxoff/D" );
+    iDataTree_reduced->Branch( "MCyoff", &MCyoff, "MCyoff/D" );
 
     Long64_t n = 0;
 
@@ -145,6 +151,8 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
             iTreeVector[i]->SetBranchAddress( "Ycore", &Ycore );
             iTreeVector[i]->SetBranchAddress( "Xoff_derot", &Xoff_derot );
             iTreeVector[i]->SetBranchAddress( "Yoff_derot", &Yoff_derot );
+            iTreeVector[i]->SetBranchAddress( "Xoff_intersect", &Xoff_intersect );
+            iTreeVector[i]->SetBranchAddress( "Yoff_intersect", &Yoff_intersect );
             iTreeVector[i]->SetBranchAddress( "NImages", &NImages );
             iTreeVector[i]->SetBranchAddress( "NImages_Ttype", NImages_Ttype );
             iTreeVector[i]->SetBranchAddress( "EmissionHeight", &EmissionHeight );
@@ -155,6 +163,8 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
             if( iTreeVector[i]->GetBranchStatus( "MCe0" ) )
             {
                 iTreeVector[i]->SetBranchAddress( "MCe0", &MCe0 );
+                iTreeVector[i]->SetBranchAddress( "MCxoff", &MCxoff );
+                iTreeVector[i]->SetBranchAddress( "MCyoff", &MCyoff );
             }
             if(!iDataTree_reduced )
             {
@@ -236,31 +246,10 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     return iDataTree_reduced;
 }
 
-/*!
-
-     train the MVA
-
-*/
-
-bool trainGammaHadronSeparation( VTMVARunData* iRun,
-                                 unsigned int iEnergyBin, unsigned int iZenithBin,
-                                 string fRunOption )
-{
-    return train( iRun, iEnergyBin, iZenithBin, true, fRunOption );
-}
-
-bool trainReconstructionQuality( VTMVARunData* iRun,
-                                 unsigned int iEnergyBin, unsigned int iZenithBin,
-                                 string fRunOption )
-{
-    return train( iRun, iEnergyBin, iZenithBin, false, fRunOption );
-}
-
 
 bool train( VTMVARunData* iRun,
             unsigned int iEnergyBin, unsigned int iZenithBin,
-            bool iTrainGammaHadronSeparation,
-            string fRunOption )
+            string iRunMode, string fRunOption )
 {
     // sanity checks
     if(!iRun )
@@ -411,14 +400,22 @@ bool train( VTMVARunData* iRun,
     TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
     ////////////////////////////
     // train gamma/hadron separation
-    if( iTrainGammaHadronSeparation )
+    if( iRunMode == "TrainGammaHadronSeparation" )
     {
         dataloader->AddSignalTree( iSignalTree_reduced, iRun->fSignalWeight );
         dataloader->AddBackgroundTree( iBackgroundTree_reduced, iRun->fBackgroundWeight );
     }
     ////////////////////////////
+    // train for angular reconstruction method
+    else if( iRunMode == "TrainAngularReconstructionMethod" )
+    {
+        TCut signalCut = "sqrt((Xoff_derot-MCxoff)*(Xoff_derot-MCxoff)+((Yoff_derot-MCyoff)*(Yoff_derot-MCyoff))) < sqrt((Xoff_intersect-MCxoff)*(Xoff_intersect-MCxoff)+((Yoff_intersect-MCyoff)*(Yoff_intersect-MCyoff)))";
+        TCut backgrCut = "sqrt((Xoff_derot-MCxoff)*(Xoff_derot-MCxoff)+((Yoff_derot-MCyoff)*(Yoff_derot-MCyoff))) > sqrt((Xoff_intersect-MCxoff)*(Xoff_intersect-MCxoff)+((Yoff_intersect-MCyoff)*(Yoff_intersect-MCyoff)))";
+        dataloader->SetInputTrees( iSignalTree_reduced, signalCut, backgrCut );
+    }
+    ////////////////////////////
     // train reconstruction quality
-    else
+    else if( iRunMode == "TrainReconstructionQuality" )
     {
         dataloader->AddSignalTree( iSignalTree_reduced, iRun->fSignalWeight );
         dataloader->AddRegressionTarget( iRun->fReconstructionQualityTarget.c_str(), iRun->fReconstructionQualityTargetName.c_str() );
@@ -438,7 +435,7 @@ bool train( VTMVARunData* iRun,
     //////////////////////////////////////////
     // prepare training events
     // (cuts are already applied at an earlier stage)
-    if( iTrainGammaHadronSeparation )
+    if( iRunMode == "TrainGammaHadronSeparation" )
     {
         cout << "Preparing training and test tree" << endl;
         // cuts after pre-selection
@@ -451,6 +448,7 @@ bool train( VTMVARunData* iRun,
                                                 iCutBck_post,
                                                 iRun->fPrepareTrainingOptions );
     }
+    // TODO check if cuts need to be applied
     else
     {
         dataloader->PrepareTrainingAndTestTree( "", iRun->fPrepareTrainingOptions );
@@ -473,47 +471,26 @@ bool train( VTMVARunData* iRun,
         }
 
         //////////////////////////
-        if( iRun->fMVAMethod[i] != "BOXCUTS" )
+        if( iRunMode == "TrainGammaHadronSeparation" )
         {
-            if( iTrainGammaHadronSeparation )
-            {
-                sprintf( htitle, "%s_%u", iRun->fMVAMethod[i].c_str(), i );
-            }
-            else
-            {
-                sprintf( htitle, "%s_RecQuality_%u", iRun->fMVAMethod[i].c_str(), i );
-            }
-            if( i < iRun->fMVAMethod_Options.size() )
-            {
-                cout << "Booking method " << htitle << endl;
-                factory->BookMethod( dataloader, i_tmva_type, htitle, iRun->fMVAMethod_Options[i].c_str() );
-            }
-            else
-            {
-                factory->BookMethod( dataloader, i_tmva_type, htitle );
-            }
+            sprintf( htitle, "%s_%u", iRun->fMVAMethod[i].c_str(), i );
         }
-        //////////////////////////
-        // BOX CUTS
-        // (note: box cuts needs additional checking, as the code might be outdated)
-        else if( iRun->fMVAMethod[i] == "BOXCUTS" )
+        else if( iRunMode == "TrainAngularReconstructionMethod" )
         {
-            stringstream i_opt;
-            i_opt << iRun->fMVAMethod_Options[i].c_str();
-            for( unsigned int i = 0; i < iRun->fTrainingVariable_CutRangeMin.size(); i++ )
-            {
-                i_opt << ":CutRangeMin[" << i << "]=" << iRun->fTrainingVariable_CutRangeMin[i];
-            }
-            for( unsigned int i = 0; i < iRun->fTrainingVariable_CutRangeMax.size(); i++ )
-            {
-                i_opt << ":CutRangeMax[" << i << "]=" << iRun->fTrainingVariable_CutRangeMax[i];
-            }
-            for( unsigned int i = 0; i < iRun->fTrainingVariable_VarProp.size(); i++ )
-            {
-                i_opt << ":VarProp[" << i << "]=" << iRun->fTrainingVariable_VarProp[i];
-            }
-            sprintf( htitle, "BOXCUTS_%u_%u", iEnergyBin, iZenithBin );
-            factory->BookMethod( dataloader, TMVA::Types::kCuts, htitle, i_opt.str().c_str() );
+            sprintf( htitle, "%s_RecMethod_%u", iRun->fMVAMethod[i].c_str(), i );
+        }
+        else if( iRunMode == "TrainReconstructionQuality" )
+        {
+            sprintf( htitle, "%s_RecQuality_%u", iRun->fMVAMethod[i].c_str(), i );
+        }
+        if( i < iRun->fMVAMethod_Options.size() )
+        {
+            cout << "Booking method " << htitle << endl;
+            factory->BookMethod( dataloader, i_tmva_type, htitle, iRun->fMVAMethod_Options[i].c_str() );
+        }
+        else
+        {
+            factory->BookMethod( dataloader, i_tmva_type, htitle );
         }
     }
 
@@ -616,14 +593,10 @@ int main( int argc, char* argv[] )
                 cout << endl;
             }
             // training
-            if( fData->fTrainGammaHadronSeparation && !trainGammaHadronSeparation( fData, i, j, fRunOption ) )
+            if( !train( fData, i, j, fData->fRunMode, fRunOption ) )
             {
                 cout << "Error during training...exiting" << endl;
                 exit( EXIT_FAILURE );
-            }
-            if( fData->fTrainReconstructionQuality )
-            {
-                trainReconstructionQuality( fData, i, j, fRunOption );
             }
             stringstream iTempS;
             stringstream iTempS2;

@@ -8,18 +8,17 @@
 VTMVARunData::VTMVARunData()
 {
     setDebug();
-    
+
     fName = "noname";
-    
-    fTrainGammaHadronSeparation = true;
-    fTrainReconstructionQuality = false;  // in development: please ignore
-    
+
+    fRunMode = "TrainGammaHadronSeparation";
+
     fCheckValidityOfInputVariables = true;
     fResetNumberOfTrainingEvents = 0;
-    
+
     fOutputDirectoryName = "";
     fOutputFileName = "";
-    
+
     fQualityCuts = "1";
     fQualityCutsBkg = "1";
     fQualityCutsSignal = "1";
@@ -28,15 +27,15 @@ VTMVARunData::VTMVARunData()
     fMCxyoffCutSignalOnly = false;
     fAzimuthCut = "1";
     fPrepareTrainingOptions = "SplitMode=random:!V";
-    
+
     fSignalWeight = 1.;
     fBackgroundWeight = 1.;
     fMinSignalEvents = 50;
     fMinBackgroundEvents = 0;
     fSelectedEventTreeName = "";
-    
+
     fNTtype = -1;
-    
+
     fReconstructionQualityTarget = "ErecS/MCe0";
     fReconstructionQualityTargetName = "EQuality";
 }
@@ -54,7 +53,7 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
     }
     // open signal trees
     fSignalTree.clear();
-    
+
     for( unsigned int i = 0; i < fSignalFileName.size(); i++ )
     {
         fSignalTree.push_back( new TChain( "data" ) );
@@ -91,12 +90,12 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
             return false;
         }
     }
-    
+
     if( fDebug )
     {
         cout << "VTMVARunData::openDataFiles() open output files " << endl;
     }
-    
+
     ///////////////////////////////////////////////////////////////////
     // check how many events there are in signal and background trees (after cuts)
     // (note that no cuts are applied here)
@@ -105,7 +104,7 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
         TEntryList* i_j_SignalList = 0;
         TEntryList* i_j_BackgroundList = 0;
         bool iEnoughEvents = true;
-        
+
         // loop over all energy and zenith bins
         for( unsigned int i = 0; i < fEnergyCutData.size(); i++ )
         {
@@ -127,7 +126,7 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
                             i_j_SignalList = ( TEntryList* )gDirectory->Get( "signalList" );
                         }
                     }
-                    
+
                     if( i_j_SignalList )
                     {
                         cout << "number of signal events in energy bin " << i << " zenith bin " << j << ": ";
@@ -192,7 +191,7 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
             exit( EXIT_FAILURE );
         }
     }
-    
+
     ///////////////////////////////////////////////////////////////////
     // open output file
     if( fOutputFileName.size() > 0 && fOutputDirectoryName.size() > 0 )
@@ -250,13 +249,26 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
             fOutputFile.push_back( output_zenith );
         }
     }
-    
+
     if( fDebug )
     {
         cout << "VTMVARunData::openDataFiles() END" << endl;
     }
-    
+
     return true;
+}
+
+/*
+ * Test for correct run mode
+*/
+string VTMVARunData::test_run_mode( string irun_mode )
+{
+    if( irun_mode != "TrainGammaHadronSeparation" && irun_mode != "TrainReconstructionQuality" && irun_mode != "TrainAngularReconstructionMethod" )
+    {
+        cout << "Invalid run mode: " << irun_mode << endl;
+        exit( EXIT_FAILURE );
+    }
+    return irun_mode;
 }
 
 /*!
@@ -265,13 +277,17 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
 void VTMVARunData::print()
 {
     cout << endl;
-    if( fTrainGammaHadronSeparation )
+    if( fRunMode == "TrainGammaHadronSeparation" )
     {
         cout << "Training gamma/hadron separation" << endl;
     }
-    if( fTrainReconstructionQuality )
+    else if( fRunMode == "TrainReconstructionQuality" )
     {
         cout << "Training reconstruction quality" << endl;
+    }
+    else if( fRunMode == "TrainAngularReconstructionMethod" )
+    {
+        cout << "Training angular reconstruction method choice" << endl;
     }
     cout << "MVA Methods and options: " << endl;
     for( unsigned int i = 0; i < fMVAMethod.size(); i++ )
@@ -350,7 +366,7 @@ void VTMVARunData::print()
     {
         cout << "\t" << fSignalFileName[i] << endl;
     }
-    if( !fTrainReconstructionQuality )
+    if( fRunMode == "TrainGammaHadronSeparation" )
     {
         cout << "background data file(s): " << endl;
         for( unsigned int i = 0; i < fBackgroundFileName.size(); i++ )
@@ -371,7 +387,7 @@ void VTMVARunData::print()
 bool VTMVARunData::readConfigurationFile( char* iC )
 {
     cout << "reading TMVA optimizer configuration from " << iC << endl;
-    
+
     ifstream is;
     is.open( iC, ifstream::in );
     if( !is )
@@ -379,12 +395,12 @@ bool VTMVARunData::readConfigurationFile( char* iC )
         cout << "VTMVARunData::readConfigurationFile error configuration file not found: " << iC << endl;
         return false;
     }
-    
+
     string is_line;
     string temp;
     fMVAMethod.clear();
     fMVAMethod_Options.clear();
-    
+
     while( getline( is, is_line ) )
     {
         if( is_line.size() > 0 )
@@ -394,7 +410,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             {
                 continue;
             }
-            
+
             is_stream >> temp;
             if( temp != "*" )
             {
@@ -404,8 +420,17 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             {
                 continue;
             }
-            
+
             is_stream >> temp;
+            // Run mode for training
+            if( temp == "RUN_MODE" )
+            {
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> temp;
+                    fRunMode = test_run_mode( temp );
+                }
+            }
             ///////////////////////////////////////////////////////////////////////////////////////////
             // MVA method and options
             ///////////////////////////////////////////////////////////////////////////////////////////
@@ -690,14 +715,14 @@ bool VTMVARunData::readConfigurationFile( char* iC )
                 vector< double > iEnergyCut_Log10TeV_min;
                 vector< double > iEnergyCut_Log10TeV_max;
                 vector< TCut > iEnergyCut;
-                
+
                 // energy reconstruction method (should be 1, unless you know it better)
                 unsigned int iEMethod;
                 if( !( is_stream >> std::ws ).eof() )
                 {
                     is_stream >> iEMethod;
                 }
-                
+
                 // read in energy bin
                 while( !( is_stream >> std::ws ).eof() )
                 {
@@ -753,7 +778,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
                 vector< double > iZenithCut_min;
                 vector< double > iZenithCut_max;
                 vector< TCut > iZenithCut;
-                
+
                 // read in zenith angle bin
                 while( !( is_stream >> std::ws ).eof() )
                 {
@@ -781,7 +806,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
                 {
                     ostringstream iCut;
                     iCut << "Ze>0.&&"  << iZenithCut_min[i]  <<  "<Ze&&Ze<" << iZenithCut_max[i];
-                    
+
                     iZenithCut.push_back( iCut.str().c_str() );
                 }
                 // filling everything into the zenith data structure
@@ -810,7 +835,7 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             }
         }
     }
-    
+
     return true;
 }
 
