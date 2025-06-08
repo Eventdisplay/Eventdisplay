@@ -305,14 +305,6 @@ bool train( VTMVARunData* iRun,
                                   iCutBck, false,
                                   iRun->fResetNumberOfTrainingEvents );
 
-        if( iSignalTree_reduced )
-        {
-            iSignalTree_reduced->Write();
-        }
-        if( iBackgroundTree_reduced )
-        {
-            iBackgroundTree_reduced->Write();
-        }
         if( iRun->getTLRunParameter() )
         {
             iRun->getTLRunParameter()->Write();
