@@ -409,8 +409,11 @@ bool train( VTMVARunData* iRun,
     // train for angular reconstruction method
     else if( iRunMode == "TrainAngularReconstructionMethod" )
     {
-        TCut signalCut = "sqrt((Xoff_derot-MCxoff)*(Xoff_derot-MCxoff)+((Yoff_derot-MCyoff)*(Yoff_derot-MCyoff))) < sqrt((Xoff_intersect-MCxoff)*(Xoff_intersect-MCxoff)+((Yoff_intersect-MCyoff)*(Yoff_intersect-MCyoff)))";
-        TCut backgrCut = "sqrt((Xoff_derot-MCxoff)*(Xoff_derot-MCxoff)+((Yoff_derot-MCyoff)*(Yoff_derot-MCyoff))) > sqrt((Xoff_intersect-MCxoff)*(Xoff_intersect-MCxoff)+((Yoff_intersect-MCyoff)*(Yoff_intersect-MCyoff)))";
+        TString d1 = "sqrt((Xoff_derot - MCxoff)^2 + (Yoff_derot - MCyoff)^2)";
+        TString d2 = "sqrt((Xoff_intersect - MCxoff)^2 + (Yoff_intersect - MCyoff)^2)";
+
+        TCut signalCut = Form("(Xoff_intersect > -90 && Yoff_intersect > -90) && (%s > %s)", d1.Data(), d2.Data());
+        TCut backgrCut = Form("(%s) < (%s)", d1.Data(), d2.Data());
         dataloader->SetInputTrees( iSignalTree_reduced, signalCut, backgrCut );
     }
     ////////////////////////////

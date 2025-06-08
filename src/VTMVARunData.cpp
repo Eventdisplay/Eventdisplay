@@ -263,7 +263,7 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
 */
 string VTMVARunData::test_run_mode( string irun_mode )
 {
-    if( irun_mode != "TrainGammaHadronSeparation" && irun_mode != "TrainReconstructionQuality" && irun_mode != "TrainAngularReconstructionMethod" )
+    if( irun_mode != "TrainGammaHadronSeparation" && irun_mode != "TrainReconstructionQuality" && irun_mode != "TrainAngularReconstructionMethod" && irun_mode != "WriteTrainingEvents" )
     {
         cout << "Invalid run mode: " << irun_mode << endl;
         exit( EXIT_FAILURE );
