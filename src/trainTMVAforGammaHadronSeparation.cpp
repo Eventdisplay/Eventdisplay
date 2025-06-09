@@ -294,14 +294,12 @@ bool train( VTMVARunData* iRun,
     // prepare trees for training and testing with selected events only
     // this step is necessary to minimise the memory impact for the BDT
     // training
-    TTree* iSignalTree_reduced = 0;
-    TTree* iBackgroundTree_reduced = 0;
     if( fRunOption == "WRITETRAININGEVENTS" )
     {
-        iSignalTree_reduced = prepareSelectedEventsTree( iRun,
+        prepareSelectedEventsTree( iRun,
                               iCutSignal, true,
                               iRun->fResetNumberOfTrainingEvents );
-        iBackgroundTree_reduced = prepareSelectedEventsTree( iRun,
+        prepareSelectedEventsTree( iRun,
                                   iCutBck, false,
                                   iRun->fResetNumberOfTrainingEvents );
 
@@ -313,20 +311,34 @@ bool train( VTMVARunData* iRun,
         cout << gDirectory->GetName() << endl;
         exit( EXIT_SUCCESS );
     }
-    else
+
+    ////////////////////////////////////////////////////////////////
+    // Prepare TMVA instances
+    TMVA::Tools::Instance();
+    gSystem->mkdir( iRun->fOutputDirectoryName.c_str() );
+    TString iOutputDirectory( iRun->fOutputDirectoryName.c_str() );
+    gSystem->ExpandPathName( iOutputDirectory );
+    ( TMVA::gConfig().GetIONames() ).fWeightFileDir = iOutputDirectory;
+
+    //////////////////////////////////////////
+    // defining training class
+    TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
+        iRun->fOutputFile[iEnergyBin][iZenithBin],
+        "V:!DrawProgressBar" );
+    TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
+
+    // training preparation
+    cout << "Reading training / testing trees from ";
+    cout << iRun->fSelectedEventTreeName << endl;
+    TFile* iF = new TFile( iRun->fSelectedEventTreeName.c_str() );
+    if( iF->IsZombie() )
     {
-        cout << "Reading training / testing trees from ";
+        cout << "Error open file with pre-selected events: ";
         cout << iRun->fSelectedEventTreeName << endl;
-        TFile* iF = new TFile( iRun->fSelectedEventTreeName.c_str() );
-        if( iF->IsZombie() )
-        {
-            cout << "Error open file with pre-selected events: ";
-            cout << iRun->fSelectedEventTreeName << endl;
-            exit( EXIT_FAILURE );
-        }
-        iSignalTree_reduced = ( TTree* )iF->Get( "data_signal" );
-        iBackgroundTree_reduced = ( TTree* )iF->Get( "data_background" );
+        exit( EXIT_FAILURE );
     }
+    TTree *iSignalTree_reduced = ( TTree* )iF->Get( "data_signal" );
+    TTree *iBackgroundTree_reduced = ( TTree* )iF->Get( "data_background" );
     if(!iSignalTree_reduced || !iBackgroundTree_reduced )
     {
         cout << "Error: failed preparing traing / testing trees" << endl;
@@ -378,18 +390,6 @@ bool train( VTMVARunData* iRun,
         cout << "\t Updated training options: " <<  iRun->fPrepareTrainingOptions << endl;
     }
 
-    TMVA::Tools::Instance();
-    gSystem->mkdir( iRun->fOutputDirectoryName.c_str() );
-    TString iOutputDirectory( iRun->fOutputDirectoryName.c_str() );
-    gSystem->ExpandPathName( iOutputDirectory );
-    ( TMVA::gConfig().GetIONames() ).fWeightFileDir = iOutputDirectory;
-
-    //////////////////////////////////////////
-    // defining training class
-    TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
-        iRun->fOutputFile[iEnergyBin][iZenithBin],
-        "V:!DrawProgressBar" );
-    TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
     ////////////////////////////
     // train gamma/hadron separation
     if( iRunMode == "TrainGammaHadronSeparation" )
@@ -401,12 +401,29 @@ bool train( VTMVARunData* iRun,
     // train for angular reconstruction method
     else if( iRunMode == "TrainAngularReconstructionMethod" )
     {
+        cout << "START " << endl;
         TString d1 = "sqrt((Xoff_derot - MCxoff)^2 + (Yoff_derot - MCyoff)^2)";
         TString d2 = "sqrt((Xoff_intersect - MCxoff)^2 + (Yoff_intersect - MCyoff)^2)";
 
         TCut signalCut = Form("(Xoff_intersect > -90 && Yoff_intersect > -90) && (%s > %s)", d1.Data(), d2.Data());
         TCut backgrCut = Form("(%s) < (%s)", d1.Data(), d2.Data());
-        dataloader->SetInputTrees( iSignalTree_reduced, signalCut, backgrCut );
+
+        TTree* sigTree = iSignalTree_reduced->CopyTree(signalCut);
+        TTree* bkgTree = iSignalTree_reduced->CopyTree(backgrCut);
+        cout << "A " << sigTree->GetEntries() << endl;
+        cout << "B " << bkgTree->GetEntries() << endl;
+        sigTree->SetName("data_signal");
+        bkgTree->SetName("data_background");
+        sigTree->SetDirectory(iRun->fOutputFile[iEnergyBin][iZenithBin]);
+        bkgTree->SetDirectory(iRun->fOutputFile[iEnergyBin][iZenithBin]);
+
+        dataloader->AddSignalTree(sigTree, iRun->fSignalWeight);
+        dataloader->AddBackgroundTree(bkgTree, iRun->fBackgroundWeight);
+/*	cout << "A " << signalCut << endl;
+#	cout << "B " << backgrCut << endl;
+#	cout << iSignalTree_reduced->GetEntries() << endl;
+#        dataloader->SetInputTrees( iSignalTree_reduced, signalCut, backgrCut ); */
+	exit(0);
     }
     ////////////////////////////
     // train reconstruction quality
