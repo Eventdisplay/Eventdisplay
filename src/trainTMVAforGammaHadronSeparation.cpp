@@ -401,29 +401,21 @@ bool train( VTMVARunData* iRun,
     // train for angular reconstruction method
     else if( iRunMode == "TrainAngularReconstructionMethod" )
     {
-        cout << "START " << endl;
         TString d1 = "sqrt((Xoff_derot - MCxoff)^2 + (Yoff_derot - MCyoff)^2)";
         TString d2 = "sqrt((Xoff_intersect - MCxoff)^2 + (Yoff_intersect - MCyoff)^2)";
 
         TCut signalCut = Form("(Xoff_intersect > -90 && Yoff_intersect > -90) && (%s > %s)", d1.Data(), d2.Data());
         TCut backgrCut = Form("(%s) < (%s)", d1.Data(), d2.Data());
 
+        iRun->fOutputFile[iEnergyBin][iZenithBin]->cd();
+
         TTree* sigTree = iSignalTree_reduced->CopyTree(signalCut);
         TTree* bkgTree = iSignalTree_reduced->CopyTree(backgrCut);
-        cout << "A " << sigTree->GetEntries() << endl;
-        cout << "B " << bkgTree->GetEntries() << endl;
         sigTree->SetName("data_signal");
         bkgTree->SetName("data_background");
-        sigTree->SetDirectory(iRun->fOutputFile[iEnergyBin][iZenithBin]);
-        bkgTree->SetDirectory(iRun->fOutputFile[iEnergyBin][iZenithBin]);
 
         dataloader->AddSignalTree(sigTree, iRun->fSignalWeight);
         dataloader->AddBackgroundTree(bkgTree, iRun->fBackgroundWeight);
-/*	cout << "A " << signalCut << endl;
-#	cout << "B " << backgrCut << endl;
-#	cout << iSignalTree_reduced->GetEntries() << endl;
-#        dataloader->SetInputTrees( iSignalTree_reduced, signalCut, backgrCut ); */
-	exit(0);
     }
     ////////////////////////////
     // train reconstruction quality
@@ -447,24 +439,16 @@ bool train( VTMVARunData* iRun,
     //////////////////////////////////////////
     // prepare training events
     // (cuts are already applied at an earlier stage)
-    if( iRunMode == "TrainGammaHadronSeparation" )
-    {
-        cout << "Preparing training and test tree" << endl;
-        // cuts after pre-selection
-        TCut iCutSignal_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
-                               && iRun->fMultiplicityCuts;
-        TCut iCutBck_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
-                            && iRun->fMultiplicityCuts;
+    cout << "Preparing training and test tree" << endl;
+    // cuts after pre-selection
+    TCut iCutSignal_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
+                           && iRun->fMultiplicityCuts;
+    TCut iCutBck_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
+                        && iRun->fMultiplicityCuts;
 
-        dataloader->PrepareTrainingAndTestTree( iCutSignal_post,
-                                                iCutBck_post,
-                                                iRun->fPrepareTrainingOptions );
-    }
-    // TODO check if cuts need to be applied
-    else
-    {
-        dataloader->PrepareTrainingAndTestTree( "", iRun->fPrepareTrainingOptions );
-    }
+    dataloader->PrepareTrainingAndTestTree( iCutSignal_post,
+                                            iCutBck_post,
+                                            iRun->fPrepareTrainingOptions );
 
     //////////////////////////////////////////
     // book all methods
