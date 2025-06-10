@@ -19,8 +19,10 @@
 #include "TMVA/Reader.h"
 #include "TMVA/Tools.h"
 
+#include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -29,8 +31,6 @@
 #include "VTMVARunData.h"
 
 using namespace std;
-
-bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, bool iGammaHadronSeparation, string fRunOption );
 
 /*
  * check settings for number of training events;
@@ -55,6 +55,108 @@ string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal, unsigned
         r_a << a << ":nTrain_Background=" << n_fix << ":nTest_Background=" << n_fix;
     }
     return r_a.str();
+}
+
+/*
+ * For cases when DispNImages < Images, return indexes for which ImgSel_list matches DispTelList_T
+ */
+vector< unsigned int> get_matching_indexes(unsigned int DispNImages, int NImages, UInt_t* DispTelList_T, UInt_t* ImgSel_list)
+{
+    vector< unsigned int> matching_indexes;
+
+    for( unsigned int d = 0; d < DispNImages; d++ )
+    {
+        for( int i = 0; i < NImages; i++ )
+        {
+            if( DispTelList_T[d] == ImgSel_list[i] )
+            {
+                matching_indexes.push_back(i);
+            }
+        }
+    }
+    return matching_indexes;
+}
+
+
+bool get_largest_weight_disp_entries(
+        unsigned int d_n, unsigned int DispNImages, int NImages, UInt_t* DispTelList_T, UInt_t *ImgSel_list,
+        Float_t* DispWoff_T, Float_t* Disp_T, Float_t* cross, Float_t* loss, Float_t* size, Float_t *width, Float_t *length,
+        Double_t *R, Double_t *ES, Double_t ErecS,
+        Float_t *d_size, Float_t *d_width, Float_t *d_length, Float_t *d_cross,
+        Float_t *d_disp, Float_t *d_disp_weigth, Float_t *d_loss, Float_t *d_erec_mc, Float_t *d_R )
+{
+
+    // Create a vector of pairs: {DispWoff_T value, original index}
+    vector<pair<Float_t, unsigned int>> indexed_disp_woff(DispNImages);
+    for (unsigned int i = 0; i < DispNImages; ++i)
+    {
+        indexed_disp_woff[i] = {DispWoff_T[i], i};
+    }
+
+    // Sort the vector in descending order based on DispWoff_T value (largest values first)
+    sort(indexed_disp_woff.begin(), indexed_disp_woff.end(),
+         [](const pair<Float_t, unsigned int>& a,
+            const pair<Float_t, unsigned int>& b) {
+            return a.first > b.first; // Sort descending
+           });
+
+    // Rare events have DispNImages < Images
+    // careful: some arrays are of [Images], others of [DispNImages]
+    if( DispNImages < (unsigned int)NImages )
+    {
+        vector< unsigned int > matching_indexes = get_matching_indexes(DispNImages, NImages, DispTelList_T, ImgSel_list);
+        for( unsigned int i = 0; i < matching_indexes.size(); i++ )
+        {
+            size[i] = size[matching_indexes[i]];
+            width[i] = width[matching_indexes[i]];
+            length[i] = length[matching_indexes[i]];
+            loss[i] = loss[matching_indexes[i]];
+            cross[i] = cross[matching_indexes[i]];
+            R[i] = R[matching_indexes[i]];
+            ES[i] = ES[matching_indexes[i]];
+        }
+    }
+    // this case should never happen
+    else if( DispNImages > (unsigned int)NImages )
+    {
+        return false;
+    }
+
+    // --- Step 2: Populate d_ arrays based on sorted indices ---
+
+    unsigned int entries_to_copy = min(d_n, DispNImages);
+
+    // Copy the largest 'entries_to_copy' values
+    for (unsigned int i = 0; i < entries_to_copy; ++i) {
+        unsigned int original_index = indexed_disp_woff[i].second;
+
+        d_size[i] = size[original_index];
+        d_width[i] = width[original_index];
+        d_length[i] = length[original_index];
+        d_cross[i] = cross[original_index];
+        d_disp[i] = Disp_T[original_index];
+        d_disp_weigth[i] = DispWoff_T[original_index];
+        d_loss[i] = loss[original_index];
+        d_R[i] = R[original_index];
+        d_erec_mc[i] = (ES[original_index] - ErecS) / ES[original_index];
+    }
+
+    // --- Step 3: Handle DispNImages < d_n (duplicate values) ---
+    // If DispNImages is less than d_n, duplicate the existing entries
+    for (unsigned int i = entries_to_copy; i < d_n; ++i) {
+        unsigned int source_index = (entries_to_copy > 0) ? (i % entries_to_copy) : 0;
+
+        d_size[i] = d_size[source_index];
+        d_width[i] = d_width[source_index];
+        d_length[i] = d_length[source_index];
+        d_cross[i] = d_cross[source_index];
+        d_disp[i] = d_disp[source_index];
+        d_disp_weigth[i] = d_disp_weigth[source_index];
+        d_loss[i] = d_loss[source_index];
+        d_R[i] = d_R[source_index];
+        d_erec_mc[i] = d_erec_mc[source_index];
+    }
+    return true;
 }
 
 /*
@@ -101,8 +203,12 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Float_t Xoff_intersect = 0.;
     Float_t Yoff_intersect = 0.;
     Int_t NImages = 0;
+    UInt_t DispNImages = 0;
     // fixed max number of telescope types
     UInt_t NImages_Ttype[20];
+    // fixed max number of telescopes
+    UInt_t ImgSel_list[200];
+    UInt_t DispTelList_T[200];
     for( unsigned int i = 0; i < 20; i++ )
     {
         NImages_Ttype[i] = 0;
@@ -115,6 +221,32 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Double_t MCe0 = 0.;
     Double_t MCxoff = 0.;
     Double_t MCyoff = 0.;
+    Float_t disp_mc_error = 0.;
+    Float_t intersect_mc_error = 0.;
+    Float_t size[200];
+    Float_t width[200];
+    Float_t length[200];
+    Float_t cross[200];
+    Float_t disp[200];
+    Float_t disp_weight[200];
+    Float_t loss[200];
+    Double_t R[200];
+    Double_t ES[200];
+
+    // add d_n most important variables to reduced tree
+    const int d_n = 4;
+    Float_t d_size[d_n];
+    Float_t d_width[d_n];
+    Float_t d_length[d_n];
+    Float_t d_cross[d_n];
+    Float_t d_disp[d_n];
+    Float_t d_disp_weigth[d_n];
+    Float_t d_loss[d_n];
+    Float_t d_R[d_n];
+    Float_t d_erec_emc[d_n];
+
+    char htemp[200];
+
     iDataTree_reduced = new TTree( iDataTree_reducedName.c_str(), iDataTree_reducedName.c_str() );
     iDataTree_reduced->Branch( "MSCW", &MSCW, "MSCW/D" );
     iDataTree_reduced->Branch( "MSCL", &MSCL, "MSCL/D" );
@@ -122,10 +254,6 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "EChi2S", &EChi2S, "EChi2S/D" );
     iDataTree_reduced->Branch( "Xcore", &Xcore, "Xcore/D" );
     iDataTree_reduced->Branch( "Ycore", &Ycore, "Ycore/D" );
-    iDataTree_reduced->Branch( "Xoff_derot", &Xoff_derot, "Xoff_derot/D" );
-    iDataTree_reduced->Branch( "Yoff_derot", &Yoff_derot, "Yoff_derot/D" );
-    iDataTree_reduced->Branch( "Xoff_intersect", &Xoff_intersect, "Xoff_intersect/F" );
-    iDataTree_reduced->Branch( "Yoff_intersect", &Yoff_intersect, "Yoff_intersect/F" );
     iDataTree_reduced->Branch( "NImages", &NImages, "NImages/I" );
     iDataTree_reduced->Branch( "NImages_Ttype", NImages_Ttype, "NImages_Ttype[20]/i" );
     iDataTree_reduced->Branch( "EmissionHeight", &EmissionHeight, "EmissionHeight/F" );
@@ -134,8 +262,27 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "DispDiff", &DispDiff, "DispDiff/D" );
     iDataTree_reduced->Branch( "DispAbsSumWeigth", &DispAbsSumWeigth, "DispAbsSumWeigth/F" );
     iDataTree_reduced->Branch( "MCe0", &MCe0, "MCe0/D" );
-    iDataTree_reduced->Branch( "MCxoff", &MCxoff, "MCxoff/D" );
-    iDataTree_reduced->Branch( "MCyoff", &MCyoff, "MCyoff/D" );
+    iDataTree_reduced->Branch( "disp_mc_error", &disp_mc_error, "disp_mc_error/F" );
+    iDataTree_reduced->Branch( "intersect_mc_error", &intersect_mc_error, "intersect_mc_error/F" );
+    sprintf( htemp, "d_size[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_size", d_size, htemp );
+    sprintf( htemp, "d_width[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_width", d_width, htemp );
+    sprintf( htemp, "d_length[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_length", d_length, htemp );
+    sprintf( htemp, "d_cross[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_cross", d_cross, htemp );
+    sprintf( htemp, "d_disp[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_disp", d_disp, htemp );
+    sprintf( htemp, "d_disp_weigth[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_disp_weigth", d_disp_weigth, htemp );
+    sprintf( htemp, "d_loss[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_loss", d_loss, htemp );
+    sprintf( htemp, "d_R[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_R", d_R, htemp );
+    sprintf( htemp, "d_erec_emc[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_erec_emc", d_erec_emc, htemp );
+
 
     Long64_t n = 0;
 
@@ -154,12 +301,24 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
             iTreeVector[i]->SetBranchAddress( "Xoff_intersect", &Xoff_intersect );
             iTreeVector[i]->SetBranchAddress( "Yoff_intersect", &Yoff_intersect );
             iTreeVector[i]->SetBranchAddress( "NImages", &NImages );
+            iTreeVector[i]->SetBranchAddress( "ImgSel_list", ImgSel_list );
             iTreeVector[i]->SetBranchAddress( "NImages_Ttype", NImages_Ttype );
             iTreeVector[i]->SetBranchAddress( "EmissionHeight", &EmissionHeight );
             iTreeVector[i]->SetBranchAddress( "EmissionHeightChi2", &EmissionHeightChi2 );
             iTreeVector[i]->SetBranchAddress( "SizeSecondMax", &SizeSecondMax );
             iTreeVector[i]->SetBranchAddress( "DispDiff", &DispDiff );
             iTreeVector[i]->SetBranchAddress( "DispAbsSumWeigth", &DispAbsSumWeigth );
+            iTreeVector[i]->SetBranchAddress( "DispNImages", &DispNImages );
+            iTreeVector[i]->SetBranchAddress( "size", size );
+            iTreeVector[i]->SetBranchAddress( "width", width );
+            iTreeVector[i]->SetBranchAddress( "length", length );
+            iTreeVector[i]->SetBranchAddress( "cross", cross );
+            iTreeVector[i]->SetBranchAddress( "Disp_T", disp );
+            iTreeVector[i]->SetBranchAddress( "DispWoff_T", disp_weight );
+            iTreeVector[i]->SetBranchAddress( "DispTelList_T", DispTelList_T );
+            iTreeVector[i]->SetBranchAddress( "loss", loss );
+            iTreeVector[i]->SetBranchAddress( "R", R );
+            iTreeVector[i]->SetBranchAddress( "ES", ES );
             if( iTreeVector[i]->GetBranchStatus( "MCe0" ) )
             {
                 iTreeVector[i]->SetBranchAddress( "MCe0", &MCe0 );
@@ -180,6 +339,22 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
                 {
                     Long64_t treeEntry = elist->GetEntry( el );
                     iTreeVector[i]->GetEntry( treeEntry );
+
+                    // error in angular reconstruction
+                    disp_mc_error = sqrt( (Xoff_derot-MCxoff)*(Xoff_derot-MCxoff) + (Yoff_derot-MCyoff)*(Yoff_derot-MCyoff) );
+                    intersect_mc_error = sqrt( (Xoff_intersect-MCxoff)*(Xoff_intersect-MCxoff) + (Yoff_intersect-Yoff_intersect)*(Yoff_intersect-Yoff_intersect) );
+
+                    // d_n largest weight entries
+                    bool good_event = get_largest_weight_disp_entries(
+                           d_n, DispNImages, NImages, DispTelList_T, ImgSel_list,
+                           disp_weight, disp, cross, loss, size, width, length, R, ES, ErecS,
+                           d_size, d_width, d_length, d_cross, d_disp, d_disp_weigth, d_loss, d_erec_emc, d_R
+                    );
+                    if( !good_event )
+                    {
+                        continue;
+                    }
+
                     iDataTree_reduced->Fill();
                     n++;
                 }
@@ -247,9 +422,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
 }
 
 
-bool train( VTMVARunData* iRun,
-            unsigned int iEnergyBin, unsigned int iZenithBin,
-            string iRunMode, string fRunOption )
+bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, string iRunMode )
 {
     // sanity checks
     if(!iRun )
@@ -294,7 +467,7 @@ bool train( VTMVARunData* iRun,
     // prepare trees for training and testing with selected events only
     // this step is necessary to minimise the memory impact for the BDT
     // training
-    if( fRunOption == "WRITETRAININGEVENTS" )
+    if( iRunMode == "WriteTrainingEvents" )
     {
         prepareSelectedEventsTree( iRun,
                               iCutSignal, true,
@@ -553,11 +726,6 @@ int main( int argc, char* argv[] )
         cout << ")" << endl;
         exit( EXIT_FAILURE );
     }
-    string fRunOption = "TRAIN";
-    if( argc == 3 )
-    {
-        fRunOption = "WRITETRAININGEVENTS";
-    }
     // randomize list of input files
     fData->shuffleFileVectors();
     fData->print();
@@ -573,6 +741,7 @@ int main( int argc, char* argv[] )
     //////////////////////////////////////
     // train MVA
     // (one training per energy and zenith bin)
+    cout << "Run mode " << fData->fRunMode << endl;
     cout << "Number of energy bins: " << fData->fEnergyCutData.size();
     cout << ", number of zenith bins: " << fData->fZenithCutData.size();
     cout << endl;
@@ -589,7 +758,7 @@ int main( int argc, char* argv[] )
                 cout << endl;
             }
             // training
-            if( !train( fData, i, j, fData->fRunMode, fRunOption ) )
+            if( !train( fData, i, j, fData->fRunMode) )
             {
                 cout << "Error during training...exiting" << endl;
                 exit( EXIT_FAILURE );
