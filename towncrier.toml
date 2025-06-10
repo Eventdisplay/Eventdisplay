@@ -1,0 +1,24 @@
+[tool.towncrier]
+name = "EventDisplay_v4"
+directory = "docs/changes"
+filename = "CHANGELOG.md"
+underlines = [ "", "", "" ]
+title_format = "## [{version}](https://github.com/VERITAS-Observatory/EventDisplay_v4/releases/tag/{version}) - {project_date}"
+issue_format = "[#{issue}](https://github.com/VERITAS-Observatory/EventDisplay_v4/issues/{issue})"
+start_string = "<!-- towncrier release notes start -->\n"
+
+[tool.towncrier.fragment.feature]
+name = "New Feature"
+showcontent = true
+
+[tool.towncrier.fragment.bugfix]
+name = "Bugfixes"
+showcontent = true
+
+[tool.towncrier.fragment.maintenance]
+name = "Maintenance"
+showcontent = true
+
+[tool.towncrier.fragment.doc]
+name = "Documentation"
+showcontent = true

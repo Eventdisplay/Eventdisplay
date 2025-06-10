@@ -4,8 +4,8 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using these metadata.
 title: "Eventdisplay: An Analysis and Reconstruction Package for Ground-based Gamma-ray Astronomy"
 doi: 10.5281/zenodo.3559075
-version: 5.14.0
-date-released: 2024-12-18
+version: 5.15.0
+date-released: 2025-05-13
 keywords:
 - "gamma-ray astronomy"
 - "astronomy software"
