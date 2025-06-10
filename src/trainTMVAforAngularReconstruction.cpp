@@ -919,7 +919,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                                        +  dlength* dlength );
             }
 
-            dispEnergy = i_showerpars.MCe0;
+            dispEnergy = log10(i_showerpars.MCe0);
             dispCore   = Rcore;
 
             if( fMapOfTrainingTree.find( fTelType[i] ) != fMapOfTrainingTree.end() )

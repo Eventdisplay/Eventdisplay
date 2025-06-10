@@ -804,6 +804,8 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
                                     ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
                                     ( float )img_fui[i], ( float )img_ntubes[i] );
 
+            fdisp_energy_T[i] = TMath::Power( 10., fdisp_energy_T[i] );
+
             if( fDebug )
             {
                 cout << "VDispAnalyzer::calculateEnergies: tel " << i << " (teltype " << ( ULong64_t )iTelType[i] << ") ";
