@@ -130,7 +130,7 @@ bool get_largest_weight_disp_entries(
     for (unsigned int i = 0; i < entries_to_copy; ++i) {
         unsigned int original_index = indexed_disp_woff[i].second;
 
-        d_size[i] = size[original_index];
+        d_size[i] = log10(size[original_index]);
         d_width[i] = width[original_index];
         d_length[i] = length[original_index];
         d_cross[i] = cross[original_index];
@@ -139,6 +139,8 @@ bool get_largest_weight_disp_entries(
         d_loss[i] = loss[original_index];
         d_R[i] = R[original_index];
         d_erec_mc[i] = (ES[original_index] - ErecS) / ES[original_index];
+        if( d_erec_mc[i] > 20. ) d_erec_mc[i] = 20.;
+        if( d_erec_mc[i] > -20. ) d_erec_mc[i] = -20.;
     }
 
     // --- Step 3: Handle DispNImages < d_n (duplicate values) ---
@@ -243,7 +245,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Float_t d_disp_weigth[d_n];
     Float_t d_loss[d_n];
     Float_t d_R[d_n];
-    Float_t d_erec_emc[d_n];
+    Float_t d_erec_es[d_n];
 
     char htemp[200];
 
@@ -280,8 +282,8 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "d_loss", d_loss, htemp );
     sprintf( htemp, "d_R[%d]/F", d_n );
     iDataTree_reduced->Branch( "d_R", d_R, htemp );
-    sprintf( htemp, "d_erec_emc[%d]/F", d_n );
-    iDataTree_reduced->Branch( "d_erec_emc", d_erec_emc, htemp );
+    sprintf( htemp, "d_erec_es[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_erec_es", d_erec_es, htemp );
 
 
     Long64_t n = 0;
@@ -348,7 +350,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
                     bool good_event = get_largest_weight_disp_entries(
                            d_n, DispNImages, NImages, DispTelList_T, ImgSel_list,
                            disp_weight, disp, cross, loss, size, width, length, R, ES, ErecS,
-                           d_size, d_width, d_length, d_cross, d_disp, d_disp_weigth, d_loss, d_erec_emc, d_R
+                           d_size, d_width, d_length, d_cross, d_disp, d_disp_weigth, d_loss, d_erec_es, d_R
                     );
                     if( !good_event )
                     {
