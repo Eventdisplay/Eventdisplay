@@ -140,7 +140,7 @@ bool get_largest_weight_disp_entries(
         d_R[i] = R[original_index];
         d_erec_mc[i] = (ES[original_index] - ErecS) / ES[original_index];
         if( d_erec_mc[i] > 20. ) d_erec_mc[i] = 20.;
-        if( d_erec_mc[i] > -20. ) d_erec_mc[i] = -20.;
+        if( d_erec_mc[i] < -20. ) d_erec_mc[i] = -20.;
     }
 
     // --- Step 3: Handle DispNImages < d_n (duplicate values) ---
@@ -497,9 +497,14 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
 
     //////////////////////////////////////////
     // defining training class
+    string mva_options = "V:!DrawProgressBar";
+    if( iRunMode == "TrainReconstructionQuality" )
+    {
+        mva_options = "V:!DrawProgressBar:!Color:!Silent:AnalysisType=Regression:VerboseLevel=Debug:Correlations=True";
+    }
     TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
         iRun->fOutputFile[iEnergyBin][iZenithBin],
-        "V:!DrawProgressBar" );
+        mva_options.c_str() );
     TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
 
     // training preparation
@@ -593,11 +598,11 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     // train reconstruction quality
     else if( iRunMode == "TrainReconstructionQuality" )
     {
-        dataloader->AddSignalTree( iSignalTree_reduced, iRun->fSignalWeight );
-        dataloader->AddRegressionTarget( iRun->fReconstructionQualityTarget.c_str(), iRun->fReconstructionQualityTargetName.c_str() );
+        dataloader->AddRegressionTree( iSignalTree_reduced, iRun->fSignalWeight );
+        dataloader->AddTarget( iRun->fReconstructionQualityTarget.c_str(), 'F' );
     }
 
-    // loop over all trainingvariables and add them to TMVA
+    // loop over all training variables and add them to TMVA
     for( unsigned int i = 0; i < iRun->fTrainingVariable.size(); i++ )
     {
         if( iRun->fTrainingVariable[i].rfind("d_", 0 ) == 0 )
@@ -625,9 +630,16 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     TCut iCutBck_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
                         && iRun->fMultiplicityCuts;
 
-    dataloader->PrepareTrainingAndTestTree( iCutSignal_post,
-                                            iCutBck_post,
-                                            iRun->fPrepareTrainingOptions );
+    if( iRunMode == "TrainReconstructionQuality" )
+    {
+        dataloader->PrepareTrainingAndTestTree( iCutSignal_post, iRun->fPrepareTrainingOptions );
+    }
+    else
+    {
+        dataloader->PrepareTrainingAndTestTree( iCutSignal_post,
+                                                iCutBck_post,
+                                                iRun->fPrepareTrainingOptions );
+    }
 
     //////////////////////////////////////////
     // book all methods
