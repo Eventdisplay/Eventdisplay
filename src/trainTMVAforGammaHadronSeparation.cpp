@@ -574,11 +574,8 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     // train for angular reconstruction method
     else if( iRunMode == "TrainAngularReconstructionMethod" )
     {
-        TString d1 = "sqrt((Xoff_derot - MCxoff)^2 + (Yoff_derot - MCyoff)^2)";
-        TString d2 = "sqrt((Xoff_intersect - MCxoff)^2 + (Yoff_intersect - MCyoff)^2)";
-
-        TCut signalCut = Form("(Xoff_intersect > -90 && Yoff_intersect > -90) && (%s > %s)", d1.Data(), d2.Data());
-        TCut backgrCut = Form("(%s) < (%s)", d1.Data(), d2.Data());
+        TCut signalCut = "intersect_mc_error < 1.e5 && (disp_mc_error > intersect_mc_error)";
+        TCut backgrCut = "disp_mc_error < intersect_mc_error";
 
         iRun->fOutputFile[iEnergyBin][iZenithBin]->cd();
 
@@ -601,7 +598,14 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     // loop over all trainingvariables and add them to TMVA
     for( unsigned int i = 0; i < iRun->fTrainingVariable.size(); i++ )
     {
-        dataloader->AddVariable( iRun->fTrainingVariable[i].c_str(), iRun->fTrainingVariableType[i] );
+        if( iRun->fTrainingVariable[i].rfind("d_", 0 ) == 0 )
+        {
+            dataloader->AddVariablesArray(iRun->fTrainingVariable[i].c_str(), 4 );
+        }
+        else
+        {
+            dataloader->AddVariable( iRun->fTrainingVariable[i].c_str(), iRun->fTrainingVariableType[i] );
+        }
     }
     // adding spectator variables
     for( unsigned int i = 0; i < iRun->fSpectatorVariable.size(); i++ )
