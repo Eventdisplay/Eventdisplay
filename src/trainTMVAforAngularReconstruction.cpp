@@ -205,7 +205,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
         dataloader->AddTarget( "disp", 'F' );
     }
     // add weights (optional)
-    //    dataloader->SetWeightExpression( "MCe0*MCe0", "Regression" );
+    dataloader->SetWeightExpression( "MCe0", "Regression" );
 
     // regression tree
     dataloader->AddRegressionTree( iDataTree, 1. );

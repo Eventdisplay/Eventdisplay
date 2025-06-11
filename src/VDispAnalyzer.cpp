@@ -782,6 +782,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
 
     ////////////////////////////////////////////
     // calculate for each image an energy
+    //
 
     // counter for good energy values
     float z = 0.;
@@ -866,7 +867,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     // therefore: get rid of N sigma outliers
     // use robust statistics (median and median absolute error)
     // Note: applied only to larger events > 4 telescopes
-    fdisp_energy_median = TMath::Median( energy_tel.size(), &energy_tel[0] );
+    fdisp_energy_median = TMath::Median( energy_tel.size(), energy_tel.data() );
     fdisp_energy_medianAbsoluteError = VStatistics::getMedianAbsoluteError( energy_tel, fdisp_energy_median );
     double w = 0.;
     unsigned int n2 = 0;
