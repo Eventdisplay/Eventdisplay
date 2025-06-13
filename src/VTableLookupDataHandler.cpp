@@ -1130,7 +1130,6 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
     fList_of_Tel_type.clear();
     if( fTtelconfig )
     {
-        fTelFOV.clear();
         ftelconfig = new Ctelconfig( fTtelconfig );
         ftelconfig->GetEntry( 0 );
         fNTel = ftelconfig->NTel;
