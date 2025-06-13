@@ -754,7 +754,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fXoff, fYoff,
             getDistanceToCore(),
             fXcore, fYcore,
-            fXoff, fYoff,
+            fXoff_intersect, fYoff_intersect,
             ffui );
 
         // fill results
@@ -767,11 +767,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     }
 
     //////////////////////////////////////////////////////////
-    // !!! SPECIAL AND EXPERT USAGE ONLY !!!
     // dispEnergy
     // energy reconstruction using the disp MVA
-    // This is preliminary and works for MC events only!
-    //
     if( fDispAnalyzerEnergy )
     {
         fDispAnalyzerEnergy->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
@@ -790,7 +787,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fasym, ftgrad_x,
             floss, fntubes,
             getWeight(true),
-            fXoff, fYoff,
+            fXoff_intersect, fYoff_intersect,
             getDistanceToCoreTel(),
             fEmissionHeightMean,
             fMCEnergy,
