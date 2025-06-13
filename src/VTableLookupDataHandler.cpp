@@ -815,14 +815,9 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
 }
 
 /*
- * redo stereo reconstruction (core and direction)
+ * Stereo reconstruction (core and direction)
  *
- * this works for MC only
- * not all stereo reconstruction methods are implemented
- * (quick and dirty implementation for CTA)
- *
- * does not take into account pointing corrections
- * (as e.g. given by the VPM)
+ * using geometrical and disp methods
 */
 void VTableLookupDataHandler::doStereoReconstruction()
 {
@@ -831,9 +826,8 @@ void VTableLookupDataHandler::doStereoReconstruction()
     fYoff_edisp = fYoff;
     ///////////////////////////
     // stereo reconstruction
-    // (rcs_method4)
+    // (equivalent to rcs_method4)
     VSimpleStereoReconstructor i_SR;
-    // minimal value; just used to initialize disp method
     i_SR.initialize( fSSR_NImages_min, fSSR_AxesAngles_min );
     i_SR.reconstruct_direction_and_core( getNTel(),
                                          fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -853,12 +847,10 @@ void VTableLookupDataHandler::doStereoReconstruction()
     if( fDispAnalyzerDirection
             && fNImages <= ( int )fTLRunParameter->fRerunStereoReconstruction_BDTNImages_max )
     {
-
-        vector< float > iDispError( getNTel(), -9999. );
-
         ////////////////////////////////////////////////////////////////////
         // estimate error on direction reconstruction from DISP method
         ////////////////////////////////////////////////////////////////////
+        vector< float > iDispError( getNTel(), -9999. );
         if( fDispAnalyzerDirectionError )
         {
             fDispAnalyzerDirectionError->calculateExpectedDirectionError(
@@ -1138,6 +1130,7 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
     fList_of_Tel_type.clear();
     if( fTtelconfig )
     {
+        fTelFOV.clear();
         ftelconfig = new Ctelconfig( fTtelconfig );
         ftelconfig->GetEntry( 0 );
         fNTel = ftelconfig->NTel;
