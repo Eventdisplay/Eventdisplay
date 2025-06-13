@@ -61,6 +61,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
                 ULong64_t iTelType, TTree* iDataTree,
                 string iTargetML, string iTMVAOptions,
                 string iQualityCut, bool iSingleTelescopeAnalysis,
+                string iWeightExpression,
                 bool iUseImageParameterErrors )
 {
     cout << endl;
@@ -205,7 +206,11 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
         dataloader->AddTarget( "disp", 'F' );
     }
     // add weights (optional)
-    dataloader->SetWeightExpression( "MCe0", "Regression" );
+    if( iWeightExpression.size() > 0 )
+    {
+        cout << "Weight expression (per event) applied: " << iWeightExpression << endl;
+        dataloader->SetWeightExpression( iWeightExpression.c_str(), "Regression" );
+    }
 
     // regression tree
     dataloader->AddRegressionTree( iDataTree, 1. );
@@ -509,6 +514,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     float dispImageError = -1.;
     float NImages = -1.;
     float cross = -1.;
+    float dispCrossError = -1.;
     float dispPhi = -1.;
     float dispEnergy = -1.;
     float dispCore = -1.;
@@ -594,6 +600,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             fMapOfTrainingTree[i_tel.TelType]->Branch( "dispImageError", &dispImageError, "dispImageError/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "cross", &cross, "cross/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "dispPhi", &dispPhi, "dispPhi/F" );
+            fMapOfTrainingTree[i_tel.TelType]->Branch( "dispCrossError", &dispCrossError, "dispCrossError/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "dispEnergy", &dispEnergy, "dispEnergy/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "dispCore", &dispCore, "dispCore/F" );
 
@@ -728,7 +735,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             fEM_length[i] = 0.;
             fEM_cosphi[i] = 0.;
             fEM_sinphi[i] = 0.;
-            fEM_weight[i] = 0.;
+            fEM_weight[i] = 1.;
 
             if(( int )i_showerpars.ImgSel_list[iRecID][i] < 1
                     && ( i_showerpars.NImages[iRecID] > 1 || !iSingleTelescopeAnalysis ) )
@@ -754,9 +761,6 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                 fEM_length[i] = i_tpars[i]->length;
                 fEM_cosphi[i] = i_tpars[i]->cosphi;
                 fEM_sinphi[i] = i_tpars[i]->sinphi;
-                // weight is always 1: all telescopes
-                // are of same type
-                fEM_weight[i] = 1.;
             }
         }
         EmissionHeight = fEmissionHeightCalculator->getEmissionHeight( fEM_cen_x, fEM_cen_y, fEM_size,
@@ -886,6 +890,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                 cross = sqrt(( cen_y + Yoff ) * ( cen_y + Yoff )
                              + ( cen_x - Xoff ) * ( cen_x - Xoff ) );
             }
+            dispCrossError = disp - cross;
             dispPhi = TMath::ATan2( sinphi, cosphi ) - TMath::ATan2( cen_y + MCyoff, cen_x - MCxoff );
 
             // disp error: the expected difference between true and
@@ -968,7 +973,7 @@ int main( int argc, char* argv[] )
         cout << "                                     <train vs test fraction> <RecID> <telescope type>" << endl;
         cout << "                                     [train for angular / energy / core reconstruction]" << endl;
         cout << "                                     [MVA options] [array layout file] [directory with training trees]" << endl;
-        cout << "                                     [quality cut] [use image parameter errors (default=off=0)]";
+        cout << "                                     [quality cut] [weight expression] [use image parameter errors (default=off=0)]";
         cout << endl;
         cout << endl;
 
@@ -992,8 +997,16 @@ int main( int argc, char* argv[] )
     {
         iTargetML = argv[6];
     }
-    // tmva options likely overwritten from command line
-    string iTMVAOptions = "VarTransform=N:NTrees=200:BoostType=AdaBoost:MaxDepth=8";
+    // quality cut likely overwritten from command line
+    string       iQualityCut = "size>1.&&ntubes>log10(4.)&&width>0.&&width<2.&&length>0.&&length<10.";
+    iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&Rcore<2000.";
+    if( argc >= 11 )
+    {
+        iQualityCut = argv[10];
+    }
+    // TMVA options (default options derived from hyperparameter optimisation on CTAO prod3 simulations)
+    string iTMVAOptions = "NTrees=100:BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:GradBaggingFraction=0.5:nCuts=20:MaxDepth=10:";
+    iTMVAOptions += "PruneMethod=ExpectedError:RegressionLossFunctionBDTG=Huber:MinNodeSize=0.02:VarTransform=N";
     if( argc >=  8 )
     {
         iTMVAOptions = argv[7];
@@ -1008,17 +1021,15 @@ int main( int argc, char* argv[] )
     {
         iDataDirectory = argv[9];
     }
-    // quality cut likely overwritten from command line
-    string       iQualityCut = "size>1.&&ntubes>log10(4.)&&width>0.&&width<2.&&length>0.&&length<10.";
-    iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&Rcore<2000.";
-    if( argc >= 11 )
-    {
-        iQualityCut = argv[10];
-    }
-    bool iUseImageParameterErrors = false;
+    string iWeightExpression = "";
     if( argc >= 12 )
     {
-        iUseImageParameterErrors = ( bool )( atoi( argv[11] ) );
+        iWeightExpression = argv[10];
+    }
+    bool iUseImageParameterErrors = false;
+    if( argc >= 13 )
+    {
+        iUseImageParameterErrors = ( bool )( atoi( argv[12] ) );
     }
     bool redo_stereo_reconstruction = false;
 
@@ -1099,7 +1110,7 @@ int main( int argc, char* argv[] )
         if( fMapOfTrainingTree_iter->second )
         {
             cout << "\t writing training tree for telescope type " << fMapOfTrainingTree_iter->first;
-            cout << " with " << fMapOfTrainingTree_iter->second->GetEntries() << " entries " << endl;
+            cout << " with " << fMapOfTrainingTree_iter->second->GetEntries() << " entries ";
             cout << "to " << iFileName.str() << endl;
             fMapOfTrainingTree_iter->second->Write();
         }
@@ -1123,7 +1134,7 @@ int main( int argc, char* argv[] )
                    fMapOfTrainingTree_iter->first,
                    fMapOfTrainingTree_iter->second,
                    iTargetML, iTMVAOptions, iQualityCut,
-                   iSingleTel, iUseImageParameterErrors );
+                   iSingleTel, iWeightExpression, iUseImageParameterErrors );
     }
 
     //////////////////////
