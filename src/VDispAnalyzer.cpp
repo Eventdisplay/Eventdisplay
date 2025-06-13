@@ -545,7 +545,8 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
                 && sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistance_max
                 && img_loss[i] < floss_max
                 && img_fui[i] > fFui_min
-                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] ) )
+                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] )
+                && xoff_4 > -999. && yoff_4 > -999. )
         {
             disp = evaluate( ( float )img_width[i], ( float )img_length[i], ( float )img_asym[i],
                              ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
@@ -673,7 +674,8 @@ void VDispAnalyzer::calculateExpectedDirectionError( unsigned int i_ntel,
                 && sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistance_max
                 && img_loss[i] < floss_max
                 && img_fui[i] > fFui_min
-                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] ) )
+                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] )
+                && xoff_4 > -999. && yoff_4 > -999. )
         {
             fdisp_error_T[i] = evaluate( ( float )img_width[i], ( float )img_length[i], ( float )img_asym[i],
                                          ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
@@ -792,7 +794,8 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
                 && sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistance_max
                 && img_loss[i] < floss_max
                 && img_fui[i] > fFui_min
-                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] ) )
+                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] )
+                && xoff_4 > -999. && yoff_4 > -999. )
         {
             fdisp_energy_T[i] = fTMVADispAnalyzer->evaluate(
                                     ( float )img_width[i], ( float )img_length[i],
