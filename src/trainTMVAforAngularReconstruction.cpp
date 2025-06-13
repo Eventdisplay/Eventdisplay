@@ -1024,7 +1024,7 @@ int main( int argc, char* argv[] )
     string iWeightExpression = "";
     if( argc >= 12 )
     {
-        iWeightExpression = argv[10];
+        iWeightExpression = argv[11];
     }
     bool iUseImageParameterErrors = false;
     if( argc >= 13 )
