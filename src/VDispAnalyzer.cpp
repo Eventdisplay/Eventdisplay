@@ -182,17 +182,17 @@ unsigned int VDispAnalyzer::find_smallest_diff_element(
 {
     vector< float > v_disp_diff( i_sign.size(), 0. );
     vector< float > v_dist( i_sign.size(), 0. );
+    vector< float > v_xs( x.size(), 0. );
+    vector< float > v_ys( x.size(), 0. );
+    float xs = 0.;
+    float ys = 0.;
+    float disp_diff = 0.;
     for( unsigned int s = 0; s < i_sign.size(); s++ )
     {
-        vector< float > v_xs;
-        vector< float > v_ys;
-        float xs = 0.;
-        float ys = 0.;
-        float disp_diff = 0.;
         for( unsigned int i = 0; i < x.size(); i++ )
         {
-            v_xs.push_back( x[i] - i_sign[s][i] * v_disp[i] * cosphi[i] );
-            v_ys.push_back( y[i] - i_sign[s][i] * v_disp[i] * sinphi[i] );
+            v_xs[i] = x[i] - i_sign[s][i] * v_disp[i] * cosphi[i];
+            v_ys[i] = y[i] - i_sign[s][i] * v_disp[i] * sinphi[i];
         }
         calculateMeanShowerDirection( v_xs, v_ys, v_weight, xs, ys, disp_diff, v_xs.size() );
         v_disp_diff[s] = disp_diff;
@@ -411,7 +411,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
     }
 
-    // apply a completely unnecessary sign flip
+    // apply sign flip
     if( ys > -9998. )
     {
         ys *= -1.;
@@ -783,7 +783,6 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
 
     ////////////////////////////////////////////
     // calculate for each image an energy
-    //
 
     // counter for good energy values
     float z = 0.;
