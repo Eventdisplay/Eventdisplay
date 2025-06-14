@@ -61,7 +61,6 @@ class VDispAnalyzer
         float fdisp_energy;
         float fdisp_energy_chi;
         float fdisp_energy_dEs;
-        float fdisp_energy_median;
         float fdisp_energy_medianAbsoluteError;
         vector< float > fdisp_energy_T;
         unsigned int   fdisp_energy_NT;
@@ -169,7 +168,6 @@ class VDispAnalyzer
         float getEnergy();
         float getEnergyChi2();
         float getEnergydES();
-        float getEnergyMedian();
         float getEnergyMedianAbsoluteError();
         int   getEnergyQualityLabel()
         {
