@@ -32,17 +32,17 @@ void VSimpleStereoReconstructor::reset()
 {
 
     fiangdiff = 0.;
-    fShower_Xoffset = -9999.;
-    fShower_Yoffset = -9999.;
-    fShower_stdS = -9999.;
-    fShower_Chi2 = -9999.;
-    fShower_Ze = -9999.;
-    fShower_Az = -9999.;
-    fShower_DispDiff = -9999.;
-    
-    fShower_Xcore = -9999.;
-    fShower_Ycore = -9999.;
-    fShower_stdP = -9999.;
+    fShower_Xoffset = -99999.;
+    fShower_Yoffset = -99999.;
+    fShower_stdS = -99999.;
+    fShower_Chi2 = -99999.;
+    fShower_Ze = -99999.;
+    fShower_Az = -99999.;
+    fShower_DispDiff = -99999.;
+
+    fShower_Xcore = -99999.;
+    fShower_Ycore = -99999.;
+    fShower_stdP = -99999.;
     fmean_iangdiff = 0.;
 }
 
@@ -57,8 +57,6 @@ void VSimpleStereoReconstructor::reset()
       direction and image centroids
 
       corresponds to rcs_method4 in VArrayAnalyzer
-
-      should be used for MC only
 
 */
 bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_ntel,
@@ -79,7 +77,7 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
     // telescope pointings
     fTelElevation = iArrayElevation;
     fTelAzimuth   = iArrayAzimuth;
-    
+
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
@@ -89,10 +87,10 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
         reset();
         return false;
     }
-    
+
     float xs = 0.;
     float ys = 0.;
-    
+
     // fill data vectors for direction reconstruction
     // (vectors are refilled for core reconstruction)
     vector< float > m;
@@ -135,7 +133,7 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
         reset();
         return false;
     }
-    
+
     // don't do anything if angle between image axis is too small (for 2 images only)
     if( w.size() == 2 )
     {
@@ -145,13 +143,13 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
     {
         fiangdiff = 0.;
     }
-    
+
     ///////////////////////////////
     // direction reconstruction
     ////////////////////////////////////////////////
     // Hofmann et al 1999, Method 1 (HEGRA method)
     // (modified weights)
-    
+
     float itotweight = 0.;
     float iweight = 1.;
     float ixs = 0.;
@@ -163,7 +161,7 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
     vector< float > v_ys;
     fmean_iangdiff = 0.;
     float fmean_iangdiffN = 0.;
-    
+
     for( unsigned int ii = 0; ii < m.size(); ii++ )
     {
         for( unsigned int jj = 1; jj < m.size(); jj++ )
@@ -172,7 +170,7 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
             {
                 continue;
             }
-            
+
             // check minimum angle between image lines; ignore if too small
             iangdiff = fabs( atan( m[jj] ) - atan( m[ii] ) );
             if( iangdiff < fAxesAngles_min * TMath::DegToRad() ||
@@ -190,13 +188,13 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
                 fmean_iangdiff += ( 180. - iangdiff * TMath::RadToDeg() );
             }
             fmean_iangdiffN++;
-            
+
             // weight is sin of angle between image lines
             iangdiff = fabs( sin( fabs( atan( m[jj] ) - atan( m[ii] ) ) ) );
-            
+
             b1 = y[ii] - m[ii] * x[ii];
             b2 = y[jj] - m[jj] * x[jj];
-            
+
             // line intersection
             if( m[ii] != m[jj] )
             {
@@ -207,16 +205,16 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
                 xs = 0.;
             }
             ys = m[ii] * xs + b1;
-            
+
             iweight  = 1. / ( 1. / w[ii] + 1. / w[jj] ); // weight 1: size of images
             iweight *= ( 1. - l[ii] ) * ( 1. - l[jj] ); // weight 2: elongation of images (width/length)
             iweight *= iangdiff;                      // weight 3: angular differences between the two image axis
             iweight *= iweight;                       // use squared value
-            
+
             ixs += xs * iweight;
             iys += ys * iweight;
             itotweight += iweight;
-            
+
             v_xs.push_back( xs );
             v_ys.push_back( ys );
         }
@@ -269,7 +267,7 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
         fShower_Yoffset = -99999.;
         fShower_DispDiff = -999999.;
     }
-    
+
     // fill correct shower direction
     // do not continue with core reconstruction in case there is no valid
     // direction reconstruction
@@ -278,28 +276,28 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
     {
         return false;
     }
-    
+
     ////////////////////////////////////////////////
     // core reconstruction
     ////////////////////////////////////////////////
-    
+
     // calculated telescope positions in shower coordinates
     float i_xcos = sin( ( 90. - fTelElevation ) / TMath::RadToDeg() ) * sin( ( fTelAzimuth - 180. ) / TMath::RadToDeg() );
     float i_ycos = sin( ( 90. - fTelElevation ) / TMath::RadToDeg() ) * cos( ( fTelAzimuth - 180. ) / TMath::RadToDeg() );
     float i_xrot, i_yrot, i_zrot = 0.;
-    
+
     float ximp = 0.;
     float yimp = 0.;
     float stdp = 0.;
-    
+
     float i_cenx = 0.;
     float i_ceny = 0.;
-    
+
     x.clear();
     y.clear();
     m.clear();
     w.clear();
-    
+
     for( unsigned int i = 0; i < i_ntel; i++ )
     {
         if( img_size[i] > 0. && img_length[i] > 0. )
@@ -307,12 +305,9 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
             // telescope coordinates
             // shower coordinates (telecope pointing)
             tel_impact( i_xcos, i_ycos, iTelX[i], iTelY[i], iTelZ[i], &i_xrot, &i_yrot, &i_zrot, false );
-            // shower coordinates (shower direction)
-            // x.push_back( iTelX[i] - ixs / TMath::RadToDeg() * iTelZ[i] );
-            // y.push_back( iTelY[i] - iys / TMath::RadToDeg() * iTelZ[i] );
             x.push_back( i_xrot - ixs / TMath::RadToDeg() * i_zrot );
             y.push_back( i_yrot - iys / TMath::RadToDeg() * i_zrot );
-            
+
             // gradient of image
             i_cenx = img_cen_x[i] - ixs;
             i_ceny = img_cen_y[i] - iys;
@@ -330,16 +325,16 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
             w.push_back( iweight * iweight );
         }
     }
-    
+
     // Now call perpendicular_distance for the fit, returning ximp and yimp
     rcs_perpendicular_fit( x, y, w, m, ( int )w.size(), &ximp, &yimp, &stdp );
-    
+
     // return to ground coordinates
     fillShowerCore( ximp, yimp );
     fShower_stdP = stdp;
-    
+
     fShower_Chi2 = 0.;
-    
+
     return true;
 }
 
@@ -357,7 +352,7 @@ bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
     }
     fShower_Xoffset = xoff;
     fShower_Yoffset = yoff;
-    
+
     // ze / az
     double ze = 0.;
     double az = 0.;
@@ -368,14 +363,14 @@ bool VSimpleStereoReconstructor::fillShowerDirection( float xoff, float yoff )
                              &az, &ze );
     az *= TMath::RadToDeg();
     ze = 90. - ze * TMath::RadToDeg();
-    
+
     if( TMath::IsNaN( ze ) )
     {
         fShower_Ze = -99999.;
     }
     fShower_Ze = ze;
     fShower_Az = VAstronometry::vlaDranrm( az * TMath::DegToRad() ) * TMath::RadToDeg();
-    
+
     return true;
 }
 
@@ -388,8 +383,8 @@ bool VSimpleStereoReconstructor::fillShowerCore( float ximp, float yimp )
     // check validity
     if( !isnormal( ximp ) || !isnormal( yimp ) )
     {
-        ximp = -99999.;
-        yimp = -99999.;
+        fShower_Xcore = -99999.;
+        fShower_Ycore = -99999.;
         return false;
     }
     // reconstructed shower core in ground coordinates
@@ -422,6 +417,7 @@ bool VSimpleStereoReconstructor::fillShowerCore( float ximp, float yimp )
     {
         fShower_Xcore = -99999;
         fShower_Ycore = -99999;
+        return false;
     }
     return true;
 }

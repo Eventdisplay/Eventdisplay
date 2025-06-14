@@ -28,7 +28,6 @@ VDispAnalyzer::VDispAnalyzer()
     fdisp_energy = -9999.;
     fdisp_energy_chi = -9999.;
     fdisp_energy_dEs = -9999.;
-    fdisp_energy_median = -9999.;
     fdisp_energy_medianAbsoluteError = -9999.;
     fdisp_energy_NT = 0;
     fdisp_energyQL = -1;
@@ -183,17 +182,17 @@ unsigned int VDispAnalyzer::find_smallest_diff_element(
 {
     vector< float > v_disp_diff( i_sign.size(), 0. );
     vector< float > v_dist( i_sign.size(), 0. );
+    vector< float > v_xs( x.size(), 0. );
+    vector< float > v_ys( x.size(), 0. );
+    float xs = 0.;
+    float ys = 0.;
+    float disp_diff = 0.;
     for( unsigned int s = 0; s < i_sign.size(); s++ )
     {
-        vector< float > v_xs;
-        vector< float > v_ys;
-        float xs = 0.;
-        float ys = 0.;
-        float disp_diff = 0.;
         for( unsigned int i = 0; i < x.size(); i++ )
         {
-            v_xs.push_back( x[i] - i_sign[s][i] * v_disp[i] * cosphi[i] );
-            v_ys.push_back( y[i] - i_sign[s][i] * v_disp[i] * sinphi[i] );
+            v_xs[i] = x[i] - i_sign[s][i] * v_disp[i] * cosphi[i];
+            v_ys[i] = y[i] - i_sign[s][i] * v_disp[i] * sinphi[i];
         }
         calculateMeanShowerDirection( v_xs, v_ys, v_weight, xs, ys, disp_diff, v_xs.size() );
         v_disp_diff[s] = disp_diff;
@@ -412,7 +411,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
         calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
     }
 
-    // apply a completely unnecessary sign flip
+    // apply sign flip
     if( ys > -9998. )
     {
         ys *= -1.;
@@ -546,7 +545,8 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
                 && sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistance_max
                 && img_loss[i] < floss_max
                 && img_fui[i] > fFui_min
-                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] ) )
+                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] )
+                && xoff_4 > -999. && yoff_4 > -999. )
         {
             disp = evaluate( ( float )img_width[i], ( float )img_length[i], ( float )img_asym[i],
                              ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
@@ -674,7 +674,8 @@ void VDispAnalyzer::calculateExpectedDirectionError( unsigned int i_ntel,
                 && sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistance_max
                 && img_loss[i] < floss_max
                 && img_fui[i] > fFui_min
-                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] ) )
+                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] )
+                && xoff_4 > -999. && yoff_4 > -999. )
         {
             fdisp_error_T[i] = evaluate( ( float )img_width[i], ( float )img_length[i], ( float )img_asym[i],
                                          ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
@@ -768,6 +769,8 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     fdisp_energy_NT = 0;
     fdisp_energyQL = -1;
 
+    fDebug = true;
+
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
@@ -791,7 +794,8 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
                 && sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistance_max
                 && img_loss[i] < floss_max
                 && img_fui[i] > fFui_min
-                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] ) )
+                && ( fdistanceQC_max == 0 || sqrt( img_cen_x[i]*img_cen_x[i] + img_cen_y[i]*img_cen_y[i] ) < fdistanceQC_max[i] )
+                && xoff_4 > -999. && yoff_4 > -999. )
         {
             fdisp_energy_T[i] = fTMVADispAnalyzer->evaluate(
                                     ( float )img_width[i], ( float )img_length[i],
@@ -803,6 +807,8 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
                                     ( float )iRcore[i], ( float )iEHeight,
                                     ( float )sqrt( img_cen_x[i] * img_cen_x[i] + img_cen_y[i] * img_cen_y[i] ),
                                     ( float )img_fui[i], ( float )img_ntubes[i] );
+
+            fdisp_energy_T[i] = TMath::Power( 10., fdisp_energy_T[i] );
 
             if( fDebug )
             {
@@ -846,7 +852,8 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
             energy_tel.push_back( fdisp_energy_T[i] );
             // Weighting with size leads to a long tail towards large eres/mce0
             //              energy_weight.push_back( img_size[i] * img_weight[i] * img_size[i] * img_weight[i] );
-            energy_weight.push_back( img_weight[i] * img_weight[i] );
+            // dispError is smallest for best reconstruction results
+            energy_weight.push_back( 1./ img_weight[i] * 1. / img_weight[i] );
             if( fDebug )
             {
                 iR.push_back( iRcore[i] );
@@ -864,34 +871,21 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     // therefore: get rid of N sigma outliers
     // use robust statistics (median and median absolute error)
     // Note: applied only to larger events > 4 telescopes
-    fdisp_energy_median = TMath::Median( energy_tel.size(), &energy_tel[0] );
-    fdisp_energy_medianAbsoluteError = VStatistics::getMedianAbsoluteError( energy_tel, fdisp_energy_median );
-    double w = 0.;
-    unsigned int n2 = 0;
-    fdisp_energy = 0.;
-    for( unsigned int j = 0; j < energy_tel.size(); j++ )
+    fdisp_energy = TMath::Median( energy_tel.size(), energy_tel.data(), energy_weight.data() );
+    fdisp_energy_medianAbsoluteError = VStatistics::getMedianAbsoluteError( energy_tel, fdisp_energy );
+    fdisp_energy_NT = energy_tel.size();
+    if( fDebug )
     {
-        if( energy_tel.size() < 5
-                || TMath::Abs( energy_tel[j] - fdisp_energy_median ) < fdisp_energy_medianAbsoluteError * 3. )
+        cout << "VDispAnalyzer::calculateEnergies: " << fdisp_energy <<  " from " << fdisp_energy_NT << " energies";
+        cout << " (true energy: " << iMCEnergy << " / " << fdisp_energy / iMCEnergy << ")" << endl;
+        for( unsigned int j = 0; j < energy_tel.size(); j++ )
         {
-            fdisp_energy += energy_tel[j] * energy_weight[j];
-            w += energy_weight[j];
-            n2++;
+            cout << "\t " << energy_tel[j] << " weight: " << energy_weight[j] << endl;
         }
     }
-    fdisp_energy_NT = energy_tel.size();
-    // check minimum number of valid energies
-    /*     if( energy_tel.size() <= 4 && w > 0. )
-         {
-             fdisp_energy /= w;
-             fdisp_energy_NT = n2;
-         }  */
-    // use median for energy estimation (removes outliers)
-    // (for all cases)
-    if( n2 >= fNImages_min )
+    if( fdisp_energy_NT >= fNImages_min )
     {
-        fdisp_energy = fdisp_energy_median;
-        if( n2 == 1 )
+        if( fdisp_energy_NT == 1 )
         {
             fdisp_energyQL = 1;
         }
@@ -952,11 +946,6 @@ float VDispAnalyzer::getEnergyChi2()
 float VDispAnalyzer::getEnergydES()
 {
     return fdisp_energy_dEs;
-}
-
-float VDispAnalyzer::getEnergyMedian()
-{
-    return fdisp_energy_median;
 }
 
 float VDispAnalyzer::getEnergyMedianAbsoluteError()

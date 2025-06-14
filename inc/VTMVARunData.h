@@ -33,26 +33,23 @@ using namespace std;
 class VTMVARunData : public TNamed
 {
     private:
-    
+
         bool              fDebug;
-        
+
     public:
-    
+
         string            fName;
-        
-        // run type
-        bool fTrainGammaHadronSeparation;
-        bool fTrainReconstructionQuality;
-        
+        string fRunMode;
+
         // output file
         string            fOutputFileName;
         string            fOutputDirectoryName;
         vector< vector< TFile* > >  fOutputFile;
-        
+
         // training options
         bool              fCheckValidityOfInputVariables;
         unsigned int      fResetNumberOfTrainingEvents;
-        
+
         // training data
         double            fSignalWeight;
         vector< string >  fSignalFileName;
@@ -61,17 +58,17 @@ class VTMVARunData : public TNamed
         vector< string >  fBackgroundFileName;
         vector< TChain* > fBackgroundTree;
         string            fSelectedEventTreeName;
-        
+
         // list of training variables
         vector< string >  fTrainingVariable;
         vector< char >    fTrainingVariableType;
         vector< float >   fTrainingVariable_CutRangeMin;
         vector< float >   fTrainingVariable_CutRangeMax;
         vector< string >  fTrainingVariable_VarProp;
-        
+
         // spectator variables
         vector< string > fSpectatorVariable;
-        
+
         // quality and energy and zenith cuts
         unsigned int      fMinSignalEvents;
         unsigned int      fMinBackgroundEvents;
@@ -85,18 +82,18 @@ class VTMVARunData : public TNamed
         string            fPrepareTrainingOptions;
         vector< VTMVARunDataEnergyCut* > fEnergyCutData;
         vector< VTMVARunDataZenithCut* > fZenithCutData;
-        
+
         // analysis variables
         int               fNTtype;
-        
+
         // MVA methods
         vector< string >  fMVAMethod;
         vector< string >  fMVAMethod_Options;
-        
+
         // reconstruction quality target
         string            fReconstructionQualityTarget;
         string            fReconstructionQualityTargetName;
-        
+
         VTMVARunData();
         ~VTMVARunData() {}
         void print();
@@ -112,8 +109,9 @@ class VTMVARunData : public TNamed
             fName = iN;
         }
         void shuffleFileVectors();
-        
-        ClassDef( VTMVARunData, 14 );
+        string test_run_mode(string irun_mode);
+
+        ClassDef( VTMVARunData, 15 );
 };
 
 #endif

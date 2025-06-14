@@ -754,7 +754,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fXoff, fYoff,
             getDistanceToCore(),
             fXcore, fYcore,
-            fXoff, fYoff,
+            fXoff_edisp, fYoff_edisp,
             ffui );
 
         // fill results
@@ -767,11 +767,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     }
 
     //////////////////////////////////////////////////////////
-    // !!! SPECIAL AND EXPERT USAGE ONLY !!!
     // dispEnergy
     // energy reconstruction using the disp MVA
-    // This is preliminary and works for MC events only!
-    //
     if( fDispAnalyzerEnergy )
     {
         fDispAnalyzerEnergy->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
@@ -790,7 +787,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fasym, ftgrad_x,
             floss, fntubes,
             getWeight(true),
-            fXoff, fYoff,
+            fXoff_edisp, fYoff_edisp,
             getDistanceToCoreTel(),
             fEmissionHeightMean,
             fMCEnergy,
@@ -815,14 +812,9 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
 }
 
 /*
- * redo stereo reconstruction (core and direction)
+ * Stereo reconstruction (core and direction)
  *
- * this works for MC only
- * not all stereo reconstruction methods are implemented
- * (quick and dirty implementation for CTA)
- *
- * does not take into account pointing corrections
- * (as e.g. given by the VPM)
+ * using geometrical and disp methods
 */
 void VTableLookupDataHandler::doStereoReconstruction()
 {
@@ -831,9 +823,8 @@ void VTableLookupDataHandler::doStereoReconstruction()
     fYoff_edisp = fYoff;
     ///////////////////////////
     // stereo reconstruction
-    // (rcs_method4)
+    // (equivalent to rcs_method4)
     VSimpleStereoReconstructor i_SR;
-    // minimal value; just used to initialize disp method
     i_SR.initialize( fSSR_NImages_min, fSSR_AxesAngles_min );
     i_SR.reconstruct_direction_and_core( getNTel(),
                                          fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -847,18 +838,17 @@ void VTableLookupDataHandler::doStereoReconstruction()
     fXoff_intersect = i_SR.fShower_Xoffset;
     fYoff_intersect = i_SR.fShower_Yoffset;
 
+
     ////////////////////////////////////////////////////////////////////
     // DISP method for updated disp reconstruction
     ////////////////////////////////////////////////////////////////////
     if( fDispAnalyzerDirection
             && fNImages <= ( int )fTLRunParameter->fRerunStereoReconstruction_BDTNImages_max )
     {
-
-        vector< float > iDispError( getNTel(), -9999. );
-
         ////////////////////////////////////////////////////////////////////
         // estimate error on direction reconstruction from DISP method
         ////////////////////////////////////////////////////////////////////
+        vector< float > iDispError( getNTel(), -9999. );
         if( fDispAnalyzerDirectionError )
         {
             fDispAnalyzerDirectionError->calculateExpectedDirectionError(
@@ -872,7 +862,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
                 fasym, ftgrad_x,
                 floss, fntubes,
                 getWeight(),
-                i_SR.fShower_Xoffset, i_SR.fShower_Yoffset,
+                fXoff_edisp, fYoff_edisp,
                 ffui );
 
             // get estimated error on direction reconstruction
@@ -902,7 +892,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
             fasym, ftgrad_x,
             floss, fntubes,
             getWeight(),
-            i_SR.fShower_Xoffset, i_SR.fShower_Yoffset,
+            fXoff_edisp, fYoff_edisp,
             iDispError, ffui );
         // reconstructed direction by disp method:
         fimg2_ang = fDispAnalyzerDirection->getAngDiff();
