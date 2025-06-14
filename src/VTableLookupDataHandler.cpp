@@ -262,10 +262,10 @@ bool VTableLookupDataHandler::getNextEvent( bool bShort )
         }
         fEventWeight = 1.;
 
-        int iNE = 1;
+        int i_next_event_status = 1;
         if( fEventDisplayFileFormat >= 2 )
         {
-            iNE = fillNextEvent( bShort );
+            i_next_event_status = fillNextEvent( bShort );
         }
         else
         {
@@ -274,13 +274,13 @@ bool VTableLookupDataHandler::getNextEvent( bool bShort )
             cout << "...exiting" << endl;
             exit( EXIT_FAILURE );
         }
-        if( iNE == -1 )
+        if( i_next_event_status == -1 )
         {
             return false;
         }
 
         // return false for non-valid (maybe not reconstructed?) event
-        if( iNE == 0 )
+        if( i_next_event_status == 0 )
         {
             return true;
         }
@@ -318,7 +318,7 @@ bool VTableLookupDataHandler::getNextEvent( bool bShort )
 int VTableLookupDataHandler::fillNextEvent( bool bShort )
 {
     ///////////////////////////////////////////////////////////////////////////////
-    // read partical event for quick reconstruction quality assessment
+    // read partial event for quick reconstruction quality assessment
     if( !fTshowerpars_QCCut->GetEntry( fEventCounter ) )
     {
         return -1;
@@ -1120,7 +1120,7 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
         iNFil_sum += iNFil;
     }
     cout << iNFil_sum << " file(s) in chain " << endl;
-    // don't check each file for CTA sims -> this is very inefficent and it takes a long time
+    // don't check each file for CTA sims -> this is very inefficient and it takes a long time
     if( !fTLRunParameter->fPE && !fTLRunParameter->fWriteTables )
     {
         if( checkIfFilesInChainAreRecovered( fTtelconfig ) )
@@ -2486,7 +2486,7 @@ void VTableLookupDataHandler::reset()
 */
 void VTableLookupDataHandler::calcDistances()
 {
-    // check for successfull reconstruction
+    // check for successful reconstruction
     for( unsigned int tel = 0; tel < fNTel; tel++ )
     {
         fR_MC[tel] = VUtilities::line_point_distance( fMCycore, -1.*fMCxcore, 0., fMCze, fMCaz, fTelY[tel], -1.*fTelX[tel], fTelZ[tel] );
@@ -2879,7 +2879,7 @@ void VTableLookupDataHandler::resetAll()
 
 
 /*!
-  apply cuts on successfull reconstruction to input data
+  apply cuts on successful reconstruction to input data
 */
 bool VTableLookupDataHandler::cut( bool bWrite )
 {
@@ -3040,7 +3040,7 @@ double VTableLookupDataHandler::calculateMeanNoiseLevel( bool bCurrentNoiseLevel
    get array pointing
 
    if array pointing does not exist:
-   return most propable telescope elevation (majority vote)
+   return most probable telescope elevation (majority vote)
 */
 double VTableLookupDataHandler::getTelElevation()
 {

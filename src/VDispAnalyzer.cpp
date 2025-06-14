@@ -314,7 +314,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
             f_angdiff /= fmean_iangdiffN;
         }
     }
-    // multiplicity 1 (fix to artifically large value)
+    // multiplicity 1 (fix to artificially large value)
     else
     {
         fmean_iangdiffN = 1.;
@@ -323,7 +323,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     // check for close to parallel lines for image multiplicity 2
     // (not so important for disp direction,
     //  but note that core reconstruction
-    //  is still done the convential way)
+    //  is still done the conventional way)
     // Using LIN51 leads to an increase in effective area at large
     // energies and large off-axis angle, but significantly worse
     // angular resolution
@@ -568,7 +568,7 @@ void VDispAnalyzer::calculateMeanDirection( unsigned int i_ntel,
             v_displist.push_back( i );
 
             // use estimated uncertainty on disp direction reconstruction as
-            // weight: exponential coefficent ad-hoc, not a result of
+            // weight: exponential coefficient ad-hoc, not a result of
             // optimisation
             if( fDispErrorWeighting )
             {
