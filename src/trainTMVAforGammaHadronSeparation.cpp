@@ -130,9 +130,9 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "DispDiff", &DispDiff, "DispDiff/D" );
     iDataTree_reduced->Branch( "DispAbsSumWeigth", &DispAbsSumWeigth, "DispAbsSumWeigth/F" );
     iDataTree_reduced->Branch( "MCe0", &MCe0, "MCe0/D" );
-    
+
     Long64_t n = 0;
-    
+
     for( unsigned  int i = 0; i < iTreeVector.size(); i++ )
     {
         if( iTreeVector[i] )
@@ -285,25 +285,25 @@ bool train( VTMVARunData* iRun,
                       iRun->fMultiplicityCuts &&
                       iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
                       && iRun->fZenithCutData[iZenithBin]->fZenithCut;
-                      
+
     TCut iCutBck = iRun->fQualityCuts && iRun->fQualityCutsBkg
                    && iRun->fAzimuthCut
                    && iRun->fMultiplicityCuts
                    && iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
                    && iRun->fZenithCutData[iZenithBin]->fZenithCut;
-                   
+
     if( !iRun->fMCxyoffCutSignalOnly )
     {
         iCutBck = iCutBck && iRun->fMCxyoffCut;
     }
-    
+
     // adding training variables
     if( iRun->fTrainingVariable.size() != iRun->fTrainingVariableType.size() )
     {
         cout << "train: error: training-variable vectors have different size" << endl;
         return false;
     }
-    
+
     // prepare trees for training and testing with selected events only
     // this step is necessary to minimise the memory impact for the BDT
     // training
@@ -317,7 +317,7 @@ bool train( VTMVARunData* iRun,
         iBackgroundTree_reduced = prepareSelectedEventsTree( iRun,
                                   iCutBck, false,
                                   iRun->fResetNumberOfTrainingEvents );
-                                  
+
         if( iSignalTree_reduced )
         {
             iSignalTree_reduced->Write();
@@ -398,13 +398,13 @@ bool train( VTMVARunData* iRun,
                                         nEventsBck, false, iRun->fResetNumberOfTrainingEvents );
         cout << "\t Updated training options: " <<  iRun->fPrepareTrainingOptions << endl;
     }
-    
+
     TMVA::Tools::Instance();
     gSystem->mkdir( iRun->fOutputDirectoryName.c_str() );
     TString iOutputDirectory( iRun->fOutputDirectoryName.c_str() );
     gSystem->ExpandPathName( iOutputDirectory );
     ( TMVA::gConfig().GetIONames() ).fWeightFileDir = iOutputDirectory;
-    
+
     //////////////////////////////////////////
     // defining training class
     TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
@@ -425,7 +425,7 @@ bool train( VTMVARunData* iRun,
         dataloader->AddSignalTree( iSignalTree_reduced, iRun->fSignalWeight );
         dataloader->AddRegressionTarget( iRun->fReconstructionQualityTarget.c_str(), iRun->fReconstructionQualityTargetName.c_str() );
     }
-    
+
     // loop over all trainingvariables and add them to TMVA
     for( unsigned int i = 0; i < iRun->fTrainingVariable.size(); i++ )
     {
@@ -436,7 +436,7 @@ bool train( VTMVARunData* iRun,
     {
         dataloader->AddSpectator( iRun->fSpectatorVariable[i].c_str() );
     }
-    
+
     //////////////////////////////////////////
     // prepare training events
     // (cuts are already applied at an earlier stage)
@@ -448,7 +448,7 @@ bool train( VTMVARunData* iRun,
                                && iRun->fMultiplicityCuts;
         TCut iCutBck_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
                             && iRun->fMultiplicityCuts;
-                            
+
         dataloader->PrepareTrainingAndTestTree( iCutSignal_post,
                                                 iCutBck_post,
                                                 iRun->fPrepareTrainingOptions );
@@ -457,11 +457,11 @@ bool train( VTMVARunData* iRun,
     {
         dataloader->PrepareTrainingAndTestTree( "", iRun->fPrepareTrainingOptions );
     }
-    
+
     //////////////////////////////////////////
     // book all methods
     char htitle[6000];
-    
+
     for( unsigned int i = 0; i < iRun->fMVAMethod.size(); i++ )
     {
         TMVA::Types::EMVA i_tmva_type = TMVA::Types::kBDT;
@@ -473,7 +473,7 @@ bool train( VTMVARunData* iRun,
         {
             i_tmva_type = TMVA::Types::kMLP;
         }
-        
+
         //////////////////////////
         if( iRun->fMVAMethod[i] != "BOXCUTS" )
         {
@@ -518,22 +518,22 @@ bool train( VTMVARunData* iRun,
             factory->BookMethod( dataloader, TMVA::Types::kCuts, htitle, i_opt.str().c_str() );
         }
     }
-    
-    
+
+
     //////////////////////////////////////////
     // start training
-    
+
     factory->TrainAllMethods();
-    
+
     //////////////////////////////////////////
     // evaluate results
-    
+
     factory->TestAllMethods();
-    
+
     factory->EvaluateAllMethods();
-    
+
     factory->Delete();
-    
+
     return true;
 }
 
@@ -567,12 +567,12 @@ int main( int argc, char* argv[] )
         exit( EXIT_SUCCESS );
     }
     cout << endl;
-    
+
     //////////////////////////////////////
     // data object
     VTMVARunData* fData = new VTMVARunData();
     fData->fName = "OO";
-    
+
     //////////////////////////////////////
     // read run parameters from configuration file
     if( !fData->readConfigurationFile( argv[1] ) )
@@ -590,7 +590,7 @@ int main( int argc, char* argv[] )
     // randomize list of input files
     fData->shuffleFileVectors();
     fData->print();
-    
+
     //////////////////////////////////////
     // read and prepare data files
     if( !fData->openDataFiles( false ) )
@@ -598,7 +598,7 @@ int main( int argc, char* argv[] )
         cout << "error opening data files" << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     //////////////////////////////////////
     // train MVA
     // (one training per energy bin)
@@ -649,7 +649,7 @@ int main( int argc, char* argv[] )
                 iTempS << fData->fOutputDirectoryName << "/" << fData->fOutputFileName << ".bin.root";
                 iTempS2 << fData->fOutputFileName << ".root";
             }
-            
+
             // prepare a short root file with the necessary values only
             // write energy & zenith cuts, plus signal and background efficiencies
             TFile* root_file = fData->fOutputFile[i][j];
@@ -665,7 +665,7 @@ int main( int argc, char* argv[] )
                 VTMVARunDataZenithCut* fDataZenithCut = ( VTMVARunDataZenithCut* )root_file->Get( "fDataZenithCut" );
                 TH1D* MVA_effS = 0;
                 TH1D* MVA_effB = 0;
-                
+
                 char hname[200];
                 for( unsigned int d = 0; d < fData->fMVAMethod.size(); d++ )
                 {
@@ -696,7 +696,7 @@ int main( int argc, char* argv[] )
                                  fData->fMVAMethod[d].c_str(), d );
                         MVA_effB = ( TH1D* )root_file->Get( hname );
                     }
-                    
+
                     if( fDataEnergyCut )
                     {
                         fDataEnergyCut->Write();
@@ -737,7 +737,7 @@ int main( int argc, char* argv[] )
             string iOutputFileNameComplete( iOutputFileNameCompleteDir + iTempS2.str() );
             rename( iOutputFileName.c_str(), iOutputFileNameComplete.c_str() );
             cout << "Complete TMVA output root-file moved to: " << iOutputFileNameComplete << endl;
-            
+
             // rename .bin.root file to .root-file
             string iFinalRootFileName( iTempS.str() );
             string iBinRootString( ".bin.root" );
