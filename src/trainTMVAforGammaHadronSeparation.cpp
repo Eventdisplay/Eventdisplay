@@ -285,7 +285,6 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     sprintf( htemp, "d_erec_es[%d]/F", d_n );
     iDataTree_reduced->Branch( "d_erec_es", d_erec_es, htemp );
 
-
     Long64_t n = 0;
 
     for( unsigned  int i = 0; i < iTreeVector.size(); i++ )
