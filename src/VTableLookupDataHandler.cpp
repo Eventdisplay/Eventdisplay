@@ -754,7 +754,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fXoff, fYoff,
             getDistanceToCore(),
             fXcore, fYcore,
-            fXoff_edisp, fYoff_edisp,
+            fXoff_intersect, fYoff_intersect,
             ffui );
 
         // fill results
@@ -787,7 +787,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fasym, ftgrad_x,
             floss, fntubes,
             getWeight(true),
-            fXoff_edisp, fYoff_edisp,
+            fXoff_intersect, fYoff_intersect,
             getDistanceToCoreTel(),
             fEmissionHeightMean,
             fMCEnergy,
@@ -838,7 +838,6 @@ void VTableLookupDataHandler::doStereoReconstruction()
     fXoff_intersect = i_SR.fShower_Xoffset;
     fYoff_intersect = i_SR.fShower_Yoffset;
 
-
     ////////////////////////////////////////////////////////////////////
     // DISP method for updated disp reconstruction
     ////////////////////////////////////////////////////////////////////
@@ -862,7 +861,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
                 fasym, ftgrad_x,
                 floss, fntubes,
                 getWeight(),
-                fXoff_edisp, fYoff_edisp,
+                fXoff_intersect, fYoff_intersect,
                 ffui );
 
             // get estimated error on direction reconstruction
@@ -892,7 +891,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
             fasym, ftgrad_x,
             floss, fntubes,
             getWeight(),
-            fXoff_edisp, fYoff_edisp,
+            fXoff_intersect, fYoff_intersect,
             iDispError, ffui );
         // reconstructed direction by disp method:
         fimg2_ang = fDispAnalyzerDirection->getAngDiff();
