@@ -769,8 +769,6 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
     fdisp_energy_NT = 0;
     fdisp_energyQL = -1;
 
-    fDebug = true;
-
     // make sure that all data arrays exist
     if( !img_size || !img_cen_x || !img_cen_y
             || !img_cosphi || !img_sinphi
