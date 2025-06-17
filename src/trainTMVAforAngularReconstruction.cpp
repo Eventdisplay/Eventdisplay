@@ -879,7 +879,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                 Xoff        = i_SR.fShower_Xoffset;
                 Yoff        = i_SR.fShower_Yoffset;
                 Xcore       = i_SR.fShower_Xcore;
-                Ycore       = i_SR.fShower_Xcore;
+                Ycore       = i_SR.fShower_Ycore;
             }
             else
             {
