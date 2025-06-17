@@ -134,8 +134,8 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
 
     // list of variables used by MVA method
-    dataloader->AddVariable( "width", 'F' );
-    dataloader->AddVariable( "length", 'F' );
+    dataloader->AddVariable( "log10(width)", 'F' );
+    dataloader->AddVariable( "log10(length)", 'F' );
     dataloader->AddVariable( "wol",    'F' );
     dataloader->AddVariable( "size", 'F' );
     dataloader->AddVariable( "ntubes", 'F' );
@@ -143,11 +143,11 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     // (no time gradient is available)
     if( iTelType != 201511619 )
     {
-        dataloader->AddVariable( "tgrad_x*tgrad_x", 'F' );
+        dataloader->AddVariable( "log10(tgrad_x*tgrad_x)", 'F' );
     }
     if(!iSingleTelescopeAnalysis )
     {
-        dataloader->AddVariable( "cross", 'F' );
+        dataloader->AddVariable( "log10(cross)", 'F' );
     }
     dataloader->AddVariable( "asym", 'F' );
     dataloader->AddVariable( "loss", 'F' );
