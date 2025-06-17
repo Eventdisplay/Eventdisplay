@@ -356,7 +356,7 @@ vector< bool > readArrayList( unsigned int i_ntel, string iArrayList, vector< un
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE );
         }
-        cout << "reading list of telescope from " << iArrayList << endl;
+        cout << "reading list of telescope for current array from " << iArrayList << endl;
         string iLine;
         while( getline( is, iLine ) )
         {
@@ -427,7 +427,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         cout << "\t FOV for telescope " << iHyperArrayID.back() << ": " << iFOV_tel.back() << endl;
     }
 
-    // read list of telescope from usual array lists
+    // read list of telescope from array lists
     vector< bool > fUseTelescope = readArrayList( i_ntel, iArrayList, iHyperArrayID );
     if( fUseTelescope.size() != i_ntel )
     {
@@ -436,12 +436,9 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         exit( EXIT_FAILURE );
     }
 
-    //
     // vector with telescope position
-    // (includes all telescopes, even those
-    // of other types)
-    // (unfortunately inconsistent in data
-    //  types required)
+    // (includes all telescopes, even those of other types)
+    // (unfortunately inconsistent in data types required)
     vector< float > fTelX;
     vector< float > fTelY;
     vector< float > fTelZ;
@@ -454,6 +451,11 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     {
         i_tel.GetEntry( i );
 
+        if( i < fUseTelescope.size() && !fUseTelescope[i] )
+        {
+            continue;
+        }
+
         fTelX.push_back( i_tel.TelX );
         fTelY.push_back( i_tel.TelY );
         fTelZ.push_back( i_tel.TelZ );
@@ -462,12 +464,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         fEM_TelZ.push_back( i_tel.TelZ );
         fTelType.push_back( i_tel.TelType );
 
-        if( i < fUseTelescope.size() && !fUseTelescope[i] )
-        {
-            continue;
-        }
-        if( i_tel.TelType == iTelType
-                || iTelType == 0 )
+        if( i_tel.TelType == iTelType || iTelType == 0 )
         {
             f_ntelType++;
         }
@@ -610,6 +607,11 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     ////////////////////////////////////////////
     // filling of training trees;
     cout << "filling training trees for " << fMapOfTrainingTree.size() << " telescope type(s)" << endl;
+    if( fMapOfTrainingTree.size() == 0 )
+    {
+        cout << "..nothing to do. Exiting." << endl;
+        exit( 0 );
+    }
     cout << "\t found " << f_ntelType << " telescopes of telescope type " << iTelType << endl;
     bool iSingleTelescopeAnalysis = false;
     if( f_ntelType == 1 )
@@ -627,23 +629,40 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     }
     Cshowerpars i_showerpars(&i_showerparsTree, true, true );
 
-    // get all tpars tree
-    vector< TChain* > i_tparsTree;
+    // Require two list of telescope parameter tress:
+    // - i_tpars: all telescopes for the telescope type considered
+    // - i_tpars_array: all telescopes of the array considered (might include several telescope types)
     vector< Ctpars* > i_tpars;
+    vector< TChain* > i_tparsTree_array;
+    vector< Ctpars* > i_tpars_array;
     for( unsigned int i = 0; i < fTelType.size(); i++ )
     {
-        if( iTelType == 0 || iTelType == fTelType[i] )
+        ostringstream iTreeName;
+        iTreeName << "Tel_" << i + 1 << "/tpars";
+        if( i < fUseTelescope.size() && fUseTelescope[i] )
         {
-            ostringstream iTreeName;
-            iTreeName << "Tel_" << i + 1 << "/tpars";
-            i_tparsTree.push_back( new TChain( iTreeName.str().c_str() ) );
+            i_tparsTree_array.push_back( new TChain( iTreeName.str().c_str() ) );
             for( unsigned int f = 0; f < iInputFileList.size(); f++ )
             {
-                i_tparsTree.back()->Add( iInputFileList[f].c_str(), 0 );
+                i_tparsTree_array.back()->Add( iInputFileList[f].c_str(), 0 );
             }
-            i_tpars.push_back( new Ctpars( i_tparsTree.back(), true, true ) );
+            i_tpars_array.push_back( new Ctpars( i_tparsTree_array.back(), true, true ) );
+            cout << "\t found telescope tree " << iTreeName.str();
+            cout << " as part of array (teltype " << fTelType[i] << ")";
+            cout << ", entries: ";
+            cout << i_tpars_array.back()->fChain->GetEntries() << endl;
+        }
+        else
+        {
+            i_tpars_array.push_back( 0 );
+            continue;
+        }
+        // telescope type selection of trees
+        if( iTelType == 0 || iTelType == fTelType[i] )
+        {
+            i_tpars.push_back( i_tpars_array.back() );
             cout << "\t found tree " << iTreeName.str();
-            cout << " (teltype " << fTelType[i] << ")";
+            cout << " for this telescope type combination (teltype " << fTelType[i] << ")";
             cout << ", entries: ";
             cout << i_tpars.back()->fChain->GetEntries() << endl;
         }
@@ -654,7 +673,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         }
     }
 
-    // temporary variables for emission height calculation
+    // Stereo parameters (emission height, direction) using current array
     VEmissionHeightCalculator* fEmissionHeightCalculator = new VEmissionHeightCalculator();
     fEmissionHeightCalculator->setTelescopePositions( fTelX, fTelY, fTelZ );
     double fEM_cen_x[fTelType.size()];
@@ -669,7 +688,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     // stereo (intersection of line) reconstruction
     // needed for the re-calculation of 'cross'
     VSimpleStereoReconstructor i_SR;
-    i_SR.initialize();
+    i_SR.initialize(2, 5.); // TODO - hardwired values
 
     /////////////////////////////////////////////////
     // loop over all events in trees
@@ -678,10 +697,8 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
 
     for( int n = 0; n < nentries; n++ )
     {
-        // read events from event trees
         i_showerpars.GetEntry( n );
 
-        // check recid
         if( iRecID >= i_showerpars.NMethods )
         {
             cout << "Error: invalid reconstruction ID.";
@@ -695,7 +712,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         if(!iSingleTelescopeAnalysis )
         {
             if( i_showerpars.Chi2[iRecID] < -999.
-                    ||  i_showerpars.NImages[iRecID] < 2 )
+            ||  i_showerpars.NImages[iRecID] < 2 )
             {
                 continue;
             }
@@ -708,8 +725,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             }
         }
 
-        // check if there are image of this telescope type
-        // (hyper-array)
+        // check if there are images of this telescope type
         int i_nteltypecounter = 0;
         for( unsigned int i = 0; i < fTelType.size(); i++ )
         {
@@ -726,7 +742,9 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
 
         /////////////////////////////////////////////////////////
         // calculate emission height and cross
-        for( unsigned int i = 0; i < i_tpars.size(); i++ )
+        NImages = 0;
+
+        for( unsigned int i = 0; i < i_tpars_array.size(); i++ )
         {
             fEM_size[i] = -1.;
             fEM_cen_x[i] = 0.;
@@ -742,46 +760,46 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             {
                 continue;
             }
-            // note: this is different to what happens in the analysis:
-            // here the emissionheight / direction is calculated only from the
-            // telescopes of the given telescope type
-            if(!i_tpars[i] )
+            if(!i_tpars_array[i] )
             {
                 continue;
             }
+            NImages++;
 
-            i_tpars[i]->GetEntry( n );
+            i_tpars_array[i]->GetEntry( n );
 
-            if( i_tpars[i]->size > 0. )
+            if( i_tpars_array[i]->size > 0. )
             {
-                fEM_size[i] = i_tpars[i]->size;
-                fEM_cen_x[i] = i_tpars[i]->cen_x;
-                fEM_cen_y[i] = i_tpars[i]->cen_y;
-                fEM_width[i] = i_tpars[i]->width;
-                fEM_length[i] = i_tpars[i]->length;
-                fEM_cosphi[i] = i_tpars[i]->cosphi;
-                fEM_sinphi[i] = i_tpars[i]->sinphi;
+                fEM_size[i] = i_tpars_array[i]->size;
+                fEM_cen_x[i] = i_tpars_array[i]->cen_x;
+                fEM_cen_y[i] = i_tpars_array[i]->cen_y;
+                fEM_width[i] = i_tpars_array[i]->width;
+                fEM_length[i] = i_tpars_array[i]->length;
+                fEM_cosphi[i] = i_tpars_array[i]->cosphi;
+                fEM_sinphi[i] = i_tpars_array[i]->sinphi;
             }
         }
         EmissionHeight = fEmissionHeightCalculator->getEmissionHeight( fEM_cen_x, fEM_cen_y, fEM_size,
                          i_showerpars.ArrayPointing_Azimuth,
                          i_showerpars.ArrayPointing_Elevation );
 
-        if(!iSingleTelescopeAnalysis )
+        i_SR.reconstruct_direction_and_core(
+            fEM_TelX.size(),
+            i_showerpars.ArrayPointing_Elevation,
+            i_showerpars.ArrayPointing_Azimuth,
+            fEM_TelX.data(), fEM_TelY.data(), fEM_TelZ.data(),
+            fEM_size,
+            fEM_cen_x,
+            fEM_cen_y,
+            fEM_cosphi,
+            fEM_sinphi,
+            fEM_width,
+            fEM_length,
+            fEM_weight );
+
+        if( i_SR.fShower_Xoffset < -90. || i_SR.fShower_Yoffset < -90. )
         {
-            i_SR.reconstruct_direction_and_core(
-                fEM_TelX.size(),
-                i_showerpars.ArrayPointing_Elevation,
-                i_showerpars.ArrayPointing_Azimuth,
-                &fEM_TelX[0], &fEM_TelY[0], &fEM_TelZ[0],
-                fEM_size,
-                fEM_cen_x,
-                fEM_cen_y,
-                fEM_cosphi,
-                fEM_sinphi,
-                fEM_width,
-                fEM_length,
-                fEM_weight );
+            continue;
         }
 
         //////////////////////////////////////
@@ -856,12 +874,21 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             MCyoff      = i_showerpars.MCyoff;
             MCxcore     = i_showerpars.MCxcore;
             MCycore     = i_showerpars.MCycore;
-            Xoff        = i_showerpars.Xoff[iRecID];
-            Yoff        = i_showerpars.Yoff[iRecID];
-            Xcore       = i_showerpars.Xcore[iRecID];
-            Ycore       = i_showerpars.Ycore[iRecID];
+            if( redo_stereo_reconstruction )
+            {
+                Xoff        = i_SR.fShower_Xoffset;
+                Yoff        = i_SR.fShower_Yoffset;
+                Xcore       = i_SR.fShower_Xcore;
+                Ycore       = i_SR.fShower_Xcore;
+            }
+            else
+            {
+                Xoff        = i_showerpars.Xoff[iRecID];
+                Yoff        = i_showerpars.Yoff[iRecID];
+                Xcore       = i_showerpars.Xcore[iRecID];
+                Ycore       = i_showerpars.Ycore[iRecID];
+            }
             LTrig       = i_showerpars.LTrig;
-            NImages     = i_showerpars.NImages[iRecID];
             MCze        = i_showerpars.MCze;
             MCaz        = i_showerpars.MCaz;
 
@@ -879,11 +906,6 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             if( iSingleTelescopeAnalysis )
             {
                 cross = 0.;
-            }
-            else if( redo_stereo_reconstruction )
-            {
-                cross = sqrt(( cen_y + i_SR.fShower_Yoffset ) * ( cen_y + i_SR.fShower_Yoffset )
-                             + ( cen_x - i_SR.fShower_Xoffset ) * ( cen_x - i_SR.fShower_Xoffset ) );
             }
             else
             {
@@ -934,11 +956,11 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         }
     }
     // cleanup
-    for( unsigned int i = 0; i < i_tpars.size(); i++ )
+    for( unsigned int i = 0; i < i_tpars_array.size(); i++ )
     {
-        if( i_tpars[i] )
+        if( i_tpars_array[i] )
         {
-            delete i_tpars[i];
+            delete i_tpars_array[i];
         }
     }
 
@@ -1031,7 +1053,7 @@ int main( int argc, char* argv[] )
     {
         iUseImageParameterErrors = ( bool )( atoi( argv[12] ) );
     }
-    bool redo_stereo_reconstruction = false;
+    bool redo_stereo_reconstruction = true;
 
     ///////////////////////////
     // print runparameters to screen
