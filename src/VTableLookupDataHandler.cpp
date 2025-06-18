@@ -144,6 +144,7 @@ VTableLookupDataHandler::VTableLookupDataHandler( bool iwrite, VTableLookupRunPa
 
     fDispAnalyzerDirection = 0;
     fDispAnalyzerDirectionError = 0;
+    fDispAnalyzerDirectionSign = 0;
     fDispAnalyzerEnergy    = 0;
     fDispAnalyzerCore      = 0;
 }
@@ -582,6 +583,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             }
             ftpars[i]->GetEntry( fEventCounter );
 
+            fntubes[i] = ftpars[i]->ntubes;
             fdist[i] = ftpars[i]->dist;
             ffui[i] = ftpars[i]->fui;
             fsize[i] = ftpars[i]->size;
@@ -656,7 +658,6 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             if( !bShort )
             {
                 fmeanPedvar_ImageT[i] = ftpars[i]->meanPedvar_Image;
-                fntubes[i] = ftpars[i]->ntubes;
                 fnsat[i] = ftpars[i]->nsat;
                 fnlowgain[i] = ftpars[i]->nlowgain;
                 falpha[i] = ftpars[i]->alpha;
@@ -850,7 +851,7 @@ void VTableLookupDataHandler::doStereoReconstruction()
         vector< float > iDispError( getNTel(), -9999. );
         if( fDispAnalyzerDirectionError )
         {
-            fDispAnalyzerDirectionError->calculateExpectedDirectionError(
+            fDispAnalyzerDirectionError->calculateExpectedDirectionError_or_Sign(
                 getNTel(),
                 fArrayPointing_Elevation, fArrayPointing_Azimuth,
                 fTel_type,
@@ -871,6 +872,27 @@ void VTableLookupDataHandler::doStereoReconstruction()
                 fweightDispBDTs[t] = iDispError[t];
             }
         }
+        ////////////////////////////////////////////////////////////////////
+        // estimate disp head/tail sign
+        ////////////////////////////////////////////////////////////////////
+        vector< float > iDispSign( getNTel(), -9999. );
+        if( fDispAnalyzerDirectionSign )
+        {
+            iDispSign = fDispAnalyzerDirectionSign->calculateExpectedDirectionError_or_Sign(
+                            getNTel(),
+                            fArrayPointing_Elevation, fArrayPointing_Azimuth,
+                            fTel_type,
+                            getSize( 1., true, false ),
+                            fcen_x, fcen_y,
+                            fcosphi, fsinphi,
+                            fwidth, flength,
+                            fasym, ftgrad_x,
+                            floss, fntubes,
+                            getWeight(),
+                            fXoff_intersect, fYoff_intersect,
+                            ffui );
+        }
+
 
         // use weighting calculated from disp error
         fDispAnalyzerDirection->setDispErrorWeighting( fDispAnalyzerDirectionError != 0,
@@ -892,7 +914,8 @@ void VTableLookupDataHandler::doStereoReconstruction()
             floss, fntubes,
             getWeight(),
             fXoff_intersect, fYoff_intersect,
-            iDispError, ffui );
+            iDispError, iDispSign,
+            ffui );
         // reconstructed direction by disp method:
         fimg2_ang = fDispAnalyzerDirection->getAngDiff();
         fnxyoff = fDispAnalyzerDirection->getXYWeight_disp().size();

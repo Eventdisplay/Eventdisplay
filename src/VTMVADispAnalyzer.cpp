@@ -76,6 +76,10 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
     {
         cout << "disp angular uncertainty estimation";
     }
+    else if( fDispType == "BDTDispSign" )
+    {
+        cout << "disp angular sign estimation";
+    }
     else
     {
         cout << "disp angular reconstruction";
@@ -171,6 +175,12 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "disp", &temp2 );
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispPhi", &temp1 );
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispSign", &temp3 );
+        }
+        else if( fDispType == "BDTDispSign" )
+        {
+            fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "disp", &temp2 );
+            fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispPhi", &temp1 );
+            fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispError", &temp3 );
         }
 
         if( !fTMVAReader[fTelescopeTypeList[i]]->BookMVA( "BDTDisp", iFileName.str().c_str() ) )

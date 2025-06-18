@@ -39,6 +39,7 @@ class VDispAnalyzer
         bool  fDispErrorWeighting;
         float fDispErrorExponential;
         double* fdistanceQC_max;
+        bool fUseIntersectForHeadTail;
 
         // disp direction reconstruction
         float f_disp;
@@ -129,9 +130,10 @@ class VDispAnalyzer
                                      double* img_weight,
                                      double xoff_4, double yoff_4,
                                      vector< float > dispErrorT,
+                                     vector< float > dispSignT,
                                      double* img_fui );
 
-        void calculateExpectedDirectionError( unsigned int i_ntel, float iArrayElevation, float iArrayAzimuth,
+        vector< float > calculateExpectedDirectionError_or_Sign( unsigned int i_ntel, float iArrayElevation, float iArrayAzimuth,
                                               ULong64_t* iTelType,
                                               double* img_size, double* img_cen_x, double* img_cen_y,
                                               double* img_cosphi, double* img_sinphi,
