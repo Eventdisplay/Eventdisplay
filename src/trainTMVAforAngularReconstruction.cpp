@@ -51,6 +51,7 @@ map< ULong64_t, unsigned int > fMapOfNTelescopeType;
 
     BDTDisp
     BDTDispError
+    BDTDispSign
     BDTDispEnergy
     BDTDispCore
 
@@ -137,8 +138,8 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     dataloader->AddVariable( "log10(width)", 'F' );
     dataloader->AddVariable( "log10(length)", 'F' );
     dataloader->AddVariable( "wol",    'F' );
-    dataloader->AddVariable( "size", 'F' );
-    dataloader->AddVariable( "ntubes", 'F' );
+    dataloader->AddVariable( "log10(size)", 'F' );
+    dataloader->AddVariable( "log10(ntubes)", 'F' );
     // hard coded ASTRI telescope type
     // (no time gradient is available)
     if( iTelType != 201511619 )
@@ -184,6 +185,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     {
         dataloader->AddSpectator( "disp", 'F' );
         dataloader->AddSpectator( "dispError", 'F' );
+        dataloader->AddSpectator( "dispSign", 'F' );
         dataloader->AddTarget( "dispPhi", 'F' );
     }
     // train for error on disp reconstruction
@@ -191,7 +193,16 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     {
         dataloader->AddSpectator( "disp", 'F' );
         dataloader->AddSpectator( "dispPhi", 'F' );
+        dataloader->AddSpectator( "dispSign", 'F' );
         dataloader->AddTarget( "dispError", 'F', "dispError", 0., 10. );
+    }
+    // train for disp sign (head/tail)
+    else if( iTargetML.find( "DispSign" ) != string::npos )
+    {
+        dataloader->AddSpectator( "disp", 'F' );
+        dataloader->AddSpectator( "dispPhi", 'F' );
+        dataloader->AddSpectator( "dispError", 'F' );
+        dataloader->AddTarget( "dispSign", 'F', "dispSign", -2., 2. );
     }
     // train for core reconstruction
     else if( iTargetML.find( "DispCore" ) != string::npos )
@@ -203,6 +214,7 @@ bool trainTMVA( string iOutputDir, float iTrainTest,
     {
         dataloader->AddSpectator( "dispError", 'F' );
         dataloader->AddSpectator( "dispPhi", 'F' );
+        dataloader->AddSpectator( "dispSign", 'F' );
         dataloader->AddTarget( "disp", 'F' );
     }
     // add weights (optional)
@@ -427,7 +439,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
         cout << "\t FOV for telescope " << iHyperArrayID.back() << ": " << iFOV_tel.back() << endl;
     }
 
-    // read list of telescope from array lists
+    // read list of telescopes from array list
     vector< bool > fUseTelescope = readArrayList( i_ntel, iArrayList, iHyperArrayID );
     if( fUseTelescope.size() != i_ntel )
     {
@@ -438,7 +450,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
 
     // vector with telescope position
     // (includes all telescopes, even those of other types)
-    // (unfortunately inconsistent in data types required)
+    // (note changes in required data types)
     vector< float > fTelX;
     vector< float > fTelY;
     vector< float > fTelZ;
@@ -483,7 +495,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     float sinphi = -1.;
     float cosphi = -1.;
     float dphi = -1.;
-    float size = -1.;    // actually log10(size)
+    float size = -1.;
     float ntubes = -1.;
     float loss = -1.;
     float asym = -1.;
@@ -508,6 +520,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     float MCze = -1.;
     float disp = -1.;
     float dispError = -1.;
+    float dispSign = 1.;
     float dispImageError = -1.;
     float NImages = -1.;
     float cross = -1.;
@@ -594,6 +607,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             fMapOfTrainingTree[i_tel.TelType]->Branch( "Az", &az, "Az/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "disp", &disp, "disp/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "dispError", &dispError, "dispError/F" );
+            fMapOfTrainingTree[i_tel.TelType]->Branch( "dispSign", &dispSign, "dispSign/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "dispImageError", &dispImageError, "dispImageError/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "cross", &cross, "cross/F" );
             fMapOfTrainingTree[i_tel.TelType]->Branch( "dispPhi", &dispPhi, "dispPhi/F" );
@@ -688,7 +702,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     // stereo (intersection of line) reconstruction
     // needed for the re-calculation of 'cross'
     VSimpleStereoReconstructor i_SR;
-    i_SR.initialize(2, 5.); // TODO - hardwired values
+    i_SR.initialize(2, 5.); // hardwired values
 
     /////////////////////////////////////////////////
     // loop over all events in trees
@@ -840,8 +854,8 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             cen_y       = i_tpars[i]->cen_y;
             sinphi      = i_tpars[i]->sinphi;
             cosphi      = i_tpars[i]->cosphi;
-            size        = log10( i_tpars[i]->size );
-            ntubes      = log10( i_tpars[i]->ntubes );
+            size        = i_tpars[i]->size;
+            ntubes      = i_tpars[i]->ntubes;
             loss        = i_tpars[i]->loss;
             asym        = i_tpars[i]->asymmetry;
             width       = i_tpars[i]->width;
@@ -921,6 +935,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             // of the image length axis with the true direction, not the error
             // due to a wrong prediction of disp by the BDT
             dispError = 0;
+            dispSign = 1.;
             float x1 = cen_x - disp * cosphi;
             float x2 = cen_x + disp * cosphi;
             float y1 = cen_y - disp * sinphi;
@@ -929,10 +944,12 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                     < sqrt(( x2 - MCxoff ) * ( x2 - MCxoff ) + ( y2 + MCyoff ) * ( y2 + MCyoff ) ) )
             {
                 dispError = sqrt(( x1 - MCxoff ) * ( x1 - MCxoff ) + ( y1 + MCyoff ) * ( y1 + MCyoff ) );
+                dispSign = 1.;
             }
             else
             {
                 dispError = sqrt(( x2 - MCxoff ) * ( x2 - MCxoff ) + ( y2 + MCyoff ) * ( y2 + MCyoff ) );
+                dispSign = -1.;
             }
             // disp uncertainty
             // - only possible for LL image fitting
@@ -1020,7 +1037,7 @@ int main( int argc, char* argv[] )
         iTargetML = argv[6];
     }
     // quality cut likely overwritten from command line
-    string       iQualityCut = "size>1.&&ntubes>log10(4.)&&width>0.&&width<2.&&length>0.&&length<10.";
+    string       iQualityCut = "size>10.&&ntubes>4.&&width>0.&&width<2.&&length>0.&&length<10.";
     iQualityCut = iQualityCut + "&&tgrad_x<100.*100.&&loss<0.20&&cross<20.0&&Rcore<2000.";
     if( argc >= 11 )
     {

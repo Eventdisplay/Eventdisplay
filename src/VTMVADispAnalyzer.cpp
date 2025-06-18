@@ -125,8 +125,8 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "log10(width)", &fWidth );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "log10(length)", &fLength );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "wol", &fWoL );
-        fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "size", &fSize );
-        fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "ntubes", &fNtubes );
+        fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "log10(size)", &fSize );
+        fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "log10(ntubes)", &fNtubes );
         // ASTRI telescopes are without timing information
         // tgrad_x is therefore ignored
         if( fTelescopeTypeList[i] != 201511619 )
