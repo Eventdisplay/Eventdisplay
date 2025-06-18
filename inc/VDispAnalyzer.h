@@ -80,7 +80,6 @@ class VDispAnalyzer
             vector< float > cosphi, vector< float > sinphi,
             vector< float > v_disp, vector< float > v_weight );
         vector< vector< float > > get_sign_permutation_vector( unsigned int x_size );
-        vector< unsigned int > get_largest_weight_index( std::vector<float>, unsigned int );
 
     public:
 

@@ -50,6 +50,7 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
     float sinphi = 0.;
     float temp1 = 0.;
     float temp2 = 0.;
+    float temp3 = 0.;
 
     // list of telescope types: required to selected correct BDT weight file
     fTelescopeTypeList = iTelTypeList;
@@ -163,11 +164,13 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         {
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispError", &temp2 );
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispPhi", &temp1 );
+            fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispSign", &temp3 );
         }
         else if( fDispType == "BDTDispError" )
         {
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "disp", &temp2 );
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispPhi", &temp1 );
+            fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispSign", &temp3 );
         }
 
         if( !fTMVAReader[fTelescopeTypeList[i]]->BookMVA( "BDTDisp", iFileName.str().c_str() ) )

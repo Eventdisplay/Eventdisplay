@@ -157,7 +157,7 @@ vector< vector< float > > VDispAnalyzer::get_sign_permutation_vector( unsigned i
         vector< float > i_temp_v( x_size, 1. );
         while( y > 0 )
         {
-            if( ( y & 1 ) == 1 )
+            if(( y & 1 ) == 1 )
             {
                 i_temp_v[i_counter] = -1.;
             }
@@ -212,29 +212,6 @@ unsigned int VDispAnalyzer::find_smallest_diff_element(
     return i_mean_element;
 }
 
-/*
- * return index of N largest values of a vector
- *
- */
-vector< unsigned int > VDispAnalyzer::get_largest_weight_index( vector< float > w, unsigned int N )
-{
-    multimap< float, unsigned int, greater<float> > w_sorted;
-    for( unsigned int i = 0; i < w.size(); i++ )
-    {
-        w_sorted.insert( pair< float, unsigned int>( w[i], i ) );
-    }
-    vector< unsigned int > rev_sorted_index;
-    for( multimap<float, unsigned int>::iterator it = w_sorted.begin(); it != w_sorted.end(); ++it )
-    {
-        rev_sorted_index.push_back( it->second );
-        if( rev_sorted_index.size() > N )
-        {
-            break;
-        }
-    }
-    return rev_sorted_index;
-}
-
 
 /*
  * calculate direction coordinates (x,y) from an array of points using
@@ -264,11 +241,8 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
     dispdiff = -9999.;
 
     ////////////////////////////////////////////////////
-    // note: first part (calculating smallest difference between solutions)
-    // works only for a maximum of 4 images
-    // for more than 4 images: seed value from different reconstruction method
-    // should be given.
-    if( x.size() > 4 && x_off4 < -998. && y_off4 < -998. )
+    // cross calculation requires intersect input
+    if( x_off4 < -998. && y_off4 < -998. )
     {
         return;
     }
@@ -365,13 +339,10 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
             fdisp_xs_T[ii] = x[ii] - i_sign[i_smallest_diff_element][ii] * v_disp[ii] * cosphi[ii];
             fdisp_ys_T[ii] = y[ii] - i_sign[i_smallest_diff_element][ii] * v_disp[ii] * sinphi[ii];
         }
-        calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
     }
     // more images
-    // (MVA disp analyzer using
-    // stereo reconstruction as starting
-    // value
-    else if( x_off4 > -998. && y_off4 > -998. )
+    // (MVA disp analyzer using stereo reconstruction as starting value)
+    else
     {
         // vector with disp directions per image
         fdisp_xs_T.clear();
@@ -408,8 +379,9 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
                 v_disp[ii] = -1.*TMath::Abs( v_disp[ii] );
             }
         }
-        calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
     }
+
+    calculateMeanShowerDirection( fdisp_xs_T, fdisp_ys_T, v_weight, xs, ys, dispdiff, fdisp_xs_T.size() );
 
     // apply sign flip
     if( ys > -9998. )
