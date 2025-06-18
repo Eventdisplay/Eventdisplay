@@ -204,7 +204,7 @@ float VTMVADispAnalyzer::evaluate( float iWidth, float iLength, float iSize, flo
 {
     if( iWidth > 0. )
     {
-        fWidth = log10(iWidth);
+        fWidth = log10( iWidth );
     }
     else
     {
@@ -212,8 +212,8 @@ float VTMVADispAnalyzer::evaluate( float iWidth, float iLength, float iSize, flo
     }
     if( iLength > 0. )
     {
-        fLength = log10( fLength );
-        fWoL = fWidth / fLength;
+        fLength = log10( iLength );
+        fWoL = iWidth / iLength;
     }
     else
     {
