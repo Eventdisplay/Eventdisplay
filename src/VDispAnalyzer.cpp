@@ -244,7 +244,7 @@ void VDispAnalyzer::calculateMeanDirection( float& xs, float& ys,
 
     ////////////////////////////////////////////////////
     // cross calculation requires intersect input
-    if( x_off4 < -998. && y_off4 < -998. )
+    if( x_off4 < -998. || y_off4 < -998. )
     {
         return;
     }

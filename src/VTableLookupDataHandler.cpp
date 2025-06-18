@@ -1529,6 +1529,18 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
     if( fTLRunParameter->fDispError_BDTFileName.size() > 0. )
     {
         cout << endl;
+        cout << "Initializing BDT disp analyzer for estimation of disp sign" << endl;
+        cout << "===========================================================" << endl << endl;
+        fDispAnalyzerDirectionSign = new VDispAnalyzer();
+        fDispAnalyzerDirectionSign->setTelescopeTypeList( i_TelTypeList );
+        fDispAnalyzerDirectionSign->initialize( fTLRunParameter->fDispSign_BDTFileName, "TMVABDT", "BDTDispSign" );
+    }
+    /////////////////////////////////////////
+    // initialize Disp Analyzer for sign estimation
+    // (if required)
+    if( fTLRunParameter->fDispSign_BDTFileName.size() > 0. )
+    {
+        cout << endl;
         cout << "Initializing BDT disp analyzer for estimation of disp error" << endl;
         cout << "===========================================================" << endl << endl;
         cout << "\t error weighting parameter: " << fTLRunParameter->fDispError_BDTWeight << endl;
