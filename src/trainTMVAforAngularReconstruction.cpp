@@ -778,7 +778,6 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             {
                 continue;
             }
-            NImages++;
 
             i_tpars_array[i]->GetEntry( n );
 
@@ -791,6 +790,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                 fEM_length[i] = i_tpars_array[i]->length;
                 fEM_cosphi[i] = i_tpars_array[i]->cosphi;
                 fEM_sinphi[i] = i_tpars_array[i]->sinphi;
+                NImages++;
             }
         }
         EmissionHeight = fEmissionHeightCalculator->getEmissionHeight( fEM_cen_x, fEM_cen_y, fEM_size,

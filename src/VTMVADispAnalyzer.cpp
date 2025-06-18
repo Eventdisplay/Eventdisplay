@@ -202,7 +202,7 @@ float VTMVADispAnalyzer::evaluate( float iWidth, float iLength, float iSize, flo
                                    float icen_x, float icen_y, float xoff_4, float yoff_4, ULong64_t iTelType,
                                    float iZe, float iAz, float iRcore, float iEHeight, float iDist, float iFui, float iNtubes )
 {
-    if( fWidth > 0. )
+    if( iWidth > 0. )
     {
         fWidth = log10(iWidth);
     }
@@ -210,8 +210,7 @@ float VTMVADispAnalyzer::evaluate( float iWidth, float iLength, float iSize, flo
     {
         fWidth = 1.e-10;
     }
-    fLength = iLength;
-    if( fLength > 0. )
+    if( iLength > 0. )
     {
         fLength = log10( fLength );
         fWoL = fWidth / fLength;
