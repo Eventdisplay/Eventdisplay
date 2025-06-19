@@ -66,6 +66,7 @@ class VTableLookupDataHandler
         VDispAnalyzer*             fDispAnalyzerDirection;
         VDispAnalyzer*             fDispAnalyzerEnergy;
         VDispAnalyzer*             fDispAnalyzerCore;
+        VDispAnalyzer*             fDispAnalyzerDirectionSign;
         VDispAnalyzer*             fDispAnalyzerDirectionError;
 
         double fSelectRandom;

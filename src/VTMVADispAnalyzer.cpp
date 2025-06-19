@@ -50,6 +50,7 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
     float sinphi = 0.;
     float temp1 = 0.;
     float temp2 = 0.;
+    float temp3 = 0.;
 
     // list of telescope types: required to selected correct BDT weight file
     fTelescopeTypeList = iTelTypeList;
@@ -74,6 +75,10 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
     else if( fDispType == "BDTDispError" )
     {
         cout << "disp angular uncertainty estimation";
+    }
+    else if( fDispType == "BDTDispSign" )
+    {
+        cout << "disp angular sign estimation";
     }
     else
     {
@@ -125,8 +130,8 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "log10(width)", &fWidth );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "log10(length)", &fLength );
         fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "wol", &fWoL );
-        fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "size", &fSize );
-        fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "ntubes", &fNtubes );
+        fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "log10(size)", &fSize );
+        fTMVAReader[fTelescopeTypeList[i]]->AddVariable( "log10(ntubes)", &fNtubes );
         // ASTRI telescopes are without timing information
         // tgrad_x is therefore ignored
         if( fTelescopeTypeList[i] != 201511619 )
@@ -163,11 +168,19 @@ VTMVADispAnalyzer::VTMVADispAnalyzer( string iFile, vector<ULong64_t> iTelTypeLi
         {
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispError", &temp2 );
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispPhi", &temp1 );
+            fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispSign", &temp3 );
         }
         else if( fDispType == "BDTDispError" )
         {
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "disp", &temp2 );
             fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispPhi", &temp1 );
+            fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispSign", &temp3 );
+        }
+        else if( fDispType == "BDTDispSign" )
+        {
+            fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "disp", &temp2 );
+            fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispPhi", &temp1 );
+            fTMVAReader[fTelescopeTypeList[i]]->AddSpectator( "dispError", &temp3 );
         }
 
         if( !fTMVAReader[fTelescopeTypeList[i]]->BookMVA( "BDTDisp", iFileName.str().c_str() ) )
@@ -189,19 +202,18 @@ float VTMVADispAnalyzer::evaluate( float iWidth, float iLength, float iSize, flo
                                    float icen_x, float icen_y, float xoff_4, float yoff_4, ULong64_t iTelType,
                                    float iZe, float iAz, float iRcore, float iEHeight, float iDist, float iFui, float iNtubes )
 {
-    if( fWidth > 0. )
+    if( iWidth > 0. )
     {
-        fWidth = log10(iWidth);
+        fWidth = log10( iWidth );
     }
     else
     {
         fWidth = 1.e-10;
     }
-    fLength = iLength;
-    if( fLength > 0. )
+    if( iLength > 0. )
     {
-        fLength = log10( fLength );
-        fWoL = fWidth / fLength;
+        fLength = log10( iLength );
+        fWoL = iWidth / iLength;
     }
     else
     {
