@@ -34,11 +34,11 @@ class VTableLookupTelToAnalyze
         unsigned int fTelID_hyperArray;
         ULong64_t    fTelType;
         double       fWeight;
-        
+
         VTableLookupTelToAnalyze();
         virtual ~VTableLookupTelToAnalyze() {}
         void print();
-        
+
         ClassDef( VTableLookupTelToAnalyze, 1 ); //for any changes to this file: increase this number
 };
 
@@ -46,7 +46,7 @@ class VTableLookupTelToAnalyze
 class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
 {
     private:
-    
+
         bool fillInputFile_fromList( string iList );
         void fillTelescopeTypeDependentWeights();
         void printCTA_MC_offaxisBins();
@@ -56,22 +56,22 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         bool readRunParameters( string iFile );
         bool readTelTypeDepdendentWeights( string iFile );
         void setCTA_MC_offaxisBins();
-        
+
     public:
-    
+
         // debug levels 0 = off, 1 = default debug level, 2 = detailed
         unsigned int fDebug;
         // debug printing
         string printpara;
-        
+
         // true for table filling, false for table reading
         bool         fWriteTables;
-        
+
         // list of evndisp input files
         vector< string > inputfile;
         // name of lookup table file
         string tablefile;
-        
+
         // reconstructed method (quality cut) read from
         // evndisp file
         int  rec_method;
@@ -92,7 +92,7 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         double fEventSelectionCut_lossCutMax;
         // event selection cuts for table filling and reading (only used for energy reconstruction)
         double fEventSelectionCut_distanceCutMax;
-        
+
         // run parameter file
         string fRunParameterFile;
         // list of telescopes (subarrays) to be active in analysis
@@ -103,10 +103,10 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         map< ULong64_t, double > fTelescopeType_weight;
         // quality cut level
         unsigned int fQualityCutLevel;
-        
+
         // use lookup tables for time gradient (optional)
         bool fUsetimeGradientLookupTables;
-        
+
         //////////////////////////////////////////
         // parameters for table filling (writing) only
         // minimum number of showers required per table bin
@@ -141,7 +141,7 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         // definition of offaxis bins (CTA only)
         vector< double > fCTA_MC_offaxisBin_min;
         vector< double > fCTA_MC_offaxisBin_max;
-        
+
         //////////////////////////////////////////
         // parameters for table reading only
         // name of mscw output file
@@ -169,7 +169,7 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         vector< double > pedvars;                 // mean pedvar per telescope
         // use MC histogram with this spectral index
         vector< double > fAddMC_spectral_index;
-        
+
         // rerun stereo reconstruction (MC only)
         bool  fRerunStereoReconstruction;
         double fRerunStereoReconstruction_minAngle;
@@ -179,15 +179,16 @@ class VTableLookupRunParameter : public TNamed, public VGlobalRunParameter
         string fCoreReconstruction_BDTFileName;
         string fDispError_BDTFileName;
         float  fDispError_BDTWeight;
-        
+        string fDispSign_BDTFileName;
+
         // functions...
         VTableLookupRunParameter();
         ~VTableLookupRunParameter() {}
-        
+
         bool fillParameters( int argc, char* argv[] );
         void print( int iB = 0 );
         void printHelp();
-        
-        ClassDef( VTableLookupRunParameter, 1000 ); //for any changes to this file: increase this number
+
+        ClassDef( VTableLookupRunParameter, 1001 ); //for any changes to this file: increase this number
 };
 #endif
