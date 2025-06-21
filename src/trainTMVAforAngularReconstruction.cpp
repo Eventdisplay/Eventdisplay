@@ -1044,7 +1044,7 @@ int main( int argc, char* argv[] )
         iQualityCut = argv[10];
     }
     // TMVA options (default options derived from hyperparameter optimisation on CTAO prod3 simulations)
-    string iTMVAOptions = "NTrees=100:BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:GradBaggingFraction=0.5:nCuts=20:MaxDepth=10:";
+    string iTMVAOptions = "NTrees=300:BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:GradBaggingFraction=0.5:nCuts=20:MaxDepth=10:";
     iTMVAOptions += "PruneMethod=ExpectedError:RegressionLossFunctionBDTG=Huber:MinNodeSize=0.02:VarTransform=N";
     if( argc >=  8 )
     {
