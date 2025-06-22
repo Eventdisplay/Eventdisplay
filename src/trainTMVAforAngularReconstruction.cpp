@@ -458,10 +458,12 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     vector< double > fEM_TelY;
     vector< double > fEM_TelZ;
     vector< ULong64_t > fTelType;
+    vector< ULong64_t > fTelType_array;
     unsigned int f_ntelType = 0;
     for( unsigned int i = 0; i < i_ntel; i++ )
     {
         i_tel.GetEntry( i );
+        fTelType_array.push_back( i_tel.TelType );
 
         if( i < fUseTelescope.size() && !fUseTelescope[i] )
         {
@@ -647,12 +649,15 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     // - i_tpars: all telescopes for the telescope type considered
     // - i_tpars_array: all telescopes of the array considered (might include several telescope types)
     vector< Ctpars* > i_tpars;
+    vector< int > i_tpars_telid;
     vector< TChain* > i_tparsTree_array;
     vector< Ctpars* > i_tpars_array;
-    for( unsigned int i = 0; i < fTelType.size(); i++ )
+    vector< int > i_tpars_array_telid;
+    for( unsigned int i = 0; i < fTelType_array.size(); i++ )
     {
         ostringstream iTreeName;
         iTreeName << "Tel_" << i + 1 << "/tpars";
+        cout << "\t testing " << iTreeName.str() << " (" << i << ", " << fTelType_array[i] << ")" << endl;
         if( i < fUseTelescope.size() && fUseTelescope[i] )
         {
             i_tparsTree_array.push_back( new TChain( iTreeName.str().c_str() ) );
@@ -661,22 +666,23 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                 i_tparsTree_array.back()->Add( iInputFileList[f].c_str(), 0 );
             }
             i_tpars_array.push_back( new Ctpars( i_tparsTree_array.back(), true, true ) );
+            i_tpars_array_telid.push_back( i );
             cout << "\t found telescope tree " << iTreeName.str();
-            cout << " as part of array (teltype " << fTelType[i] << ")";
+            cout << " as part of array (teltype " << fTelType_array[i] << ")";
             cout << ", entries: ";
             cout << i_tpars_array.back()->fChain->GetEntries() << endl;
         }
         else
         {
-            i_tpars_array.push_back( 0 );
             continue;
         }
         // telescope type selection of trees
-        if( iTelType == 0 || iTelType == fTelType[i] )
+        if( iTelType == 0 || iTelType == fTelType_array[i] )
         {
             i_tpars.push_back( i_tpars_array.back() );
+            i_tpars_telid.push_back( i );
             cout << "\t found tree " << iTreeName.str();
-            cout << " for this telescope type combination (teltype " << fTelType[i] << ")";
+            cout << " for this telescope type combination (teltype " << fTelType_array[i] << ")";
             cout << ", entries: ";
             cout << i_tpars.back()->fChain->GetEntries() << endl;
         }
@@ -741,21 +747,22 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
 
         // check if there are images of this telescope type
         int i_nteltypecounter = 0;
-        for( unsigned int i = 0; i < fTelType.size(); i++ )
+        for( unsigned int i = 0; i < fTelType_array.size(); i++ )
         {
-            if(( fTelType[i] == iTelType || iTelType == 0 )
+            if(( fTelType_array[i] == iTelType || iTelType == 0 ) && fUseTelescope[i]
                     && ( int )i_showerpars.ImgSel_list[iRecID][i] > 0 )
             {
                 i_nteltypecounter++;
             }
         }
-        if( i_nteltypecounter == 0 )
+        if( i_nteltypecounter < 2 )
         {
             continue;
         }
 
         /////////////////////////////////////////////////////////
         // calculate emission height and cross
+        // (use all telescopes of selected array)
         NImages = 0;
 
         for( unsigned int i = 0; i < i_tpars_array.size(); i++ )
@@ -769,7 +776,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             fEM_sinphi[i] = 0.;
             fEM_weight[i] = 1.;
 
-            if(( int )i_showerpars.ImgSel_list[iRecID][i] < 1
+            if(( int )i_showerpars.ImgSel_list[iRecID][i_tpars_array_telid[i]] < 1
                     && ( i_showerpars.NImages[iRecID] > 1 || !iSingleTelescopeAnalysis ) )
             {
                 continue;
@@ -778,7 +785,6 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             {
                 continue;
             }
-
             i_tpars_array[i]->GetEntry( n );
 
             if( i_tpars_array[i]->size > 0. )
@@ -818,10 +824,11 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
 
         //////////////////////////////////////
         // loop over all telescopes
+        // (use telescopes of selected type only)
         for( unsigned int i = 0; i < i_tpars.size(); i++ )
         {
             // check if telescope was reconstructed
-            if(( int )i_showerpars.ImgSel_list[iRecID][i] < 1 )
+            if(( int )i_showerpars.ImgSel_list[iRecID][i_tpars_telid[i]] < 1 )
             {
                 continue;
             }
@@ -834,7 +841,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             // (use 20% x size of the camera)
             if( i < iFOV_tel.size()
                     && sqrt( i_showerpars.MCxoff * i_showerpars.MCxoff
-                        + i_showerpars.MCyoff * i_showerpars.MCyoff ) > iFOV_tel[i] * 0.5 * 1.2 )
+                        + i_showerpars.MCyoff * i_showerpars.MCyoff ) > iFOV_tel[i_tpars_telid[i]] * 0.5 * 1.2 )
             {
                 continue;
             }
@@ -881,8 +888,8 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
                 dlength = i_tpars[i]->dlength;
                 dphi = i_tpars[i]->dphi;
             }
-            ze          = 90. - i_showerpars.TelElevation[i];
-            az          = i_showerpars.TelAzimuth[i];
+            ze          = 90. - i_showerpars.TelElevation[i_tpars_telid[i]];
+            az          = i_showerpars.TelAzimuth[i_tpars_telid[i]];
             MCe0        = i_showerpars.MCe0;
             MCxoff      = i_showerpars.MCxoff;
             MCyoff      = i_showerpars.MCyoff;
