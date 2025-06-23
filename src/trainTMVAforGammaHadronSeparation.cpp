@@ -93,11 +93,11 @@ bool get_largest_weight_disp_entries(
         indexed_disp_woff[i] = {DispWoff_T[i], i};
     }
 
-    // Sort the vector in descending order based on DispWoff_T value (largest values first)
+    // Sort the vector in ascending order based on DispWoff_T value (smallest values first)
     sort(indexed_disp_woff.begin(), indexed_disp_woff.end(),
          [](const pair<Float_t, unsigned int>& a,
             const pair<Float_t, unsigned int>& b) {
-            return a.first > b.first; // Sort descending
+            return a.first < b.first; // Sort ascending
            });
 
     // Rare events have DispNImages < Images
