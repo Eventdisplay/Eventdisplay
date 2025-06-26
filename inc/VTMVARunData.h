@@ -39,10 +39,7 @@ class VTMVARunData : public TNamed
     public:
 
         string            fName;
-
-        // run type
-        bool fTrainGammaHadronSeparation;
-        bool fTrainReconstructionQuality;
+        string fRunMode;
 
         // output file
         string            fOutputFileName;
@@ -112,8 +109,9 @@ class VTMVARunData : public TNamed
             fName = iN;
         }
         void shuffleFileVectors();
+        string test_run_mode(string irun_mode);
 
-        ClassDef( VTMVARunData, 14 );
+        ClassDef( VTMVARunData, 15 );
 };
 
 #endif
