@@ -686,11 +686,6 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             cout << ", entries: ";
             cout << i_tpars.back()->fChain->GetEntries() << endl;
         }
-        else
-        {
-            i_tpars.push_back( 0 );
-            cout << "\t ignore tree for telescope type " << fTelType[i] << endl;
-        }
     }
 
     // Stereo parameters (emission height, direction) using current array
