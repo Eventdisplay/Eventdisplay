@@ -32,17 +32,17 @@ void VSimpleStereoReconstructor::reset()
 {
 
     fiangdiff = 0.;
-    fShower_Xoffset = -9999.;
-    fShower_Yoffset = -9999.;
-    fShower_stdS = -9999.;
-    fShower_Chi2 = -9999.;
-    fShower_Ze = -9999.;
-    fShower_Az = -9999.;
-    fShower_DispDiff = -9999.;
+    fShower_Xoffset = -99999.;
+    fShower_Yoffset = -99999.;
+    fShower_stdS = -99999.;
+    fShower_Chi2 = -99999.;
+    fShower_Ze = -99999.;
+    fShower_Az = -99999.;
+    fShower_DispDiff = -99999.;
 
-    fShower_Xcore = -9999.;
-    fShower_Ycore = -9999.;
-    fShower_stdP = -9999.;
+    fShower_Xcore = -99999.;
+    fShower_Ycore = -99999.;
+    fShower_stdP = -99999.;
     fmean_iangdiff = 0.;
 }
 
@@ -57,8 +57,6 @@ void VSimpleStereoReconstructor::reset()
       direction and image centroids
 
       corresponds to rcs_method4 in VArrayAnalyzer
-
-      should be used for MC only
 
 */
 bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_ntel,
@@ -307,9 +305,6 @@ bool VSimpleStereoReconstructor::reconstruct_direction_and_core( unsigned int i_
             // telescope coordinates
             // shower coordinates (telecope pointing)
             tel_impact( i_xcos, i_ycos, iTelX[i], iTelY[i], iTelZ[i], &i_xrot, &i_yrot, &i_zrot, false );
-            // shower coordinates (shower direction)
-            // x.push_back( iTelX[i] - ixs / TMath::RadToDeg() * iTelZ[i] );
-            // y.push_back( iTelY[i] - iys / TMath::RadToDeg() * iTelZ[i] );
             x.push_back( i_xrot - ixs / TMath::RadToDeg() * i_zrot );
             y.push_back( i_yrot - iys / TMath::RadToDeg() * i_zrot );
 
@@ -388,8 +383,8 @@ bool VSimpleStereoReconstructor::fillShowerCore( float ximp, float yimp )
     // check validity
     if( !isnormal( ximp ) || !isnormal( yimp ) )
     {
-        ximp = -99999.;
-        yimp = -99999.;
+        fShower_Xcore = -99999.;
+        fShower_Ycore = -99999.;
         return false;
     }
     // reconstructed shower core in ground coordinates
@@ -422,6 +417,7 @@ bool VSimpleStereoReconstructor::fillShowerCore( float ximp, float yimp )
     {
         fShower_Xcore = -99999;
         fShower_Ycore = -99999;
+        return false;
     }
     return true;
 }

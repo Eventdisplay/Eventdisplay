@@ -11,8 +11,7 @@ VTMVARunData::VTMVARunData()
 
     fName = "noname";
 
-    fTrainGammaHadronSeparation = true;
-    fTrainReconstructionQuality = false;  // in development: please ignore
+    fRunMode = "TrainGammaHadronSeparation";
 
     fCheckValidityOfInputVariables = true;
     fResetNumberOfTrainingEvents = 0;
@@ -259,19 +258,36 @@ bool VTMVARunData::openDataFiles( bool iCheckMinEvents )
     return true;
 }
 
+/*
+ * Test for correct run mode
+*/
+string VTMVARunData::test_run_mode( string irun_mode )
+{
+    if( irun_mode != "TrainGammaHadronSeparation" && irun_mode != "TrainReconstructionQuality" && irun_mode != "TrainAngularReconstructionMethod" && irun_mode != "WriteTrainingEvents" )
+    {
+        cout << "Invalid run mode: " << irun_mode << endl;
+        exit( EXIT_FAILURE );
+    }
+    return irun_mode;
+}
+
 /*!
     print run information to screen
 */
 void VTMVARunData::print()
 {
     cout << endl;
-    if( fTrainGammaHadronSeparation )
+    if( fRunMode == "TrainGammaHadronSeparation" )
     {
         cout << "Training gamma/hadron separation" << endl;
     }
-    if( fTrainReconstructionQuality )
+    else if( fRunMode == "TrainReconstructionQuality" )
     {
         cout << "Training reconstruction quality" << endl;
+    }
+    else if( fRunMode == "TrainAngularReconstructionMethod" )
+    {
+        cout << "Training angular reconstruction method choice" << endl;
     }
     cout << "MVA Methods and options: " << endl;
     for( unsigned int i = 0; i < fMVAMethod.size(); i++ )
@@ -350,7 +366,7 @@ void VTMVARunData::print()
     {
         cout << "\t" << fSignalFileName[i] << endl;
     }
-    if( !fTrainReconstructionQuality )
+    if( fRunMode == "TrainGammaHadronSeparation" )
     {
         cout << "background data file(s): " << endl;
         for( unsigned int i = 0; i < fBackgroundFileName.size(); i++ )
@@ -406,6 +422,15 @@ bool VTMVARunData::readConfigurationFile( char* iC )
             }
 
             is_stream >> temp;
+            // Run mode for training
+            if( temp == "RUN_MODE" )
+            {
+                if( !( is_stream >> std::ws ).eof() )
+                {
+                    is_stream >> temp;
+                    fRunMode = test_run_mode( temp );
+                }
+            }
             ///////////////////////////////////////////////////////////////////////////////////////////
             // MVA method and options
             ///////////////////////////////////////////////////////////////////////////////////////////
