@@ -11,7 +11,7 @@ echo "Installation of sofa into $EVNDISPSYS "
 
 [[ "$1" ]] && DOWNL=$1 || DOWNL=""
 
-CURDIR=`pwd`
+CURDIR=$(pwd)
 cd "$EVNDISPSYS"
 
 echo "Checking for existing sofa installation "
@@ -27,28 +27,49 @@ mkdir -p sofa
 cd sofa
 
 # get sofa package from the web page and install
-SOFAD="20210512"
+SOFAD="20231011"
 SOFA="sofa_c-${SOFAD}.tar.gz"
+
+# Determine download URL
 if [[ $DOWNL == "CI" ]]; then
-    curl -O https://syncandshare.desy.de/index.php/s/jr9NrbWFR5MLaDf/download
-    mv -f download ${SOFA}
+    URL="https://syncandshare.desy.de/index.php/s/RamRFYJtZjDGsfL/download"
 else
-    wget --no-check-certificate https://www.iausofa.org/2021_0512_C/${SOFA}
+    URL="https://www.iausofa.org/2021_0512_C/${SOFA}"
 fi
-if [ ! -e ${SOFA} ]
-then
+
+echo "Downloading ${SOFA} from ${URL}"
+
+# Prefer curl; fallback to wget
+if command -v curl >/dev/null 2>&1; then
+    if [[ $DOWNL == "CI" ]]; then
+        curl -L "${URL}" -o "${SOFA}"
+    else
+        curl -L "${URL}" -o "${SOFA}"
+    fi
+elif command -v wget >/dev/null 2>&1; then
+    if [[ $DOWNL == "CI" ]]; then
+        wget "${URL}" -O "${SOFA}"
+    else
+        wget --no-check-certificate "${URL}" -O "${SOFA}"
+    fi
+else
+    echo "Error: neither curl nor wget is installed."
+    exit 1
+fi
+
+if [ ! -e "${SOFA}" ]; then
     echo "error in downloading sofa package"
-    exit
+    exit 1
 fi
-tar -xzf ${SOFA}
-rm -f ${SOFA}
+tar -xzf "${SOFA}"
+rm -f "${SOFA}"
 
 ##########################
 # prepare make file
 cd sofa/${SOFAD}/c/src/
 sed -i -- "s/\$(HOME)/\$(EVNDISPSYS)\/sofa/" makefile
 # use clang on OSX
-OS=`uname -s`
+OS=$(uname -s)
 echo "$OS"
 if [ "$OS" = "Darwin" ]
 then
