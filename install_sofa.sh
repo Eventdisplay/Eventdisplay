@@ -27,7 +27,7 @@ mkdir -p sofa
 cd sofa
 
 # get sofa package from the web page and install
-SOFAD="20210512"
+SOFAD="20231011"
 SOFA="sofa_c-${SOFAD}.tar.gz"
 if [[ $DOWNL == "CI" ]]; then
     curl -L https://syncandshare.desy.de/index.php/s/RamRFYJtZjDGsfL/download -o ${SOFA}
