@@ -87,8 +87,6 @@ Docker images are made available for the following use cases.
 
 See [dockerfiles/README.md](dockerfiles/README.md) on usage.
 
-(for the time being, there is some overlap with the [Eventdisplay container](https://github.com/Eventdisplay/Eventdisplay_Docker) repository)
-
 ### Code, tools, library
 
 The core library consist of all code, tools, and libraries required to run the analysis.
@@ -111,11 +109,6 @@ The reconstruction of analysis requires information on the instrument (e.g., tel
 This information is accessible through repositories for auxiliary files, again dependent on the observatory of interest:
 
 - for **CTA**: [https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA](https://github.com/Eventdisplay/Eventdisplay_AnalysisFiles_CTA)
-
-### Container applications
-
-Docker files and images are provided for some Eventdisplay use cases.
-Docker files are collected in [https://github.com/Eventdisplay/Eventdisplay_Docker](https://github.com/Eventdisplay/Eventdisplay_Docker)
 
 ### Converters
 

@@ -53,7 +53,7 @@ ENV EVNDISPSYS=${EVNDISP}/Eventdisplay/
 ENV SOFASYS=${EVNDISPSYS}/sofa/
 RUN mkdir -p ${EVNDISP}/Eventdisplay
 COPY Eventdisplay ${EVNDISP}/Eventdisplay/
-RUN cd ${EVNDISPSYS} && ./install_sofa.sh
+RUN cd ${EVNDISPSYS} && ./install_sofa.sh CI
 RUN cd ${EVNDISPSYS} && \
     make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD5 && \
     rm -f obj/*.o obj/*.cpp
