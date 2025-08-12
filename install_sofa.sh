@@ -11,7 +11,7 @@ echo "Installation of sofa into $EVNDISPSYS "
 
 [[ "$1" ]] && DOWNL=$1 || DOWNL=""
 
-CURDIR=`pwd`
+CURDIR=$(pwd)
 cd "$EVNDISPSYS"
 
 echo "Checking for existing sofa installation "
@@ -30,8 +30,7 @@ cd sofa
 SOFAD="20210512"
 SOFA="sofa_c-${SOFAD}.tar.gz"
 if [[ $DOWNL == "CI" ]]; then
-    curl -O https://syncandshare.desy.de/index.php/s/jr9NrbWFR5MLaDf/download
-    mv -f download ${SOFA}
+    curl -L https://syncandshare.desy.de/index.php/s/RamRFYJtZjDGsfL/download -o ${SOFA}
 else
     wget --no-check-certificate https://www.iausofa.org/2021_0512_C/${SOFA}
 fi
@@ -48,7 +47,7 @@ rm -f ${SOFA}
 cd sofa/${SOFAD}/c/src/
 sed -i -- "s/\$(HOME)/\$(EVNDISPSYS)\/sofa/" makefile
 # use clang on OSX
-OS=`uname -s`
+OS=$(uname -s)
 echo "$OS"
 if [ "$OS" = "Darwin" ]
 then
