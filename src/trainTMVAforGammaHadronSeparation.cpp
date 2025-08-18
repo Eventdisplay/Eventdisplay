@@ -470,13 +470,21 @@ bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin
     // training
     if( iRunMode == "WriteTrainingEvents" )
     {
-        prepareSelectedEventsTree( iRun,
+        TTree* iSignalTree_reduced = prepareSelectedEventsTree( iRun,
                               iCutSignal, true,
                               iRun->fResetNumberOfTrainingEvents );
-        prepareSelectedEventsTree( iRun,
+        TTree* iBackgroundTree_reduced = prepareSelectedEventsTree( iRun,
                                   iCutBck, false,
                                   iRun->fResetNumberOfTrainingEvents );
 
+        if( iSignalTree_reduced )
+        {
+            iSignalTree_reduced->Write();
+        }
+        if( iBackgroundTree_reduced )
+        {
+            iBackgroundTree_reduced->Write();
+        }
         if( iRun->getTLRunParameter() )
         {
             iRun->getTLRunParameter()->Write();
