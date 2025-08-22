@@ -53,12 +53,12 @@ int main( int argc, char* argv[] )
             exit( EXIT_SUCCESS );
         }
     }
-    
+
     cout << endl;
     cout << "makeEffectiveArea " << VGlobalRunParameter::getEVNDISP_VERSION() << endl;
     cout << "-----------------------------" << endl;
     cout << endl;
-    
+
     /////////////////////////////////////////////////////////////////
     // read command line parameters
     if( argc != 3 )
@@ -80,7 +80,7 @@ int main( int argc, char* argv[] )
         exit( EXIT_SUCCESS );
     }
     string fOutputfileName = argv[2];
-    
+
     /////////////////////////////////////////////////////////////////
     // read run parameters from file
     VInstrumentResponseFunctionRunParameter* fRunPara = new VInstrumentResponseFunctionRunParameter();
@@ -92,7 +92,7 @@ int main( int argc, char* argv[] )
         exit( EXIT_FAILURE );
     }
     fRunPara->print();
-    
+
     /////////////////////////////////////////////////////////////////
     // open output file and write results to dist
     TFile* fOutputfile = new TFile( fOutputfileName.c_str(), "RECREATE" );
@@ -102,11 +102,11 @@ int main( int argc, char* argv[] )
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     /////////////////////////////////////////////////////////////////
     // gamma/hadron cuts
     // (might be a series of cuts)
-    
+
     vector< VGammaHadronCuts* > fCuts;
     for( unsigned int i = 0; i < fRunPara->getCutFileName().size(); i++ )
     {
@@ -132,24 +132,24 @@ int main( int argc, char* argv[] )
         fCuts.back()->initializeCuts( -1, fRunPara->fGammaHadronProbabilityFile );
         fCuts.back()->printCutSummary();
     }
-    
+
     /////////////////////////////////////////////////////////////////
     // read MC header (might not be there, no problem; but depend on right input in runparameter file)
     VMonteCarloRunHeader* iMonteCarloHeader = fRunPara->readMCRunHeader();
-    
+
     /////////////////////////////////////////////////////////////////
     // stopwatch to keep track of execution time
     TStopwatch fStopWatch;
-    
+
     /////////////////////////////////////////////////////////////////////////////
     // set effective area class
     VEffectiveAreaCalculator fEffectiveAreaCalculator( fRunPara, fCuts, fOutputfile );
-    
+
     /////////////////////////////////////////////////////////////////////////////
     // set effective area Monte Carlo histogram class
     TFile* fMC_histoFile = 0;
     VEffectiveAreaCalculatorMCHistograms* fMC_histo = 0;
-    
+
     /////////////////////////////////////////////////////////////////////////////
     // set angular, core, etc resolution calculation class
     vector< VInstrumentResponseFunction* > f_IRF;
@@ -205,8 +205,8 @@ int main( int argc, char* argv[] )
                                   fRunPara->fze, fRunPara->fnoise, fRunPara->fpedvar, fRunPara->fXoff, fRunPara->fYoff );
         f_IRF.back()->setDuplicationID( f_IRF_DuplicationID[i] );
     }
-    
-    
+
+
     /////////////////////////////////////////////////////////////////////////////
     // load data chain
     TChain* c = new TChain( "data" );
@@ -216,7 +216,7 @@ int main( int argc, char* argv[] )
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     CData d( c, true, true );
     for( unsigned int i = 0; i < fCuts.size(); i++ )
     {
@@ -224,7 +224,7 @@ int main( int argc, char* argv[] )
     }
     // expect all cuts using the same reconstruction type
     d.setReconstructionType( fCuts[0]->fReconstructionType );
-    
+
     /////////////////////////////////////////////////////////////////////////////
     // fill resolution plots
     for( unsigned int i = 0; i < f_IRF_Name.size(); i++ )
@@ -245,7 +245,7 @@ int main( int argc, char* argv[] )
             }
         }
     }
-    
+
     /////////////////////////////////////////////////////////////////////////////
     // calculate effective areas
     if( !fRunPara->fFillMCHistograms )
@@ -254,7 +254,7 @@ int main( int argc, char* argv[] )
         // (make sure that spectral index is positive)
         fEffectiveAreaCalculator.initializeHistograms( fRunPara->fAzMin, fRunPara->fAzMax, fRunPara->fSpectralIndex );
     }
-    
+
     //////////////////////////////////////////////////////////////////////////////
     // MC histograms
     if( fRunPara->fFillingMode != 1 && fRunPara->fFillingMode != 2 )
@@ -293,7 +293,7 @@ int main( int argc, char* argv[] )
             fMC_histo->matchDataVectors( fRunPara->fAzMin, fRunPara->fAzMax, fRunPara->fSpectralIndex );
             fMC_histo->print();
         }
-        // recalulate MC spectra from MCpars tree. Very slow!
+        // recalculate MC spectra from MCpars tree. Very slow!
         else if( fRunPara->fMCdatafile_tree.size() > 0 && fRunPara->fMCdatafile_tree != "0" )
         {
             TChain* c2 = new TChain( "MCpars" );
@@ -317,12 +317,12 @@ int main( int argc, char* argv[] )
         }
         fStopWatch.Print();
     }
-    
+
     // fill effective areas
     if( !fRunPara->fFillMCHistograms && fRunPara->fFillingMode != 1 && fRunPara->fFillingMode != 2 )
     {
         fOutputfile->cd();
-        
+
         // copy angular resolution graphs to effective areas
         // assume same az bins in resolution and effective area calculation
         // use first spectral index bin
@@ -352,13 +352,13 @@ int main( int argc, char* argv[] )
                 }
             }
         }
-        
+
         // fill effective areas
         fEffectiveAreaCalculator.fill( &d, fMC_histo, fRunPara->fEnergyReconstructionMethod );
         fStopWatch.Print();
     }
-    
-    
+
+
     /////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
     // write results to disk
@@ -385,7 +385,7 @@ int main( int argc, char* argv[] )
         {
             fEffectiveAreaCalculator.getMCHistogramUnWeighted()->Write();
         }
-        
+
         if( fRunPara->fgetXoff_Yoff_afterCut && fEffectiveAreaCalculator.getAcceptance_AfterCuts() )
         {
             cout << "writing acceptance tree (";
@@ -401,7 +401,7 @@ int main( int argc, char* argv[] )
             cout << fEffectiveAreaCalculator.getEventDL2DataTree()->GetName();
             cout << ") to " << fOutputfile->GetName() << endl;
             fOutputfile->cd();
-            if( fEffectiveAreaCalculator.getEventDL2DataTree() )
+            if( fEffectiveAreaCalculator.getEventDL2DataTree() && fOutputfile->GetListOfKeys()->FindObject( fEffectiveAreaCalculator.getEventDL2DataTree()->GetName() ) == nullptr )
             {
                 fEffectiveAreaCalculator.getEventDL2DataTree()->Write();
             }
@@ -479,13 +479,13 @@ int main( int argc, char* argv[] )
     {
         i_telconfig->Write( "telconfig" );
     }
-    
+
     // write run parameters to disk
     if( fRunPara )
     {
         fRunPara->Write();
     }
-    
+
     fOutputfile->Close();
     cout << "end..." << endl;
 }
@@ -529,5 +529,3 @@ VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c )
     }
     return iMC_his;
 }
-
-
