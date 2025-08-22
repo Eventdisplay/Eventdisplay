@@ -646,7 +646,7 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
     Cshowerpars i_showerpars(&i_showerparsTree, true, true );
 
     // Require two list of telescope parameter tress:
-    // - i_tpars: all telescopes for the telescope type considered
+    // - i_tpars: all telescopes for the telescope type considered (one telescope type only)
     // - i_tpars_array: all telescopes of the array considered (might include several telescope types)
     vector< Ctpars* > i_tpars;
     vector< int > i_tpars_telid;
@@ -827,11 +827,6 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             {
                 continue;
             }
-            // check if telescope is of valid telescope type
-            if(( fTelType[i] != iTelType && iTelType != 0 ) || !i_tpars[i] )
-            {
-                continue;
-            }
             // check if event is not completely out of the FOV
             // (use 20% x size of the camera)
             if( i < iFOV_tel.size()
@@ -848,7 +843,6 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             {
                 continue;
             }
-
             runNumber   = i_showerpars.runNumber;
             eventNumber = i_showerpars.eventNumber;
             tel         = i + 1;
@@ -908,8 +902,12 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             MCze        = i_showerpars.MCze;
             MCaz        = i_showerpars.MCaz;
 
-            Rcore       = VUtilities::line_point_distance( Ycore, -1.*Xcore,   0., ze, az, fTelY[i], -1.*fTelX[i], fTelZ[i] );
-            MCrcore     = VUtilities::line_point_distance( MCycore, -1.*MCxcore, 0., MCze, MCaz, fTelY[i], -1.*fTelX[i], fTelZ[i] );
+            Rcore       = VUtilities::line_point_distance(
+                    Ycore, -1.*Xcore,   0., ze, az,
+                    fTelY[i_tpars_array_telid[i]], -1.*fTelX[i_tpars_array_telid[i]], fTelZ[i_tpars_array_telid[i]] );
+            MCrcore     = VUtilities::line_point_distance(
+                    MCycore, -1.*MCxcore, 0., MCze, MCaz,
+                    fTelY[i_tpars_array_telid[i]], -1.*fTelX[i_tpars_array_telid[i]], fTelZ[i_tpars_array_telid[i]] );
 
             if( Rcore < 0. && !iSingleTelescopeAnalysis )
             {
@@ -968,9 +966,9 @@ bool writeTrainingFile( const string iInputFile, ULong64_t iTelType,
             dispEnergy = log10(i_showerpars.MCe0);
             dispCore   = Rcore;
 
-            if( fMapOfTrainingTree.find( fTelType[i] ) != fMapOfTrainingTree.end() )
+            if( fMapOfTrainingTree.find( iTelType ) != fMapOfTrainingTree.end() )
             {
-                fMapOfTrainingTree[fTelType[i]]->Fill();
+                fMapOfTrainingTree[iTelType]->Fill();
             }
         }
     }
