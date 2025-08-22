@@ -652,11 +652,11 @@ void VEvndispRunParameter::print( int iEv )
         cout << endl;
         if( fL2TimeCorrect )
         {
-            cout << "Correcting FADC times for create jitter with L2 signals" << endl;
+            cout << "Correcting FADC times for crate jitter with L2 signals" << endl;
         }
         else
         {
-            cout << "No correcting FADC times for create jitter with L2 signals" << endl;
+            cout << "No correcting FADC times for crate jitter with L2 signals" << endl;
         }
         if( fFixWindowStart_sumwindow2 )
         {
