@@ -49,6 +49,7 @@ VTableLookupRunParameter::VTableLookupRunParameter()
     fCoreReconstruction_BDTFileName = "";
     fDispError_BDTFileName = "";
     fDispError_BDTWeight = 5.;
+    fDispSign_BDTFileName = "";
     fTelescopeList_sim_telarray_Counting = "";
     fTelescopeType_weightFile = "";
     fRunParameterFile = "";
@@ -245,6 +246,15 @@ bool VTableLookupRunParameter::fillParameters( int argc, char* argv[] )
             if( iTemp2.size() > 0 )
             {
                 fDispError_BDTWeight = atof( iTemp2.c_str() );
+                i++;
+            }
+        }
+        // BDT directory and file name for disp stereo reconstruction (dispsign)
+        else if( iTemp.find( "-tmva_filename_dispsign_reconstruction" ) < iTemp.size() )
+        {
+            if( iTemp2.size() > 0 )
+            {
+                fDispSign_BDTFileName = iTemp2;
                 i++;
             }
         }

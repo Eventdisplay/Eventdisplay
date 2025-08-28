@@ -39,6 +39,7 @@ class VDispAnalyzer
         bool  fDispErrorWeighting;
         float fDispErrorExponential;
         double* fdistanceQC_max;
+        bool fUseIntersectForHeadTail;
 
         // disp direction reconstruction
         float f_disp;
@@ -61,7 +62,6 @@ class VDispAnalyzer
         float fdisp_energy;
         float fdisp_energy_chi;
         float fdisp_energy_dEs;
-        float fdisp_energy_median;
         float fdisp_energy_medianAbsoluteError;
         vector< float > fdisp_energy_T;
         unsigned int   fdisp_energy_NT;
@@ -81,7 +81,6 @@ class VDispAnalyzer
             vector< float > cosphi, vector< float > sinphi,
             vector< float > v_disp, vector< float > v_weight );
         vector< vector< float > > get_sign_permutation_vector( unsigned int x_size );
-        vector< unsigned int > get_largest_weight_index( std::vector<float>, unsigned int );
 
     public:
 
@@ -131,9 +130,10 @@ class VDispAnalyzer
                                      double* img_weight,
                                      double xoff_4, double yoff_4,
                                      vector< float > dispErrorT,
+                                     vector< float > dispSignT,
                                      double* img_fui );
 
-        void calculateExpectedDirectionError( unsigned int i_ntel, float iArrayElevation, float iArrayAzimuth,
+        vector< float > calculateExpectedDirectionError_or_Sign( unsigned int i_ntel, float iArrayElevation, float iArrayAzimuth,
                                               ULong64_t* iTelType,
                                               double* img_size, double* img_cen_x, double* img_cen_y,
                                               double* img_cosphi, double* img_sinphi,
@@ -169,7 +169,6 @@ class VDispAnalyzer
         float getEnergy();
         float getEnergyChi2();
         float getEnergydES();
-        float getEnergyMedian();
         float getEnergyMedianAbsoluteError();
         int   getEnergyQualityLabel()
         {

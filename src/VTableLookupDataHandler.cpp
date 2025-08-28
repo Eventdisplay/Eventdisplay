@@ -144,6 +144,7 @@ VTableLookupDataHandler::VTableLookupDataHandler( bool iwrite, VTableLookupRunPa
 
     fDispAnalyzerDirection = 0;
     fDispAnalyzerDirectionError = 0;
+    fDispAnalyzerDirectionSign = 0;
     fDispAnalyzerEnergy    = 0;
     fDispAnalyzerCore      = 0;
 }
@@ -262,10 +263,10 @@ bool VTableLookupDataHandler::getNextEvent( bool bShort )
         }
         fEventWeight = 1.;
 
-        int i_next_event_status = 1;
+        int next_event_status = 1;
         if( fEventDisplayFileFormat >= 2 )
         {
-            i_next_event_status = fillNextEvent( bShort );
+            next_event_status = fillNextEvent( bShort );
         }
         else
         {
@@ -274,13 +275,13 @@ bool VTableLookupDataHandler::getNextEvent( bool bShort )
             cout << "...exiting" << endl;
             exit( EXIT_FAILURE );
         }
-        if( i_next_event_status == -1 )
+        if( next_event_status == -1 )
         {
             return false;
         }
 
         // return false for non-valid (maybe not reconstructed?) event
-        if( i_next_event_status == 0 )
+        if( next_event_status == 0 )
         {
             return true;
         }
@@ -503,6 +504,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             {
                 fweight[i]      = 1.;
             }
+            fweightDispBDTs[i] = fweight[i];   // set later
         }
 
         if( fImgSel_list[i] )
@@ -581,6 +583,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             }
             ftpars[i]->GetEntry( fEventCounter );
 
+            fntubes[i] = ftpars[i]->ntubes;
             fdist[i] = ftpars[i]->dist;
             ffui[i] = ftpars[i]->fui;
             fsize[i] = ftpars[i]->size;
@@ -655,7 +658,6 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             if( !bShort )
             {
                 fmeanPedvar_ImageT[i] = ftpars[i]->meanPedvar_Image;
-                fntubes[i] = ftpars[i]->ntubes;
                 fnsat[i] = ftpars[i]->nsat;
                 fnlowgain[i] = ftpars[i]->nlowgain;
                 falpha[i] = ftpars[i]->alpha;
@@ -753,7 +755,7 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fXoff, fYoff,
             getDistanceToCore(),
             fXcore, fYcore,
-            fXoff, fYoff,
+            fXoff_intersect, fYoff_intersect,
             ffui );
 
         // fill results
@@ -766,11 +768,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
     }
 
     //////////////////////////////////////////////////////////
-    // !!! SPECIAL AND EXPERT USAGE ONLY !!!
     // dispEnergy
     // energy reconstruction using the disp MVA
-    // This is preliminary and works for MC events only!
-    //
     if( fDispAnalyzerEnergy )
     {
         fDispAnalyzerEnergy->setQualityCuts( fSSR_NImages_min, fSSR_AxesAngles_min,
@@ -788,8 +787,8 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
             fwidth, flength,
             fasym, ftgrad_x,
             floss, fntubes,
-            getWeight(),
-            fXoff, fYoff,
+            getWeight(true),
+            fXoff_intersect, fYoff_intersect,
             getDistanceToCoreTel(),
             fEmissionHeightMean,
             fMCEnergy,
@@ -814,14 +813,9 @@ int VTableLookupDataHandler::fillNextEvent( bool bShort )
 }
 
 /*
- * redo stereo reconstruction (core and direction)
+ * Stereo reconstruction (core and direction)
  *
- * this works for MC only
- * not all stereo reconstruction methods are implemented
- * (quick and dirty implementation for CTA)
- *
- * does not take into account pointing corrections
- * (as e.g. given by the VPM)
+ * using geometrical and disp methods
 */
 void VTableLookupDataHandler::doStereoReconstruction()
 {
@@ -830,9 +824,8 @@ void VTableLookupDataHandler::doStereoReconstruction()
     fYoff_edisp = fYoff;
     ///////////////////////////
     // stereo reconstruction
-    // (rcs_method4)
+    // (equivalent to rcs_method4)
     VSimpleStereoReconstructor i_SR;
-    // minimal value; just used to initialize disp method
     i_SR.initialize( fSSR_NImages_min, fSSR_AxesAngles_min );
     i_SR.reconstruct_direction_and_core( getNTel(),
                                          fArrayPointing_Elevation, fArrayPointing_Azimuth,
@@ -852,15 +845,13 @@ void VTableLookupDataHandler::doStereoReconstruction()
     if( fDispAnalyzerDirection
             && fNImages <= ( int )fTLRunParameter->fRerunStereoReconstruction_BDTNImages_max )
     {
-
-        vector< float > iDispError( getNTel(), -9999. );
-
         ////////////////////////////////////////////////////////////////////
         // estimate error on direction reconstruction from DISP method
         ////////////////////////////////////////////////////////////////////
+        vector< float > iDispError( getNTel(), -9999. );
         if( fDispAnalyzerDirectionError )
         {
-            fDispAnalyzerDirectionError->calculateExpectedDirectionError(
+            fDispAnalyzerDirectionError->calculateExpectedDirectionError_or_Sign(
                 getNTel(),
                 fArrayPointing_Elevation, fArrayPointing_Azimuth,
                 fTel_type,
@@ -871,15 +862,37 @@ void VTableLookupDataHandler::doStereoReconstruction()
                 fasym, ftgrad_x,
                 floss, fntubes,
                 getWeight(),
-                i_SR.fShower_Xoffset, i_SR.fShower_Yoffset,
+                fXoff_intersect, fYoff_intersect,
                 ffui );
 
             // get estimated error on direction reconstruction
             for( unsigned int t = 0; t < getNTel(); t++ )
             {
                 iDispError[t] = fDispAnalyzerDirectionError->getDispErrorT( t );
+                fweightDispBDTs[t] = iDispError[t];
             }
         }
+        ////////////////////////////////////////////////////////////////////
+        // estimate disp head/tail sign
+        ////////////////////////////////////////////////////////////////////
+        vector< float > iDispSign( getNTel(), -9999. );
+        if( fDispAnalyzerDirectionSign )
+        {
+            iDispSign = fDispAnalyzerDirectionSign->calculateExpectedDirectionError_or_Sign(
+                            getNTel(),
+                            fArrayPointing_Elevation, fArrayPointing_Azimuth,
+                            fTel_type,
+                            getSize( 1., true, false ),
+                            fcen_x, fcen_y,
+                            fcosphi, fsinphi,
+                            fwidth, flength,
+                            fasym, ftgrad_x,
+                            floss, fntubes,
+                            getWeight(),
+                            fXoff_intersect, fYoff_intersect,
+                            ffui );
+        }
+
 
         // use weighting calculated from disp error
         fDispAnalyzerDirection->setDispErrorWeighting( fDispAnalyzerDirectionError != 0,
@@ -900,8 +913,9 @@ void VTableLookupDataHandler::doStereoReconstruction()
             fasym, ftgrad_x,
             floss, fntubes,
             getWeight(),
-            i_SR.fShower_Xoffset, i_SR.fShower_Yoffset,
-            iDispError, ffui );
+            fXoff_intersect, fYoff_intersect,
+            iDispError, iDispSign,
+            ffui );
         // reconstructed direction by disp method:
         fimg2_ang = fDispAnalyzerDirection->getAngDiff();
         fnxyoff = fDispAnalyzerDirection->getXYWeight_disp().size();
@@ -1513,6 +1527,18 @@ bool VTableLookupDataHandler::setInputFile( vector< string > iInput )
     // initialize Disp Analyzer for error on direction reconstruction
     // (if required)
     if( fTLRunParameter->fDispError_BDTFileName.size() > 0. )
+    {
+        cout << endl;
+        cout << "Initializing BDT disp analyzer for estimation of disp sign" << endl;
+        cout << "===========================================================" << endl << endl;
+        fDispAnalyzerDirectionSign = new VDispAnalyzer();
+        fDispAnalyzerDirectionSign->setTelescopeTypeList( i_TelTypeList );
+        fDispAnalyzerDirectionSign->initialize( fTLRunParameter->fDispSign_BDTFileName, "TMVABDT", "BDTDispSign" );
+    }
+    /////////////////////////////////////////
+    // initialize Disp Analyzer for sign estimation
+    // (if required)
+    if( fTLRunParameter->fDispSign_BDTFileName.size() > 0. )
     {
         cout << endl;
         cout << "Initializing BDT disp analyzer for estimation of disp error" << endl;
@@ -2526,6 +2552,7 @@ void VTableLookupDataHandler::resetImageParameters( unsigned int i )
     fsize[i] = 0.;
     fsize2[i] = 0.;
     fweight[i] = 1.;
+    fweightDispBDTs[i] = 1.;
     floss[i] = 0.;
     ffracLow[i] = 0.;
     fwidth[i] = 0.;
@@ -2755,6 +2782,7 @@ void VTableLookupDataHandler::resetAll()
         fsize[i] = 0.;
         fsize2[i] = 0.;
         fweight[i] = 1.;
+        fweightDispBDTs[i] = 1.;
         fsizeCorr[i] = 0.;
         fsize_telType[i] = 0.;
         floss[i] = 0.;

@@ -19,8 +19,10 @@
 #include "TMVA/Reader.h"
 #include "TMVA/Tools.h"
 
+#include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -29,10 +31,6 @@
 #include "VTMVARunData.h"
 
 using namespace std;
-
-bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, bool iGammaHadronSeparation, string fRunOption );
-bool trainGammaHadronSeparation( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, string fRunOption );
-bool trainReconstructionQuality( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, string fRunOption );
 
 /*
  * check settings for number of training events;
@@ -60,6 +58,110 @@ string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal, unsigned
 }
 
 /*
+ * For cases when DispNImages < Images, return indexes for which ImgSel_list matches DispTelList_T
+ */
+vector< unsigned int> get_matching_indexes(unsigned int DispNImages, int NImages, UInt_t* DispTelList_T, UInt_t* ImgSel_list)
+{
+    vector< unsigned int> matching_indexes;
+
+    for( unsigned int d = 0; d < DispNImages; d++ )
+    {
+        for( int i = 0; i < NImages; i++ )
+        {
+            if( DispTelList_T[d] == ImgSel_list[i] )
+            {
+                matching_indexes.push_back(i);
+            }
+        }
+    }
+    return matching_indexes;
+}
+
+
+bool get_largest_weight_disp_entries(
+        unsigned int d_n, unsigned int DispNImages, int NImages, UInt_t* DispTelList_T, UInt_t *ImgSel_list,
+        Float_t* DispWoff_T, Float_t* Disp_T, Float_t* cross, Float_t* loss, Float_t* size, Float_t *width, Float_t *length,
+        Double_t *R, Double_t *ES, Double_t ErecS,
+        Float_t *d_size, Float_t *d_width, Float_t *d_length, Float_t *d_cross,
+        Float_t *d_disp, Float_t *d_disp_weigth, Float_t *d_loss, Float_t *d_erec_mc, Float_t *d_R )
+{
+
+    // Create a vector of pairs: {DispWoff_T value, original index}
+    vector<pair<Float_t, unsigned int>> indexed_disp_woff(DispNImages);
+    for (unsigned int i = 0; i < DispNImages; ++i)
+    {
+        indexed_disp_woff[i] = {DispWoff_T[i], i};
+    }
+
+    // Sort the vector in ascending order based on DispWoff_T value (smallest values first)
+    sort(indexed_disp_woff.begin(), indexed_disp_woff.end(),
+         [](const pair<Float_t, unsigned int>& a,
+            const pair<Float_t, unsigned int>& b) {
+            return a.first < b.first; // Sort ascending
+           });
+
+    // Rare events have DispNImages < Images
+    // careful: some arrays are of [Images], others of [DispNImages]
+    if( DispNImages < (unsigned int)NImages )
+    {
+        vector< unsigned int > matching_indexes = get_matching_indexes(DispNImages, NImages, DispTelList_T, ImgSel_list);
+        for( unsigned int i = 0; i < matching_indexes.size(); i++ )
+        {
+            size[i] = size[matching_indexes[i]];
+            width[i] = width[matching_indexes[i]];
+            length[i] = length[matching_indexes[i]];
+            loss[i] = loss[matching_indexes[i]];
+            cross[i] = cross[matching_indexes[i]];
+            R[i] = R[matching_indexes[i]];
+            ES[i] = ES[matching_indexes[i]];
+        }
+    }
+    // this case should never happen
+    else if( DispNImages > (unsigned int)NImages )
+    {
+        return false;
+    }
+
+    // --- Step 2: Populate d_ arrays based on sorted indices ---
+
+    unsigned int entries_to_copy = min(d_n, DispNImages);
+
+    // Copy the largest 'entries_to_copy' values
+    for (unsigned int i = 0; i < entries_to_copy; ++i) {
+        unsigned int original_index = indexed_disp_woff[i].second;
+
+        d_size[i] = log10(size[original_index]);
+        d_width[i] = width[original_index];
+        d_length[i] = length[original_index];
+        d_cross[i] = cross[original_index];
+        d_disp[i] = Disp_T[original_index];
+        d_disp_weigth[i] = DispWoff_T[original_index];
+        d_loss[i] = loss[original_index];
+        d_R[i] = R[original_index];
+        d_erec_mc[i] = (ES[original_index] - ErecS) / ES[original_index];
+        if( d_erec_mc[i] > 20. ) d_erec_mc[i] = 20.;
+        if( d_erec_mc[i] < -20. ) d_erec_mc[i] = -20.;
+    }
+
+    // --- Step 3: Handle DispNImages < d_n (duplicate values) ---
+    // If DispNImages is less than d_n, duplicate the existing entries
+    for (unsigned int i = entries_to_copy; i < d_n; ++i) {
+        unsigned int source_index = (entries_to_copy > 0) ? (i % entries_to_copy) : 0;
+
+        d_size[i] = d_size[source_index];
+        d_width[i] = d_width[source_index];
+        d_length[i] = d_length[source_index];
+        d_cross[i] = d_cross[source_index];
+        d_disp[i] = d_disp[source_index];
+        d_disp_weigth[i] = d_disp_weigth[source_index];
+        d_loss[i] = d_loss[source_index];
+        d_R[i] = d_R[source_index];
+        d_erec_mc[i] = d_erec_mc[source_index];
+    }
+    return true;
+}
+
+/*
  * prepare training / testing trees with reduced number of events
  *
  *   - apply pre-cuts here
@@ -70,7 +172,7 @@ string resetNumberOfTrainingEvents( string a, Long64_t n, bool iSignal, unsigned
 TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
                                   bool iSignal, Long64_t iResetEventNumbers )
 {
-    if( !iRun )
+    if(!iRun )
     {
         return 0;
     }
@@ -100,9 +202,15 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Double_t Ycore = 0.;
     Double_t Xoff_derot = 0.;
     Double_t Yoff_derot = 0.;
+    Float_t Xoff_intersect = 0.;
+    Float_t Yoff_intersect = 0.;
     Int_t NImages = 0;
+    UInt_t DispNImages = 0;
     // fixed max number of telescope types
     UInt_t NImages_Ttype[20];
+    // fixed max number of telescopes
+    UInt_t ImgSel_list[200];
+    UInt_t DispTelList_T[200];
     for( unsigned int i = 0; i < 20; i++ )
     {
         NImages_Ttype[i] = 0;
@@ -113,6 +221,34 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     Double_t DispDiff = 0.;
     Float_t DispAbsSumWeigth = 0.;
     Double_t MCe0 = 0.;
+    Double_t MCxoff = 0.;
+    Double_t MCyoff = 0.;
+    Float_t disp_mc_error = 0.;
+    Float_t intersect_mc_error = 0.;
+    Float_t size[200];
+    Float_t width[200];
+    Float_t length[200];
+    Float_t cross[200];
+    Float_t disp[200];
+    Float_t disp_weight[200];
+    Float_t loss[200];
+    Double_t R[200];
+    Double_t ES[200];
+
+    // add d_n most important variables to reduced tree
+    const int d_n = 4;
+    Float_t d_size[d_n];
+    Float_t d_width[d_n];
+    Float_t d_length[d_n];
+    Float_t d_cross[d_n];
+    Float_t d_disp[d_n];
+    Float_t d_disp_weigth[d_n];
+    Float_t d_loss[d_n];
+    Float_t d_R[d_n];
+    Float_t d_erec_es[d_n];
+
+    char htemp[200];
+
     iDataTree_reduced = new TTree( iDataTree_reducedName.c_str(), iDataTree_reducedName.c_str() );
     iDataTree_reduced->Branch( "MSCW", &MSCW, "MSCW/D" );
     iDataTree_reduced->Branch( "MSCL", &MSCL, "MSCL/D" );
@@ -120,8 +256,6 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "EChi2S", &EChi2S, "EChi2S/D" );
     iDataTree_reduced->Branch( "Xcore", &Xcore, "Xcore/D" );
     iDataTree_reduced->Branch( "Ycore", &Ycore, "Ycore/D" );
-    iDataTree_reduced->Branch( "Xoff_derot", &Xoff_derot, "Xoff_derot/D" );
-    iDataTree_reduced->Branch( "Yoff_derot", &Yoff_derot, "Yoff_derot/D" );
     iDataTree_reduced->Branch( "NImages", &NImages, "NImages/I" );
     iDataTree_reduced->Branch( "NImages_Ttype", NImages_Ttype, "NImages_Ttype[20]/i" );
     iDataTree_reduced->Branch( "EmissionHeight", &EmissionHeight, "EmissionHeight/F" );
@@ -130,6 +264,26 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     iDataTree_reduced->Branch( "DispDiff", &DispDiff, "DispDiff/D" );
     iDataTree_reduced->Branch( "DispAbsSumWeigth", &DispAbsSumWeigth, "DispAbsSumWeigth/F" );
     iDataTree_reduced->Branch( "MCe0", &MCe0, "MCe0/D" );
+    iDataTree_reduced->Branch( "disp_mc_error", &disp_mc_error, "disp_mc_error/F" );
+    iDataTree_reduced->Branch( "intersect_mc_error", &intersect_mc_error, "intersect_mc_error/F" );
+    sprintf( htemp, "d_size[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_size", d_size, htemp );
+    sprintf( htemp, "d_width[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_width", d_width, htemp );
+    sprintf( htemp, "d_length[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_length", d_length, htemp );
+    sprintf( htemp, "d_cross[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_cross", d_cross, htemp );
+    sprintf( htemp, "d_disp[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_disp", d_disp, htemp );
+    sprintf( htemp, "d_disp_weigth[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_disp_weigth", d_disp_weigth, htemp );
+    sprintf( htemp, "d_loss[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_loss", d_loss, htemp );
+    sprintf( htemp, "d_R[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_R", d_R, htemp );
+    sprintf( htemp, "d_erec_es[%d]/F", d_n );
+    iDataTree_reduced->Branch( "d_erec_es", d_erec_es, htemp );
 
     Long64_t n = 0;
 
@@ -145,18 +299,34 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
             iTreeVector[i]->SetBranchAddress( "Ycore", &Ycore );
             iTreeVector[i]->SetBranchAddress( "Xoff_derot", &Xoff_derot );
             iTreeVector[i]->SetBranchAddress( "Yoff_derot", &Yoff_derot );
+            iTreeVector[i]->SetBranchAddress( "Xoff_intersect", &Xoff_intersect );
+            iTreeVector[i]->SetBranchAddress( "Yoff_intersect", &Yoff_intersect );
             iTreeVector[i]->SetBranchAddress( "NImages", &NImages );
+            iTreeVector[i]->SetBranchAddress( "ImgSel_list", ImgSel_list );
             iTreeVector[i]->SetBranchAddress( "NImages_Ttype", NImages_Ttype );
             iTreeVector[i]->SetBranchAddress( "EmissionHeight", &EmissionHeight );
             iTreeVector[i]->SetBranchAddress( "EmissionHeightChi2", &EmissionHeightChi2 );
             iTreeVector[i]->SetBranchAddress( "SizeSecondMax", &SizeSecondMax );
             iTreeVector[i]->SetBranchAddress( "DispDiff", &DispDiff );
             iTreeVector[i]->SetBranchAddress( "DispAbsSumWeigth", &DispAbsSumWeigth );
+            iTreeVector[i]->SetBranchAddress( "DispNImages", &DispNImages );
+            iTreeVector[i]->SetBranchAddress( "size", size );
+            iTreeVector[i]->SetBranchAddress( "width", width );
+            iTreeVector[i]->SetBranchAddress( "length", length );
+            iTreeVector[i]->SetBranchAddress( "cross", cross );
+            iTreeVector[i]->SetBranchAddress( "Disp_T", disp );
+            iTreeVector[i]->SetBranchAddress( "DispWoff_T", disp_weight );
+            iTreeVector[i]->SetBranchAddress( "DispTelList_T", DispTelList_T );
+            iTreeVector[i]->SetBranchAddress( "loss", loss );
+            iTreeVector[i]->SetBranchAddress( "R", R );
+            iTreeVector[i]->SetBranchAddress( "ES", ES );
             if( iTreeVector[i]->GetBranchStatus( "MCe0" ) )
             {
                 iTreeVector[i]->SetBranchAddress( "MCe0", &MCe0 );
+                iTreeVector[i]->SetBranchAddress( "MCxoff", &MCxoff );
+                iTreeVector[i]->SetBranchAddress( "MCyoff", &MCyoff );
             }
-            if( !iDataTree_reduced )
+            if(!iDataTree_reduced )
             {
                 cout << "Error preparing reduced tree" << endl;
                 cout << "exiting..." << endl;
@@ -170,6 +340,22 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
                 {
                     Long64_t treeEntry = elist->GetEntry( el );
                     iTreeVector[i]->GetEntry( treeEntry );
+
+                    // error in angular reconstruction
+                    disp_mc_error = sqrt( (Xoff_derot-MCxoff)*(Xoff_derot-MCxoff) + (Yoff_derot-MCyoff)*(Yoff_derot-MCyoff) );
+                    intersect_mc_error = sqrt( (Xoff_intersect-MCxoff)*(Xoff_intersect-MCxoff) + (Yoff_intersect-Yoff_intersect)*(Yoff_intersect-Yoff_intersect) );
+
+                    // d_n largest weight entries
+                    bool good_event = get_largest_weight_disp_entries(
+                           d_n, DispNImages, NImages, DispTelList_T, ImgSel_list,
+                           disp_weight, disp, cross, loss, size, width, length, R, ES, ErecS,
+                           d_size, d_width, d_length, d_cross, d_disp, d_disp_weigth, d_loss, d_erec_es, d_R
+                    );
+                    if( !good_event )
+                    {
+                        continue;
+                    }
+
                     iDataTree_reduced->Fill();
                     n++;
                 }
@@ -208,12 +394,10 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     if( iSignal && iDataTree_reduced )
     {
         cout << "\t Reduced signal tree entries: " << iDataTree_reduced->GetEntries() << endl;
-        cout << "Removing signal tree(s)" << endl;
     }
     else if( iDataTree_reduced )
     {
         cout << "\t Reduced background tree entries: " << iDataTree_reduced->GetEntries() << endl;
-        cout << "Removing background tree(s)" << endl;
     }
     else
     {
@@ -229,7 +413,7 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
             iRun->fSignalTree[i]->Delete();
             iRun->fSignalTree[i] = 0;
         }
-        else if( !iSignal && iRun->fBackgroundTree[i] )
+        else if(!iSignal && iRun->fBackgroundTree[i] )
         {
             iRun->fBackgroundTree[i]->Delete();
             iRun->fBackgroundTree[i] = 0;
@@ -238,45 +422,22 @@ TTree* prepareSelectedEventsTree( VTMVARunData* iRun, TCut iCut,
     return iDataTree_reduced;
 }
 
-/*!
 
-     train the MVA
-
-*/
-
-bool trainGammaHadronSeparation( VTMVARunData* iRun,
-                                 unsigned int iEnergyBin, unsigned int iZenithBin,
-                                 string fRunOption )
-{
-    return train( iRun, iEnergyBin, iZenithBin, true, fRunOption );
-}
-
-bool trainReconstructionQuality( VTMVARunData* iRun,
-                                 unsigned int iEnergyBin, unsigned int iZenithBin,
-                                 string fRunOption )
-{
-    return train( iRun, iEnergyBin, iZenithBin, false, fRunOption );
-}
-
-
-bool train( VTMVARunData* iRun,
-            unsigned int iEnergyBin, unsigned int iZenithBin,
-            bool iTrainGammaHadronSeparation,
-            string fRunOption )
+bool train( VTMVARunData* iRun, unsigned int iEnergyBin, unsigned int iZenithBin, string iRunMode )
 {
     // sanity checks
-    if( !iRun )
+    if(!iRun )
     {
         return false;
     }
     if( iRun->fEnergyCutData.size() <= iEnergyBin || iRun->fOutputFile.size() <= iEnergyBin )
     {
-        cout << "error in train: energy bin out of range " << iEnergyBin;
+        cout << "error during training: energy bin out of range " << iEnergyBin << endl;
         return false;
     }
     if( iRun->fZenithCutData.size() < iZenithBin || iRun->fOutputFile[0].size() < iZenithBin )
     {
-        cout << "error in train: zenith bin out of range " << iZenithBin;
+        cout << "error during training: zenith bin out of range " << iZenithBin << endl;
         return false;
     }
     // quality cuts before training
@@ -292,7 +453,7 @@ bool train( VTMVARunData* iRun,
                    && iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
                    && iRun->fZenithCutData[iZenithBin]->fZenithCut;
 
-    if( !iRun->fMCxyoffCutSignalOnly )
+    if(!iRun->fMCxyoffCutSignalOnly )
     {
         iCutBck = iCutBck && iRun->fMCxyoffCut;
     }
@@ -307,14 +468,12 @@ bool train( VTMVARunData* iRun,
     // prepare trees for training and testing with selected events only
     // this step is necessary to minimise the memory impact for the BDT
     // training
-    TTree* iSignalTree_reduced = 0;
-    TTree* iBackgroundTree_reduced = 0;
-    if( fRunOption == "WRITETRAININGEVENTS" )
+    if( iRunMode == "WriteTrainingEvents" )
     {
-        iSignalTree_reduced = prepareSelectedEventsTree( iRun,
+        TTree* iSignalTree_reduced = prepareSelectedEventsTree( iRun,
                               iCutSignal, true,
                               iRun->fResetNumberOfTrainingEvents );
-        iBackgroundTree_reduced = prepareSelectedEventsTree( iRun,
+        TTree* iBackgroundTree_reduced = prepareSelectedEventsTree( iRun,
                                   iCutBck, false,
                                   iRun->fResetNumberOfTrainingEvents );
 
@@ -334,21 +493,40 @@ bool train( VTMVARunData* iRun,
         cout << gDirectory->GetName() << endl;
         exit( EXIT_SUCCESS );
     }
-    else
+
+    ////////////////////////////////////////////////////////////////
+    // Prepare TMVA instances
+    TMVA::Tools::Instance();
+    gSystem->mkdir( iRun->fOutputDirectoryName.c_str() );
+    TString iOutputDirectory( iRun->fOutputDirectoryName.c_str() );
+    gSystem->ExpandPathName( iOutputDirectory );
+    ( TMVA::gConfig().GetIONames() ).fWeightFileDir = iOutputDirectory;
+
+    //////////////////////////////////////////
+    // defining training class
+    string mva_options = "V:!DrawProgressBar";
+    if( iRunMode == "TrainReconstructionQuality" )
     {
-        cout << "Reading training / testing trees from ";
-        cout << iRun->fSelectedEventTreeName << endl;
-        TFile* iF = new TFile( iRun->fSelectedEventTreeName.c_str() );
-        if( iF->IsZombie() )
-        {
-            cout << "Error open file with pre-selected events: ";
-            cout << iRun->fSelectedEventTreeName << endl;
-            exit( EXIT_FAILURE );
-        }
-        iSignalTree_reduced = ( TTree* )iF->Get( "data_signal" );
-        iBackgroundTree_reduced = ( TTree* )iF->Get( "data_background" );
+        mva_options = "V:!DrawProgressBar:!Color:!Silent:AnalysisType=Regression:VerboseLevel=Debug:Correlations=True";
     }
-    if( !iSignalTree_reduced || !iBackgroundTree_reduced )
+    TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
+        iRun->fOutputFile[iEnergyBin][iZenithBin],
+        mva_options.c_str() );
+    TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
+
+    // training preparation
+    cout << "Reading training / testing trees from ";
+    cout << iRun->fSelectedEventTreeName << endl;
+    TFile* iF = new TFile( iRun->fSelectedEventTreeName.c_str() );
+    if( iF->IsZombie() )
+    {
+        cout << "Error open file with pre-selected events: ";
+        cout << iRun->fSelectedEventTreeName << endl;
+        exit( EXIT_FAILURE );
+    }
+    TTree *iSignalTree_reduced = ( TTree* )iF->Get( "data_signal" );
+    TTree *iBackgroundTree_reduced = ( TTree* )iF->Get( "data_background" );
+    if(!iSignalTree_reduced || !iBackgroundTree_reduced )
     {
         cout << "Error: failed preparing traing / testing trees" << endl;
         cout << "exiting..." << endl;
@@ -399,37 +577,49 @@ bool train( VTMVARunData* iRun,
         cout << "\t Updated training options: " <<  iRun->fPrepareTrainingOptions << endl;
     }
 
-    TMVA::Tools::Instance();
-    gSystem->mkdir( iRun->fOutputDirectoryName.c_str() );
-    TString iOutputDirectory( iRun->fOutputDirectoryName.c_str() );
-    gSystem->ExpandPathName( iOutputDirectory );
-    ( TMVA::gConfig().GetIONames() ).fWeightFileDir = iOutputDirectory;
-
-    //////////////////////////////////////////
-    // defining training class
-    TMVA::Factory* factory = new TMVA::Factory( iRun->fOutputFile[iEnergyBin][iZenithBin]->GetTitle(),
-            iRun->fOutputFile[iEnergyBin][iZenithBin],
-            "V:!DrawProgressBar" );
-    TMVA::DataLoader* dataloader = new TMVA::DataLoader( "" );
     ////////////////////////////
     // train gamma/hadron separation
-    if( iTrainGammaHadronSeparation )
+    if( iRunMode == "TrainGammaHadronSeparation" )
     {
         dataloader->AddSignalTree( iSignalTree_reduced, iRun->fSignalWeight );
         dataloader->AddBackgroundTree( iBackgroundTree_reduced, iRun->fBackgroundWeight );
     }
     ////////////////////////////
-    // train reconstruction quality
-    else
+    // train for angular reconstruction method
+    else if( iRunMode == "TrainAngularReconstructionMethod" )
     {
-        dataloader->AddSignalTree( iSignalTree_reduced, iRun->fSignalWeight );
-        dataloader->AddRegressionTarget( iRun->fReconstructionQualityTarget.c_str(), iRun->fReconstructionQualityTargetName.c_str() );
+        TCut signalCut = "intersect_mc_error < 1.e5 && (disp_mc_error > intersect_mc_error)";
+        TCut backgrCut = "disp_mc_error < intersect_mc_error";
+
+        iRun->fOutputFile[iEnergyBin][iZenithBin]->cd();
+
+        TTree* sigTree = iSignalTree_reduced->CopyTree(signalCut);
+        TTree* bkgTree = iSignalTree_reduced->CopyTree(backgrCut);
+        sigTree->SetName("data_signal");
+        bkgTree->SetName("data_background");
+
+        dataloader->AddSignalTree(sigTree, iRun->fSignalWeight);
+        dataloader->AddBackgroundTree(bkgTree, iRun->fBackgroundWeight);
+    }
+    ////////////////////////////
+    // train reconstruction quality
+    else if( iRunMode == "TrainReconstructionQuality" )
+    {
+        dataloader->AddRegressionTree( iSignalTree_reduced, iRun->fSignalWeight );
+        dataloader->AddTarget( iRun->fReconstructionQualityTarget.c_str(), 'F' );
     }
 
-    // loop over all trainingvariables and add them to TMVA
+    // loop over all training variables and add them to TMVA
     for( unsigned int i = 0; i < iRun->fTrainingVariable.size(); i++ )
     {
-        dataloader->AddVariable( iRun->fTrainingVariable[i].c_str(), iRun->fTrainingVariableType[i] );
+        if( iRun->fTrainingVariable[i].rfind("d_", 0 ) == 0 )
+        {
+            dataloader->AddVariablesArray(iRun->fTrainingVariable[i].c_str(), 4 );
+        }
+        else
+        {
+            dataloader->AddVariable( iRun->fTrainingVariable[i].c_str(), iRun->fTrainingVariableType[i] );
+        }
     }
     // adding spectator variables
     for( unsigned int i = 0; i < iRun->fSpectatorVariable.size(); i++ )
@@ -440,22 +630,22 @@ bool train( VTMVARunData* iRun,
     //////////////////////////////////////////
     // prepare training events
     // (cuts are already applied at an earlier stage)
-    if( iTrainGammaHadronSeparation )
-    {
-        cout << "Preparing training and test tree" << endl;
-        // cuts after pre-selection
-        TCut iCutSignal_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
-                               && iRun->fMultiplicityCuts;
-        TCut iCutBck_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
-                            && iRun->fMultiplicityCuts;
+    cout << "Preparing training and test tree" << endl;
+    // cuts after pre-selection
+    TCut iCutSignal_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
+                           && iRun->fMultiplicityCuts;
+    TCut iCutBck_post = iRun->fEnergyCutData[iEnergyBin]->fEnergyCut
+                        && iRun->fMultiplicityCuts;
 
-        dataloader->PrepareTrainingAndTestTree( iCutSignal_post,
-                                                iCutBck_post,
-                                                iRun->fPrepareTrainingOptions );
+    if( iRunMode == "TrainReconstructionQuality" )
+    {
+        dataloader->PrepareTrainingAndTestTree( iCutSignal_post, iRun->fPrepareTrainingOptions );
     }
     else
     {
-        dataloader->PrepareTrainingAndTestTree( "", iRun->fPrepareTrainingOptions );
+        dataloader->PrepareTrainingAndTestTree( iCutSignal_post,
+                                                iCutBck_post,
+                                                iRun->fPrepareTrainingOptions );
     }
 
     //////////////////////////////////////////
@@ -475,47 +665,26 @@ bool train( VTMVARunData* iRun,
         }
 
         //////////////////////////
-        if( iRun->fMVAMethod[i] != "BOXCUTS" )
+        if( iRunMode == "TrainGammaHadronSeparation" )
         {
-            if( iTrainGammaHadronSeparation )
-            {
-                sprintf( htitle, "%s_%u", iRun->fMVAMethod[i].c_str(), i );
-            }
-            else
-            {
-                sprintf( htitle, "%s_RecQuality_%u", iRun->fMVAMethod[i].c_str(), i );
-            }
-            if( i < iRun->fMVAMethod_Options.size() )
-            {
-                cout << "Booking method " << htitle << endl;
-                factory->BookMethod( dataloader, i_tmva_type, htitle, iRun->fMVAMethod_Options[i].c_str() );
-            }
-            else
-            {
-                factory->BookMethod( dataloader, i_tmva_type, htitle );
-            }
+            sprintf( htitle, "%s_%u", iRun->fMVAMethod[i].c_str(), i );
         }
-        //////////////////////////
-        // BOX CUTS
-        // (note: box cuts needs additional checking, as the code might be outdated)
-        else if( iRun->fMVAMethod[i] == "BOXCUTS" )
+        else if( iRunMode == "TrainAngularReconstructionMethod" )
         {
-            stringstream i_opt;
-            i_opt << iRun->fMVAMethod_Options[i].c_str();
-            for( unsigned int i = 0; i < iRun->fTrainingVariable_CutRangeMin.size(); i++ )
-            {
-                i_opt << ":CutRangeMin[" << i << "]=" << iRun->fTrainingVariable_CutRangeMin[i];
-            }
-            for( unsigned int i = 0; i < iRun->fTrainingVariable_CutRangeMax.size(); i++ )
-            {
-                i_opt << ":CutRangeMax[" << i << "]=" << iRun->fTrainingVariable_CutRangeMax[i];
-            }
-            for( unsigned int i = 0; i < iRun->fTrainingVariable_VarProp.size(); i++ )
-            {
-                i_opt << ":VarProp[" << i << "]=" << iRun->fTrainingVariable_VarProp[i];
-            }
-            sprintf( htitle, "BOXCUTS_%u_%u", iEnergyBin, iZenithBin );
-            factory->BookMethod( dataloader, TMVA::Types::kCuts, htitle, i_opt.str().c_str() );
+            sprintf( htitle, "%s_RecMethod_%u", iRun->fMVAMethod[i].c_str(), i );
+        }
+        else if( iRunMode == "TrainReconstructionQuality" )
+        {
+            sprintf( htitle, "%s_RecQuality_%u", iRun->fMVAMethod[i].c_str(), i );
+        }
+        if( i < iRun->fMVAMethod_Options.size() )
+        {
+            cout << "Booking method " << htitle << endl;
+            factory->BookMethod( dataloader, i_tmva_type, htitle, iRun->fMVAMethod_Options[i].c_str() );
+        }
+        else
+        {
+            factory->BookMethod( dataloader, i_tmva_type, htitle );
         }
     }
 
@@ -575,17 +744,12 @@ int main( int argc, char* argv[] )
 
     //////////////////////////////////////
     // read run parameters from configuration file
-    if( !fData->readConfigurationFile( argv[1] ) )
+    if(!fData->readConfigurationFile( argv[1] ) )
     {
         cout << "error opening or reading run parameter file (";
         cout << argv[1];
         cout << ")" << endl;
         exit( EXIT_FAILURE );
-    }
-    string fRunOption = "TRAIN";
-    if( argc == 3 )
-    {
-        fRunOption = "WRITETRAININGEVENTS";
     }
     // randomize list of input files
     fData->shuffleFileVectors();
@@ -593,7 +757,7 @@ int main( int argc, char* argv[] )
 
     //////////////////////////////////////
     // read and prepare data files
-    if( !fData->openDataFiles( false ) )
+    if(!fData->openDataFiles( false ) )
     {
         cout << "error opening data files" << endl;
         exit( EXIT_FAILURE );
@@ -601,7 +765,8 @@ int main( int argc, char* argv[] )
 
     //////////////////////////////////////
     // train MVA
-    // (one training per energy bin)
+    // (one training per energy and zenith bin)
+    cout << "Run mode " << fData->fRunMode << endl;
     cout << "Number of energy bins: " << fData->fEnergyCutData.size();
     cout << ", number of zenith bins: " << fData->fZenithCutData.size();
     cout << endl;
@@ -618,14 +783,10 @@ int main( int argc, char* argv[] )
                 cout << endl;
             }
             // training
-            if( fData->fTrainGammaHadronSeparation && !trainGammaHadronSeparation( fData, i, j, fRunOption ) )
+            if( !train( fData, i, j, fData->fRunMode) )
             {
                 cout << "Error during training...exiting" << endl;
                 exit( EXIT_FAILURE );
-            }
-            if( fData->fTrainReconstructionQuality )
-            {
-                trainReconstructionQuality( fData, i, j, fRunOption );
             }
             stringstream iTempS;
             stringstream iTempS2;
@@ -653,13 +814,13 @@ int main( int argc, char* argv[] )
             // prepare a short root file with the necessary values only
             // write energy & zenith cuts, plus signal and background efficiencies
             TFile* root_file = fData->fOutputFile[i][j];
-            if( !root_file )
+            if(!root_file )
             {
                 cout << "Error finding tvma root file " << endl;
                 continue;
             }
             TFile* short_root_file = TFile::Open( iTempS.str().c_str(), "RECREATE" );
-            if( !short_root_file->IsZombie() )
+            if(!short_root_file->IsZombie() )
             {
                 VTMVARunDataEnergyCut* fDataEnergyCut = ( VTMVARunDataEnergyCut* )root_file->Get( "fDataEnergyCut" );
                 VTMVARunDataZenithCut* fDataZenithCut = ( VTMVARunDataZenithCut* )root_file->Get( "fDataZenithCut" );
@@ -674,7 +835,7 @@ int main( int argc, char* argv[] )
                              fData->fMVAMethod[d].c_str(), d,
                              fData->fMVAMethod[d].c_str(), d,
                              fData->fMVAMethod[d].c_str(), d );
-                    if( ( TH1D* )root_file->Get( hname ) )
+                    if(( TH1D* )root_file->Get( hname ) )
                     {
                         MVA_effS = ( TH1D* )root_file->Get( hname );
                         sprintf( hname, "Method_%s_%u/%s_%u/MVA_%s_%u_effB",

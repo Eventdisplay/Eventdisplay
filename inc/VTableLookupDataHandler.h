@@ -66,6 +66,7 @@ class VTableLookupDataHandler
         VDispAnalyzer*             fDispAnalyzerDirection;
         VDispAnalyzer*             fDispAnalyzerEnergy;
         VDispAnalyzer*             fDispAnalyzerCore;
+        VDispAnalyzer*             fDispAnalyzerDirectionSign;
         VDispAnalyzer*             fDispAnalyzerDirectionError;
 
         double fSelectRandom;
@@ -273,6 +274,7 @@ class VTableLookupDataHandler
         double ftgrad_x_telType[VDST_MAXTELESCOPES];
         double ftchisq_x [VDST_MAXTELESCOPES];
         double fweight   [VDST_MAXTELESCOPES];    //!< always 1.
+        double fweightDispBDTs[VDST_MAXTELESCOPES];
         int    fFitstat  [VDST_MAXTELESCOPES];
         double fR        [VDST_MAXTELESCOPES];    //!< distance from each telescope to reconstructed shower core
         double fRTel        [VDST_MAXTELESCOPES];    //!< distance from each telescope to reconstructed shower core
@@ -573,9 +575,16 @@ class VTableLookupDataHandler
             return ftgrad_x;
         }
         double* getTimeGradient( ULong64_t iTelType );
-        double* getWeight()
+        double* getWeight(bool dispBDT=false)
         {
-            return fweight;
+            if( dispBDT )
+            {
+                return fweightDispBDTs;
+            }
+            else
+            {
+                return fweight;
+            }
         }
         double* getWidth()
         {
