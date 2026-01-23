@@ -215,7 +215,7 @@ int main( int argc, char* argv[] )
 
     // TODO set xgb stereo reconstruction
     string fXGB_stereo_file_suffix = "xgb_stereo";
-    CData d( c, true, true, fXGB_stereo_file_suffix );
+    CData d( c, true, true, fRunPara->fdatafile.c_str(), fXGB_stereo_file_suffix );
     for( unsigned int i = 0; i < fCuts.size(); i++ )
     {
         fCuts[i]->setDataTree( &d );

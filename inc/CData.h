@@ -31,22 +31,22 @@ using namespace std;
 //       e.g. for direction, should it be the disp result, or the classical result
 //       (note that not all reconstruction types are still available today)
 ////////////////////////////////////////////////////////////////////////////////
-enum E_ReconstructionType { NOT_SET = -1, GEO = 0, FROGSDIR = 1, FROGS = 2, MODEL3D = 3, ENERGY_ER = 4, NN = 5, TL = 6, DEEPLEARNER = 7 };
+enum E_ReconstructionType { NOT_SET = -1, GEO = 0, FROGSDIR = 1, FROGS = 2, MODEL3D = 3, ENERGY_ER = 4, NN = 5, TL = 6, DEEPLEARNER = 7, XGBSTEREO=8};
 
 
 class CData
 {
 
     public :
-    
+
         E_ReconstructionType  fReconstructionType ;
         bool            fMC;
         bool            fDeepLearner;
-        
+
         bool            fShort;
         TTree*          fChain;                   //!pointer to the analyzed TTree or TChain
         Int_t           fCurrent;                 //!current Tree number in a TChain
-        
+
         // Declaration of leave types
         Int_t           runNumber;
         Int_t           eventNumber;
@@ -75,7 +75,7 @@ class CData
         Int_t	       MCCorsikaShowerID;
         Float_t        MCFirstInteractionHeight;
         Float_t	       MCFirstInteractionDepth;
-        
+
         ULong64_t       LTrig;
         UInt_t          NTrig;
         Int_t           NImages;
@@ -162,7 +162,7 @@ class CData
         // Deep Learner Parameters
         Double_t         dl_gammaness;
         Bool_t         dl_isGamma;
-        
+
         // List of branches
         TBranch*        b_runNumber;              //!
         TBranch*        b_eventNumber;            //!
@@ -191,7 +191,7 @@ class CData
         TBranch*        b_MCCorsikaShowerID;      //!
         TBranch*        b_MCFirstInteractionHeight;    //!
         TBranch*        b_MCFirstInteractionDepth;     //!
-        
+
         TBranch*        b_LTrig;                  //!
         TBranch*        b_NTrig;                  //!
         TBranch*        b_NImages;                //!
@@ -271,8 +271,13 @@ class CData
         // deep learner parameters
         TBranch*        b_dl_gammaness;             //!
         TBranch*        b_dl_isGamma;             //!
-        
-        CData( TTree* tree = 0, bool bMC = false, bool bShort = false );
+
+        bool            fHasStereoFriendTree;
+        float           Dir_Xoff;                 //!
+        float           Dir_Yoff;                 //!
+        float           Dir_Erec;                 //!
+
+        CData( TTree* tree = 0, bool bMC = false, bool bShort = false, string file_name = "", string stereo_suffix = "" );
         virtual ~CData();
         virtual Int_t    Cut( Long64_t entry );
         virtual Int_t    GetEntry( Long64_t entry );
@@ -292,7 +297,7 @@ class CData
         void setReconstructionType( E_ReconstructionType type )
         {
             fReconstructionType  = type;
-            
+
             // general check if analysis types
             if( fReconstructionType != GEO
                     && fReconstructionType != NN
@@ -398,7 +403,7 @@ class CData
             }
             return EChi2S;
         }
-        
+
         double getEnergyDelta()
         {
             if( fReconstructionType  == ENERGY_ER )
@@ -430,12 +435,12 @@ class CData
         {
             return ImgSel;
         }
-        
+
         UInt_t* getImgSel_list()
         {
             return ImgSel_list; //preliminary
         }
-        
+
         double getZe()
         {
             return Ze;
@@ -464,20 +469,27 @@ class CData
             }
             return n;
         }
-        
-        
+
+
 };
 #endif
 
 #ifdef CData_cxx
 
-CData::CData( TTree* tree, bool bMC, bool bShort )
+CData::CData( TTree* tree, bool bMC, bool bShort, string file_name, string stereo_suffix )
 {
     fMC = bMC;
     fShort = bShort;
     fDeepLearner = false;
     fReconstructionType = GEO;
+    fHasStereoFriendTree = false;
     Init( tree );
+    if( stereo_suffix.size() > 0 )
+    {
+        string friend_file_name = file_name.substr( 0, file_name.find_last_of( "." ) ) + "." + stereo_suffix + ".root";
+        tree->AddFriend( "StereoAnalysis", friend_file_name.c_str() );
+        fHasStereoFriendTree = true;
+    }
 }
 
 
@@ -498,9 +510,9 @@ Int_t CData::GetEntry( Long64_t entry )
     {
         return 0;
     }
-    
+
     int a = fChain->GetEntry( entry );
-    
+
     return a;
 }
 
@@ -539,7 +551,7 @@ void CData::Init( TTree* tree )
     {
         return;
     }
-    
+
     // test if this is a MC file
     if( tree->GetBranchStatus( "MCe0" ) )
     {
@@ -550,10 +562,10 @@ void CData::Init( TTree* tree )
     {
         fDeepLearner = true;
     }
-    
+
     fChain = tree;
     fCurrent = -1;
-    
+
     fChain->SetBranchAddress( "runNumber", &runNumber );
     fChain->SetBranchAddress( "eventNumber", &eventNumber );
     if( !fShort )
@@ -579,7 +591,7 @@ void CData::Init( TTree* tree )
             TelAzimuth[0] = 0.;
         }
     }
-    
+
     if( fChain->GetBranchStatus( "ArrayPointing_Azimuth" ) )
     {
         fChain->SetBranchAddress( "ArrayPointing_Azimuth", &ArrayPointing_Azimuth );
@@ -609,7 +621,7 @@ void CData::Init( TTree* tree )
             TelRA[i] = 0.;
         }
     }
-    
+
     // MC tree
     if( fMC )
     {
@@ -672,10 +684,10 @@ void CData::Init( TTree* tree )
         MCFirstInteractionHeight = 0;
         MCFirstInteractionDepth = 0;
         MCCorsikaRunID = 0;
-        
+
     }
-    
-    
+
+
     if( fChain->GetBranchStatus( "LTrig" ) )
     {
         fChain->SetBranchAddress( "LTrig", &LTrig );
@@ -741,7 +753,7 @@ void CData::Init( TTree* tree )
     {
         Yoff_intersect = 0.;
     }
-    
+
     if( fChain->GetBranchStatus( "stdS" ) )
     {
         fChain->SetBranchAddress( "stdS", &stdS );
@@ -777,7 +789,7 @@ void CData::Init( TTree* tree )
     {
         stdP = 0.;
     }
-    
+
     fChain->SetBranchAddress( "Chi2", &Chi2 );
     if( fChain->GetBranchStatus( "meanPedvar_Image" ) )
     {
@@ -798,9 +810,9 @@ void CData::Init( TTree* tree )
             meanPedvar_ImageT[i] = 0.;
         }
     }
-    
+
     fChain->SetBranchAddress( "SizeSecondMax", &SizeSecondMax );
-    
+
     if( fChain->GetBranchStatus( "theta2_All" ) )
     {
         fChain->SetBranchAddress( "theta2_All", &theta2_All );
@@ -812,7 +824,7 @@ void CData::Init( TTree* tree )
             theta2_All[dex] = 99.0;
         }
     }
-    
+
     if( fChain->GetBranchStatus( "NTtype" ) )
     {
         fChain->SetBranchAddress( "ImgSel_list", ImgSel_list );
@@ -865,8 +877,8 @@ void CData::Init( TTree* tree )
             cross[i] = 0.;
         }
     }
-    
-    
+
+
     if( !fShort )
     {
         if( fChain->GetBranchStatus( "size2" ) )
@@ -1058,7 +1070,7 @@ void CData::Init( TTree* tree )
         dl_gammaness = 0.;
         dl_isGamma = 0;
     }
-    
+
     Notify();
 }
 
@@ -1068,10 +1080,10 @@ Bool_t CData::Notify()
     // The Notify() function is called when a new file is opened. This
     // can be either for a new TTree in a TChain or when when a new TTree
     // is started when using PROOF. Typically here the branch pointers
-    // will be retrieved. It is normaly not necessary to make changes
+    // will be retrieved. It is normally not necessary to make changes
     // to the generated code, but the routine can be extended by the
     // user if needed.
-    
+
     // Get branch pointers
     b_runNumber = fChain->GetBranch( "runNumber" );
     b_eventNumber = fChain->GetBranch( "eventNumber" );
@@ -1083,7 +1095,7 @@ Bool_t CData::Notify()
     b_TelAzimuth = fChain->GetBranch( "TelAzimuth" );
     b_TelDec = fChain->GetBranch( "TelDec" );
     b_TelRA = fChain->GetBranch( "TelRA" );
-    
+
     if( fMC )
     {
         b_MCprimary = fChain->GetBranch( "MCprimary" );
@@ -1103,7 +1115,7 @@ Bool_t CData::Notify()
         b_MCFirstInteractionHeight = fChain->GetBranch( "MCFirstInteractionHeight" );
         b_MCFirstInteractionDepth = fChain->GetBranch( "MCFirstInteractionDepth" );
     }
-    
+
     b_LTrig = fChain->GetBranch( "LTrig" );
     b_NTrig = fChain->GetBranch( "NTrig" );
     b_NImages = fChain->GetBranch( "NImages" );
@@ -1129,9 +1141,9 @@ Bool_t CData::Notify()
     b_Chi2 = fChain->GetBranch( "Chi2" );
     b_meanPedvar_Image = fChain->GetBranch( "meanPedvar_Image" );
     b_meanPedvar_ImageT = fChain->GetBranch( "meanPedvar_ImageT" );
-    
+
     b_SizeSecondMax = fChain->GetBranch( "SizeSecondMax" );
-    
+
     b_theta2_All = fChain->GetBranch( "theta2_All" );
     b_dist = fChain->GetBranch( "dist" );
     b_size = fChain->GetBranch( "size" );
@@ -1208,7 +1220,7 @@ Bool_t CData::Notify()
         b_dl_gammaness = 0;
         b_dl_isGamma = 0;
     }
-    
+
     return kTRUE;
 }
 
@@ -1231,7 +1243,7 @@ Int_t CData::Cut( Long64_t entry )
     // returns  1 if entry is accepted.
     // returns -1 otherwise.
     entry = 0;
-    
+
     return 1;
 }
 #endif                                            // #ifdef CData_cxx
