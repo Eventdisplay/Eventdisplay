@@ -303,7 +303,8 @@ class CData
                     && fReconstructionType != NN
                     && fReconstructionType != TL
                     && fReconstructionType != ENERGY_ER
-                    && fReconstructionType != DEEPLEARNER )
+                    && fReconstructionType != DEEPLEARNER
+                    && fReconstructionType != XGBSTEREO )
             {
                 cout << "CData::setReconstructionType Error: unknown analysis type: ";
                 cout << fReconstructionType << endl;
@@ -319,6 +320,10 @@ class CData
             if( fReconstructionType  == GEO )
             {
                 return ErecS;
+            }
+            if( fReconstructionType  == XGBSTEREO )
+            {
+                return Dir_Erec;
             }
             else
             {
@@ -336,6 +341,17 @@ class CData
                 else
                 {
                     return log10( Erec );
+                }
+            }
+            if( fReconstructionType == XGBSTEREO )
+            {
+                if( Dir_Erec <= 0 )
+                {
+                    return -99;
+                }
+                else
+                {
+                    return log10( Dir_Erec );
                 }
             }
             if( ErecS <= 0 )
@@ -369,6 +385,10 @@ class CData
             {
                 return Xoff;
             }
+            if( fReconstructionType  == XGBSTEREO )
+            {
+                return Dir_Xoff;
+            }
             return Xoff;
         }
         double getYoff()
@@ -376,6 +396,10 @@ class CData
             if( fReconstructionType  == ENERGY_ER )
             {
                 return Yoff;
+            }
+            if( fReconstructionType  == XGBSTEREO )
+            {
+                return Dir_Yoff;
             }
             return Yoff;
         }
@@ -385,6 +409,10 @@ class CData
             {
                 return Xoff_derot;
             }
+            if( fReconstructionType  == XGBSTEREO )
+            {
+                return Dir_Xoff;
+            }
             return Xoff_derot;
         }
         double getYoff_derot()
@@ -392,6 +420,10 @@ class CData
             if( fReconstructionType  == ENERGY_ER )
             {
                 return Yoff_derot;
+            }
+            if( fReconstructionType  == XGBSTEREO )
+            {
+                return Dir_Yoff;
             }
             return Yoff_derot;
         }
@@ -489,6 +521,9 @@ CData::CData( TTree* tree, bool bMC, bool bShort, string file_name, string stere
         string friend_file_name = file_name.substr( 0, file_name.find_last_of( "." ) ) + "." + stereo_suffix + ".root";
         tree->AddFriend( "StereoAnalysis", friend_file_name.c_str() );
         fHasStereoFriendTree = true;
+        tree->SetBranchAddress( "StereoAnalysis.Dir_Xoff", &Dir_Xoff );
+        tree->SetBranchAddress( "StereoAnalysis.Dir_Yoff", &Dir_Yoff );
+        tree->SetBranchAddress( "StereoAnalysis.Dir_Erec", &Dir_Erec );
     }
 }
 
@@ -1070,6 +1105,10 @@ void CData::Init( TTree* tree )
         dl_gammaness = 0.;
         dl_isGamma = 0;
     }
+
+    fDir_Xoff = -99.;
+    fDir_Yoff = -99.;
+    fDir_Erec = -99.;
 
     Notify();
 }
