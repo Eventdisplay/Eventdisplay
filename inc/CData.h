@@ -1106,9 +1106,9 @@ void CData::Init( TTree* tree )
         dl_isGamma = 0;
     }
 
-    fDir_Xoff = -99.;
-    fDir_Yoff = -99.;
-    fDir_Erec = -99.;
+    Dir_Xoff = -99.;
+    Dir_Yoff = -99.;
+    Dir_Erec = -99.;
 
     Notify();
 }
