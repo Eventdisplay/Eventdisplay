@@ -36,12 +36,8 @@ using namespace std;
 VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c );
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 int main( int argc, char* argv[] )
 {
-
     // print version only
     if( argc == 2 )
     {
@@ -85,7 +81,7 @@ int main( int argc, char* argv[] )
     // read run parameters from file
     VInstrumentResponseFunctionRunParameter* fRunPara = new VInstrumentResponseFunctionRunParameter();
     fRunPara->SetName( "makeEffectiveArea_runparameter" );
-    if( !fRunPara->readRunParameterFromTextFile( argv[1] ) )
+    if(!fRunPara->readRunParameterFromTextFile( argv[1] ) )
     {
         cout << "error reading runparameters from text file" << endl;
         cout << "exiting..." << endl;
@@ -94,7 +90,7 @@ int main( int argc, char* argv[] )
     fRunPara->print();
 
     /////////////////////////////////////////////////////////////////
-    // open output file and write results to dist
+    // open output file and write results to disk
     TFile* fOutputfile = new TFile( fOutputfileName.c_str(), "RECREATE" );
     if( fOutputfile->IsZombie() )
     {
@@ -217,7 +213,9 @@ int main( int argc, char* argv[] )
         exit( EXIT_FAILURE );
     }
 
-    CData d( c, true, true );
+    // TODO set xgb stereo reconstruction
+    string fXGB_stereo_file_suffix = "xgb_stereo";
+    CData d( c, true, true, fXGB_stereo_file_suffix );
     for( unsigned int i = 0; i < fCuts.size(); i++ )
     {
         fCuts[i]->setDataTree( &d );
@@ -506,10 +504,10 @@ VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c )
         TChainElement* chEl = 0;
         TIter next( fileElements );
         unsigned int z = 0;
-        while( ( chEl = ( TChainElement* )next() ) )
+        while(( chEl = ( TChainElement* )next() ) )
         {
             TFile* ifInput = new TFile( chEl->GetTitle() );
-            if( !ifInput->IsZombie() )
+            if(!ifInput->IsZombie() )
             {
                 if( z == 0 )
                 {
@@ -519,7 +517,7 @@ VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c )
                 {
                     if( iMC_his )
                     {
-                        iMC_his->add( ( VEffectiveAreaCalculatorMCHistograms* )ifInput->Get( "MChistos" ) );
+                        iMC_his->add(( VEffectiveAreaCalculatorMCHistograms* )ifInput->Get( "MChistos" ) );
                     }
                     ifInput->Close();
                 }
