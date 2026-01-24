@@ -177,12 +177,12 @@ int main( int argc, char* argv[] )
             f_IRF_Type.push_back( "core_resolution" );
             f_IRF_ContainmentProbability.push_back( 0.68 );
             f_IRF_DuplicationID.push_back( 9999 );           // means no duplication
-            // energy resolution
-            f_IRF_Name.push_back( "energy_resolution" );
-            f_IRF_Type.push_back( "energy_resolution" );
-            f_IRF_ContainmentProbability.push_back( 0.68 );
-            f_IRF_DuplicationID.push_back( 9999 );           // means no duplication
         }
+        // energy resolution
+        f_IRF_Name.push_back( "energy_resolution" );
+        f_IRF_Type.push_back( "energy_resolution" );
+        f_IRF_ContainmentProbability.push_back( 0.68 );
+        f_IRF_DuplicationID.push_back( 9999 );           // means no duplication
     }
     // initialize IRF classes
     for( unsigned int i = 0; i < f_IRF_Name.size(); i++ )
