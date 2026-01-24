@@ -213,8 +213,11 @@ int main( int argc, char* argv[] )
         exit( EXIT_FAILURE );
     }
 
-    // TODO set xgb stereo reconstruction
-    string fXGB_stereo_file_suffix = "xgb_stereo";
+    string fXGB_stereo_file_suffix = "";
+    if( fRunPara->fReconstructionType == XGBSTEREO )
+    {
+       fXGB_stereo_file_suffix = "xgb_stereo";
+    }
     CData d( c, true, true, fRunPara->fdatafile.c_str(), fXGB_stereo_file_suffix );
     for( unsigned int i = 0; i < fCuts.size(); i++ )
     {
