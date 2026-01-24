@@ -18,6 +18,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <glob.h>
 #include <string>
 #include <assert.h>
 
@@ -519,6 +520,24 @@ CData::CData( TTree* tree, bool bMC, bool bShort, string file_name, string stere
     if( stereo_suffix.size() > 0 )
     {
         string friend_file_name = file_name.substr( 0, file_name.find_last_of( "." ) ) + "." + stereo_suffix + ".root";
+
+        // Expand wildcards if present
+        if( friend_file_name.find( "*" ) != string::npos )
+        {
+            glob_t glob_result;
+            glob( friend_file_name.c_str(), GLOB_NOSORT, NULL, &glob_result );
+            if( glob_result.gl_pathc > 0 )
+            {
+                friend_file_name = glob_result.gl_pathv[0];
+                globfree( &glob_result );
+            }
+            else
+            {
+                globfree( &glob_result );
+                return;  // No file matching pattern found
+            }
+        }
+
         tree->AddFriend( "StereoAnalysis", friend_file_name.c_str() );
         fHasStereoFriendTree = true;
         tree->SetBranchAddress( "StereoAnalysis.Dir_Xoff", &Dir_Xoff );
