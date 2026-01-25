@@ -46,23 +46,23 @@ struct sSource
 class VPlotAnasumHistograms : public VAnalysisUtilities, public VPlotUtilities, public VHistogramUtilities
 {
     private:
-    
+
         string fAnasumDataFile;    //! name of input anasum file
         int    fRunNumber;         //! -1 all runs (run number for plotting can be set later)
         bool   fDebug;
         string fPlotMode;
-        
+
         bool   fPlotCorrelated;    //! plot correlated sky plots
         float  fPlotDrawPSF;       //! plot PSF on top of sky maps (radius in deg)
         bool   fPlotUseHours;      //! plot hour/min/sec on sky maps axis
         int    fPlotZeroHours;     //! quick fix for hour axis (definition might depend on time zone)
-        
+
         // some run Summary info needed for skymaps
         double fSkyMapCentreDecJ2000;
         double fSkyMapCentreRAJ2000;
         double fTargetShiftWest;
         double fTargetShiftNorth;
-        
+
         // histograms
         TH1D* hmscw_on;
         TH1D* hmscw_off;
@@ -70,32 +70,32 @@ class VPlotAnasumHistograms : public VAnalysisUtilities, public VPlotUtilities, 
         TH1D* hmscl_on;
         TH1D* hmscl_off;
         TH1D* hmscl_diff;
-        
+
         TH1D* htheta2_on;
         TH1D* htheta2_off;
         TH1D* htheta2_diff;
-        
+
         // helper functions
         TH1D* doQfactors( TH1D* hon, TH1D* hoff, TH1D* hdiff, bool bUpper, int iMethod, double iSourceStrength );
         TH2D* reflectXaxis( TH2D* h = 0, char* iNewName = 0 );
-        
+
         /////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////
     public:
-    
+
         VPlotAnasumHistograms();
         VPlotAnasumHistograms( string ifile, int ion = -1 );
         ~VPlotAnasumHistograms() {};
-        
+
         void convert_derotated_RADECJ2000( double x = 0, double y = 0, double xerr = 0, double yerr = 0 );
-        
-        void drawPSF( TCanvas* c = 0, string iFile = 0, TH2D* h2 = 0, float iPSF = 0.1 );
+
+        void drawPSF( TCanvas* c = 0, string iFile = "", TH2D* h2 = 0, float iPSF = 0.1 );
         //   void fit_energy(double minE = -0.5, double maxE = 0.5 );
         bool openDataFile( string ifile );
-        
+
         void help();                                                       // this will print all available functions
-        
-        
+
+
         // plotting functions
         void            plot_deadTimes();
         void            plot_mscPlots( int irebin = 2, double xmin = -2., double xmax = 4., string mscwfile = "" );
@@ -126,7 +126,7 @@ class VPlotAnasumHistograms : public VAnalysisUtilities, public VPlotUtilities, 
         void            plot_excludedRegions( TCanvas* c, int iLineColor = 6 );
         TH1D*           plot_triggerpattern( int ntel = 3, bool bPlot = true );
         TCanvas*	plot_cumulativeSignificance( bool doSqrtFit = true );
-        
+
         void            setPlottingCorrelatedHistograms( bool iB = false )
         {
             fPlotCorrelated = iB;
@@ -145,7 +145,7 @@ class VPlotAnasumHistograms : public VAnalysisUtilities, public VPlotUtilities, 
             fDebug = iB;    // more debug output to screen
         }
         bool            setRunNumber( int iRun );                                      // select run for plotting
-        
+
         ClassDef( VPlotAnasumHistograms, 16 );
 };
 

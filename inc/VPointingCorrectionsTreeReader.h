@@ -6,6 +6,7 @@
 #include "TChain.h"
 #include "TTree.h"
 
+#include <cmath>
 #include <iostream>
 
 using namespace std;
@@ -16,9 +17,9 @@ class VPointingCorrectionsTreeReader
         float fPointingErrorX;
         float fPointingErrorY;
         bool  fPointingCorrectionTreeSetting;
-        
+
         TChain* fTree;
-        
+
     public:
         VPointingCorrectionsTreeReader( TChain* t = 0 );
         bool is_initialized()
@@ -27,11 +28,11 @@ class VPointingCorrectionsTreeReader
         }
         int getEntry( Long64_t );
         Long64_t getEntries();
-        
+
         float getCorrected_cen_x( float cen_x );
         float getCorrected_cen_y( float cen_y );
         float getCorrected_phi( float cen_x, float cen_y, float d, float s, float sdevxy );
-        
+
 };
 
 #endif
