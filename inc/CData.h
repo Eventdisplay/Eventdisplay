@@ -314,15 +314,15 @@ class CData
         }
         double getEnergy_TeV()
         {
-            if( fReconstructionType  == ENERGY_ER )
+            if( fReconstructionType == ENERGY_ER )
             {
                 return Erec;
             }
-            if( fReconstructionType  == GEO )
+            if( fReconstructionType == GEO )
             {
                 return ErecS;
             }
-            if( fReconstructionType  == XGBSTEREO )
+            if( fReconstructionType == XGBSTEREO )
             {
                 return Dir_Erec;
             }
@@ -333,7 +333,7 @@ class CData
         }
         double getEnergy_Log10()
         {
-            if( fReconstructionType  == ENERGY_ER )
+            if( fReconstructionType == ENERGY_ER )
             {
                 if( Erec <= 0 )
                 {
@@ -366,7 +366,7 @@ class CData
         }
         double getXcore_M()
         {
-            if( fReconstructionType  == ENERGY_ER )
+            if( fReconstructionType == ENERGY_ER )
             {
                 return Xcore;
             }
@@ -374,7 +374,7 @@ class CData
         }
         double getYcore_M()
         {
-            if( fReconstructionType  == ENERGY_ER )
+            if( fReconstructionType == ENERGY_ER )
             {
                 return Ycore;
             }
@@ -382,11 +382,11 @@ class CData
         }
         double getXoff()
         {
-            if( fReconstructionType  == ENERGY_ER )
+            if( fReconstructionType == ENERGY_ER )
             {
                 return Xoff;
             }
-            if( fReconstructionType  == XGBSTEREO )
+            if( fReconstructionType == XGBSTEREO )
             {
                 return Dir_Xoff;
             }
@@ -394,11 +394,11 @@ class CData
         }
         double getYoff()
         {
-            if( fReconstructionType  == ENERGY_ER )
+            if( fReconstructionType == ENERGY_ER )
             {
                 return Yoff;
             }
-            if( fReconstructionType  == XGBSTEREO )
+            if( fReconstructionType == XGBSTEREO )
             {
                 return Dir_Yoff;
             }
@@ -406,11 +406,11 @@ class CData
         }
         double getXoff_derot()
         {
-            if( fReconstructionType  == ENERGY_ER )
+            if( fReconstructionType == ENERGY_ER )
             {
                 return Xoff_derot;
             }
-            if( fReconstructionType  == XGBSTEREO )
+            if( fReconstructionType == XGBSTEREO )
             {
                 return Dir_Xoff;
             }
@@ -418,11 +418,11 @@ class CData
         }
         double getYoff_derot()
         {
-            if( fReconstructionType  == ENERGY_ER )
+            if( fReconstructionType == ENERGY_ER )
             {
                 return Yoff_derot;
             }
-            if( fReconstructionType  == XGBSTEREO )
+            if( fReconstructionType == XGBSTEREO )
             {
                 return Dir_Yoff;
             }
@@ -430,7 +430,7 @@ class CData
         }
         double getEnergyChi2()
         {
-            if( fReconstructionType  == ENERGY_ER )
+            if( fReconstructionType == ENERGY_ER )
             {
                 return EChi2;
             }
@@ -439,7 +439,7 @@ class CData
 
         double getEnergyDelta()
         {
-            if( fReconstructionType  == ENERGY_ER )
+            if( fReconstructionType == ENERGY_ER )
             {
                 return dE;
             }
