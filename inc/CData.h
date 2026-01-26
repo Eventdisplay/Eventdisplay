@@ -24,6 +24,34 @@
 
 using namespace std;
 
+void PrintCurrentFiles(TTree* tree)
+{
+    auto* chain = dynamic_cast<TChain*>(tree);
+    if (!chain) return;
+
+    // main chain
+    TFile* mainFile = chain->GetCurrentFile();
+    std::cout << "Main file: "
+              << (mainFile ? mainFile->GetName() : "none")
+              << std::endl;
+
+    // friends
+    if (auto* fl = chain->GetListOfFriends())
+    {
+        for (auto* obj : *fl)
+        {
+            auto* tf = static_cast<TFriendElement*>(obj);
+            auto* fchain = dynamic_cast<TChain*>(tf->GetTree());
+            if (!fchain) continue;
+
+            TFile* friendFile = fchain->GetCurrentFile();
+            std::cout << "  Friend (" << tf->GetName() << "): "
+                      << (friendFile ? friendFile->GetName() : "none")
+                      << std::endl;
+        }
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // reconstruction types
 // note: reconstruction types determine which values are written from the mscw root
@@ -566,6 +594,7 @@ Int_t CData::GetEntry( Long64_t entry )
     }
 
     int a = fChain->GetEntry( entry );
+    PrintCurrentFiles(fChain);
 
     return a;
 }
@@ -1304,4 +1333,7 @@ Int_t CData::Cut( Long64_t entry )
 
     return 1;
 }
+
 #endif                                            // #ifdef CData_cxx
+                                                  //
+                                                  //
