@@ -24,34 +24,6 @@
 
 using namespace std;
 
-void PrintCurrentFiles(TTree* tree)
-{
-    auto* chain = dynamic_cast<TChain*>(tree);
-    if (!chain) return;
-
-    // main chain
-    TFile* mainFile = chain->GetCurrentFile();
-    std::cout << "Main file: "
-              << (mainFile ? mainFile->GetName() : "none")
-              << std::endl;
-
-    // friends
-    if (auto* fl = chain->GetListOfFriends())
-    {
-        for (auto* obj : *fl)
-        {
-            auto* tf = static_cast<TFriendElement*>(obj);
-            auto* fchain = dynamic_cast<TChain*>(tf->GetTree());
-            if (!fchain) continue;
-
-            TFile* friendFile = fchain->GetCurrentFile();
-            std::cout << "  Friend (" << tf->GetName() << "): "
-                      << (friendFile ? friendFile->GetName() : "none")
-                      << std::endl;
-        }
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // reconstruction types
 // note: reconstruction types determine which values are written from the mscw root
@@ -306,7 +278,7 @@ class CData
         float           Dir_Yoff;                 //!
         float           Dir_Erec;                 //!
 
-        CData( TTree* tree = 0, bool bMC = false, bool bShort = false, string file_name = "", string stereo_suffix = "" );
+        CData( TTree* tree = 0, bool bMC = false, bool bShort = false );
         virtual ~CData();
         virtual Int_t    Cut( Long64_t entry );
         virtual Int_t    GetEntry( Long64_t entry );
@@ -537,7 +509,7 @@ class CData
 
 #ifdef CData_cxx
 
-CData::CData( TTree* tree, bool bMC, bool bShort, string file_name, string stereo_suffix )
+CData::CData( TTree* tree, bool bMC, bool bShort)
 {
     fMC = bMC;
     fShort = bShort;
@@ -545,33 +517,6 @@ CData::CData( TTree* tree, bool bMC, bool bShort, string file_name, string stere
     fReconstructionType = GEO;
     fHasStereoFriendTree = false;
     Init( tree );
-    if( stereo_suffix.size() > 0 )
-    {
-        string friend_file_name = file_name.substr( 0, file_name.find_last_of( "." ) ) + "." + stereo_suffix + ".root";
-
-        // Expand wildcards if present
-        if( friend_file_name.find( "*" ) != string::npos )
-        {
-            glob_t glob_result;
-            glob( friend_file_name.c_str(), GLOB_NOSORT, NULL, &glob_result );
-            if( glob_result.gl_pathc > 0 )
-            {
-                friend_file_name = glob_result.gl_pathv[0];
-                globfree( &glob_result );
-            }
-            else
-            {
-                globfree( &glob_result );
-                return;  // No file matching pattern found
-            }
-        }
-
-        tree->AddFriend( "StereoAnalysis", friend_file_name.c_str() );
-        fHasStereoFriendTree = true;
-        tree->SetBranchAddress( "StereoAnalysis.Dir_Xoff", &Dir_Xoff );
-        tree->SetBranchAddress( "StereoAnalysis.Dir_Yoff", &Dir_Yoff );
-        tree->SetBranchAddress( "StereoAnalysis.Dir_Erec", &Dir_Erec );
-    }
 }
 
 
@@ -594,7 +539,6 @@ Int_t CData::GetEntry( Long64_t entry )
     }
 
     int a = fChain->GetEntry( entry );
-    PrintCurrentFiles(fChain);
 
     return a;
 }
@@ -1154,9 +1098,18 @@ void CData::Init( TTree* tree )
         dl_isGamma = 0;
     }
 
-    Dir_Xoff = -99.;
-    Dir_Yoff = -99.;
-    Dir_Erec = -99.;
+    if( tree->GetBranchStatus("StereoAnalysis.Dir_Xoff") )
+    {
+        tree->SetBranchAddress( "StereoAnalysis.Dir_Xoff", &Dir_Xoff );
+        tree->SetBranchAddress( "StereoAnalysis.Dir_Yoff", &Dir_Yoff );
+        tree->SetBranchAddress( "StereoAnalysis.Dir_Erec", &Dir_Erec );
+    }
+    else
+    {
+        Dir_Xoff = -99.;
+        Dir_Yoff = -99.;
+        Dir_Erec = -99.;
+    }
 
     Notify();
 }

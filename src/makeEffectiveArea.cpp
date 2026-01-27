@@ -12,6 +12,7 @@
 #include "TMath.h"
 #include "TObjArray.h"
 #include "TStopwatch.h"
+#include "TSystem.h"
 #include "TTree.h"
 
 #include "VGlobalRunParameter.h"
@@ -34,6 +35,51 @@
 using namespace std;
 
 VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c );
+
+/*
+ * load and return data chain
+ *
+ * Add XGB stereo tree as friend if required.
+ * Resolves wildcards.
+*/
+TChain *load_data_chain( string tree_file_name, unsigned int reconstruction_type )
+{
+    TChain *c = new TChain( "data" );
+    TChain *xgb = new TChain( "StereoAnalysis" );
+
+    // resolve wildcard
+    vector<std::string> files;
+    string cmd = "ls " + tree_file_name;
+    string out = gSystem->GetFromPipe( cmd.c_str() ).Data();
+    istringstream iss(out);
+    for (string f; iss >> f; )
+        files.push_back(f);
+
+    // add files to string - add XGB tree as friend if needed.
+    for( unsigned int i = 0; i < files.size(); i++ )
+    {
+        if( !c->Add(files[i].c_str(), -1 ))
+        {
+            cout << "Error while trying to add mscw data tree from file " << files[i] << endl;
+            cout << "exiting..." << endl;
+            exit( EXIT_FAILURE );
+        }
+
+        if( reconstruction_type == XGBSTEREO )
+        {
+            xgb->Add( (files[i].substr( 0, files[i].find_last_of( "." ) ) + ".xgb_stereo.root").c_str() );
+        }
+    }
+    if( reconstruction_type == XGBSTEREO )
+    {
+        c->AddFriend( xgb );
+    }
+    else
+    {
+        delete xgb;
+    }
+    return c;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 int main( int argc, char* argv[] )
@@ -205,20 +251,8 @@ int main( int argc, char* argv[] )
 
     /////////////////////////////////////////////////////////////////////////////
     // load data chain
-    TChain* c = new TChain( "data" );
-    if( !c->Add( fRunPara->fdatafile.c_str(), -1 ) )
-    {
-        cout << "Error while trying to add mscw data tree from file " << fRunPara->fdatafile  << endl;
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE );
-    }
-
-    string fXGB_stereo_file_suffix = "";
-    if( fRunPara->fReconstructionType == XGBSTEREO )
-    {
-       fXGB_stereo_file_suffix = "xgb_stereo";
-    }
-    CData d( c, true, true, fRunPara->fdatafile.c_str(), fXGB_stereo_file_suffix );
+    TChain *c = load_data_chain( fRunPara->fdatafile.c_str(), fRunPara->fReconstructionType );
+    CData d( c, true, true );
     for( unsigned int i = 0; i < fCuts.size(); i++ )
     {
         fCuts[i]->setDataTree( &d );
