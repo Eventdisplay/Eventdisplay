@@ -42,7 +42,7 @@ VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c );
  * Add XGB stereo tree as friend if required.
  * Resolves wildcards.
 */
-TChain *load_data_chain( string tree_file_name, unsigned int reconstruction_type )
+TChain *load_data_chain( string tree_file_name, int reconstruction_type )
 {
     TChain *c = new TChain( "data" );
     TChain *xgb = new TChain( "StereoAnalysis" );
