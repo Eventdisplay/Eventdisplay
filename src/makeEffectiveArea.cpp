@@ -55,6 +55,13 @@ TChain *load_data_chain( string tree_file_name, unsigned int reconstruction_type
     for (string f; iss >> f; )
         files.push_back(f);
 
+    if( files.size() == 0 )
+    {
+        cout << "Error: empty file list read from " << tree_file_name << endl;
+        cout << "exiting..." << endl;
+        exit( EXIT_FAILURE );
+    }
+
     // add files to string - add XGB tree as friend if needed.
     for( unsigned int i = 0; i < files.size(); i++ )
     {
@@ -67,7 +74,12 @@ TChain *load_data_chain( string tree_file_name, unsigned int reconstruction_type
 
         if( reconstruction_type == XGBSTEREO )
         {
-            xgb->Add( (files[i].substr( 0, files[i].find_last_of( "." ) ) + ".xgb_stereo.root").c_str() );
+            if( !xgb->Add( (files[i].substr( 0, files[i].find_last_of( "." ) ) + ".xgb_stereo.root").c_str() ) )
+            {
+                cout << "Error while trying to add XGB data tree from file " << files[i] << endl;
+                cout << "exiting..." << endl;
+                exit( EXIT_FAILURE );
+            }
         }
     }
     if( reconstruction_type == XGBSTEREO )

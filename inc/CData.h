@@ -272,7 +272,6 @@ class CData
         TBranch*        b_dl_gammaness;             //!
         TBranch*        b_dl_isGamma;             //!
 
-        bool            fHasStereoFriendTree;
         float           Dir_Xoff;                 //!
         float           Dir_Yoff;                 //!
         float           Dir_Erec;                 //!
@@ -514,7 +513,6 @@ CData::CData( TTree* tree, bool bMC, bool bShort)
     fShort = bShort;
     fDeepLearner = false;
     fReconstructionType = GEO;
-    fHasStereoFriendTree = false;
     Init( tree );
 }
 
