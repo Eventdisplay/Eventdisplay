@@ -31,7 +31,7 @@ using namespace std;
 //       e.g. for direction, should it be the disp result, or the classical result
 //       (note that not all reconstruction types are still available today)
 ////////////////////////////////////////////////////////////////////////////////
-enum E_ReconstructionType { NOT_SET = -1, GEO = 0, FROGSDIR = 1, FROGS = 2, MODEL3D = 3, ENERGY_ER = 4, NN = 5, TL = 6, DEEPLEARNER = 7, XGBSTEREO=8};
+enum E_ReconstructionType { NOT_SET = -1, GEO = 0, FROGSDIR = 1, FROGS = 2, MODEL3D = 3, ENERGY_ER = 4, NN = 5, TL = 6, DEEPLEARNER = 7, XGBSTEREO = 8};
 
 
 class CData
