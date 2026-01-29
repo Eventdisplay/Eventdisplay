@@ -9,6 +9,13 @@ This changelog is generated using [Towncrier](https://towncrier.readthedocs.io/)
 
 <!-- towncrier release notes start -->
 
+## [v5.17.0](https://github.com/VERITAS-Observatory/EventDisplay_v4/releases/tag/v5.17.0) - 2026-01-29
+
+### New Feature
+
+- Add support for reading XGB stereo reconstruction results (as friend trees). Effective area / IRF production can use now XGB stereo direction and energy. ([#186](https://github.com/VERITAS-Observatory/EventDisplay_v4/issues/186))
+
+
 ## [v5.16.0](https://github.com/VERITAS-Observatory/EventDisplay_v4/releases/tag/v5.16.0) - 2025-08-28
 
 ### New Feature
