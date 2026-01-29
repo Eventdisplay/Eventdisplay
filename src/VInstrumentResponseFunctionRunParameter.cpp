@@ -9,24 +9,24 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
 {
     fFillingMode = 0;
     fEffArea_short_writing = false;
-    
+
     fInstrumentEpoch = "NOT_SET";
-    
+
     fNSpectralIndex = 1;
     fSpectralIndexMin = 2.0;
     fSpectralIndexStep = 0.1;
-    
+
     fReconstructionType = NOT_SET;
     fEnergyReconstructionMethod = 0;
     fEnergyAxisBins_log10 = 60;
     fEnergyAxis_logTeV_min = -2.;
     fEnergyAxis_logTeV_max =  4.;
     fIgnoreEnergyReconstructionQuality = false;
-    
+
     fMCEnergy_min = -99.;
     fMCEnergy_max = -99.;
     fMCEnergy_index = 5.;
-    
+
     // IRF histogram bin definition
     fBiasBin = 300;                       // Energy bias (bias bins)
     fLogAngularBin = 100;                 // Angular resolution Log10 (bins)
@@ -36,49 +36,49 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     fhistoNEbins = fEnergyAxisBins_log10; // E binning (affects 2D histograms only)
     fhistoNEbins_logTeV_min = fEnergyAxis_logTeV_min;
     fhistoNEbins_logTeV_max = fEnergyAxis_logTeV_max;
-    
+
     fGammaHadronCutSelector = -1;
     fDirectionCutSelector = -1;
-    
+
     fAzimuthBins = true;
     fIsotropicArrivalDirections = false;
-    
+
     fIgnoreFractionOfEvents = 0.;
-    
+
     fTelescopeTypeCuts = false;
-    
+
     fFillMCHistograms = false;
-    
+
     fgetXoff_Yoff_afterCut = false;
-    
+
     fCoreScatterMode = "";
     fCoreScatterRadius = 0.;
-    
+
     fViewcone_min = -1.;
     fViewcone_max = -1.;
-    
+
     fdatafile = "";
     fMCdatafile_tree = "";
     fMCdatafile_histo = "";
     fGammaHadronProbabilityFile = "";
-    
+
     fze = 0.;
     fnoise = 0;
     fpedvar = 0.;
     fXoff  = 0.;
     fYoff  = 0.;
-    
+
     fWobbleIsotropic = 0.;
-    
+
     telconfig_ntel = 0;
     telconfig_arraycentre_X = 0.;
     telconfig_arraycentre_Y = 0.;
     telconfig_arraymax = 0.;
-    
+
     fCREnergySpectrumFile = "";
     fCREnergySpectrumID = 0;
     fCREnergySpectrum = 0;
-    
+
     fWriteEventdatatrees = "FALSE";
 }
 
@@ -104,12 +104,12 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
     cout << endl;
     cout << "========================================" << endl;
     cout << "run parameter file (" << ifile << ")" << endl;
-    
+
     while( getline( is, is_line ) )
     {
         if( is_line.size() > 0 )
         {
-        
+
             istringstream is_stream( is_line );
             is_stream >> temp;
             if( temp != "*" )
@@ -257,7 +257,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                 {
                     string temp2;
                     is_stream >> temp2;
-                    
+
                     if( temp2 == "GEO" || temp2 == "TL" )
                     {
                         fReconstructionType = GEO;
@@ -276,6 +276,10 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                     {
                         fReconstructionType = DEEPLEARNER;
                     }
+                    else if( temp2 == "XGBSTEREO" )
+                    {
+                        fReconstructionType = XGBSTEREO;
+                    }
                     else
                     {
                         fReconstructionType = NOT_SET;
@@ -289,7 +293,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                     cout << "VInstrumentResponseFunctionRunParameter::readRunParameter Warning: Unknown analysis type,";
                     cout << " will use GammaHadron cut file to decide." << endl;
                 }
-                
+
             }
             // energy reconstruction quality
             else if( temp == "ENERGYRECONSTRUCTIONQUALITY" )
@@ -452,7 +456,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
         }
     }
     cout << "========================================" << endl << endl;
-    
+
     //////////////////////////////////////////////////////////////////////////////////////
     // fill some parameters
     // read run parameters from this file
@@ -467,7 +471,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
     {
         return false;
     }
-    
+
     /////////////////////////////////////////////////////////////////
     // define azimuth bins
     fAzMin.clear();
@@ -484,7 +488,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
             fAzMin.push_back( fAzMin.back() + 45. );
             fAzMax.push_back( fAzMax.back() + 45. );
         }
-        
+
         /*
          * 45 deg intervals
         fAzMin.push_back( 135.0 );
@@ -504,7 +508,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
     fAzMax.push_back( +1.e3 );
     // WARNING: if this last rule changes (if the last bin is NOT filled ANY MORE with all simulated event regardless of their az)
     //          then the az_bin_index must be changed in VEffectiveAreaCalculator::fill
-    
+
     /////////////////////////////////////////////////////////////////
     // define  spectral index bins
     fSpectralIndex.clear();
@@ -512,7 +516,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
     {
         fSpectralIndex.push_back( fSpectralIndexMin + ( double )i * fSpectralIndexStep );
     }
-    
+
     return true;
 }
 
@@ -536,7 +540,7 @@ TTree* VInstrumentResponseFunctionRunParameter::getTelConfigTree()
     {
         return t->CloneTree( -1 );
     }
-    
+
     return 0;
 }
 
@@ -550,7 +554,7 @@ VMonteCarloRunHeader* VInstrumentResponseFunctionRunParameter::readMCRunHeader()
     {
         iF = c.GetFile();
     }
-    
+
     if( !iF )
     {
         cout << "VInstrumentResponseFunctionRunParameter::readMCRunHeader: error opening data file: " << fdatafile << endl;
@@ -565,7 +569,7 @@ VMonteCarloRunHeader* VInstrumentResponseFunctionRunParameter::readMCRunHeader()
         cout << "exiting..." << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     fCoreScatterRadius = iMC->core_range[0];
     // check if core scattering area is circular
     if( fCoreScatterRadius < 1.e-5 && iMC->core_pos_mode == 1 )
@@ -590,7 +594,7 @@ VMonteCarloRunHeader* VInstrumentResponseFunctionRunParameter::readMCRunHeader()
     fMCEnergy_min = iMC->E_range[0];
     fMCEnergy_max = iMC->E_range[1];
     fMCEnergy_index = iMC->spectral_index;
-    
+
     return iMC;
 }
 
@@ -605,7 +609,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameters( string ifilenam
         cout << "Information: using first file in list of files to determinate run parameters" << endl;
         cout << "(all files should have same energy range and spectral index)" << endl;
     }
-    
+
     TChain c( "data" );
     TFile* iFile = 0;
     if( c.Add( ifilename.c_str() ) )
@@ -652,7 +656,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameters( string ifilenam
     {
         return false;
     }
-    
+
     double x = 0.;
     double y = 0.;
     i_data->SetBranchAddress( "MCxoff", &x );
@@ -676,7 +680,7 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameters( string ifilenam
             fYoff = 0.;
         }
     }
-    
+
     ////////////////////////////////////////////////
     // read array parameters
     ////////////////////////////////////////
@@ -692,9 +696,9 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameters( string ifilenam
     telconfig_arraycentre_X = telconfig->getArrayCentreX();
     telconfig_arraycentre_Y = telconfig->getArrayCentreY();
     telconfig_arraymax      = telconfig->getArrayMaxSize();
-    
+
     ////////////////////////////////////////
-    
+
     return true;
 }
 
@@ -707,7 +711,7 @@ bool VInstrumentResponseFunctionRunParameter::testRunparameters()
         cout << "   no MC file given" << endl;
         return false;
     }
-    
+
     return true;
 }
 
@@ -769,7 +773,7 @@ void VInstrumentResponseFunctionRunParameter::print()
     {
         cout << "Instrument epoch not set" << endl;
     }
-    
+
     cout << endl;
     cout << "cuts: " << endl;
     for( unsigned int i = 0; i < fCutFileName.size(); i++ )
@@ -803,7 +807,7 @@ void VInstrumentResponseFunctionRunParameter::print()
     cout << "reconstruction type " << fReconstructionType << endl;
     cout << "energy reconstruction method " << fEnergyReconstructionMethod << endl;
     cout << endl;
-    
+
     cout << "input Monte Carlo with following parameters (will be modified later): " << endl;
     cout << "\t core range: " << fCoreScatterRadius;
     if( fCoreScatterMode.size() > 0 )
@@ -818,14 +822,14 @@ void VInstrumentResponseFunctionRunParameter::print()
     cout << "\t ze=" << fze << " [deg], noise=" << fnoise << " (pedvar: " << fpedvar;
     cout << "), wobble offset w=" << sqrt( fXoff * fXoff + fYoff * fYoff ) << " [deg]";
     cout << endl;
-    
+
     cout << "azimuth bins (" << fAzMin.size() << "): ";
     for( unsigned int i = 0; i < fAzMin.size(); i++ )
     {
         cout << " " << i << " [" << fAzMin[i] << "," << fAzMax[i] << "]";
     }
     cout << endl;
-    
+
     cout << endl;
     cout << "array configuration: ";
     cout << telconfig_ntel;
@@ -861,7 +865,7 @@ bool VInstrumentResponseFunctionRunParameter::readCRSpectralParameters()
     {
         return true;
     }
-    
+
     VEnergySpectrumfromLiterature espec( fCREnergySpectrumFile );
     if( espec.isZombie() )
     {
@@ -891,7 +895,7 @@ bool VInstrumentResponseFunctionRunParameter::readCRSpectralParameters()
     {
         fCREnergySpectrum = 0;
     }
-    
+
     return true;
 }
 

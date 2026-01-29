@@ -12,6 +12,7 @@
 #include "TMath.h"
 #include "TObjArray.h"
 #include "TStopwatch.h"
+#include "TSystem.h"
 #include "TTree.h"
 
 #include "VGlobalRunParameter.h"
@@ -35,13 +36,66 @@ using namespace std;
 
 VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c );
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+ * load and return data chain
+ *
+ * Add XGB stereo tree as friend if required.
+ * Resolves wildcards.
+*/
+TChain *load_data_chain( string tree_file_name, int reconstruction_type )
+{
+    TChain *c = new TChain( "data" );
+    TChain *xgb = new TChain( "StereoAnalysis" );
+
+    // resolve wildcard
+    vector<std::string> files;
+    string cmd = "ls " + tree_file_name;
+    string out = gSystem->GetFromPipe( cmd.c_str() ).Data();
+    istringstream iss(out);
+    for (string f; iss >> f; )
+        files.push_back(f);
+
+    if( files.size() == 0 )
+    {
+        cout << "Error: empty file list read from " << tree_file_name << endl;
+        cout << "exiting..." << endl;
+        exit( EXIT_FAILURE );
+    }
+
+    // add files to string - add XGB tree as friend if needed.
+    for( unsigned int i = 0; i < files.size(); i++ )
+    {
+        if( !c->Add(files[i].c_str(), -1 ))
+        {
+            cout << "Error while trying to add mscw data tree from file " << files[i] << endl;
+            cout << "exiting..." << endl;
+            exit( EXIT_FAILURE );
+        }
+
+        if( reconstruction_type == XGBSTEREO )
+        {
+            if( !xgb->Add( (files[i].substr( 0, files[i].find_last_of( "." ) ) + ".xgb_stereo.root").c_str() ) )
+            {
+                cout << "Error while trying to add XGB data tree from file " << files[i] << endl;
+                cout << "exiting..." << endl;
+                exit( EXIT_FAILURE );
+            }
+        }
+    }
+    if( reconstruction_type == XGBSTEREO )
+    {
+        c->AddFriend( xgb );
+    }
+    else
+    {
+        delete xgb;
+    }
+    return c;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 int main( int argc, char* argv[] )
 {
-
     // print version only
     if( argc == 2 )
     {
@@ -85,7 +139,7 @@ int main( int argc, char* argv[] )
     // read run parameters from file
     VInstrumentResponseFunctionRunParameter* fRunPara = new VInstrumentResponseFunctionRunParameter();
     fRunPara->SetName( "makeEffectiveArea_runparameter" );
-    if( !fRunPara->readRunParameterFromTextFile( argv[1] ) )
+    if(!fRunPara->readRunParameterFromTextFile( argv[1] ) )
     {
         cout << "error reading runparameters from text file" << endl;
         cout << "exiting..." << endl;
@@ -94,7 +148,7 @@ int main( int argc, char* argv[] )
     fRunPara->print();
 
     /////////////////////////////////////////////////////////////////
-    // open output file and write results to dist
+    // open output file and write results to disk
     TFile* fOutputfile = new TFile( fOutputfileName.c_str(), "RECREATE" );
     if( fOutputfile->IsZombie() )
     {
@@ -181,12 +235,12 @@ int main( int argc, char* argv[] )
             f_IRF_Type.push_back( "core_resolution" );
             f_IRF_ContainmentProbability.push_back( 0.68 );
             f_IRF_DuplicationID.push_back( 9999 );           // means no duplication
-            // energy resolution
-            f_IRF_Name.push_back( "energy_resolution" );
-            f_IRF_Type.push_back( "energy_resolution" );
-            f_IRF_ContainmentProbability.push_back( 0.68 );
-            f_IRF_DuplicationID.push_back( 9999 );           // means no duplication
         }
+        // energy resolution
+        f_IRF_Name.push_back( "energy_resolution" );
+        f_IRF_Type.push_back( "energy_resolution" );
+        f_IRF_ContainmentProbability.push_back( 0.68 );
+        f_IRF_DuplicationID.push_back( 9999 );           // means no duplication
     }
     // initialize IRF classes
     for( unsigned int i = 0; i < f_IRF_Name.size(); i++ )
@@ -209,14 +263,7 @@ int main( int argc, char* argv[] )
 
     /////////////////////////////////////////////////////////////////////////////
     // load data chain
-    TChain* c = new TChain( "data" );
-    if( !c->Add( fRunPara->fdatafile.c_str(), -1 ) )
-    {
-        cout << "Error while trying to add mscw data tree from file " << fRunPara->fdatafile  << endl;
-        cout << "exiting..." << endl;
-        exit( EXIT_FAILURE );
-    }
-
+    TChain *c = load_data_chain( fRunPara->fdatafile.c_str(), fRunPara->fReconstructionType );
     CData d( c, true, true );
     for( unsigned int i = 0; i < fCuts.size(); i++ )
     {
@@ -506,10 +553,10 @@ VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c )
         TChainElement* chEl = 0;
         TIter next( fileElements );
         unsigned int z = 0;
-        while( ( chEl = ( TChainElement* )next() ) )
+        while(( chEl = ( TChainElement* )next() ) )
         {
             TFile* ifInput = new TFile( chEl->GetTitle() );
-            if( !ifInput->IsZombie() )
+            if(!ifInput->IsZombie() )
             {
                 if( z == 0 )
                 {
@@ -519,7 +566,7 @@ VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c )
                 {
                     if( iMC_his )
                     {
-                        iMC_his->add( ( VEffectiveAreaCalculatorMCHistograms* )ifInput->Get( "MChistos" ) );
+                        iMC_his->add(( VEffectiveAreaCalculatorMCHistograms* )ifInput->Get( "MChistos" ) );
                     }
                     ifInput->Close();
                 }

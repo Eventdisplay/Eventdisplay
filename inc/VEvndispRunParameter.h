@@ -10,6 +10,7 @@
 #define VEvndispRunParameter_H
 
 #include <TDatime.h>
+#include <TMath.h>
 #include <TNamed.h>
 #include <TROOT.h>
 #include <TSystem.h>
@@ -29,12 +30,12 @@ using namespace std;
 class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
 {
     public:
-    
+
         // local host parameters
         string fEventDisplayUser;
         string fEventDisplayHost;
         string fEventDisplayDate;
-        
+
         // computer system parameters
         string fEventDisplayBuildCompiler;
         string fEventDisplayBuildCompilerVersion;
@@ -42,24 +43,24 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         string fEventDisplayBuildNode;
         string fEventDisplayBuildDir;
         SysInfo_t* fEventDisplaySystemInfo;
-        
+
         // root parameters
         string fEventDisplayBuildROOTVersion;
         int    fEventDisplayBuildROOTVersionInt;
-        
+
         // JOB ids
         int    fSGE_TASK_ID;
-        
+
         // DB parameters
         bool   fuseDB;
         string fDBRunType;                        // run type according to DB
         string fDBRunStartTimeSQL;                // run start (SQL type)
-        string fDBRunStoppTimeSQL;                // run stopp (SQL type)
+        string fDBRunStoppTimeSQL;                // run stop (SQL type)
         double fDBDataStartTimeMJD;               // run start (mjd)
-        double fDBDataStoppTimeMJD;               // run stopp (mjd)
+        double fDBDataStoppTimeMJD;               // run stop (mjd)
         double fDBDataStartTimeSecOfDay;          // run start (sec of day)
-        double fDBDataStoppTimeSecOfDay;          // run stopp (sec of day)
-        
+        double fDBDataStoppTimeSecOfDay;          // run stop (sec of day)
+
         // run parameters
         int    frunnumber;                        // runnumber
         string fRunTitle;                         // run title (usually empty, useful for debugging)
@@ -73,14 +74,14 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         int    fFirstEvent;                       // skip up till this event
         int    fTimeCutsMin_min;                  // start to analyse run at this min
         int    fTimeCutsMin_max;                  // stop to analyse this run at this min
-        
+
         bool fprintdeadpixelinfo ;       // DEADCHAN if true, will print list of dead pixels
         // at end of run to evndisp.log
-        
+
         bool fSaveDeadPixelRegistry ; // will save an extra tree containing info about the dead pixels
-        
+
         bool fForceLLImageFit ;          // FORCELL if true, will use log-likelihood image fitting
-        // on all images, irregardless of if they are near the
+        // on all images, regardless of if they are near the
         // edge of the camera or not.  Set in
         // EVNDISP.reconstruction.runparameter
         bool fSquaredImageCalculation;   // use unusual definition of image calculation (weighted by square)
@@ -89,31 +90,31 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         double fMinimizeTimeGradient_minGradforFit;
         double fMinimizeTimeGradient_minLoss;
         double fMinimizeTimeGradient_minNtubes;
-        
+
         string fInstrumentEpoch;                  // Instrumental epoch (e.g. for VTS V5 or V6)
         unsigned int fAtmosphereID;               // corsika ID of atmosphere
         string fEpochFile;                        // file with list of epochs and atmospheres
-        
+
         float  fRunDuration;                      // duration of runs in [s]
-        
+
         // output parameters
         bool   ffillhistos;                       // fill some analysis histograms
         string foutputfileName;                   // file name for analysis output (root file), -1 = no output
-        
+
         // debugging
         bool  fDebug;                             // print debug output
         bool  fPrintSmallArray;                   // some printout for small arrays only
         unsigned int fPrintAnalysisProgress;      // print a line each time this number of events have been processed
-        unsigned int fPrintGrisuHeader;           // Print full grisu header, includeing detector config file used in
+        unsigned int fPrintGrisuHeader;           // Print full grisu header, including detector config file used in
         //   grisu simulations (sims only, from VBF header), OR name of
         //   config file for detector simulation if available
-        
+
         // array/telescope geometry parameters
         unsigned int fNTelescopes;                // number of telescopes
         vector<string> fcamera;                   // name of camera configuration files
         vector< unsigned int > fTelToAnalyze;     // analyze only this telescope (Telescope 1 = 0!! )
         bool   fUseVBFSampleLength;               // use number of samples from VBF file (ignore .cfg file)
-        
+
         // pointing parameters
         string fTargetName;                       // target name
         double fTargetDec;                        // target declination [deg] (J2000)
@@ -131,7 +132,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         vector<double> fPointingErrorY;           // pointing error, in camera coordinates [deg]
         double fCheckPointing;                    // stop run if pointing difference between calculated pointing direction and vbf is larger than this value
         bool fDBCameraRotationMeasurements;       // read camera rotations from DB
-        
+
         // calibration (pedestals, gains, etc.)
         bool   fcalibrationrun;                   // true if this is a pedestal/gain/toff calculation run
         string fcalibrationfile;                  // file with file names for calibration
@@ -181,7 +182,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         vector< float > fthroughoutCorrectionGFactor; // throughput correction (e.g., gain loss) --> applied to FADC values
         bool   fL2TimeCorrect;                    // use L2 pulses to correct FADC times (default: on )
         unsigned fCalibrationDataType;            // for DSTs: kind of calibration data available: 1: full (peds, pedvars, etc). 0: (no calibration data)
-        
+
         //////////////////////////////////////////////////
         // FADC integration
         string  fFADCChargeUnit;                  // FADC charge unit (DC or PE)
@@ -203,9 +204,9 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         vector< int >  fsumfirst_maxT0startDiff;              // maximum difference between T0 and trace integration window start
         vector< double > fSumWindowMaxTimeDifferenceLGtoHG;   // maximum difference between lg and hg window in doublepass method
         vector< double > fSumWindowMaxTimedifferenceToDoublePassPosition; // maximum difference between doublepass calculated window start and t0 (in samples, default: 10 )
-        
+
         float  fFADCtoPhe[VDST_MAXTELTYPES];                  //! default conversion factor c[phes/fadc]: [phes]=c*[fadc] for certain integ. window (4slices)
-        
+
         // FADC timing parameters
         vector< float > fpulsetiminglevels;       // levels at which timing of FADC pulses is calculated
         unsigned int fpulsetiming_tzero_index;
@@ -213,11 +214,11 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         unsigned int fpulsetiming_max_index;
         unsigned int fpulsetiming_triggertime_index;
         vector< bool > fSumWindow_searchmaxreverse;
-        
+
         // image cleaning
         vector< VImageCleaningRunParameter* >  fImageCleaningParameters;
         vector< VImageCleaningRunParameter* >  fImageCleaningParameters_DB_Pass1;      // image cleaning parameters for double pass, pass1
-        
+
         // image analysis
         int    fImageLL;                          // loglikelihood image parameterisation 0=off/1=on/2=verbose mode (default: 0=off )
         // neighbour scaling
@@ -237,7 +238,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         bool   ifReadIPRfromDatabase;             // flag to read IPR from external IPR database
         bool   ifCreateIPRdatabase;               // flag to create external IPR database
         bool   ifReadIPRfromDSTFile;              // flat to read IPR graph from DST file
-        
+
         string freconstructionparameterfile;      // reconstruction parameter file
         // MC parameters
         string fsimu_pedestalfile;                // use external pedestal file for MC
@@ -249,7 +250,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         bool   fIgnoreCFGversions;                // ignore configuration file versions
         double finjectGaussianNoise;              // add Gaussian noise to trace (standard deviation in units of DC)
         UInt_t finjectGaussianNoiseSeed;          // seed for random Gaussian noise to trace adding
-        
+
         int fgrisuseed;
         int ftelescopeNOffset;                    // offset in telescope numbering (default: first tele = 0 ), for GrIsu Reader
         int fsampleoffset;                        // offset in samples
@@ -260,13 +261,13 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         int fMCNdeadSeed;                         // seed for setting pixels randomly dead
         int fMCNdeadboard;                        // number of boards set randomly dead (10 dead pixels in a row)
         double fMCScale;                          // scale factor for MC data
-        
+
         // tree filling
         unsigned int fShortTree;                  // 0: full tree; 1: short tree
         unsigned int fwriteMCtree;                // 0: do not write MC tree
         bool fWriteTriggerOnly;                   // true: write triggered events for simulation only
         bool fFillMCHistos;                       // true: fill MC histograms with thrown events
-        
+
         // display parameters
         bool   fdisplaymode;                      // display mode or command line mode
         bool   floopmode;                         // infinite event loop
@@ -275,40 +276,40 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         bool fPlotRaw;                            // plot raw values only, used fpeds = 0
         bool fPlotPaper;                          // clean up plots for papers and talks (no dead channels, no small text, ...)
         unsigned int fPlotAllInOneMethod;         // from which method are the angular reconstruction results to taken to plot in all in one window
-        
+
         // star catalogue
         string fStarCatalogueName;
         float  fMinStarBrightness_B;
         float  fMinStarPixelDistance_deg;        // closest distance of a pixel to a bright star
         int    fMinStarNTubes;                   // closest distance analysis applies only for image smaller than this number
-        
+
         // muon parameters
         bool fmuonmode;                           // search for complete muon rings, Martin
         // Hough transform muon parameters
         bool fhoughmuonmode;                      // Use hough transform muon analysis
-        
+
         // write pulse histograms to gain files
         int  fwriteLaserPulseN;                    // number of pulse histogram written to gain file
         bool fwriteAverageLaserPulse;              // write average laser pulse to file
-        
+
         // dst parameters
         string fdstfile;                          // dst output file name (root file)
         int fdstminntubes;                        // write only events with more than fdstminntubes ntubes into dst file
         bool fdstwriteallpixel;                   // write all information of all pixel into dst output files
         bool fdstcalibration;                     // write only the branches required for calibration to DST file
-        
+
         TString  fNNGraphsFile;
         TString  fIPRdatabase;                    // file to read IPRs from external database
         TString  fIPRdatabaseFile;                // file to write the IPR database
-        
+
         // functions
         void print();
         void print( int iEV );
         void printCTA_DST();
-        
+
         VEvndispRunParameter( bool bSetGlobalParameter = true );
         ~VEvndispRunParameter();
-        
+
         unsigned int getAtmosphereID( bool iUpdateInstrumentEpoch = false );
         string       getInstrumentEpoch( bool iMajor = false,
                                          bool iUpdateInstrumentEpoch = false );
@@ -326,7 +327,7 @@ class VEvndispRunParameter : public TNamed, public VGlobalRunParameter
         {
             return fuseDB;
         }
-        
+
         ClassDef( VEvndispRunParameter, 1002 ); //(increase this number)
 };
 #endif
