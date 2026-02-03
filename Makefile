@@ -3,7 +3,7 @@
 ##########################################################################
 #
 #  for CTA:     make CTA
-#  
+#
 #  shell variables needed:
 #    ROOTSYS (pointing to your root installation)
 #
@@ -69,7 +69,7 @@ ifeq ($(origin VBFSYS), undefined)
 	endif
 endif
 ifneq ($(VBFFLAG),-DNOVBF)
-	VBFNEW=$(shell expr 3.4 \<= `vbfConfig --version | cut -f2 -d' ' | sed -e "s/^0.//"`) 
+	VBFNEW=$(shell expr 3.4 \<= `vbfConfig --version | cut -f2 -d' ' | sed -e "s/^0.//"`)
 	ifeq ($(strip $(VBFNEW)),1)
 		VBFFLAG=-DVBF_034
 	endif
@@ -113,7 +113,7 @@ CXX           = g++
 CXXFLAGS      = -O3 -Wall -fPIC -fno-strict-aliasing -D_FILE_OFFSET_BITS=64 -D_LARGE_FILE_SOURCE -D_LARGEFILE64_SOURCE
 CXXFLAGS     += -I. -I./inc/
 CXXFLAGS     += $(VBFFLAG) $(DBFLAG) $(DCACHEFLAG) $(ASTRONMETRY)
-LD            = g++ 
+LD            = g++
 OutPutOpt     = -o
 INCLUDEFLAGS  = -I. -I./inc/
 
@@ -138,7 +138,7 @@ GCCVERSION=$(shell $(CXX) -dumpversion)
 GCCMACHINE=$(shell $(CXX) -dumpmachine)
 # get major version of gcc, e.g. '4' in '4.6.'
 GCC_VER_MAJOR := $(shell echo $(GCCVERSION) | cut -f1 -d.)
-# get minor version of gcc, e.g. '6' in '4.6' 
+# get minor version of gcc, e.g. '6' in '4.6'
 GCC_VER_MINOR := $(shell echo $(GCCVERSION) | cut -f2 -d.)
 # check if gcc version is smaller than 4.8.
 GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $(GCC_VER_MINOR) -lt 8 \) ] && echo true)
@@ -146,7 +146,7 @@ GCC_GT_4_8 := $(shell [ $(GCC_VER_MAJOR) -lt 3 -o \( $(GCC_VER_MAJOR) -eq 4 -a $
 # CXX FLAGS (taken from root)
 ########################################################
 CXXFLAGS    += $(shell root-config --cflags)
-CXXFLAGS    += -I$(shell root-config --incdir)/TMVA 
+CXXFLAGS    += -I$(shell root-config --incdir)/TMVA
 ########################################################
 # root libs
 ########################################################
@@ -184,7 +184,7 @@ GLIBS		+= -L$(SOFASYS)/lib -lsofa_c
 CXXFLAGS	+= -I$(SOFASYS)/include/
 endif
 ########################################################
-# HESSIO 
+# HESSIO
 # (long history of productions)
 ########################################################
 ifneq ($(HESSIO),FALSE)
@@ -198,7 +198,7 @@ endif
 ifeq ($(strip $(CTAPROD)),PROD1Leeds)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_ULTRA
 endif
-# 2011 PROD1 SC 
+# 2011 PROD1 SC
 ifeq ($(strip $(CTAPROD)),PROD1SCT)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_SC=2
 endif
@@ -210,11 +210,11 @@ endif
 ### prod3
 # HD produced files (prod3)
 ifeq ($(strip $(CTAPROD)),PROD3_HD)
-    CXXFLAGS        += $(HESSIOINCLUDEFLAGS)  -DCTA -DCTA_MAX_SC -mcmodel=large 
-endif 
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS)  -DCTA -DCTA_MAX_SC -mcmodel=large
+endif
 # 2015 PROD3
 ifeq ($(strip $(CTAPROD)),PROD3_2015)
-    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3 -mcmodel=large 
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA -DCTA_PROD3 -mcmodel=large
 endif
 ### prod3b
 # CTA prod3b North (used for Prod3b La Palmab and Paranal SCT files)
@@ -243,7 +243,7 @@ endif
 ### prod6
 # CTA prod6
 ifeq ($(strip $(CTAPROD)),PROD6)
-    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_PROD6 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG
 endif
 # MAX values
 ifeq ($(strip $(CTAPROD)),CTAMAX)
@@ -431,7 +431,7 @@ PEDWRITER=	./obj/VRawDataReader.o \
 		./obj/VGrIsuReader.o \
 		./obj/VVirtualDataReader.o \
 		./obj/VDB_Connection.o \
-		./obj/VTS.NoiseFileWriter.o 
+		./obj/VTS.NoiseFileWriter.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     PEDWRITER += ./obj/VASlalib.o
@@ -548,7 +548,7 @@ ACCOBJECT = 	./obj/makeRadialAcceptance.o \
 		./obj/VExclusionRegions.o ./obj/VExclusionRegions_Dict.o \
 		./obj/VEvndispRunParameter.o ./obj/VEvndispRunParameter_Dict.o \
 		./obj/VImageCleaningRunParameter.o ./obj/VImageCleaningRunParameter_Dict.o \
-		./obj/VUtilities.o 
+		./obj/VUtilities.o
 
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
@@ -645,7 +645,7 @@ OBSOBJECT = ./obj/VTS.getObservingTimesWithinTimeAzElBounds.o \
 		./obj/VStarCatalogue.o ./obj/VStarCatalogue_Dict.o \
 		./obj/VStar.o ./obj/VStar_Dict.o \
 		./obj/VDB_Connection.o \
-		./obj/VUtilities.o 
+		./obj/VUtilities.o
 
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
@@ -882,7 +882,7 @@ SHAREDOBJS= 	./obj/VRunList.o ./obj/VRunList_Dict.o \
 		./obj/VExclusionRegions.o ./obj/VExclusionRegions_Dict.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
-  SHAREDOBJS += ./obj/VASlalib.o ./obj/VASlalib_Dict.o 
+  SHAREDOBJS += ./obj/VASlalib.o ./obj/VASlalib_Dict.o
 endif
 
 ifeq ($(ROOT_MINUIT2),yes)
@@ -1091,7 +1091,7 @@ testAstronometry:	$(TESTASTROMETRYOBJ)
 # logFile
 ########################################################
 LOGFILE =		./obj/logFile.o \
-					
+
 
 ./obj/logFile.o:	./src/logFile.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -1104,7 +1104,7 @@ logFile:	$(LOGFILE)
 # testEvndispOutput
 ########################################################
 TESTEFILE =		./obj/testEvndispOutput.o \
-					
+
 
 ./obj/testEvndispOutput.o:	./src/testEvndispOutput.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -1114,7 +1114,7 @@ testEvndispOutput:	$(TESTEFILE)
 	@echo "$@ done"
 
 ########################################################
-# writeCTAWPPhysSensitivityFiles 
+# writeCTAWPPhysSensitivityFiles
 ########################################################
 WRITECTAPHYSOBJ=	./obj/VWPPhysSensitivityFile.o \
 			./obj/writeCTAWPPhysSensitivityFiles.o \
@@ -1189,7 +1189,7 @@ writeCTAWPPhysSensitivityOptimisedAndSmoothedFiles:	$(WRITESENSOPTFILES)
 
 
 ########################################################
-# writeVTSWPPhysSensitivityFiles 
+# writeVTSWPPhysSensitivityFiles
 ########################################################
 WRITEVTSPHYSOBJ=	./obj/VWPPhysSensitivityFile.o \
 			./obj/writeVTSWPPhysSensitivityFiles.o \
@@ -1238,7 +1238,7 @@ writeVTSWPPhysSensitivityFiles:	$(WRITEVTSPHYSOBJ)
 	@echo "$@ done"
 
 ########################################################
-# writeParticleRateFilesFromEffectiveAreas 
+# writeParticleRateFilesFromEffectiveAreas
 ########################################################
 WRITECTAPHYSOBJ=	./obj/writeParticleRateFilesFromEffectiveAreas.o \
 			./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
@@ -1269,7 +1269,7 @@ WRITECTAPHYSOBJ=	./obj/writeParticleRateFilesFromEffectiveAreas.o \
 			./obj/VMonteCarloRateCalculator.o ./obj/VMonteCarloRateCalculator_Dict.o \
 			./obj/VMonteCarloRunHeader.o ./obj/VMonteCarloRunHeader_Dict.o \
 			./obj/VStatistics_Dict.o \
-			./obj/VUtilities.o 
+			./obj/VUtilities.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     WRITECTAPHYSOBJ += ./obj/VASlalib.o
@@ -1319,7 +1319,7 @@ WRITECTAPHYSOBJ=	./obj/writeParticleRateFilesForTMVA.o \
 			./obj/VSkyCoordinatesUtilities.o ./obj/VUtilities.o \
                         ./obj/VDeadTime.o ./obj/VDeadTime_Dict.o \
                         ./obj/VImageCleaningRunParameter.o ./obj/VImageCleaningRunParameter_Dict.o \
-			./obj/VUtilities.o 
+			./obj/VUtilities.o
 
 ifeq ($(ASTRONMETRY),-DASTROSLALIB)
     WRITECTAPHYSOBJ += ./obj/VASlalib.o
@@ -1347,7 +1347,7 @@ combineLookupTables:	./obj/combineLookupTables.o ./obj/VGlobalRunParameter.o ./o
 ########################################################
 # smoothLookupTables
 ########################################################
-./obj/smoothLookupTables.o:	./src/smoothLookupTables.cpp 
+./obj/smoothLookupTables.o:	./src/smoothLookupTables.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 smoothLookupTables:	./obj/smoothLookupTables.o ./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
@@ -1390,7 +1390,7 @@ trainTMVAforAngularReconstruction:	./obj/trainTMVAforAngularReconstruction.o \
 					./obj/VEvndispReconstructionParameter.o ./obj/VEvndispReconstructionParameter_Dict.o \
 					./obj/VSpectralWeight.o ./obj/VSpectralWeight_Dict.o \
 					./obj/VUtilities.o \
-					./obj/Ctelconfig.o ./obj/Cshowerpars.o ./obj/Ctpars.o 
+					./obj/Ctelconfig.o ./obj/Cshowerpars.o ./obj/Ctpars.o
 	$(LD) $(LDFLAGS) $^ $(GLIBS) $(OutPutOpt) ./bin/$@
 	@echo "$@ done"
 
@@ -1527,7 +1527,7 @@ CTA.convert_hessio_to_VDST:	./obj/VDSTTree.o \
 				./obj/VImageCleaningRunParameter.o ./obj/VImageCleaningRunParameter_Dict.o \
 				./obj/VGlobalRunParameter.o ./obj/VGlobalRunParameter_Dict.o \
 				./obj/CTA.convert_hessio_to_VDST.o
-#				$(HESSIOSYS)/out/io_trgmask.o 
+#				$(HESSIOSYS)/out/io_trgmask.o
 	$(LD) $(LDFLAGS) $^ $(GLIBS) -L$(HESSIOSYS)/lib -lhessio \
 	$(OutPutOpt) ./bin/$@
 	@echo "$@ done"
@@ -1538,7 +1538,7 @@ ifeq ($(HESSIO),FALSE)
 	   @echo "----------------------------------------"
 	   @echo "NO HESSIOSYS ENVIRONMENTAL VARIABLE SET"
 	   @echo "----------------------------------------"
-	   @echo ""; 
+	   @echo "";
 endif
 
 ########################################################
@@ -1759,7 +1759,7 @@ else
 endif
 
 ###############################################################################################################################
-# source code formating
+# source code formatting
 ###############################################################################################################################
 formatSourceCode:
 	@echo ""
