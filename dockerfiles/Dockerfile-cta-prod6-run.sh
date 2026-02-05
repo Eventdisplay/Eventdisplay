@@ -32,13 +32,19 @@ fi
 OUTPUTFILE=$(basename "${DATAFILE}" .zst)
 rm -f /tmp/"${OUTPUTFILE}"*
 
+if [[ $DATAFILE == *"paranal"* ]]; then
+    site="south"
+else
+    site="north"
+fi
+
 # calibration file
 if [[ $NSB == *"full"* ]]; then
-    IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-full-ze${ZE}-IPR.root"
+    IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-${site}-full-ze${ZE}-IPR.root"
 elif [[ $NSB == *"half"* ]]; then
-    IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-half-ze${ZE}-IPR.root"
+    IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-${site}-half-ze${ZE}-IPR.root"
 else
-    IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-dark-ze${ZE}-IPR.root"
+    IPRFILE="$CTA_EVNDISP_AUX_DIR/Calibration/prod6/prod6-${site}-dark-ze${ZE}-IPR.root"
 fi
 
 # file checks
@@ -54,7 +60,7 @@ if [[ ! -e ${DATAFILE} ]]; then
 	echo "Error; sim_telarray file not found: ${DATAFILE}"
 	exit
 fi
-echo "${IPRFILE}"
+echo "Calibration (IPR) file: ${IPRFILE}"
 
 # Conversion and analysis
 "${EVNDISPSYS}"/bin/CTA.convert_hessio_to_VDST -c "${IPRFILE}" \
