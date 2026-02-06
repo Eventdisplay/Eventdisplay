@@ -41,6 +41,14 @@ jobs:
           fi
           echo "BUILD BRANCH ${{ env.BUILD_BRANCH }}"
 
+      - name: Set PROD build argument
+        run: |
+          if [[ "${{ matrix.type }}" == "slib" ]]; then
+            echo "PROD_ARG=PROD6-North" >> "$GITHUB_ENV"
+          else
+            echo "PROD_ARG=${{ matrix.type }}" >> "$GITHUB_ENV"
+          fi
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -78,7 +86,7 @@ jobs:
           context: .
           build-args: |
             BUILD_BRANCH=${{ env.BUILD_BRANCH }}
-            PROD=${{ matrix.type }}
+            PROD=${{ env.PROD_ARG }}
           push: ${{ github.event_name != 'pull_request' }}
           file: ./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-${{ matrix.type }}
           tags: ${{ steps.meta.outputs.tags }}
