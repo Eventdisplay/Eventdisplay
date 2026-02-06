@@ -241,9 +241,12 @@ ifeq ($(strip $(CTAPROD)),PROD5)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_PROD4 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG
 endif
 ### prod6
-# CTA prod6
-ifeq ($(strip $(CTAPROD)),PROD6)
+# CTA prod6 (different for North and South)
+ifeq ($(strip $(CTAPROD)),PROD6-South)
     CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_PROD6 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG
+endif
+ifeq ($(strip $(CTAPROD)),PROD6-North)
+    CXXFLAGS        += $(HESSIOINCLUDEFLAGS) -DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG
 endif
 # MAX values
 ifeq ($(strip $(CTAPROD)),CTAMAX)

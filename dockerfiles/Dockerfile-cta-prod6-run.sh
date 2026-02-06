@@ -16,7 +16,7 @@ DATAFILE=${1}
 ZE=${2}
 NSB=${3}
 LAYOUTFILE=${4}
-# select automatically the corresponding hyperlayout
+# select automatically the corresponding hyper layout
 if [[ -z ${LAYOUTFILE} ]]; then
     if [[ $DATAFILE == *"paranal"* ]]; then
         if [[ $DATAFILE == *"scts"* ]]; then

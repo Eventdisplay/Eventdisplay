@@ -1,4 +1,5 @@
 FROM ubuntu:16.04
+ARG PROD=PROD6-South
 
 LABEL maintainer.name="Eventdisplay Team"
 LABEL maintainer.email="gernot.maier@desy.de"
@@ -33,7 +34,11 @@ ENV EVNDISP=/eventdisplay_workdir/
 COPY hessioxxx.tar.gz .
 RUN tar -xvzf hessioxxx.tar.gz && \
    cd hessioxxx && \
-   make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG" && \
+   if [ "$PROD" = "PROD6-South" ]; then \
+     make EXTRA_DEFINES="-DCTA_PROD6 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG"; \
+   else \
+     make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG"; \
+   fi && \
    cd .. && rm -f hessioxxx.tar.gz
 ENV HESSIOSYS=${EVNDISP}/hessioxxx
 ENV LD_LIBRARY_PATH="${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
@@ -55,7 +60,7 @@ RUN mkdir -p ${EVNDISP}/Eventdisplay
 COPY Eventdisplay ${EVNDISP}/Eventdisplay/
 RUN cd ${EVNDISPSYS} && ./install_sofa.sh CI
 RUN cd ${EVNDISPSYS} && \
-    make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD6 && \
+    make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=${PROD} && \
     rm -f obj/*.o obj/*.cpp
 
 ENV LD_LIBRARY_PATH="${EVNDISPSYS}/obj:${EVNDISPSYS}/lib:${LD_LIBRARY_PATH}"

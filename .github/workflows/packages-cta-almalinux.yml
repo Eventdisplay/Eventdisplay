@@ -24,7 +24,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        type: ['prod6', 'prod5', 'slib']
+        type: ['PROD6-South', 'PROD6-North', 'PROD5', 'slib']
 
     steps:
       - name: Checkout repository
@@ -76,7 +76,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: BUILD_BRANCH=${{ env.BUILD_BRANCH }}
+          build-args: |
+            BUILD_BRANCH=${{ env.BUILD_BRANCH }}
+            PROD=${{ matrix.type }}
           push: ${{ github.event_name != 'pull_request' }}
           file: ./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-${{ matrix.type }}
           tags: ${{ steps.meta.outputs.tags }}
