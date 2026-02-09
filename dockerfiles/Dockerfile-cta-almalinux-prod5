@@ -1,6 +1,7 @@
 ARG ROOT_VERSION=6.30.02-alma9
 ARG PROD=PROD5
 FROM rootproject/root:${ROOT_VERSION} AS build
+ARG PROD=PROD5
 ARG BUILD_BRANCH=main
 
 LABEL maintainer.name="Eventdisplay Team"
