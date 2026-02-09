@@ -16,7 +16,7 @@ RUN dnf update -q -y && dnf install -y zstd
 # Install hessioxx
 ADD hessioxxx.tar.gz /eventdisplay_workdir/
 WORKDIR /eventdisplay_workdir/hessioxxx
-RUN if [ $PROD = "PROD6-South" ]; then \
+RUN if [ "$PROD" = "PROD6-South" ]; then \
         make EXTRA_DEFINES="-DCTA_PROD6 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG";  \
     else \
         make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG"; \
