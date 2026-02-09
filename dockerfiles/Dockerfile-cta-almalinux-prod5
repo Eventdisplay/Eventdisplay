@@ -1,7 +1,6 @@
 ARG ROOT_VERSION=6.30.02-alma9
 ARG PROD=PROD5
 FROM rootproject/root:${ROOT_VERSION} AS build
-ARG PROD=PROD5
 ARG BUILD_BRANCH=main
 
 LABEL maintainer.name="Eventdisplay Team"
@@ -28,7 +27,7 @@ RUN BUILD_BRANCH=$(echo ${BUILD_BRANCH} | sed 's#refs/tags/##') && \
     git clone -b ${BUILD_BRANCH} https://github.com/Eventdisplay/Eventdisplay.git --depth 1
 WORKDIR /eventdisplay_workdir/Eventdisplay/
 RUN ./install_sofa.sh CI && \
-    make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=${PROD} && \
+    make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD5 && \
     rm -f obj/*.o obj/*.cpp
 
 FROM rootproject/root:${ROOT_VERSION}
