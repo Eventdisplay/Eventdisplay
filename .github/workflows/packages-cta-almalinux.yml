@@ -48,10 +48,10 @@ jobs:
             echo "DOCKERFILE=./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-slib" >> "$GITHUB_ENV"
           elif [[ "${{ matrix.type }}" == "PROD5" ]]; then
             echo "PROD_ARG=${{ matrix.type }}" >> "$GITHUB_ENV"
-            echo "DOCKERFILE=./Eventdisplay/dockerfiles/Dockerfile-cta-prod5" >> "$GITHUB_ENV"
+            echo "DOCKERFILE=./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-prod5" >> "$GITHUB_ENV"
           else
             echo "PROD_ARG=${{ matrix.type }}" >> "$GITHUB_ENV"
-            echo "DOCKERFILE=./Eventdisplay/dockerfiles/Dockerfile-cta-prod6" >> "$GITHUB_ENV"
+            echo "DOCKERFILE=./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-prod6" >> "$GITHUB_ENV"
           fi
 
       - name: Set up QEMU
