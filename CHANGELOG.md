@@ -9,6 +9,13 @@ This changelog is generated using [Towncrier](https://towncrier.readthedocs.io/)
 
 <!-- towncrier release notes start -->
 
+## [v5.18.0](https://github.com/VERITAS-Observatory/EventDisplay_v4/releases/tag/v5.18.0) - 2026-02-10
+
+### New Feature
+
+- Improved prod6 container building to take different HESSIO flags for North / South grid productions into account. ([#188](https://github.com/VERITAS-Observatory/EventDisplay_v4/issues/188))
+
+
 ## [v5.17.0](https://github.com/VERITAS-Observatory/EventDisplay_v4/releases/tag/v5.17.0) - 2026-01-29
 
 ### New Feature
