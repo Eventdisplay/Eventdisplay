@@ -1,6 +1,8 @@
 ARG ROOT_VERSION=6.30.02-alma9
+ARG PROD=PROD6-South
 FROM rootproject/root:${ROOT_VERSION} AS build
 ARG BUILD_BRANCH=main
+ARG PROD
 
 LABEL maintainer.name="Eventdisplay Team"
 LABEL maintainer.email="gernot.maier@desy.de"
@@ -14,7 +16,11 @@ RUN dnf update -q -y && dnf install -y zstd
 # Install hessioxx
 ADD hessioxxx.tar.gz /eventdisplay_workdir/
 WORKDIR /eventdisplay_workdir/hessioxxx
-RUN make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG"
+RUN if [ "$PROD" = "PROD6-South" ]; then \
+        make EXTRA_DEFINES="-DCTA_PROD6 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG";  \
+    else \
+        make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG"; \
+    fi
 ENV HESSIOSYS=${EVNDISP}/hessioxxx
 ENV LD_LIBRARY_PATH="${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
 
@@ -26,7 +32,7 @@ RUN BUILD_BRANCH=$(echo ${BUILD_BRANCH} | sed 's#refs/tags/##') && \
     git clone -b ${BUILD_BRANCH} https://github.com/Eventdisplay/Eventdisplay.git --depth 1
 WORKDIR /eventdisplay_workdir/Eventdisplay/
 RUN ./install_sofa.sh CI && \
-    make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=PROD6 && \
+    make -j 4 CTA GRIDPROD=CTAGRID CTAPROD=${PROD} && \
     rm -f obj/*.o obj/*.cpp
 
 FROM rootproject/root:${ROOT_VERSION}

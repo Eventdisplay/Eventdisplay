@@ -24,7 +24,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        type: ['prod6', 'prod5', 'slib']
+        type: ['PROD6-South', 'PROD6-North', 'PROD5', 'slib']
 
     steps:
       - name: Checkout repository
@@ -40,6 +40,19 @@ jobs:
             echo "BUILD_BRANCH=${GITHUB_REF#refs/heads/}" >> "$GITHUB_ENV"
           fi
           echo "BUILD BRANCH ${{ env.BUILD_BRANCH }}"
+
+      - name: Set PROD build argument and dockerfile
+        run: |
+          if [[ "${{ matrix.type }}" == "slib" ]]; then
+            echo "PROD_ARG=PROD6-North" >> "$GITHUB_ENV"
+            echo "DOCKERFILE=./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-slib" >> "$GITHUB_ENV"
+          elif [[ "${{ matrix.type }}" == "PROD5" ]]; then
+            echo "PROD_ARG=${{ matrix.type }}" >> "$GITHUB_ENV"
+            echo "DOCKERFILE=./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-prod5" >> "$GITHUB_ENV"
+          else
+            echo "PROD_ARG=${{ matrix.type }}" >> "$GITHUB_ENV"
+            echo "DOCKERFILE=./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-prod6" >> "$GITHUB_ENV"
+          fi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -76,8 +89,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: BUILD_BRANCH=${{ env.BUILD_BRANCH }}
+          build-args: |
+            BUILD_BRANCH=${{ env.BUILD_BRANCH }}
+            PROD=${{ env.PROD_ARG }}
           push: ${{ github.event_name != 'pull_request' }}
-          file: ./Eventdisplay/dockerfiles/Dockerfile-cta-almalinux-${{ matrix.type }}
+          file: ${{ env.DOCKERFILE }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}-${{ matrix.type }}

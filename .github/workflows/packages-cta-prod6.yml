@@ -20,6 +20,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        prod: [PROD6-South, PROD6-North]
 
     steps:
       - name: Checkout repository
@@ -54,10 +57,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           tags: |
-            type=ref,event=pr,suffix=-cta-prod6
-            type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-prod6
-            type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-prod6
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-prod6
+            type=ref,event=pr,suffix=-cta-${{ matrix.prod }}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},suffix=-cta-${{ matrix.prod }}
+            type=schedule,pattern={{date 'YYYYMMDD'}},suffix=-cta-${{ matrix.prod }}
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}},suffix=-cta-${{ matrix.prod }}
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: latest=true
 
@@ -70,7 +73,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: BUILD_BRANCH=${{ env.BUILD_BRANCH }}
+          build-args: |
+            BUILD_BRANCH=${{ env.BUILD_BRANCH }}
+            PROD=${{ matrix.prod }}
           push: ${{ github.event_name != 'pull_request' }}
           file: ./Eventdisplay/dockerfiles/Dockerfile-cta-prod6
           tags: ${{ steps.meta.outputs.tags }}

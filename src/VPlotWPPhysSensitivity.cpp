@@ -256,31 +256,16 @@ void VPlotWPPhysSensitivity::initialProjectedSensitivityPlots( bool iIncludeLowe
     // (hard coded energies here...not good)
     if( !fUseIntegratedSensitivityForOffAxisPlots )
     {
-        //		fProjectionEnergy_min_logTeV.push_back( log10( 60.0 ) );
-        //		fProjectionEnergy_max_logTeV.push_back( log10( 70.0 ) );
-        //		fProjectionEnergy_min_logTeV.push_back( log10( 30.0 ) );
-        //		fProjectionEnergy_max_logTeV.push_back( log10( 40.0 ) );
         fProjectionEnergy_min_logTeV.push_back( log10( 50. ) );
         fProjectionEnergy_max_logTeV.push_back( log10( 100. ) );
         fProjectionEnergy_min_logTeV.push_back( log10( 5. ) );
         fProjectionEnergy_max_logTeV.push_back( log10( 10. ) );
-        /*fProjectionEnergy_min_logTeV.push_back( log10( 0.5 ) );
-        fProjectionEnergy_max_logTeV.push_back( log10( 0.8 ) );
-        if( iIncludeLowestEnergy )
-        {
-            fProjectionEnergy_min_logTeV.push_back( log10( 0.05 ) );
-            fProjectionEnergy_max_logTeV.push_back( log10( 0.08 ) );
-        } */
     }
     // integrated sensitivity
     else
     {
         fProjectionEnergy_min_logTeV.push_back( log10( 0.03 ) ); // choose 128 GeV the be at the lower end of the corresponding bin on the log axis)
         fProjectionEnergy_max_logTeV.push_back( log10( 0.03 ) );
-        //		fProjectionEnergy_min_logTeV.push_back( log10( 0.030 ) ); // choose 128 GeV the be at the lower end of the corresponding bin on the log axis)
-        //		fProjectionEnergy_max_logTeV.push_back( log10( 0.030 ) );
-        //		fProjectionEnergy_min_logTeV.push_back( log10( 0.032 ) ); // choose 128 GeV the be at the lower end of the corresponding bin on the log axis)
-        //		fProjectionEnergy_max_logTeV.push_back( log10( 0.032 ) );
     }
     // graphs
     for( unsigned int i = 0; i < fData.size(); i++ )
@@ -483,14 +468,6 @@ TCanvas* VPlotWPPhysSensitivity::plotProjectedSensitivities( TCanvas* c, double 
             }
         }
     }
-    // plot the legend only if there is more than one energy bin
-    /*if( iColor < 0 && fProjectionEnergy_min_logTeV.size() > 1 )
-    {
-        iL->Draw();
-    }
-    // plot some text
-    TText* iT = new TText( 1., 0.1, "Off-axis sensitivity" );
-    iT->Draw(); */
 
     return cC;
 }
@@ -688,12 +665,9 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
                 }
             }
         }
-        // TMPTMP add current instruments
         vector< TGraph* > iCurrentInstruments = plotCurrentInstruments( 0 );
         for( unsigned int i = 0; i < iCurrentInstruments.size(); i++ )
         {
-            //TMPTMP
-            //                    continue;
             if( !iCurrentInstruments[i] )
             {
                 continue;
@@ -739,9 +713,6 @@ bool VPlotWPPhysSensitivity::plotSensitivityRatio( string iPrint,
     i_PPUT.print( "MARKDOWN" );
     if( cSensRatio )
     {
-        // TEMPTEMPTEMP
-        // plotLegend( cSensRatio, false, false );
-
         if( iLL )
         {
             iLL->Draw();
@@ -887,9 +858,7 @@ bool VPlotWPPhysSensitivity::plotSensitivity( string iPrint,
                     }
                 }
             }
-            ///// TMP TMP plot other instruments
             plotCurrentInstruments( cSensInter );
-            ///// (END) TMP TMP plot other instruments
             ///// TMP TMP systematics
             // plot systematic line around sensitivity curve
             // plotSensitivitySystematicUncertainties( cSensInter, iGraphSensitivity );
