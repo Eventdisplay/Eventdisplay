@@ -24,6 +24,8 @@ repos:
       - id: end-of-file-fixer
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
+      - id: no-commit-to-branch
+        args: [--branch=main]
   # gitup action
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.10
