@@ -16,10 +16,12 @@ DATAFILE=${1}
 ZE=${2}
 NSB=${3}
 LAYOUTFILE=${4}
+
+datafile_lc=$(printf '%s' "$DATAFILE" | tr '[:upper:]' '[:lower:]')
 # select automatically the corresponding hyper layout
 if [[ -z ${LAYOUTFILE} ]]; then
-    if [[ $DATAFILE == *"paranal"* ]]; then
-        if [[ $DATAFILE == *"scts"* ]]; then
+    if [[ ${datafile_lc} == *paranal* ]]; then
+        if [[ ${datafile_lc} == *scts* ]]; then
             LAYOUTFILE="CTA.prod6S.SCT.hyperarray.lis"
         else
             LAYOUTFILE="CTA.prod6S.hyperarray.lis"
@@ -32,7 +34,7 @@ fi
 OUTPUTFILE=$(basename "${DATAFILE}" .zst)
 rm -f /tmp/"${OUTPUTFILE}"*
 
-if [[ $DATAFILE == *"paranal"* ]]; then
+if [[ ${datafile_lc} == *paranal* ]]; then
     site="south"
 else
     site="north"
