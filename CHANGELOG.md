@@ -9,6 +9,14 @@ This changelog is generated using [Towncrier](https://towncrier.readthedocs.io/)
 
 <!-- towncrier release notes start -->
 
+## [v5.18.1](https://github.com/VERITAS-Observatory/EventDisplay_v4/releases/tag/v5.18.1) - 2026-02-11
+
+### Bug Fixes
+
+- Fix prod6 run script to select hyper-array layout applying case-insensitive file name checks.
+
+### New Feature
+
 ## [v5.18.0](https://github.com/VERITAS-Observatory/EventDisplay_v4/releases/tag/v5.18.0) - 2026-02-10
 
 ### New Feature
