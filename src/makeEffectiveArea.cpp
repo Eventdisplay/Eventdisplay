@@ -71,6 +71,7 @@ TChain *load_data_chain( string tree_file_name, int reconstruction_type, unsigne
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE );
         }
+        cout << "Adding mscw data tree from " << files[i] << endl;
 
         if( reconstruction_type == XGBSTEREO )
         {
@@ -85,6 +86,7 @@ TChain *load_data_chain( string tree_file_name, int reconstruction_type, unsigne
                 cout << "exiting..." << endl;
                 exit( EXIT_FAILURE );
             }
+            cout << "Adding XGB data tree from " << xgb_file << endl;
         }
     }
     if( reconstruction_type == XGBSTEREO )
