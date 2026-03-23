@@ -42,7 +42,7 @@ VEffectiveAreaCalculatorMCHistograms* copyMCHistograms( TChain* c );
  * Add XGB stereo tree as friend if required.
  * Resolves wildcards.
 */
-TChain *load_data_chain( string tree_file_name, int reconstruction_type )
+TChain *load_data_chain( string tree_file_name, int reconstruction_type, unsigned int min_tel )
 {
     TChain *c = new TChain( "data" );
     TChain *xgb = new TChain( "StereoAnalysis" );
@@ -71,15 +71,22 @@ TChain *load_data_chain( string tree_file_name, int reconstruction_type )
             cout << "exiting..." << endl;
             exit( EXIT_FAILURE );
         }
+        cout << "Adding mscw data tree from " << files[i] << endl;
 
         if( reconstruction_type == XGBSTEREO )
         {
-            if( !xgb->Add( (files[i].substr( 0, files[i].find_last_of( "." ) ) + ".xgb_stereo.root").c_str() ) )
+            string xgb_file = files[i].substr( 0, files[i].find_last_of( "." ) ) + ".xgb_stereo.root";
+            if( min_tel > 0 )
+            {
+                xgb_file = files[i].substr( 0, files[i].find_last_of( "." ) ) + "_mintel" + to_string( min_tel) +  ".xgb_stereo.root";
+            }
+            if( !xgb->Add( xgb_file.c_str() ) )
             {
                 cout << "Error while trying to add XGB data tree from file " << files[i] << endl;
                 cout << "exiting..." << endl;
                 exit( EXIT_FAILURE );
             }
+            cout << "Adding XGB data tree from " << xgb_file << endl;
         }
     }
     if( reconstruction_type == XGBSTEREO )
@@ -263,7 +270,7 @@ int main( int argc, char* argv[] )
 
     /////////////////////////////////////////////////////////////////////////////
     // load data chain
-    TChain *c = load_data_chain( fRunPara->fdatafile.c_str(), fRunPara->fReconstructionType );
+    TChain *c = load_data_chain( fRunPara->fdatafile.c_str(), fRunPara->fReconstructionType, fRunPara->fReconstructionMinTel );
     CData d( c, true, true );
     for( unsigned int i = 0; i < fCuts.size(); i++ )
     {
