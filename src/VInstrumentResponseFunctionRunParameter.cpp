@@ -17,6 +17,7 @@ VInstrumentResponseFunctionRunParameter::VInstrumentResponseFunctionRunParameter
     fSpectralIndexStep = 0.1;
 
     fReconstructionType = NOT_SET;
+    fReconstructionMinTel = 0;
     fEnergyReconstructionMethod = 0;
     fEnergyAxisBins_log10 = 60;
     fEnergyAxis_logTeV_min = -2.;
@@ -279,6 +280,11 @@ bool VInstrumentResponseFunctionRunParameter::readRunParameterFromTextFile( stri
                     else if( temp2 == "XGBSTEREO" )
                     {
                         fReconstructionType = XGBSTEREO;
+                        if( !( is_stream >> std::ws ).eof() )
+                        {
+                            is_stream >> temp2;
+                            fReconstructionMinTel = atoi(temp2.c_str());
+                        }
                     }
                     else
                     {
@@ -804,7 +810,12 @@ void VInstrumentResponseFunctionRunParameter::print()
         cout << ", telescope type dependent cuts";
     }
     cout << endl;
-    cout << "reconstruction type " << fReconstructionType << endl;
+    cout << "reconstruction type " << fReconstructionType;
+    if( fReconstructionType == XGBSTEREO )
+    {
+        cout << " (min XGB telescope multiplicity: " << fReconstructionMinTel << ")";
+    }
+    cout << endl;
     cout << "energy reconstruction method " << fEnergyReconstructionMethod << endl;
     cout << endl;
 
