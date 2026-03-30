@@ -844,8 +844,9 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
         }
     }
 
-    // use robust statistics (median and median absolute error)
+    // use robust statistics
     // median applied only to larger events > 4 telescopes
+    // weighted average applied to smaller events <= 4 telescopes
     if( energy_tel.size() > 4 )
     {
         fdisp_energy = TMath::Median( energy_tel.size(), energy_tel.data(), energy_weight.data() );
@@ -863,6 +864,7 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
         if( i_w > 0. ) fdisp_energy /= i_w;
         else fdisp_energy = -99.;
     }
+    // not that for small events, this is not the median absolute error (as fdisp_energy is the absolute mean)
     fdisp_energy_medianAbsoluteError = VStatistics::getMedianAbsoluteError( energy_tel, fdisp_energy );
     fdisp_energy_NT = energy_tel.size();
     if( fDebug )
