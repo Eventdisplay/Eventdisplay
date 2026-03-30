@@ -84,7 +84,7 @@ TChain *load_data_chain( string tree_file_name, int reconstruction_type, unsigne
             xgb_file += ".root";
             if( !xgb->Add( xgb_file.c_str() ) )
             {
-                cout << "Error while trying to add XGB data tree from file " << files[i] << endl;
+                cout << "Error while trying to add XGB data tree from file " << xgb_file << endl;
                 cout << "exiting..." << endl;
                 exit( EXIT_FAILURE );
             }
