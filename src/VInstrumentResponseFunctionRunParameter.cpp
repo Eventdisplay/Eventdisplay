@@ -810,7 +810,12 @@ void VInstrumentResponseFunctionRunParameter::print()
         cout << ", telescope type dependent cuts";
     }
     cout << endl;
-    cout << "reconstruction type " << fReconstructionType << endl;
+    cout << "reconstruction type " << fReconstructionType;
+    if( fReconstructionType == XGBSTEREO )
+    {
+        cout << " (min XGB telescope multiplicity: " << fReconstructionMinTel << ")";
+    }
+    cout << endl;
     cout << "energy reconstruction method " << fEnergyReconstructionMethod << endl;
     cout << endl;
 

@@ -75,11 +75,13 @@ TChain *load_data_chain( string tree_file_name, int reconstruction_type, unsigne
 
         if( reconstruction_type == XGBSTEREO )
         {
-            string xgb_file = files[i].substr( 0, files[i].find_last_of( "." ) ) + ".xgb_stereo.root";
+            string base = files[i].substr( 0, files[i].find_last_of( "." ) );
+            string xgb_file = base + ".xgb_stereo";
             if( min_tel > 0 )
             {
-                xgb_file = files[i].substr( 0, files[i].find_last_of( "." ) ) + "_mintel" + to_string( min_tel) +  ".xgb_stereo.root";
+                xgb_file += "_mintel" + to_string( min_tel );
             }
+            xgb_file += ".root";
             if( !xgb->Add( xgb_file.c_str() ) )
             {
                 cout << "Error while trying to add XGB data tree from file " << files[i] << endl;
