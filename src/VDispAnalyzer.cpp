@@ -844,11 +844,25 @@ void VDispAnalyzer::calculateEnergies( unsigned int i_ntel,
         }
     }
 
-    // Occasionally one energy is significantly off and distorts the mean.
-    // therefore: get rid of N sigma outliers
     // use robust statistics (median and median absolute error)
-    // Note: applied only to larger events > 4 telescopes
-    fdisp_energy = TMath::Median( energy_tel.size(), energy_tel.data(), energy_weight.data() );
+    // median applied only to larger events > 4 telescopes
+    if( energy_tel.size() > 4 )
+    {
+        fdisp_energy = TMath::Median( energy_tel.size(), energy_tel.data(), energy_weight.data() );
+    }
+    // weighted average
+    else
+    {
+        fdisp_energy = 0.;
+        double i_w = 0.;
+        for( unsigned int j = 0; j < energy_tel.size(); j++ )
+        {
+            fdisp_energy += energy_tel[j] * energy_weight[j];
+            i_w += energy_weight[j];
+        }
+        if( i_w > 0. ) fdisp_energy /= i_w;
+        else fdisp_energy = -99.;
+    }
     fdisp_energy_medianAbsoluteError = VStatistics::getMedianAbsoluteError( energy_tel, fdisp_energy );
     fdisp_energy_NT = energy_tel.size();
     if( fDebug )
