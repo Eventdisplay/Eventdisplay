@@ -22,7 +22,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        prod: [PROD6-South, PROD6-North]
+        prod: [PROD6-South, PROD6-North, PROD6-South-SC]
 
     steps:
       - name: Checkout repository
