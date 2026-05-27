@@ -20,8 +20,11 @@ RUN if [ "$PROD" = "PROD6-South" ]; then \
         make EXTRA_DEFINES="-DCTA_PROD6 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG";  \
     elif [ "$PROD" = "PROD6-South-SC" ]; then \
         make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG"; \
-    else \
+    elif [ "$PROD" = "PROD6-North" ]; then \
         make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG"; \
+    else \
+        echo "ERROR: Unsupported PROD value '$PROD'. Expected one of: PROD6-South, PROD6-South-SC, PROD6-North" >&2; \
+        exit 1; \
     fi
 ENV HESSIOSYS=${EVNDISP}/hessioxxx
 ENV LD_LIBRARY_PATH="${HESSIOSYS}/lib:${LD_LIBRARY_PATH}"
