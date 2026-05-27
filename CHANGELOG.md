@@ -9,6 +9,15 @@ This changelog is generated using [Towncrier](https://towncrier.readthedocs.io/)
 
 <!-- towncrier release notes start -->
 
+## [v5.19.0](https://github.com/VERITAS-Observatory/EventDisplay_v4/releases/tag/v5.19.0) - 2026-05-27
+
+### New Feature
+
+- Allow specifying a minimum telescope multiplicity for selecting the XGBoost input file in the effective area step. ([#191](https://github.com/VERITAS-Observatory/EventDisplay_v4/issues/191))
+- Apply median outlier cut for dispBDT energy estimation only for >4 multiplicity. Apply otherwise weighted mean. ([#197](https://github.com/VERITAS-Observatory/EventDisplay_v4/issues/197))
+- Add PROD6-South-SC container. ([#199](https://github.com/VERITAS-Observatory/EventDisplay_v4/issues/199))
+
+
 ## [v5.18.1](https://github.com/VERITAS-Observatory/EventDisplay_v4/releases/tag/v5.18.1) - 2026-02-11
 
 ### Bug Fixes
