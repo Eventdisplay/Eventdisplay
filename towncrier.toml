@@ -1,10 +1,10 @@
 [tool.towncrier]
-name = "EventDisplay_v4"
+name = "EventDisplay"
 directory = "docs/changes"
 filename = "CHANGELOG.md"
 underlines = [ "", "", "" ]
-title_format = "## [{version}](https://github.com/VERITAS-Observatory/EventDisplay_v4/releases/tag/{version}) - {project_date}"
-issue_format = "[#{issue}](https://github.com/VERITAS-Observatory/EventDisplay_v4/issues/{issue})"
+title_format = "## [{version}](https://github.com/Eventdisplay/Eventdisplay/releases/tag/{version}) - {project_date}"
+issue_format = "[#{issue}](https://github.com/Eventdisplay/Eventdisplay/issues/{issue})"
 start_string = "<!-- towncrier release notes start -->\n"
 
 [tool.towncrier.fragment.feature]
