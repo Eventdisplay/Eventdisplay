@@ -1,6 +1,6 @@
 # Contributors
 
-Many people contributed to the software. If you've been left off, please email to Gernot Maier.
+Many people contributed to the software. If you've been left off, please email Gernot Maier.
 
 - A. McCann
 - B. Behera
