@@ -17,3 +17,11 @@ make config
 Best to contact the developers first or to open an issue describe the new development before starting a larger project.
 
 Eventdisplay is an old project without strict coding guidelines. Please provide reasonable structured and readable code.
+
+## Authorship and Credits
+
+We distinguish between "Contributors" and "Authors" to ensure fair credit:
+
+* **Contributors:** Every person who contributes code or documentation is a contributor. You will be automatically credited in our git history, see the [Contributors](https://github.com/Eventdisplay/Eventdisplay/graphs/contributors?all=1) GitHub pag and the [CONTRIBUTORS.md](CONTRIBUTORS.md) file.
+* **Authors:** Authors are individuals who have made substantial or sustained contributions to the project. Authorship recognizes contributions and requires individuals to take responsibility for the project.
+Authors are listed in the [CITATION.cff](CITATION.cff) file.

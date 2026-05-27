@@ -1,0 +1,45 @@
+# Contributors
+
+Many people contributed to the software. If you've been left off, please email Gernot Maier.
+
+- A. McCann
+- B. Behera
+- C. Duke
+- C. Giuri
+- C. Skole
+- D. Tak
+- E. Aliu
+- E. Pueschel
+- F. Pizlo
+- G. Decerpri
+- G. Finneagan
+- G. Foote
+- G. Hughes
+- H. Fleischhack
+- H. Krawczynski
+- H. Prokoph
+- J. Grube
+- J. Tyler
+- K. Berger
+- K. Pfrang
+- L. Gerard
+- M. Beilicke
+- M. Krause
+- M. McCutcheon
+- M. Nievas
+- M. Schroedter
+- M. Shayduk
+- N. Hakasson
+- N. Kelley-Hoskins
+- O. Gueta
+- P. Ivo
+- R. Guenette
+- R. Prado
+- R. Welsing
+- S. Griffin
+- S. Griffiths
+- S. O'Brian
+- S. Vincent
+- S. Vorobiov
+- T. Hassan
+- Y. Khassen

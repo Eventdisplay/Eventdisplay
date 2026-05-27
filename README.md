@@ -11,19 +11,20 @@
 [![CTA-Prod5 Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-prod5.yml)
 [![CTA-slib Docker Image](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml/badge.svg)](https://github.com/Eventdisplay/Eventdisplay/actions/workflows/packages-cta-slib.yml)
 
-* Authors and contributors: [CITATION.cff](CITATION.cff)
-* Licence: [LICENSE](LICENSE)
-
 ## Overview
 
 Eventdisplay is a reconstruction and analysis pipeline for data of
 Imaging Atmospheric Cherenkov Telescopes (IACT).
 It has been primarily developed for VERITAS and CTA analysis and used in
-many VERITAS and CTA publications.
+many VERITAS and CTAO publications.
 This repository contains the Eventdisplay version used for CTA and other analyses.
 For the VERITAS version, please go to [https://github.com/VERITAS-Observatory/EventDisplay_v4](https://github.com/VERITAS-Observatory/EventDisplay_v4)
 
-Original developers: Gernot Maier and Jamie Holder
+* Original developers: Gernot Maier and Jamie Holder
+* Authors and contributors: [CITATION.cff](CITATION.cff) and [CONTRIBUTORS.md](CONTRIBUTORS.md)
+* License: [LICENSE](LICENSE)
+* Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+* Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 In case Eventdisplay is used in a research project, please cite this repository and
 the following publication:
