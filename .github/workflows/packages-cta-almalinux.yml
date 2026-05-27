@@ -24,7 +24,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        type: ['PROD6-South', 'PROD6-North', 'PROD5', 'slib']
+        type: ['PROD6-South', 'PROD6-South-SC', 'PROD6-North', 'PROD5', 'slib']
 
     steps:
       - name: Checkout repository

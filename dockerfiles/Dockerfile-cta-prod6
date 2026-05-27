@@ -36,6 +36,8 @@ RUN tar -xvzf hessioxxx.tar.gz && \
    cd hessioxxx && \
    if [ "$PROD" = "PROD6-South" ]; then \
      make EXTRA_DEFINES="-DCTA_PROD6 -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG"; \
+   elif [ "$PROD" = "PROD6-South-SC" ]; then \
+     make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=180 -DWITH_GSL_RNG"; \
    else \
      make EXTRA_DEFINES="-DCTA_PROD6_SC -DMAXIMUM_TELESCOPES=120 -DWITH_GSL_RNG"; \
    fi && \
