@@ -8,6 +8,13 @@ This changelog is generated using [Towncrier](https://towncrier.readthedocs.io/)
 
 <!-- towncrier release notes start -->
 
+## [v5.19.1](https://github.com/Eventdisplay/Eventdisplay/releases/tag/v5.19.1) - 2026-05-28
+
+### New Feature
+
+- Disable SCT analysis for Prod6-South. ([#201](https://github.com/Eventdisplay/Eventdisplay/issues/201))
+
+
 ## [v5.19.0](https://github.com/Eventdisplay/Eventdisplay/releases/tag/v5.19.0) - 2026-05-27
 
 ### New Feature
