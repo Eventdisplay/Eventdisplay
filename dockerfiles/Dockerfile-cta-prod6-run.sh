@@ -21,11 +21,7 @@ datafile_lc=$(printf '%s' "$DATAFILE" | tr '[:upper:]' '[:lower:]')
 # select automatically the corresponding hyper layout
 if [[ -z ${LAYOUTFILE} ]]; then
     if [[ ${datafile_lc} == *paranal* ]]; then
-        if [[ ${datafile_lc} == *scts* ]]; then
-            LAYOUTFILE="CTA.prod6S.SCT.hyperarray.lis"
-        else
-            LAYOUTFILE="CTA.prod6S.hyperarray.lis"
-        fi
+        LAYOUTFILE="CTA.prod6S.hyperarray.lis"
     else
         LAYOUTFILE="CTA.prod6N.hyperarray.lis"
     fi
