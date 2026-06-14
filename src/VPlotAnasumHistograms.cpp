@@ -246,7 +246,7 @@ void VPlotAnasumHistograms::plot_mscPlots( int irebin, double xmin, double xmax,
 
         VDouble_gauss* fdouble_gauss = new VDouble_gauss();
 
-        TF1* hmscw_diff_fit = new TF1( hname, fdouble_gauss, -1.5, 1.5, 4, "VDouble_gauss" );
+        TF1* hmscw_diff_fit = new TF1( hname, fdouble_gauss, -1.5, 1.5, 4);
         hmscw_diff_fit->SetParameter( 0, hmscw_diff->GetMaximum() );
         hmscw_diff_fit->SetParameter( 1, 0. );
         hmscw_diff_fit->SetParameter( 2, 0.3 );
@@ -283,7 +283,7 @@ void VPlotAnasumHistograms::plot_mscPlots( int irebin, double xmin, double xmax,
 
         hmscl_diff->Draw( "hist e " );
         sprintf( hname, "%s_fit", hmscl_diff->GetName() );
-        TF1* hmscl_diff_fit = new TF1( hname, fdouble_gauss, -1.5, 2.5, 4, "VDouble_gauss" );
+        TF1* hmscl_diff_fit = new TF1( hname, fdouble_gauss, -1.5, 2.5, 4);
         hmscl_diff_fit->SetParameter( 0, hmscl_diff->GetMaximum() );
         hmscl_diff_fit->SetParameter( 1, 0. );
         hmscl_diff_fit->SetParameter( 2, 0.3 );
