@@ -8,6 +8,13 @@ This changelog is generated using [Towncrier](https://towncrier.readthedocs.io/)
 
 <!-- towncrier release notes start -->
 
+## [v5.20.0](https://github.com/Eventdisplay/Eventdisplay/releases/tag/v5.20.0) - 2026-07-10
+
+### Maintenance
+
+- Compilation with ROOT >=6.38.0. ([#203](https://github.com/Eventdisplay/Eventdisplay/issues/203))
+
+
 ## [v5.19.1](https://github.com/Eventdisplay/Eventdisplay/releases/tag/v5.19.1) - 2026-05-28
 
 ### New Feature
