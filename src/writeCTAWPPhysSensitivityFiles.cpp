@@ -24,7 +24,7 @@ int main( int argc, char* argv[] )
     {
         cout << endl;
         cout << "./writeCTAWPPhysSensitivityFiles <sub array> <observing time> <data directory>";
-        cout << " <outputfile> <observatory (CTA/V5/V6)> <calculate offset sensitivites=0/1>";
+        cout << " <outputfile> <observatory (CTA/V5/V6)> <calculate offset sensitivities=0/1>";
         cout << "[recid (default=0)] [off-axis fine binning (default=0)]" << endl;
         cout << endl;
         cout << "\t observing time: give unit without space, e.g. 50h, 10m, 2s" << endl;
@@ -65,7 +65,7 @@ int main( int argc, char* argv[] )
     {
         bOffAxisFineBinning = ( bool )( atoi( argv[8] ) );
     }
-    
+
     /////////////////////
     // initialization
     VWPPhysSensitivityFile* iData = new VWPPhysSensitivityFile();
@@ -145,7 +145,7 @@ int main( int argc, char* argv[] )
     iData->setCrabSpectrum( "$CTA_EVNDISP_AUX_DIR/AstroData/TeV_data/EnergySpectrum_literatureValues_CrabNebula.dat", 5 );
     // CR spectra (protons + electrons)
     iData->setCosmicRaySpectrum( "$CTA_EVNDISP_AUX_DIR/AstroData/TeV_data/EnergySpectrum_literatureValues_CR.dat", 0, 8 );
-    
+
     ////////////////////////////////////
     // energy ranges and binning definitions
     double fEnergy_min = -1.9;
@@ -153,11 +153,11 @@ int main( int argc, char* argv[] )
     // standard binning with 5 logarithmic bins per decade
     int fNbins_diffBining = ( int )( ( fEnergy_max - fEnergy_min ) / 0.2 + 0.5 );
     int fNbins_fineBinning = ( fNbins_diffBining - 1 ) * 25; // used e.g. for migration matrix
-    
+
     cout << "IRF binning:" << endl;
     cout << "\t log_10 E [" << fEnergy_min << ", " << fEnergy_max << "]" << endl;
     cout << "\t binning: " << fNbins_diffBining << ", fine binning: " << fNbins_fineBinning << endl;
-    
+
     /////////////////////////////////////
     // on source histograms
     // initialize histogram with the standard binning used in the CTA WP Phys group
@@ -168,7 +168,7 @@ int main( int argc, char* argv[] )
         cout << "error filling on source histograms" << endl;
         exit( EXIT_FAILURE );
     }
-    
+
     /////////////////////////////////////
     // off source histograms
     for( unsigned int i = 0; i < iWobbleMin.size(); i++ )
@@ -179,10 +179,10 @@ int main( int argc, char* argv[] )
                                      fNbins_fineBinning, i );
         if( !iData->fillHistograms1D( fDataDirectory, false ) )
         {
-            // allow last bin to fail
+            // allow the two largest offset bins to fail
             // ( might not have enough statistics for the
             //   very large offset)
-            if( iWobbleMin.size() > 0 && i == iWobbleMin.size() - 1 )
+            if( iWobbleMin.size() - i <= 2 )
             {
                 cout << "Warning: wobble bin " << i << " not filled" << endl;
             }
@@ -199,7 +199,7 @@ int main( int argc, char* argv[] )
     {
         iData->fillHistograms2D( iWobbleMin, iWobbleMax );
     }
-    
+
     iData->terminate();
     cout << "end of calculating sensitivities" << endl;
 }
